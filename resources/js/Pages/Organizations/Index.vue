@@ -13,7 +13,7 @@
       </search-filter>
       <Link class="btn-indigo" href="/organizations/create">
         <span>Utwórz</span>
-        <span class="hidden md:inline">&nbsp;Budowe</span>
+        <span class="hidden md:inline">&nbsp;Budowę</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
