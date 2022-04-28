@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Models\Account;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
@@ -34,11 +36,16 @@ class ContactsController extends Controller
 
     public function create()
     {
+        
         return Inertia::render('Contacts/Create', [
             'organizations' => Auth::user()->account
                 ->organizations()
                 ->orderBy('name')
                 ->get()
+                ->map
+                ->only('id', 'name'), 
+            'accounts' => Auth::user()->account
+                ->accounts()
                 ->map
                 ->only('id', 'name'),
         ]);
