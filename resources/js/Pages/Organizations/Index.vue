@@ -1,28 +1,28 @@
 <template>
   <div>
     <Head title="Organizations" />
-    <h1 class="mb-8 text-3xl font-bold">Organizations</h1>
+    <h1 class="mb-8 text-3xl font-bold">Budowy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Trashed:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
           <option :value="null" />
-          <option value="with">With Trashed</option>
-          <option value="only">Only Trashed</option>
+          <option value="with">test1</option>
+          <option value="only">test2</option>
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/organizations/create">
-        <span>Create</span>
-        <span class="hidden md:inline">&nbsp;Organization</span>
+        <span>Utwórz</span>
+        <span class="hidden md:inline">&nbsp;Budowe</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="text-left font-bold">
-            <th class="pb-4 pt-6 px-6">Name</th>
-            <th class="pb-4 pt-6 px-6">City</th>
-            <th class="pb-4 pt-6 px-6" colspan="2">Phone</th>
+            <th class="pb-4 pt-6 px-6">Nazwa</th>
+            <th class="pb-4 pt-6 px-6">Miasto</th>
+            <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
           </tr>
         </thead>
         <tbody>
