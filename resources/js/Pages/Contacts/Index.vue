@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head title="Contacts" />
-    <h1 class="mb-8 text-3xl font-bold">Contacts</h1>
+    <h1 class="mb-8 text-3xl font-bold">Pracownicy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Trashed:</label>
@@ -12,17 +12,17 @@
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/contacts/create">
-        <span>Create</span>
-        <span class="hidden md:inline">&nbsp;Contact</span>
+        <span>Dodaj</span>
+        <span class="hidden md:inline">&nbsp;Pracownika</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Name</th>
-          <th class="pb-4 pt-6 px-6">Organization</th>
-          <th class="pb-4 pt-6 px-6">City</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Phone</th>
+          <th class="pb-4 pt-6 px-6">Nazwa</th>
+          <th class="pb-4 pt-6 px-6">Organizacja</th>
+          <th class="pb-4 pt-6 px-6">Miasto</th>
+          <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
         <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -55,7 +55,7 @@
           </td>
         </tr>
         <tr v-if="contacts.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">No contacts found.</td>
+          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono kontaktu</td>
         </tr>
       </table>
     </div>

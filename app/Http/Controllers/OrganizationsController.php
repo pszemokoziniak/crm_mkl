@@ -49,7 +49,7 @@ class OrganizationsController extends Controller
             ])
         );
 
-        return Redirect::route('organizations')->with('success', 'Organization created.');
+        return Redirect::route('organizations')->with('success', 'Budowa stworzona.');
     }
 
     public function edit(Organization $organization)
