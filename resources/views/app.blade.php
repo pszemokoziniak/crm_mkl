@@ -11,6 +11,7 @@
 
     {{-- Ping CRM --}}
     <script src="https://polyfill.io/v3/polyfill.min.js?features=String.prototype.startsWith" defer></script>
+    {{-- <script src="https://kit.fontawesome.com/d8840aa4f3.js" crossorigin="anonymous"></script> --}}
 
     <script src="{{ mix('/js/app.js') }}" defer></script>
     @inertiaHead

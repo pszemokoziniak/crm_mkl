@@ -25,9 +25,13 @@
 
           <!-- <text-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko" /> -->
           <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
+          
             <!-- <option :value="null" /> -->
             <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
           </select-input>
+          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="blue" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg> -->
 
           <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja" />
           <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Umowa o pracę" />

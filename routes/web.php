@@ -7,6 +7,9 @@ use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ToolsController;
+use App\Http\Controllers\AccountsController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -129,11 +132,47 @@ Route::put('contacts/{contact}/restore', [ContactsController::class, 'restore'])
     ->name('contacts.restore')
     ->middleware('auth');
 
+// Accounts
+
+Route::get('position', [AccountsController::class, 'index'])
+    ->name('position')
+    ->middleware('auth');
+
+Route::get('position/create', [AccountsController::class, 'create'])
+    ->name('position.create')
+    ->middleware('auth');
+
+Route::post('position', [AccountsController::class, 'store'])
+    ->name('position.store')
+    ->middleware('auth');
+
+Route::get('position/{account}/edit', [AccountsController::class, 'edit'])
+    ->name('position.edit')
+    ->middleware('auth');
+
+Route::put('position/{account}', [AccountsController::class, 'update'])
+    ->name('position.update')
+    ->middleware('auth');
+
+Route::delete('position/{account}', [AccountsController::class, 'destroy'])
+    ->name('position.destroy')
+    ->middleware('auth');
+
+Route::put('position/{account}/restore', [AccountsController::class, 'restore'])
+    ->name('position.restore')
+    ->middleware('auth');
+
 // Reports
 
 Route::get('reports', [ReportsController::class, 'index'])
     ->name('reports')
     ->middleware('auth');
+
+    // Reports
+
+Route::get('tools', [ToolsController::class, 'index'])
+->name('tools')
+->middleware('auth');
 
 // Images
 
