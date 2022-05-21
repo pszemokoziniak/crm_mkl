@@ -2,12 +2,17 @@
   <div>
     <Head title="Narzędzia" />
     <h1 class="mb-8 text-3xl font-bold">Ustawiania</h1>
-    <!-- <h3>Pracownik</h3> -->
-  </div>
-    <Link class="btn-indigo" :href="`/position`">
+    <h3 class="mb-8">Dodaj</h3>
+ 
+  <hr>
+
+    <Link class="btn-indigo mr-5" :href="`/position`">
         <span>Pozycja</span>
     </Link>
-
+    <Link class="btn-indigo" :href="`/funkcja`">
+        <span>Funkcja</span>
+    </Link>
+ </div>
 
 </template>
 

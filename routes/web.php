@@ -9,6 +9,8 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\AccountsController;
+use App\Http\Controllers\FunkcjaController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -161,6 +163,37 @@ Route::delete('position/{account}', [AccountsController::class, 'destroy'])
 Route::put('position/{account}/restore', [AccountsController::class, 'restore'])
     ->name('position.restore')
     ->middleware('auth');
+
+// Funkcja
+
+Route::get('funkcja', [FunkcjaController::class, 'index'])
+    ->name('funkcja')
+    ->middleware('auth');
+
+Route::get('funkcja/create', [FunkcjaController::class, 'create'])
+    ->name('funkcja.create')
+    ->middleware('auth');
+
+Route::post('funkcja', [FunkcjaController::class, 'store'])
+    ->name('funkcja.store')
+    ->middleware('auth');
+
+Route::get('funkcja/{funkcja}/edit', [FunkcjaController::class, 'edit'])
+    ->name('funkcja.edit')
+    ->middleware('auth');
+
+Route::put('funkcja/{funkcja}', [FunkcjaController::class, 'update'])
+    ->name('funkcja.update')
+    ->middleware('auth');
+
+Route::delete('funkcja/{funkcja}', [FunkcjaController::class, 'destroy'])
+    ->name('funkcja.destroy')
+    ->middleware('auth');
+
+Route::put('funkcja/{account}/restore', [FunkcjaController::class, 'restore'])
+    ->name('funkcja.restore')
+    ->middleware('auth');
+
 
 // Reports
 

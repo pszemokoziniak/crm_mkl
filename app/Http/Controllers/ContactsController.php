@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use App\Models\Account;
+use App\Models\Funkcja;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -48,6 +49,7 @@ class ContactsController extends Controller
                 ->accounts()
                 ->map
                 ->only('id', 'name'),
+            'funkcjas' => Funkcja::all(),
         ]);
     }
 

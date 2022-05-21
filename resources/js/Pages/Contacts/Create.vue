@@ -33,7 +33,12 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg> -->
 
-          <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja" />
+          <select-input v-model="form.funkcja" :error="form.errors.funkcja" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+            <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
+          </select-input>
+
+
+          <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja" /> -->
           <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Umowa o pracę" />
           <select-input v-model="form.country" :error="form.errors.country" class="pb-8 pr-6 w-full lg:w-1/2" label="Języki obce">
             <option :value="null" />
@@ -84,6 +89,7 @@ export default {
   props: {
     organizations: Array,
     accounts: Array,
+    funkcjas: Object,
   },
   remember: 'form',
   data() {
