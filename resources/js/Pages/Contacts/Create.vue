@@ -14,38 +14,41 @@
           <text-input type="date" v-model="form.birth_date" :error="form.errors.birth_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data Urodzenia" />
           <text-input v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
 
-          <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/2" label="Adres" />
+          <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce zamieszkania" />
 
-          <text-input v-model="form.birth_place" :error="form.errors.birth_place" class="pb-8 pr-6 w-full lg:w-1/2" label="Miejsce zamieszkania" />
           <text-input v-model="form.idCard_number" :error="form.errors.idCard_number" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Dowodu" />
           <text-input type="date" v-model="form.idCard_date" :error="form.errors.idCard_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
 
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
           <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telefon" />
 
-          <!-- <text-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko" /> -->
           <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
-          
-            <!-- <option :value="null" /> -->
             <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
           </select-input>
-          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="blue" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg> -->
 
           <select-input v-model="form.funkcja" :error="form.errors.funkcja" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
+          <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
+            <text-input type="date" v-model="form.work_start" :error="form.errors.work_start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
+            <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
+          
+          <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
+            <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
+
+
 
           <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja" /> -->
-          <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Umowa o pracę" />
-          <select-input v-model="form.country" :error="form.errors.country" class="pb-8 pr-6 w-full lg:w-1/2" label="Języki obce">
+          <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Umowa o pracę" /> -->
+          <!-- <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Języki obce</label>
+
+          <select-input v-model="form.lang" :error="form.errors.lang" class="pb-8 pr-6 w-full lg:w-1/2" label="Języki obce">
             <option :value="null" />
             <option value="PL">polski</option>
             <option value="EN">angielski</option>
             <option value="DE">niemiecki</option>
-          </select-input>
+          </select-input> -->
 
 
 
@@ -97,14 +100,25 @@ export default {
       form: this.$inertia.form({
         first_name: '',
         last_name: '',
+        birth_date: '',
+
+        pesel: '',
+        idCard_number: '',
+        idCard_date: '',
+        position: '',
+        funkcja: '',
+        work_start: '',
+        work_end: '',
+        ekuz: '',
+
         organization_id: null,
         email: '',
         phone: '',
         address: '',
-        city: '',
-        region: '',
-        country: '',
-        postal_code: '',
+        // city: '',
+        // region: '',
+        // country: '',
+        // postal_code: '',
       }),
     }
   },

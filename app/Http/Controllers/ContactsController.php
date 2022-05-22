@@ -59,6 +59,16 @@ class ContactsController extends Controller
             Request::validate([
                 'first_name' => ['required', 'max:50'],
                 'last_name' => ['required', 'max:50'],
+                'birth_date' => ['required'],
+                'pesel' => ['required'],
+                'idCard_number' => ['required'],
+                'idCard_date' => ['required'],
+                'position' => ['required'],
+                'funkcja' => ['required'],
+                'work_start' => ['required'],
+                'work_end' => ['required'],
+                'ekuz' => ['required'],
+
                 'organization_id' => ['nullable', Rule::exists('organizations', 'id')->where(function ($query) {
                     $query->where('account_id', Auth::user()->account_id);
                 })],
@@ -86,10 +96,20 @@ class ContactsController extends Controller
                 'email' => $contact->email,
                 'phone' => $contact->phone,
                 'address' => $contact->address,
-                'city' => $contact->city,
-                'region' => $contact->region,
-                'country' => $contact->country,
-                'postal_code' => $contact->postal_code,
+                'birth_date' => $contact->birth_date,
+                'pesel' => $contact->pesel,
+                'idCard_number' => $contact->idCard_number,
+                'idCard_date' => $contact->idCard_date,
+                'position' => $contact->position,
+                'funkcja' => $contact->funkcja,
+                'work_start' => $contact->work_start,
+                'work_end' => $contact->work_end,
+                'ekuz' => $contact->ekuz,
+
+                // 'city' => $contact->city,
+                // 'region' => $contact->region,
+                // 'country' => $contact->country,
+                // 'postal_code' => $contact->postal_code,
                 'deleted_at' => $contact->deleted_at,
             ],
             'organizations' => Auth::user()->account->organizations()
@@ -97,6 +117,11 @@ class ContactsController extends Controller
                 ->get()
                 ->map
                 ->only('id', 'name'),
+                'accounts' => Auth::user()->account
+                ->accounts()
+                ->map
+                ->only('id', 'name'),
+            'funkcjas' => Funkcja::all(),
         ]);
     }
 
@@ -106,6 +131,7 @@ class ContactsController extends Controller
             Request::validate([
                 'first_name' => ['required', 'max:50'],
                 'last_name' => ['required', 'max:50'],
+                'pesel' => ['required', 'max:50'],
                 'organization_id' => [
                     'nullable',
                     Rule::exists('organizations', 'id')->where(fn ($query) => $query->where('account_id', Auth::user()->account_id)),
