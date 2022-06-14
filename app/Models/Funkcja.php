@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Funkcja extends Model
 {
+    public function contact()
+    {
+        return $this->hasMany(Contact::class);
+    }
     // use HasFactory;
 
     // protected $fillable = ['name'];

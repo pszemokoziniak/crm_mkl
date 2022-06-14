@@ -19,9 +19,9 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Organizacja</th>
-          <th class="pb-4 pt-6 px-6">Miasto</th>
+          <th class="pb-4 pt-6 px-6">Nazwisko</th>
+          <th class="pb-4 pt-6 px-6">Funkcja</th>
+          <th class="pb-4 pt-6 px-6">Pracuje</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
         <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
@@ -33,8 +33,8 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              <div v-if="contact.organization">
-                {{ contact.organization.name }}
+              <div v-if="contact.funkcja">
+                {{ contact.funkcja.name }}
               </div>
             </Link>
           </td>
@@ -84,6 +84,7 @@ export default {
   layout: Layout,
   props: {
     filters: Object,
+    contactAccount: Object,
     contacts: Object,
   },
   data() {

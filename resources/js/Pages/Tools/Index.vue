@@ -3,8 +3,6 @@
     <Head title="Narzędzia" />
     <h1 class="mb-8 text-3xl font-bold">Ustawiania</h1>
     <h3 class="mb-8">Dodaj</h3>
- 
-  <hr>
 
     <Link class="btn-indigo mr-5" :href="`/position`">
         <span>Pozycja</span>
@@ -18,7 +16,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
-import Icon from '@/Shared/Icon'
+// import Icon from '@/Shared/Icon'
 
 // import {  } from '@inertiajs/inertia-vue3'
 
@@ -28,7 +26,7 @@ export default {
   components: {
     Head,
     Link,
-    Icon,
+    // Icon,
   },
   layout: Layout,
 

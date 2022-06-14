@@ -19,10 +19,11 @@ class AddColumnsToContactsTable extends Migration
             $table->string('idCard_number', 50)->nullable();
             $table->date('idCard_date')->nullable();
             $table->string('position', 50)->nullable();
-            $table->string('funkcja', 50)->nullable();
             $table->date('work_start')->nullable();
             $table->date('work_end')->nullable();
             $table->date('ekuz')->nullable();
+            $table->unsignedBigInteger('funkcja_id')->nullable();
+            $table->foreign('funkcja_id')->references('id')->on('funkcjas');
         });
     }
 

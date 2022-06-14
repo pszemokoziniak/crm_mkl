@@ -28,14 +28,14 @@
             <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
           </select-input>
 
-          <select-input v-model="form.funkcja" :error="form.errors.funkcja" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
             <text-input type="date" v-model="form.work_start" :error="form.errors.work_start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
             <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
-          
+
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
             <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
         </div>
@@ -90,7 +90,7 @@ export default {
         idCard_number: this.contact.idCard_number,
         idCard_date: this.contact.idCard_date,
         position: this.contact.position,
-        funkcja: this.contact.funkcja,
+        funkcja_id: this.contact.funkcja_id,
         work_start: this.contact.work_start,
         work_end: this.contact.work_end,
         ekuz: this.contact.ekuz,

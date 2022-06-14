@@ -33,7 +33,7 @@
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
             <text-input type="date" v-model="form.work_start" :error="form.errors.work_start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
             <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
-          
+
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
             <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
 

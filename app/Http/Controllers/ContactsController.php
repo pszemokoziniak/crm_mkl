@@ -18,10 +18,8 @@ class ContactsController extends Controller
     {
         return Inertia::render('Contacts/Index', [
             'filters' => Request::all('search', 'trashed'),
-            'contacts' => Auth::user()->account->contacts()
-                ->with('organization')
+            'contacts' => Contact::with('funkcja')
                 ->orderByName()
-                ->filter(Request::only('search', 'trashed'))
                 ->paginate(10)
                 ->withQueryString()
                 ->through(fn ($contact) => [
@@ -30,21 +28,21 @@ class ContactsController extends Controller
                     'phone' => $contact->phone,
                     'city' => $contact->city,
                     'deleted_at' => $contact->deleted_at,
-                    'organization' => $contact->organization ? $contact->organization->only('name') : null,
+                    'funkcja' => $contact->funkcja,
                 ]),
         ]);
     }
 
     public function create()
     {
-        
+
         return Inertia::render('Contacts/Create', [
             'organizations' => Auth::user()->account
                 ->organizations()
                 ->orderBy('name')
                 ->get()
                 ->map
-                ->only('id', 'name'), 
+                ->only('id', 'name'),
             'accounts' => Auth::user()->account
                 ->accounts()
                 ->map
@@ -64,7 +62,7 @@ class ContactsController extends Controller
                 'idCard_number' => ['required'],
                 'idCard_date' => ['required'],
                 'position' => ['required'],
-                'funkcja' => ['required'],
+                'funkcja_id' => ['required'],
                 'work_start' => ['required'],
                 'work_end' => ['required'],
                 'ekuz' => ['required'],
@@ -101,7 +99,7 @@ class ContactsController extends Controller
                 'idCard_number' => $contact->idCard_number,
                 'idCard_date' => $contact->idCard_date,
                 'position' => $contact->position,
-                'funkcja' => $contact->funkcja,
+                'funkcja_id' => $contact->funkcja_id,
                 'work_start' => $contact->work_start,
                 'work_end' => $contact->work_end,
                 'ekuz' => $contact->ekuz,
@@ -122,11 +120,14 @@ class ContactsController extends Controller
                 ->map
                 ->only('id', 'name'),
             'funkcjas' => Funkcja::all(),
+            // 'funkcja' => Funkcja::find($contact->funkcja),
         ]);
     }
 
     public function update(Contact $contact)
     {
+//        dd($contact->funkcja_id);
+
         $contact->update(
             Request::validate([
                 'first_name' => ['required', 'max:50'],
@@ -143,6 +144,14 @@ class ContactsController extends Controller
                 'region' => ['nullable', 'max:50'],
                 'country' => ['nullable', 'max:2'],
                 'postal_code' => ['nullable', 'max:25'],
+                'birth_date' => ['nullable', 'date'],
+                'idCard_number' => ['nullable', 'max:50'],
+                'idCard_date' => ['nullable', 'date'],
+                'position' => ['nullable', 'max:25'],
+                'work_start' => ['nullable', 'date'],
+                'work_end' => ['nullable', 'date'],
+                'ekuz' => ['nullable', 'max:25'],
+                'funkcja_id' => ['nullable', 'max:50'],
             ])
         );
 
