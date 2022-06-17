@@ -221,6 +221,6 @@ Route::get('/img/{path}', [ImagesController::class, 'show'])
 
 // Dokumenty
 
-Route::get('contacts/${contact.id}/dokumenty/', [CtnDokumenty::Controller, 'index'])
+Route::get('contacts/${contact.id}/dokumenty/', [CtnDokumentyController::class, 'index'])
     ->name('dokumenty.index')
     ->middleware('auth');
