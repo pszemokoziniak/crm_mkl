@@ -194,6 +194,11 @@ Route::put('funkcja/{account}/restore', [FunkcjaController::class, 'restore'])
     ->name('funkcja.restore')
     ->middleware('auth');
 
+// Badania
+
+Route::get('badania/{contact}', [BadaniaController::class, 'index'])
+    ->name('badania.index')
+    ->middleware('auth');
 
 // Reports
 
@@ -201,7 +206,7 @@ Route::get('reports', [ReportsController::class, 'index'])
     ->name('reports')
     ->middleware('auth');
 
-    // Reports
+// Tools
 
 Route::get('tools', [ToolsController::class, 'index'])
 ->name('tools')
@@ -212,3 +217,10 @@ Route::get('tools', [ToolsController::class, 'index'])
 Route::get('/img/{path}', [ImagesController::class, 'show'])
     ->where('path', '.*')
     ->name('image');
+
+
+// Dokumenty
+
+Route::get('contacts/${contact.id}/dokumenty/', [CtnDokumenty::Controller, 'index'])
+    ->name('dokumenty.index')
+    ->middleware('auth');

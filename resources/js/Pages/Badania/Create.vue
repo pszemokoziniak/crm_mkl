@@ -1,17 +1,12 @@
 <template>
   <div>
-    <Head :title="`${form.first_name} ${form.last_name}`" />
-    <div>
-      <WorkerMenu/>
-    </div>
+    <Head title="Create Contact" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ form.first_name }} {{ form.last_name }}
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>
+      <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
-    <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
-      <form @submit.prevent="update">
+      <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.first_name" :error="form.errors.first_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />
           <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
@@ -31,7 +26,7 @@
             <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
           </select-input>
 
-          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+          <select-input v-model="form.funkcja" :error="form.errors.funkcja" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
@@ -40,13 +35,38 @@
             <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
 
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
-            <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
+            <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
+
+
+
+          <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja" /> -->
+          <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Umowa o pracę" /> -->
+          <!-- <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Języki obce</label>
+
+          <select-input v-model="form.lang" :error="form.errors.lang" class="pb-8 pr-6 w-full lg:w-1/2" label="Języki obce">
+            <option :value="null" />
+            <option value="PL">polski</option>
+            <option value="EN">angielski</option>
+            <option value="DE">niemiecki</option>
+          </select-input> -->
+
+
+
+
+
+
+
+          <!-- <text-input v-model="form.city" :error="form.errors.city" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
+          <text-input v-model="form.region" :error="form.errors.region" class="pb-8 pr-6 w-full lg:w-1/2" label="Województwo" />
+          <select-input v-model="form.country" :error="form.errors.country" class="pb-8 pr-6 w-full lg:w-1/2" label="Państwo">
+            <option :value="null" />
+            <option value="PL">Polska</option>
+            <option value="US">USA</option>
+          </select-input>
+          <text-input v-model="form.postal_code" :error="form.errors.postal_code" class="pb-8 pr-6 w-full lg:w-1/2" label="Kod pocztowy" /> -->
         </div>
-
-
-        <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <button v-if="!contact.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
-          <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
+        <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
+          <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj Pracownika</loading-button>
         </div>
       </form>
     </div>
@@ -59,8 +79,6 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
-import TrashedMessage from '@/Shared/TrashedMessage'
-import WorkerMenu from '@/Shared/WorkerMenu'
 
 export default {
   components: {
@@ -69,56 +87,44 @@ export default {
     LoadingButton,
     SelectInput,
     TextInput,
-    TrashedMessage,
-    WorkerMenu,
   },
   layout: Layout,
   props: {
-    contact: Object,
     organizations: Array,
+    accounts: Array,
     funkcjas: Object,
-    accounts: Object,
   },
   remember: 'form',
   data() {
     return {
       form: this.$inertia.form({
-        first_name: this.contact.first_name,
-        last_name: this.contact.last_name,
-        organization_id: this.contact.organization_id,
-        email: this.contact.email,
-        phone: this.contact.phone,
-        address: this.contact.address,
+        first_name: '',
+        last_name: '',
+        birth_date: '',
 
-        birth_date: this.contact.birth_date,
-        pesel: this.contact.pesel,
-        idCard_number: this.contact.idCard_number,
-        idCard_date: this.contact.idCard_date,
-        position: this.contact.position,
-        funkcja_id: this.contact.funkcja_id,
-        work_start: this.contact.work_start,
-        work_end: this.contact.work_end,
-        ekuz: this.contact.ekuz,
-        // city: this.contact.city,
-        // region: this.contact.region,
-        // country: this.contact.country,
-        // postal_code: this.contact.postal_code,
+        pesel: '',
+        idCard_number: '',
+        idCard_date: '',
+        position: '',
+        funkcja: '',
+        work_start: '',
+        work_end: '',
+        ekuz: '',
+
+        organization_id: null,
+        email: '',
+        phone: '',
+        address: '',
+        // city: '',
+        // region: '',
+        // country: '',
+        // postal_code: '',
       }),
     }
   },
   methods: {
-    update() {
-      this.form.put(`/contacts/${this.contact.id}`)
-    },
-    destroy() {
-      if (confirm('Chcesz usunąć?')) {
-        this.$inertia.delete(`/contacts/${this.contact.id}`)
-      }
-    },
-    restore() {
-      if (confirm('Chcesz przywrócić?')) {
-        this.$inertia.put(`/contacts/${this.contact.id}/restore`)
-      }
+    store() {
+      this.form.post('/contacts')
     },
   },
 }
