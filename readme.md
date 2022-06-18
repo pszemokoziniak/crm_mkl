@@ -79,3 +79,36 @@ To run the Ping CRM tests, run:
 ```
 phpunit
 ```
+
+## Run with Docker and Docker-compose
+
+Set DB settings and copy Env file
+```shell
+cp .env.example .env
+```
+
+Build with user and group
+```shell
+docker-compose build --build-arg userid=$(id -g) --build-arg groupid=$(id -u)
+```
+
+Run
+```shell
+docker-compose up -d
+```
+
+Install dependencies
+```shell
+docker-compose exec app composer install
+```
+
+npm ci && npm ci dev - executed on host (can be dockerized)
+
+```shell
+docker-compose exec app php artisan migrate
+```
+
+```shell
+docker-compose exec app php artisan db:seed
+```
+
