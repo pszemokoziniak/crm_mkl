@@ -12,7 +12,7 @@
       </div>
       <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div class="text-md lg:flex-grow">
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" href="`/badania/${contact.id}`">
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="'/contacts/'+contactId+'/badania/'">
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Badania lekarskie</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" href="/contacts">
@@ -21,7 +21,7 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" href="/contacts">
             <div :class="isUrl('contacts2') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Uprawnienia</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" href="/contacts/${contact.id}/dokumenty">
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="'/contacts/'+contactId+'/dokumenty'">
             <div :class="isUrl('contacts') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Dokumenty</div>
           </Link>
         </div>
@@ -39,9 +39,16 @@ import { Link } from '@inertiajs/inertia-vue3'
 // import Icon from '@/Shared/Icon'
 
 export default {
+  name: 'WorkerMenu',
+  props: {
+    contactId:Number
+  },
   components: {
     // Icon,
     Link,
+  },
+  mounted() {
+    // console.log(this.props)
   },
   methods: {
     isUrl(...urls) {

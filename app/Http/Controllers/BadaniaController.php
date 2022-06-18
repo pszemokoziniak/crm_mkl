@@ -18,7 +18,7 @@ class BadaniaController extends Controller
 {
     public function index(Contact $contact)
     {
-        dd($contact);
+//        dd($contact);
         return Inertia::render('Badania/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contacts' => Contact::with('funkcja')

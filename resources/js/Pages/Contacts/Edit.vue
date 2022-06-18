@@ -2,7 +2,7 @@
   <div>
     <Head :title="`${form.first_name} ${form.last_name}`" />
     <div>
-      <WorkerMenu/>
+      <WorkerMenu :contactId="contactId" />
     </div>
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
@@ -82,6 +82,7 @@ export default {
   remember: 'form',
   data() {
     return {
+      contactId: this.contact.id,
       form: this.$inertia.form({
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,
@@ -89,6 +90,7 @@ export default {
         email: this.contact.email,
         phone: this.contact.phone,
         address: this.contact.address,
+        contactId: this.contact.id,
 
         birth_date: this.contact.birth_date,
         pesel: this.contact.pesel,

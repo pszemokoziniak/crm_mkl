@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImagesController;
@@ -133,6 +134,11 @@ Route::delete('contacts/{contact}', [ContactsController::class, 'destroy'])
 Route::put('contacts/{contact}/restore', [ContactsController::class, 'restore'])
     ->name('contacts.restore')
     ->middleware('auth');
+// Badania
+
+Route::get('contacts/{contact}/badania', [BadaniaController::class, 'index'])
+    ->name('badania.index')
+    ->middleware('auth');
 
 // Accounts
 
@@ -194,11 +200,7 @@ Route::put('funkcja/{account}/restore', [FunkcjaController::class, 'restore'])
     ->name('funkcja.restore')
     ->middleware('auth');
 
-// Badania
 
-Route::get('badania/{contact}', [BadaniaController::class, 'index'])
-    ->name('badania.index')
-    ->middleware('auth');
 
 // Reports
 
