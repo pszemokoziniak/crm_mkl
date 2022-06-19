@@ -19,6 +19,8 @@ class CreateCtnDocumentTable extends Migration
             $table->increments('id');
             $table->tinyText('name');
             $table->tinyText('path');
+            $table->unsignedInteger('contact_id')->nullable();
+            $table->foreign('contact_id')->references('id')->on('contacts');
             $table->timestamps();
         });
     }

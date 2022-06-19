@@ -45,9 +45,8 @@ class CtnDocumentsController extends Controller
         $documentEntity = new CtnDocument();
         $documentEntity->name = Request::get('name');
         $documentEntity->path = $path . '/' . $document->getClientOriginalName();
+        $documentEntity->contact_id = $contactId;
         $documentEntity->save();
-
-        // save with relation to contact
 
         return Redirect::route('contacts')->with('success', 'Zapisano dokument');
     }
