@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\ContactsController;
+use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\OrganizationsController;
@@ -221,8 +222,6 @@ Route::get('/img/{path}', [ImagesController::class, 'show'])
     ->name('image');
 
 
-// Dokumenty
-
-Route::get('contacts/${contact.id}/dokumenty/', [CtnDokumentyController::class, 'index'])
-    ->name('dokumenty.index')
+Route::get('contacts/{contact_id}/documents/', [CtnDocumentsController::class, 'index'])
+    ->name('documents.index')
     ->middleware('auth');
