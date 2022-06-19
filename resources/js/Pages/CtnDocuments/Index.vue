@@ -83,6 +83,7 @@ export default {
   },
   layout: Layout,
   props: {
+    contactId: Number,
     filters: Object,
     contact: Object,
   },

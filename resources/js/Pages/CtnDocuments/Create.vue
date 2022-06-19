@@ -39,6 +39,7 @@ export default {
   layout: Layout,
   props: {
     accounts: Array,
+    contactId: Number
   },
   remember: 'form',
   data() {
@@ -51,7 +52,7 @@ export default {
   },
   methods: {
     store() {
-      this.form.post('/contacts')
+      this.form.post(`/contacts/26/documents/store`)
     },
   },
 }

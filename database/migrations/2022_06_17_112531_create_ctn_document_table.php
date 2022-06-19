@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCtnDokumentiesTable extends Migration
+class CreateCtnDocumentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +15,10 @@ class CreateCtnDokumentiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('ctn_dokumenties', function (Blueprint $table) {
-            $table->id();
+        Schema::create('ctn_document', function (Blueprint $table) {
+            $table->increments('id');
+            $table->tinyText('name');
+            $table->tinyText('path');
             $table->timestamps();
         });
     }
@@ -26,6 +30,6 @@ class CreateCtnDokumentiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ctn_dokumenties');
+        Schema::dropIfExists('ctn_document');
     }
 }
