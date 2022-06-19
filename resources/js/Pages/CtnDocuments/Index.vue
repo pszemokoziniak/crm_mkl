@@ -11,9 +11,9 @@
           <option value="only">Only Trashed</option>
         </select>
       </search-filter>
-      <Link class="btn-indigo" href="/contacts/create">
+      <Link class="btn-indigo" :href="`/contacts/${contactId}/documents/create`">
         <span>Dodaj</span>
-        <span class="hidden md:inline">&nbsp;Pracownika</span>
+        <span class="hidden md:inline">&nbsp;dokument</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
@@ -24,42 +24,42 @@
           <th class="pb-4 pt-6 px-6">Pracuje</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
-        <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
-              {{ contact.name }}
-              <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              <div v-if="contact.funkcja">
-                {{ contact.funkcja.name }}
-              </div>
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.city }}
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.phone }}
-            </Link>
-          </td>
-          <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-          </td>
-        </tr>
-        <tr v-if="contacts.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono dokumentów</td>
-        </tr>
+<!--        <tr v-for="document in documents.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">-->
+<!--          <td class="border-t">-->
+<!--            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">-->
+<!--              {{ contact.name }}-->
+<!--              <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />-->
+<!--            </Link>-->
+<!--          </td>-->
+<!--          <td class="border-t">-->
+<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
+<!--              <div v-if="contact.funkcja">-->
+<!--                {{ contact.funkcja.name }}-->
+<!--              </div>-->
+<!--            </Link>-->
+<!--          </td>-->
+<!--          <td class="border-t">-->
+<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
+<!--              {{ contact.city }}-->
+<!--            </Link>-->
+<!--          </td>-->
+<!--          <td class="border-t">-->
+<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
+<!--              {{ contact.phone }}-->
+<!--            </Link>-->
+<!--          </td>-->
+<!--          <td class="w-px border-t">-->
+<!--            <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
+<!--              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />-->
+<!--            </Link>-->
+<!--          </td>-->
+<!--        </tr>-->
+<!--        <tr v-if="contacts.data.length === 0">-->
+<!--          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono dokumentów</td>-->
+<!--        </tr>-->
       </table>
     </div>
-    <pagination class="mt-6" :links="contacts.links" />
+<!--    <pagination class="mt-6" :links="contacts.links" />-->
   </div>
 </template>
 
@@ -84,8 +84,7 @@ export default {
   layout: Layout,
   props: {
     filters: Object,
-    contactAccount: Object,
-    contacts: Object,
+    contact: Object,
   },
   data() {
     return {

@@ -216,7 +216,6 @@ Route::get('tools', [ToolsController::class, 'index'])
 ->middleware('auth');
 
 // Images
-
 Route::get('/img/{path}', [ImagesController::class, 'show'])
     ->where('path', '.*')
     ->name('image');
@@ -224,4 +223,8 @@ Route::get('/img/{path}', [ImagesController::class, 'show'])
 
 Route::get('contacts/{contact_id}/documents/', [CtnDocumentsController::class, 'index'])
     ->name('documents.index')
+    ->middleware('auth');
+
+Route::get('contacts/{contact_id}/documents/create', [CtnDocumentsController::class, 'create'])
+    ->name('documents.create')
     ->middleware('auth');

@@ -29,4 +29,9 @@ class CtnDocumentsController extends Controller
                 ]),
         ]);
     }
+
+    public function create(): Response
+    {
+        return Inertia::render('CtnDocuments/Create', []);
+    }
 }
