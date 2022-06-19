@@ -15,7 +15,7 @@ class CreateCtnDocumentTable extends Migration
      */
     public function up()
     {
-        Schema::create('ctn_document', function (Blueprint $table) {
+        Schema::create('ctn_documents', function (Blueprint $table) {
             $table->increments('id');
             $table->tinyText('name');
             $table->tinyText('path');
@@ -30,6 +30,6 @@ class CreateCtnDocumentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ctn_document');
+        Schema::dropIfExists('ctn_documents');
     }
 }
