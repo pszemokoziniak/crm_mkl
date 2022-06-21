@@ -18,6 +18,7 @@ class CreateCtnDocumentTable extends Migration
         Schema::create('ctn_documents', function (Blueprint $table) {
             $table->increments('id');
             $table->tinyText('name');
+            $table->tinyText('filename');
             $table->tinyText('path');
             $table->unsignedInteger('contact_id')->nullable();
             $table->foreign('contact_id')->references('id')->on('contacts');
@@ -25,7 +26,7 @@ class CreateCtnDocumentTable extends Migration
         });
     }
 
-    /**
+    /**dsf
      * Reverse the migrations.
      *
      * @return void

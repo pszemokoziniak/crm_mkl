@@ -11,5 +11,4 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CtnDocument extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 }

@@ -232,3 +232,7 @@ Route::get('contacts/{contact_id}/documents/create', [CtnDocumentsController::cl
 Route::post('contacts/{contact_id}/documents/store', [CtnDocumentsController::class, 'store'])
     ->name('documents.store')
     ->middleware('auth');
+
+Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'view'])
+    ->name('documents.view')
+    ->middleware('auth');

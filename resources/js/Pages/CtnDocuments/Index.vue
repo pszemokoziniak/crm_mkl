@@ -19,44 +19,27 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko</th>
-          <th class="pb-4 pt-6 px-6">Funkcja</th>
-          <th class="pb-4 pt-6 px-6">Pracuje</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
+          <th class="pb-4 pt-6 px-6">Nazwa</th>
+          <th class="pb-4 pt-6 px-6">Plik</th>
         </tr>
-<!--        <tr v-for="document in documents.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">-->
-<!--              {{ contact.name }}-->
-<!--              <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              <div v-if="contact.funkcja">-->
-<!--                {{ contact.funkcja.name }}-->
-<!--              </div>-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              {{ contact.city }}-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              {{ contact.phone }}-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="w-px border-t">-->
-<!--            <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--        </tr>-->
-<!--        <tr v-if="contacts.data.length === 0">-->
-<!--          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono dokumentów</td>-->
-<!--        </tr>-->
+        <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contactId}/documents/${document.id}`">
+              {{ document.name }}
+              <icon v-if="document.name" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" target="_blank" :href="`/contacts/${contactId}/documents/${document.id}`" tabindex="-1">
+              <div v-if="document.path">
+                {{ document.path }}
+              </div>
+            </Link>
+          </td>
+        </tr>
+        <tr v-if="documents.data.length === 0">
+          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono dokumentów</td>
+        </tr>
       </table>
     </div>
 <!--    <pagination class="mt-6" :links="contacts.links" />-->
@@ -86,6 +69,7 @@ export default {
     contactId: Number,
     filters: Object,
     contact: Object,
+    documents: Array,
   },
   data() {
     return {
