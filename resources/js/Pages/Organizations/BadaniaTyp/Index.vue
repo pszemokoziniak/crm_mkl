@@ -1,9 +1,17 @@
 <template>
   <div>
     <Head title="Contacts" />
-    <h1 class="mb-8 text-3xl font-bold">Badania BHP</h1>
+    <h1 class="mb-8 text-3xl font-bold">Funkcja</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" :href="`/contacts/${contact.id}/badania/create`">
+      <!-- <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+        <label class="block text-gray-700">Trashed:</label>
+        <select v-model="form.trashed" class="form-select mt-1 w-full">
+          <option :value="null" />
+          <option value="with">With Trashed</option>
+          <option value="only">Only Trashed</option>
+        </select>
+      </search-filter> -->
+      <Link class="btn-indigo" href="/funkcja/create">
         <span>Dodaj</span>
       </Link>
     </div>
@@ -11,8 +19,6 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Start</th>
-          <th class="pb-4 pt-6 px-6">Koniec</th>
         </tr>
         <tr v-for="funkcja in funkcjas" :key="funkcja.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -44,6 +50,7 @@ import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 
+
 export default {
   components: {
     Head,
@@ -53,7 +60,6 @@ export default {
   layout: Layout,
   props: {
     funkcjas: Object,
-    contact: Array,
   },
   data() {
     return {

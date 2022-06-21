@@ -1,9 +1,9 @@
 <template>
   <div>
     <Head title="Contacts" />
-    <h1 class="mb-8 text-3xl font-bold">Badania BHP</h1>
+    <h1 class="mb-8 text-3xl font-bold">Badania Lekarskie</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" :href="`/contacts/${contact.id}/badania/create`">
+      <Link class="btn-indigo" href="/badaniaTyp/create">
         <span>Dodaj</span>
       </Link>
     </div>
@@ -11,18 +11,16 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Start</th>
-          <th class="pb-4 pt-6 px-6">Koniec</th>
         </tr>
-        <tr v-for="funkcja in funkcjas" :key="funkcja.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="badania in badaniaTypes" :key="badania.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/funkcja/${funkcja.id}/edit`">
-              {{ funkcja.name }}
-              <icon v-if="funkcja.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/badaniaTyp/${badania.id}/edit`">
+              {{ badania.name }}
+              <icon v-if="badania.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/funkcja/${funkcja.id}/edit`" tabindex="-1">
+            <Link class="flex items-center px-4" :href="`/badaniaTyp/${badania.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -44,6 +42,7 @@ import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 
+
 export default {
   components: {
     Head,
@@ -52,8 +51,7 @@ export default {
   },
   layout: Layout,
   props: {
-    funkcjas: Object,
-    contact: Array,
+    badaniaTypes: Object,
   },
   data() {
     return {
@@ -67,7 +65,7 @@ export default {
     form: {
       deep: true,
       handler: throttle(function () {
-        this.$inertia.get('/funkcja', pickBy(this.form), { preserveState: true })
+        this.$inertia.get('/badaniaTyp', pickBy(this.form), { preserveState: true })
       }, 150),
     },
   },

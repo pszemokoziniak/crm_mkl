@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBadaniasTable extends Migration
+class CreateBadaniaTypsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,10 @@ class CreateBadaniasTable extends Migration
      */
     public function up()
     {
-        Schema::create('badanias', function (Blueprint $table) {
+        Schema::create('badania_typs', function (Blueprint $table) {
             $table->id();
-            $table->integer('contacts_id')->index();
-            $table->string('name', 100)->nullable();
-            $table->date('start')->nullable();
-            $table->date('end')->nullable();
+            $table->string('name', 100);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -31,6 +27,6 @@ class CreateBadaniasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('badanias');
+        Schema::dropIfExists('badania_typs');
     }
 }

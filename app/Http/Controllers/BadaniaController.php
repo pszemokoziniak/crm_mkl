@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 
+use App\Http\Requests\StorePosRequest;
+use App\Models\Badania;
 use App\Models\Contact;
 use App\Models\Account;
 use App\Models\Funkcja;
@@ -20,7 +22,7 @@ class BadaniaController extends Controller
     {
 //        dd($contact);
         return Inertia::render('Badania/Index', [
-            'filters' => Request::all('search', 'trashed'),
+//            'filters' => Request::all('search', 'trashed'),
             'contacts' => Contact::with('funkcja')
                 ->orderByName()
                 ->paginate(10)
@@ -74,6 +76,17 @@ class BadaniaController extends Controller
             'funkcjas' => Funkcja::all(),
             // 'funkcja' => Funkcja::find($contact->funkcja),
         ]);
+    }
+
+    public function create()
+    {
+        return Inertia('Badania/Create');
+    }
+
+    public function store(StorePosRequest $req)
+    {
+        Badania::create($req->validated());
+        return Redirect::route('badania.index')->with('success', 'Zapisano.');
     }
 
 }
