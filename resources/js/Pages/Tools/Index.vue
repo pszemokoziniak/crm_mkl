@@ -11,7 +11,7 @@
         <span>Funkcja</span>
     </Link>
     <Link class="btn-indigo mr-5" :href="`/badaniaTyp`">
-      <span>BadaniaBHP</span>
+      <span>Badania Lekarskie</span>
     </Link>
  </div>
 

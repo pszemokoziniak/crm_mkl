@@ -15,8 +15,8 @@ class CreateBadaniasTable extends Migration
     {
         Schema::create('badanias', function (Blueprint $table) {
             $table->id();
-            $table->integer('contacts_id')->index();
-            $table->string('name', 100)->nullable();
+            $table->integer('contact_id')->index();
+            $table->integer('badaniaTyp_id')->index();
             $table->date('start')->nullable();
             $table->date('end')->nullable();
             $table->timestamps();

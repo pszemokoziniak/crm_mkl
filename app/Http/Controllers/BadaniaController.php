@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 
-use App\Http\Requests\StorePosRequest;
+use App\Http\Requests\StoreBadaniaRequest;
 use App\Models\Badania;
+use App\Models\BadaniaTyp;
 use App\Models\Contact;
 use App\Models\Account;
 use App\Models\Funkcja;
@@ -20,73 +21,46 @@ class BadaniaController extends Controller
 {
     public function index(Contact $contact)
     {
-//        dd($contact);
+//        dd(Badania::join('badania_typs', 'badaniaTyp_id', '=', 'badania_typs.id')
+//            ->where('contact_id', $contact->id)->get());
         return Inertia::render('Badania/Index', [
-//            'filters' => Request::all('search', 'trashed'),
-            'contacts' => Contact::with('funkcja')
-                ->orderByName()
-                ->paginate(10)
-                ->withQueryString()
-                ->through(fn ($contact) => [
-                    'id' => $contact->id,
-                    'name' => $contact->name,
-                    'phone' => $contact->phone,
-                    'city' => $contact->city,
-                    'deleted_at' => $contact->deleted_at,
-                    'funkcja' => $contact->funkcja,
-                ]),
+            'badanias' => Badania::join('badania_typs', 'badaniaTyp_id', 'badania_typs.id')
+            ->where('contact_id', $contact->id)->get(),
+            'contact' => $contact,
         ]);
     }
-    public function edit(Contact $contact)
+    public function edit(Contact $contact, Badania $badania)
     {
+//        dd($badania);
         return Inertia::render('Badania/Edit', [
-            'contact' => [
-                'id' => $contact->id,
-                'first_name' => $contact->first_name,
-                'last_name' => $contact->last_name,
-                'organization_id' => $contact->organization_id,
-                'email' => $contact->email,
-                'phone' => $contact->phone,
-                'address' => $contact->address,
-                'birth_date' => $contact->birth_date,
-                'pesel' => $contact->pesel,
-                'idCard_number' => $contact->idCard_number,
-                'idCard_date' => $contact->idCard_date,
-                'position' => $contact->position,
-                'funkcja_id' => $contact->funkcja_id,
-                'work_start' => $contact->work_start,
-                'work_end' => $contact->work_end,
-                'ekuz' => $contact->ekuz,
-
-                // 'city' => $contact->city,
-                // 'region' => $contact->region,
-                // 'country' => $contact->country,
-                // 'postal_code' => $contact->postal_code,
-                'deleted_at' => $contact->deleted_at,
+            'badanie' => [
+                'id' => $badania->id,
+                'badaniaTyp_id' => $badania->badaniaTyp_id,
+                'start' => $badania->start,
+                'end' => $badania->end,
+                'deleted_at' => $badania->deleted_at,
             ],
-            'organizations' => Auth::user()->account->organizations()
-                ->orderBy('name')
-                ->get()
-                ->map
-                ->only('id', 'name'),
-            'accounts' => Auth::user()->account
-                ->accounts()
-                ->map
-                ->only('id', 'name'),
-            'funkcjas' => Funkcja::all(),
-            // 'funkcja' => Funkcja::find($contact->funkcja),
+            'badanias' => BadaniaTyp::all(),
+            'contact' => $contact
         ]);
     }
 
-    public function create()
+    public function create(Contact $contact)
     {
-        return Inertia('Badania/Create');
+        $contact_id = $contact->id;
+        $badanias = BadaniaTyp::all();
+        return Inertia('Badania/Create', compact('contact_id', 'badanias'));
     }
 
-    public function store(StorePosRequest $req)
+    public function store(StoreBadaniaRequest $req, $contact_id)
     {
-        Badania::create($req->validated());
-        return Redirect::route('badania.index')->with('success', 'Zapisano.');
+        $data = new Badania;
+        $data->badaniaTyp_id=$req->badaniaTyp_id;
+        $data->start=$req->start;
+        $data->end=$req->end;
+        $data->contact_id=$contact_id;
+        $data->save();
+        return Redirect::route('badania.index', $contact_id)->with('success', 'Zapisano.');
     }
 
 }

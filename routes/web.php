@@ -146,8 +146,12 @@ Route::get('contacts/{contact}/badania/create', [BadaniaController::class, 'crea
     ->name('badania.create')
     ->middleware('auth');
 
-Route::post('badania', [BadaniaController::class, 'store'])
+Route::post('badania/{contact_id}', [BadaniaController::class, 'store'])
     ->name('badania.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/badania/{badania}/edit', [BadaniaController::class, 'edit'])
+    ->name('badania.edit')
     ->middleware('auth');
 
 // Accounts

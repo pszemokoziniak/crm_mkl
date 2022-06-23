@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePosRequest extends FormRequest
+class StoreBadaniaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +24,15 @@ class StorePosRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' =>'required|min:3|unique:accounts,name',
-//            'contact_id' =>'required',
+            'badaniaTyp_id' =>'required',
+            'start' =>'required',
+            'end' =>'required',
         ];
     }
 
     public function messages() {
         return [
             'required'  => 'Pole :attribute jest wymagane.',
-            'min'  => 'Wymagane 3 znaki.',
             'unique' => 'Nazwa użyta',
         ];
     }
