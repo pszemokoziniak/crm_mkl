@@ -28,7 +28,9 @@ class CtnDocumentsController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('CtnDocuments/Create', []);
+        return Inertia::render('CtnDocuments/Create', [
+            'contactId' => Request::route('contact_id')
+        ]);
     }
 
     public function store(): RedirectResponse

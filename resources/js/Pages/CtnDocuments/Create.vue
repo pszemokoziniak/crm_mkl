@@ -23,7 +23,6 @@
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
-import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import FileInput from "@/Shared/FileInput";
 
@@ -32,13 +31,11 @@ export default {
     Head,
     Link,
     LoadingButton,
-    SelectInput,
     TextInput,
     FileInput
   },
   layout: Layout,
   props: {
-    accounts: Array,
     contactId: Number
   },
   remember: 'form',
@@ -52,7 +49,7 @@ export default {
   },
   methods: {
     store() {
-      this.form.post(`/contacts/26/documents/store`)
+      this.form.post(`/contacts/${this.contactId}/documents/store`)
     },
   },
 }
