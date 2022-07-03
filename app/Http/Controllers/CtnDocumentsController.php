@@ -39,7 +39,7 @@ class CtnDocumentsController extends Controller
         // @TODO to validate type of file
         Request::validate([
             'name' => ['required', 'max:50'],
-            'document' => ['nullable', 'image'],
+            'document' => ['nullable', 'image', 'mimes:pdf'],
         ]);
 
         // @TODO to clean
