@@ -21,20 +21,19 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Plik</th>
+          <th class="pb-4 pt-6 px-6">Akcje</th>
         </tr>
         <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contactId}/documents/${document.id}`">
-              {{ document.name }}
-              <icon v-if="document.name" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
+          <td class="border-t" @click="download(document.path)">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500">{{ document.name }} </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4" target="_blank" :href="`/contacts/${contactId}/documents/${document.id}`" tabindex="-1">
-              <div v-if="document.path">
-                {{ document.path }}
-              </div>
-            </Link>
+            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
+          </td>
+          <td class="border-t">
+            <a class="flex items-center px-6 py-4" tabindex="-1" v-bind:href="'/contacts/' + contactId + '/documents/'+ document.id" download>
+               Pobierz
+            </a>
           </td>
         </tr>
         <tr v-if="documents.data.length === 0">
@@ -42,7 +41,6 @@
         </tr>
       </table>
     </div>
-<!--    <pagination class="mt-6" :links="contacts.links" />-->
   </div>
 </template>
 
@@ -69,7 +67,7 @@ export default {
     contactId: Number,
     filters: Object,
     contact: Object,
-    documents: Array,
+    documents: Object,
   },
   data() {
     return {
@@ -94,4 +92,3 @@ export default {
   },
 }
 </script>
-

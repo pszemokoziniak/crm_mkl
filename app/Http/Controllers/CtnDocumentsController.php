@@ -61,8 +61,10 @@ class CtnDocumentsController extends Controller
     {
         $document = CtnDocument::query()->where('id', Request::route('document_id'))->first();
 
-        return response()->file(storage_path("app/" . $document->path), [
-            'Content-Type' => 'application/pdf',
-        ]);
+        if (!$document) {
+            // exception
+        }
+
+        return response()->download(storage_path("app/" . $document->path));
     }
 }
