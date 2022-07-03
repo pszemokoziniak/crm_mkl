@@ -36,24 +36,24 @@ class CtnDocumentsController extends Controller
 
     public function store(): RedirectResponse
     {
-        // @TODO to validate type of file
+        // @TODO to validate type of file, display errors on FE
         Request::validate([
             'name' => ['required', 'max:50'],
             'document' => ['nullable', 'image', 'mimes:pdf'],
         ]);
 
-        // @TODO to clean
         $contactId = Request::route('contact_id');
         $document = Request::file('document');
         $path = 'documents/' . $contactId;
+
         $document->storeAs($path, $document->getClientOriginalName());
 
-        $documentEntity = new CtnDocument();
-        $documentEntity->name = Request::get('name');
-        $documentEntity->path = $path . '/' . $document->getClientOriginalName();
-        $documentEntity->contact_id = $contactId;
-        $documentEntity->filename = $document->getClientOriginalName();
-        $documentEntity->save();
+        CtnDocument::create(
+            Request::get('name'),
+            $path . '/' . $document->getClientOriginalName()
+            , $contactId,
+            $document->getClientOriginalName()
+        )->save();
 
         return Redirect::route('contacts')->with('success', 'Zapisano dokument');
     }

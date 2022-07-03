@@ -11,4 +11,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CtnDocument extends Model
 {
     use HasFactory;
+
+    public static function create($name, $path, $contactId, $filename): self
+    {
+        $self =  new self();
+        $self->name = $name;
+        $self->path = $path;
+        $self->contact_id = $contactId;
+        $self->filename = $filename;
+
+        return $self;
+    }
 }
