@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class CtnDocumentsController extends Controller
 {
@@ -57,12 +58,12 @@ class CtnDocumentsController extends Controller
         return Redirect::route('contacts')->with('success', 'Zapisano dokument');
     }
 
-    public function view(): BinaryFileResponse
+    public function view(int $id, int $documentId): BinaryFileResponse
     {
-        $document = CtnDocument::query()->where('id', Request::route('document_id'))->first();
+        $document = CtnDocument::query()->where('id', $documentId)->first();
 
         if (!$document) {
-            // exception
+            throw new FileNotFoundException('with ID ' . $documentId);
         }
 
         return response()->download(storage_path("app/" . $document->path));
