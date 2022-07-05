@@ -84,6 +84,7 @@ class CtnDocumentsController extends Controller
         }
 
         // @TODO remove file and add logger
-        return Redirect::route('documents.index')->with('success', 'Usunięto dokument');
+        return Redirect::route('documents.index', ['contact_id' => $id, 'document_id' => $documentId])
+            ->with('success', 'Usunięto dokument');
     }
 }

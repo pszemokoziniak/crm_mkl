@@ -35,6 +35,10 @@
               <DocumentDownloadIcon class="h-5 w-5 text-blue-500" />
               <span>Pobierz</span>
             </a>
+            <a class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center" target="_blank" @click="removeDocument(document.id)" >
+              <TrashIcon class="h-5 w-5 text-blue-500" />
+              <span>Usuń</span>
+            </a>
           </td>
         </tr>
         <tr v-if="documents.data.length === 0">
@@ -52,14 +56,15 @@ import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 import SearchFilter from '@/Shared/SearchFilter'
-import { DocumentDownloadIcon } from '@heroicons/vue/solid'
+import { DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
 
 export default {
   components: {
     Head,
     Link,
     SearchFilter,
-    DocumentDownloadIcon
+    DocumentDownloadIcon,
+    TrashIcon,
   },
   layout: Layout,
   props: {
@@ -87,6 +92,10 @@ export default {
   methods: {
     reset() {
       this.form = mapValues(this.form, () => null)
+    },
+    removeDocument(documentId) {
+      console.log(documentId)
+      this.$inertia.delete(`/contacts/${this.contactId}/documents/${documentId}`)
     },
   },
 }
