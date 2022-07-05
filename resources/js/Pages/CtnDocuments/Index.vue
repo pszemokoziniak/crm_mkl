@@ -94,7 +94,6 @@ export default {
       this.form = mapValues(this.form, () => null)
     },
     removeDocument(documentId) {
-      console.log(documentId)
       this.$inertia.delete(`/contacts/${this.contactId}/documents/${documentId}`)
     },
   },

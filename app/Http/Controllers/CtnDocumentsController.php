@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class CtnDocumentsController extends Controller
 {
@@ -34,15 +33,14 @@ class CtnDocumentsController extends Controller
         ]);
     }
 
-    public function store(): RedirectResponse
+    public function store(int $contactId): RedirectResponse
     {
         // @TODO to validate type of file, display errors on FE
         Request::validate([
             'name' => ['required', 'max:50'],
-            'document' => ['nullable', 'image', 'mimes:pdf'],
+            'document' => ['required', 'mimes:pdf'],
         ]);
 
-        $contactId = Request::route('contact_id');
         $document = Request::file('document');
         $path = 'documents/' . $contactId;
 
@@ -55,15 +53,16 @@ class CtnDocumentsController extends Controller
             $document->getClientOriginalName()
         )->save();
 
-        return Redirect::route('contacts')->with('success', 'Zapisano dokument');
+        return Redirect::route('documents.index', ['contact_id' => $contactId])
+            ->with('success', 'Usunięto dokument');
     }
 
-    public function view(int $id, int $documentId): BinaryFileResponse
+    public function view(int $documentId): BinaryFileResponse
     {
         $document = CtnDocument::query()->where('id', $documentId)->first();
 
         if (!$document) {
-            throw new FileNotFoundException('with ID ' . $documentId);
+            throw new \Exception('with ID ' . $documentId);
         }
 
         return response()->download(storage_path("app/" . $document->path));
