@@ -57,7 +57,7 @@ class CtnDocumentsController extends Controller
             ->with('success', 'Usunięto dokument');
     }
 
-    public function view(int $documentId): BinaryFileResponse
+    public function view(int $contactId, int $documentId): BinaryFileResponse
     {
         $document = CtnDocument::query()->where('id', $documentId)->first();
 
