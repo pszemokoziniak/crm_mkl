@@ -31,8 +31,9 @@
             <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
           </td>
           <td class="border-t">
-            <a class="flex items-center px-6 py-4" tabindex="-1" v-bind:href="'/contacts/' + contactId + '/documents/'+ document.id" download>
-               Pobierz
+            <a target="_blank" :href="'/contacts/' + contactId + '/documents/'+ document.id" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+              <DocumentDownloadIcon class="h-5 w-5 text-blue-500" />
+              <span>Pobierz</span>
             </a>
           </td>
         </tr>
@@ -46,21 +47,19 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
-import Icon from '@/Shared/Icon'
 import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
-import Pagination from '@/Shared/Pagination'
 import SearchFilter from '@/Shared/SearchFilter'
+import { DocumentDownloadIcon } from '@heroicons/vue/solid'
 
 export default {
   components: {
     Head,
-    Icon,
     Link,
-    Pagination,
     SearchFilter,
+    DocumentDownloadIcon
   },
   layout: Layout,
   props: {
