@@ -236,3 +236,7 @@ Route::post('contacts/{contact_id}/documents/store', [CtnDocumentsController::cl
 Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'view'])
     ->name('documents.view')
     ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'delete'])
+    ->name('documents.delete')
+    ->middleware('auth');

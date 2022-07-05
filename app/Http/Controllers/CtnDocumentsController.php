@@ -68,4 +68,22 @@ class CtnDocumentsController extends Controller
 
         return response()->download(storage_path("app/" . $document->path));
     }
+
+    public function delete(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('documents.index')->with('success', 'Usunięto dokument');
+    }
 }
