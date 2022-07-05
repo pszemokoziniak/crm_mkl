@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\BadaniaBHPController;
 use App\Http\Controllers\BadaniaController;
+use App\Http\Controllers\BadaniaTypController;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
@@ -141,6 +143,18 @@ Route::get('contacts/{contact}/badania', [BadaniaController::class, 'index'])
     ->name('badania.index')
     ->middleware('auth');
 
+Route::get('contacts/{contact}/badania/create', [BadaniaController::class, 'create'])
+    ->name('badania.create')
+    ->middleware('auth');
+
+Route::post('badania/{contact_id}', [BadaniaController::class, 'store'])
+    ->name('badania.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/badania/{badania}/edit', [BadaniaController::class, 'edit'])
+    ->name('badania.edit')
+    ->middleware('auth');
+
 // Accounts
 
 Route::get('position', [AccountsController::class, 'index'])
@@ -201,6 +215,35 @@ Route::put('funkcja/{account}/restore', [FunkcjaController::class, 'restore'])
     ->name('funkcja.restore')
     ->middleware('auth');
 
+// Badania Typ
+
+Route::get('badaniaTyp', [BadaniaTypController::class, 'index'])
+    ->name('badaniaTyp')
+    ->middleware('auth');
+
+Route::get('badaniaTyp/create', [BadaniaTypController::class, 'create'])
+    ->name('badaniaTyp.create')
+    ->middleware('auth');
+
+Route::post('badaniaTyp', [BadaniaTypController::class, 'store'])
+    ->name('badaniaTyp.store')
+    ->middleware('auth');
+
+Route::get('badaniaTyp/{badaniaTyp}/edit', [BadaniaTypController::class, 'edit'])
+    ->name('badaniaTyp.edit')
+    ->middleware('auth');
+
+Route::put('badaniaTyp/{badaniaTyp}', [BadaniaTypController::class, 'update'])
+    ->name('badaniaTyp.update')
+    ->middleware('auth');
+
+Route::delete('badaniaTyp/{badaniaTyp}', [BadaniaTypController::class, 'destroy'])
+    ->name('badaniaTyp.destroy')
+    ->middleware('auth');
+
+Route::put('badaniaTyp/{badaniaTyp}/restore', [BadaniaTypController::class, 'restore'])
+    ->name('badaniaTyp.restore')
+    ->middleware('auth');
 
 
 // Reports

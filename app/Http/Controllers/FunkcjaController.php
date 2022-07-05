@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\Contact;
 use App\Models\Funkcja;
 use App\Models\Account;
 
@@ -36,15 +35,13 @@ class FunkcjaController extends Controller
             ],
         ]);
     }
+
     public function destroy(Funkcja $funkcja)
     {
-        
         $funkcja->delete();
 
         // return Redirect::back()->with('success', 'Objekt usunięty.');
         return Redirect::route('funkcja')->with('success', 'Usunięto.');
-
-        
     }
 
     public function restore(Account $account)

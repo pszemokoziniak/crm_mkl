@@ -7,8 +7,11 @@
     <Link class="btn-indigo mr-5" :href="`/position`">
         <span>Pozycja</span>
     </Link>
-    <Link class="btn-indigo" :href="`/funkcja`">
+    <Link class="btn-indigo mr-5" :href="`/funkcja`">
         <span>Funkcja</span>
+    </Link>
+    <Link class="btn-indigo mr-5" :href="`/badaniaTyp`">
+      <span>Badania Lekarskie</span>
     </Link>
  </div>
 

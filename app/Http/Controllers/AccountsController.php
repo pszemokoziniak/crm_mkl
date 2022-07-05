@@ -30,14 +30,14 @@ class AccountsController extends Controller
     }
     // public function create()
     // {
-        
+
     //     return Inertia::render('Contacts/Create', [
     //         'organizations' => Auth::user()->account
     //             ->organizations()
     //             ->orderBy('name')
     //             ->get()
     //             ->map
-    //             ->only('id', 'name'), 
+    //             ->only('id', 'name'),
     //         'accounts' => Auth::user()->account
     //             ->accounts()
     //             ->map
@@ -57,13 +57,13 @@ class AccountsController extends Controller
     }
     public function destroy(Account $account)
     {
-        
+
         $account->delete();
 
         // return Redirect::back()->with('success', 'Objekt usunięty.');
         return Redirect::route('position')->with('success', 'Usunięto.');
 
-        
+
     }
 
     public function restore(Account $account)
