@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contact extends Model
@@ -24,6 +25,11 @@ class Contact extends Model
     public function funkcja()
     {
         return $this->belongsTo(Funkcja::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(CtnDocument::class);
     }
 
     public function getNameAttribute()
