@@ -5,12 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BadaniaTyp extends Model
+class BhpTyp extends Model
 {
     use HasFactory;
 
-    public function badania() {
-        return $this->hasOne(Badania::class);
+    public function bhp() {
+        return $this->hasOne(Bhp::class);
     }
-
 }

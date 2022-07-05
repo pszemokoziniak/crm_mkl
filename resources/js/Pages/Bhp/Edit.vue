@@ -9,13 +9,13 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
-    <trashed-message v-if="badanie.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
+    <trashed-message v-if="bhp.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
 <!--          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />-->
-          <select-input v-model="form.badaniaTyp_id" :error="form.errors.badaniaTyp_id" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa">
-            <option v-for="badania in badaniaTyps" :key="badania.id" :value="badania.id">{{ badania.name }}</option>
+          <select-input v-model="form.bhpTyp_id" :error="form.errors.bhpTyp_id" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa">
+            <option v-for="item in bhpTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
           <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Start badań" />
           <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec badań" />
@@ -23,7 +23,7 @@
 
 
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <button v-if="!badanie.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+          <button v-if="!bhp.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>
@@ -54,29 +54,29 @@ export default {
   props: {
     contact: Object,
     organizations: Array,
-    badaniaTyps: Object,
+    bhpTyps: Object,
     accounts: Object,
-    badanie: Object,
+    bhp: Object,
   },
   remember: 'form',
   data() {
     return {
       contactId: this.contact.id,
       form: this.$inertia.form({
-        id: this.badanie.id,
-        badaniaTyp_id: this.badanie.badaniaTyp_id,
-        start: this.badanie.start,
-        end: this.badanie.end,
+        id: this.bhp.id,
+        bhpTyp_id: this.bhp.bhpTyp_id,
+        start: this.bhp.start,
+        end: this.bhp.end,
       }),
     }
   },
   methods: {
     update() {
-      this.form.put(`/contacts/${this.contact.id}/badania/${this.form.id}`)
+      this.form.put(`/contacts/${this.contact.id}/bhp/${this.form.id}`)
     },
     destroy() {
       if (confirm('Chcesz usunąć?')) {
-        this.$inertia.delete(`/badania/${this.badanie.id}`)
+        this.$inertia.delete(`/bhp/${this.bhp.id}`)
       }
     },
     restore() {

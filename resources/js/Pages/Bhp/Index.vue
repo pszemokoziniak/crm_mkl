@@ -9,9 +9,9 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
-    <h1 class="mb-8 text-3xl font-bold">Badania Lekarskie</h1>
+    <h1 class="mb-8 text-3xl font-bold">Szkolenia BHP</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" :href="`/contacts/${contact.id}/badania/create`">
+      <Link class="btn-indigo" :href="`/contacts/${contact.id}/bhp/create`">
         <span>Dodaj</span>
       </Link>
     </div>
@@ -22,29 +22,29 @@
           <th class="pb-4 pt-6 px-6">Start</th>
           <th class="pb-4 pt-6 px-6">Koniec</th>
         </tr>
-        <tr v-for="badania in bads.data" :key="badania.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="item in bhps.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/badania/${badania.id}/edit`">
-              <div v-if="badania.name">
-                {{ badania.name.name }}
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/bhp/${item.id}/edit`">
+              <div v-if="item.bhp">
+                {{ item.bhp.name }}
               </div>
-              <icon v-if="badania.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/badania/${badania.id}/edit`">
-              {{ badania.start }}
-              <icon v-if="badania.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/bhp/${item.id}/edit`">
+              {{ item.start }}
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/badania/${badania.id}/edit`">
-              {{ badania.end }}
-              <icon v-if="badania.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/bhp/${item.id}/edit`">
+              {{ item.end }}
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/badania/${badania.id}/edit`" tabindex="-1">
+            <Link class="flex items-center px-4" :href="`/bhp/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -77,7 +77,7 @@ export default {
   },
   layout: Layout,
   props: {
-    bads: Object,
+    bhps: Object,
     contact: Object,
     badanias: Object,
     badaniaTyp: Object,

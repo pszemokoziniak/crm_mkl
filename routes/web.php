@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BadaniaBHPController;
 use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\BadaniaTypController;
+use App\Http\Controllers\BhpController;
+use App\Http\Controllers\BhpTypController;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImagesController;
@@ -154,6 +156,48 @@ Route::get('contacts/{contact}/badania/{badania}/edit', [BadaniaController::clas
     ->name('badania.edit')
     ->middleware('auth');
 
+Route::put('contacts/{contact}/badania/{badania}', [BadaniaController::class, 'update'])
+    ->name('badania.update')
+    ->middleware('auth');
+
+Route::delete('badania/{badania}', [BadaniaController::class, 'destroy'])
+    ->name('badania.destroy')
+    ->middleware('auth');
+
+Route::put('badania/{badania}/restore', [BadaniaController::class, 'restore'])
+    ->name('badania.restore')
+    ->middleware('auth');
+
+// BHP
+
+Route::get('contacts/{contact}/bhp', [BhpController::class, 'index'])
+    ->name('bhp.index')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/bhp/create', [BhpController::class, 'create'])
+    ->name('bhp.create')
+    ->middleware('auth');
+
+Route::post('bhp/{contact_id}', [BhpController::class, 'store'])
+    ->name('bhp.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/bhp/{bhp}/edit', [BhpController::class, 'edit'])
+    ->name('bhp.edit')
+    ->middleware('auth');
+
+Route::put('contacts/{contact}/bhp/{bhp}', [BhpController::class, 'update'])
+    ->name('bhp.update')
+    ->middleware('auth');
+
+Route::delete('bhp/{bhp}', [BhpController::class, 'destroy'])
+    ->name('bhp.destroy')
+    ->middleware('auth');
+
+Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
+    ->name('bhp.restore')
+    ->middleware('auth');
+
 // Accounts
 
 Route::get('position', [AccountsController::class, 'index'])
@@ -242,6 +286,36 @@ Route::delete('badaniaTyp/{badaniaTyp}', [BadaniaTypController::class, 'destroy'
 
 Route::put('badaniaTyp/{badaniaTyp}/restore', [BadaniaTypController::class, 'restore'])
     ->name('badaniaTyp.restore')
+    ->middleware('auth');
+
+// BHP Typ
+
+Route::get('bhpTyp', [BhpTypController::class, 'index'])
+    ->name('bhpTyp')
+    ->middleware('auth');
+
+Route::get('bhpTyp/create', [BhpTypController::class, 'create'])
+    ->name('bhpTyp.create')
+    ->middleware('auth');
+
+Route::post('bhpTyp', [BhpTypController::class, 'store'])
+    ->name('bhpTyp.store')
+    ->middleware('auth');
+
+Route::get('bhpTyp/{bhpTyp}/edit', [BhpTypController::class, 'edit'])
+    ->name('bhpTyp.edit')
+    ->middleware('auth');
+
+Route::put('bhpTyp/{bhpTyp}', [BhpTypController::class, 'update'])
+    ->name('bhpTyp.update')
+    ->middleware('auth');
+
+Route::delete('bhpTyp/{bhpTyp}', [BhpTypController::class, 'destroy'])
+    ->name('bhpTyp.destroy')
+    ->middleware('auth');
+
+Route::put('bhpTyp/{bhpTyp}/restore', [BhpTypController::class, 'restore'])
+    ->name('bhpTyp.restore')
     ->middleware('auth');
 
 

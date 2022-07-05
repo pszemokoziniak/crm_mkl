@@ -21,17 +21,26 @@ class BadaniaController extends Controller
 {
     public function index(Contact $contact)
     {
-//        dd(Badania::join('badania_typs', 'badaniaTyp_id', '=', 'badania_typs.id')
-//            ->where('contact_id', $contact->id)->get());
+        $bads = Badania::with('badaniaTyp')
+                ->orderByName()
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($badania) => [
+                    'id' => $badania->id,
+                    'start' => $badania->start,
+                    'name' => $badania->badaniaTyp ? $badania->badaniaTyp : null,
+                    'end' => $badania->end,
+                ]);
+
+
         return Inertia::render('Badania/Index', [
-            'badanias' => Badania::join('badania_typs', 'badaniaTyp_id', 'badania_typs.id')
-            ->where('contact_id', $contact->id)->get(),
+            'filters' => Request::all('search', 'trashed'),
             'contact' => $contact,
+            'bads' => $bads
         ]);
     }
     public function edit(Contact $contact, Badania $badania)
     {
-//        dd($badania);
         return Inertia::render('Badania/Edit', [
             'badanie' => [
                 'id' => $badania->id,
@@ -40,9 +49,22 @@ class BadaniaController extends Controller
                 'end' => $badania->end,
                 'deleted_at' => $badania->deleted_at,
             ],
-            'badanias' => BadaniaTyp::all(),
+            'badaniaTyps' => BadaniaTyp::all(),
             'contact' => $contact
         ]);
+    }
+
+    public function update(Contact $contact, Badania $badania)
+    {
+        $badania->update(
+            Request::validate([
+                'badaniaTyp_id' => ['required', 'max:50'],
+                'start' => ['required', 'date'],
+                'end' => ['required', 'date'],
+            ])
+        );
+
+        return Redirect::back()->with('success', 'Badania poprawione.');
     }
 
     public function create(Contact $contact)
@@ -54,6 +76,7 @@ class BadaniaController extends Controller
 
     public function store(StoreBadaniaRequest $req, $contact_id)
     {
+        // dd($contact_id);
         $data = new Badania;
         $data->badaniaTyp_id=$req->badaniaTyp_id;
         $data->start=$req->start;
@@ -61,6 +84,21 @@ class BadaniaController extends Controller
         $data->contact_id=$contact_id;
         $data->save();
         return Redirect::route('badania.index', $contact_id)->with('success', 'Zapisano.');
+    }
+
+    public function destroy(Badania $badania)
+    {
+        $contact_id = $badania->contact_id;
+        $badania->delete();
+
+        return Redirect::route('badania.index', $contact_id)->with('success', 'Pracownik usunięty.');
+    }
+
+    public function restore(Badania $badania)
+    {
+        $contact->restore();
+
+        return Redirect::back()->with('success', 'Pracownik przywrócony.');
     }
 
 }

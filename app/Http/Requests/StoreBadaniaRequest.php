@@ -24,7 +24,7 @@ class StoreBadaniaRequest extends FormRequest
     public function rules()
     {
         return [
-            'badaniaTyp_id' =>'required',
+//            'badaniaTyp_id' =>'required',
             'start' =>'required',
             'end' =>'required',
         ];

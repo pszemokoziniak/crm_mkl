@@ -15,7 +15,7 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="'/contacts/'+contactId+'/badania/'">
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Badania lekarskie</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" href="/contacts">
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="'/contacts/'+contactId+'/bhp/'">
             <div :class="isUrl('contacts1') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Szkolenia BHP</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" href="/contacts">
@@ -56,7 +56,7 @@ export default {
       if (urls[0] === '') {
         return currentUrl === ''
       }
-      return urls.filter((url) => currentUrl.startsWith(url)).length
+      return urls.filter((url) => currentUrl.endsWith(url)).length
     },
   },
 }

@@ -13,6 +13,9 @@
     <Link class="btn-indigo mr-5" :href="`/badaniaTyp`">
       <span>Badania Lekarskie</span>
     </Link>
+    <Link class="btn-indigo mr-5" :href="`/bhpTyp`">
+      <span>Szkolenia BHP</span>
+    </Link>
  </div>
 
 </template>
