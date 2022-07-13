@@ -1,16 +1,19 @@
 <template>
   <div>
     <Head title="Contacts" />
-    <h1 class="mb-8 text-3xl font-bold">Dokumenty</h1>
+    <div>
+      <WorkerMenu :contactId="contactId" />
+    </div>
+    <h1 class="mb-8 text-3xl font-bold">Dokumenty {{contactId}}</h1>
     <div class="flex items-center justify-between mb-6">
-      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-        <label class="block text-gray-700">Trashed:</label>
-        <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <option :value="null" />
-          <option value="with">With Trashed</option>
-          <option value="only">Only Trashed</option>
-        </select>
-      </search-filter>
+<!--      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">-->
+<!--        <label class="block text-gray-700">Trashed:</label>-->
+<!--        <select v-model="form.trashed" class="form-select mt-1 w-full">-->
+<!--          <option :value="null" />-->
+<!--          <option value="with">With Trashed</option>-->
+<!--          <option value="only">Only Trashed</option>-->
+<!--        </select>-->
+<!--      </search-filter>-->
       <Link class="btn-indigo" :href="`/contacts/${contactId}/documents/create`">
         <span>Dodaj</span>
         <span class="hidden md:inline">&nbsp;dokument</span>
@@ -61,16 +64,18 @@ import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
-import SearchFilter from '@/Shared/SearchFilter'
+// import SearchFilter from '@/Shared/SearchFilter'
 import { DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
+import WorkerMenu from '@/Shared/WorkerMenu'
 
 export default {
   components: {
     Head,
     Link,
-    SearchFilter,
+    // SearchFilter,
     DocumentDownloadIcon,
     TrashIcon,
+    WorkerMenu,
   },
   layout: Layout,
   props: {
@@ -81,6 +86,7 @@ export default {
   },
   data() {
     return {
+      // contactId: this.contact.id,
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
