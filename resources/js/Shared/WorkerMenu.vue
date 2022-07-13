@@ -16,13 +16,16 @@
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Badania lekarskie</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="'/contacts/'+contactId+'/bhp/'">
-            <div :class="isUrl('contacts1') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Szkolenia BHP</div>
+            <div :class="isUrl('bhp') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Szkolenia BHP</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" href="/contacts">
-            <div :class="isUrl('contacts2') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Uprawnienia</div>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="'/contacts/'+contactId+'/uprawnienia/'">
+            <div :class="isUrl('uprawnienia') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Uprawnienia</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/documents`">
             <div :class="'text-indigo-300 group-hover:text-gray-900'">Dokumenty</div>
+          </Link>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/jezyk/`">
+            <div :class="'text-indigo-300 group-hover:text-gray-900'">Języki</div>
           </Link>
         </div>
         <div>

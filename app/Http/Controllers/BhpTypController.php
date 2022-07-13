@@ -42,7 +42,6 @@ class BhpTypController extends Controller
     {
         $bhpTyp->delete();
 
-        // return Redirect::back()->with('success', 'Objekt usunięty.');
         return Redirect::route('bhpTyp')->with('success', 'Usunięto.');
     }
 

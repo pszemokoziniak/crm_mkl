@@ -22,6 +22,7 @@ class BadaniaController extends Controller
     public function index(Contact $contact)
     {
         $bads = Badania::with('badaniaTyp')
+                ->where('contact_id', $contact->id)
                 ->orderByName()
                 ->paginate(10)
                 ->withQueryString()
@@ -96,7 +97,7 @@ class BadaniaController extends Controller
 
     public function restore(Badania $badania)
     {
-        $contact->restore();
+        $badania->restore();
 
         return Redirect::back()->with('success', 'Pracownik przywrócony.');
     }

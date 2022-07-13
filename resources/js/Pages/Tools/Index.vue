@@ -16,6 +16,12 @@
     <Link class="btn-indigo mr-5" :href="`/bhpTyp`">
       <span>Szkolenia BHP</span>
     </Link>
+    <Link class="btn-indigo mr-5" :href="`/uprawnieniaTyp`">
+      <span>Uprawnienia</span>
+    </Link>
+    <Link class="btn-indigo mr-5" :href="`/jezykTyp`">
+      <span>Języki</span>
+    </Link>
  </div>
 
 </template>

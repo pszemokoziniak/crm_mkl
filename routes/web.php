@@ -10,8 +10,12 @@ use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImagesController;
+use App\Http\Controllers\JezykController;
+use App\Http\Controllers\JezykTypController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\UprawnieniaController;
+use App\Http\Controllers\UprawnieniaTypController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\AccountsController;
@@ -199,6 +203,66 @@ Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
     ->name('bhp.restore')
     ->middleware('auth');
 
+// Uprawnienia
+
+Route::get('contacts/{contact}/uprawnienia', [UprawnieniaController::class, 'index'])
+    ->name('uprawnienia.index')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/uprawnienia/create', [UprawnieniaController::class, 'create'])
+    ->name('uprawnienia.create')
+    ->middleware('auth');
+
+Route::post('uprawnienia/{contact_id}', [UprawnieniaController::class, 'store'])
+    ->name('uprawnienia.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/uprawnienia/{uprawnienia}/edit', [UprawnieniaController::class, 'edit'])
+    ->name('uprawnienia.edit')
+    ->middleware('auth');
+
+Route::put('contacts/{contact}/uprawnienia/{uprawnienia}', [UprawnieniaController::class, 'update'])
+    ->name('uprawnienia.update')
+    ->middleware('auth');
+
+Route::delete('uprawnienia/{uprawnienia}', [UprawnieniaController::class, 'destroy'])
+    ->name('uprawnienia.destroy')
+    ->middleware('auth');
+
+Route::put('uprawnienia/{uprawnienia}/restore', [UprawnieniaController::class, 'restore'])
+    ->name('uprawnienia.restore')
+    ->middleware('auth');
+
+// Języki
+
+Route::get('contacts/{contact}/jezyk', [JezykController::class, 'index'])
+    ->name('jezyk.index')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/jezyk/create', [JezykController::class, 'create'])
+    ->name('jezyk.create')
+    ->middleware('auth');
+
+Route::post('jezyk/{contact_id}', [JezykController::class, 'store'])
+    ->name('jezyk.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/jezyk/{jezyk}/edit', [JezykController::class, 'edit'])
+    ->name('jezyk.edit')
+    ->middleware('auth');
+
+Route::put('contacts/{contact}/jezyk/{jezyk}', [JezykController::class, 'update'])
+    ->name('jezyk.update')
+    ->middleware('auth');
+
+Route::delete('jezyk/{jezyk}', [JezykController::class, 'destroy'])
+    ->name('jezyk.destroy')
+    ->middleware('auth');
+
+Route::put('jezyk/{jezyk}/restore', [JezykController::class, 'restore'])
+    ->name('jezyk.restore')
+    ->middleware('auth');
+
 // Accounts
 
 Route::get('position', [AccountsController::class, 'index'])
@@ -319,6 +383,65 @@ Route::put('bhpTyp/{bhpTyp}/restore', [BhpTypController::class, 'restore'])
     ->name('bhpTyp.restore')
     ->middleware('auth');
 
+// Uprawnienia Typ
+
+Route::get('uprawnieniaTyp', [UprawnieniaTypController::class, 'index'])
+    ->name('uprawnieniaTyp')
+    ->middleware('auth');
+
+Route::get('uprawnieniaTyp/create', [UprawnieniaTypController::class, 'create'])
+    ->name('uprawnieniaTyp.create')
+    ->middleware('auth');
+
+Route::post('uprawnieniaTyp', [UprawnieniaTypController::class, 'store'])
+    ->name('uprawnieniaTyp.store')
+    ->middleware('auth');
+
+Route::get('uprawnieniaTyp/{uprawnieniaTyp}/edit', [UprawnieniaTypController::class, 'edit'])
+    ->name('uprawnieniaTyp.edit')
+    ->middleware('auth');
+
+Route::put('uprawnieniaTyp/{uprawnieniaTyp}', [UprawnieniaTypController::class, 'update'])
+    ->name('uprawnieniaTyp.update')
+    ->middleware('auth');
+
+Route::delete('uprawnieniaTyp/{uprawnieniaTyp}', [UprawnieniaTypController::class, 'destroy'])
+    ->name('uprawnieniaTyp.destroy')
+    ->middleware('auth');
+
+Route::put('uprawnieniaTyp/{uprawnieniaTyp}/restore', [UprawnieniaTypController::class, 'restore'])
+    ->name('bhpTyp.restore')
+    ->middleware('auth');
+
+// Języki
+
+Route::get('jezykTyp', [JezykTypController::class, 'index'])
+    ->name('jezykTyp')
+    ->middleware('auth');
+
+Route::get('jezykTyp/create', [JezykTypController::class, 'create'])
+    ->name('jezykTyp.create')
+    ->middleware('auth');
+
+Route::post('jezykTyp', [JezykTypController::class, 'store'])
+    ->name('jezykTyp.store')
+    ->middleware('auth');
+
+Route::get('jezykTyp/{jezykTyp}/edit', [JezykTypController::class, 'edit'])
+    ->name('jezykTyp.edit')
+    ->middleware('auth');
+
+Route::put('jezykTyp/{jezykTyp}', [JezykTypController::class, 'update'])
+    ->name('jezykTyp.update')
+    ->middleware('auth');
+
+Route::delete('jezykTyp/{jezykTyp}', [JezykTypController::class, 'destroy'])
+    ->name('jezykTyp.destroy')
+    ->middleware('auth');
+
+Route::put('jezykTyp/{jezykTyp}/restore', [JezykTypController::class, 'restore'])
+    ->name('jezykTyp.restore')
+    ->middleware('auth');
 
 // Reports
 

@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBadaniaRequest;
-//use App\Models\Badania;
-//use App\Models\BadaniaTyp;
+use App\Http\Requests\UpdateBhpRequest;
 use App\Models\Bhp;
 use App\Models\BhpTyp;
 use App\Models\Contact;
@@ -17,6 +16,7 @@ class BhpController extends Controller
     public function index(Contact $contact)
     {
         $bhps = Bhp::with('bhpTyp')
+            ->where('contact_id', $contact->id)
             ->orderByName()
             ->paginate(10)
             ->withQueryString()
@@ -48,18 +48,14 @@ class BhpController extends Controller
         ]);
     }
 
-    public function update(Contact $contact, Bhp $bhp)
+    public function update(UpdateBhpRequest $req, Contact $contact, Bhp $bhp)
     {
-//        dd($bhp);
-        $bhp->update(
-            Request::validate([
-                'contact_id' => ['required'],
-                'bhpTyp_id' => ['required'],
-                'start' => ['required', 'date'],
-                'end' => ['required', 'date'],
-            ])
-        );
-        dd($bhp);
+        $data = Bhp::find($bhp->id);
+        $data->bhpTyp_id = $req->bhpTyp_id;
+        $data->start = $req->start;
+        $data->end = $req->end;
+        $data->save();
+
         return Redirect::back()->with('success', 'Element poprawiony.');
     }
 
@@ -72,7 +68,6 @@ class BhpController extends Controller
 
     public function store(StoreBadaniaRequest $req, $contact_id)
     {
-        // dd($contact_id);
         $data = new Bhp;
         $data->bhpTyp_id=$req->bhpTyp_id;
         $data->start=$req->start;
@@ -82,17 +77,17 @@ class BhpController extends Controller
         return Redirect::route('bhp.index', $contact_id)->with('success', 'Zapisano.');
     }
 
-    public function destroy(Badania $badania)
+    public function destroy(Bhp $bhp)
     {
-        $contact_id = $badania->contact_id;
-        $badania->delete();
+        $contact_id = $bhp->contact_id;
+        $bhp->delete();
 
-        return Redirect::route('badania.index', $contact_id)->with('success', 'Pracownik usunięty.');
+        return Redirect::route('bhp.index', $contact_id)->with('success', 'Pracownik usunięty.');
     }
 
     public function restore(Badania $badania)
     {
-        $contact->restore();
+        $badania->restore();
 
         return Redirect::back()->with('success', 'Pracownik przywrócony.');
     }

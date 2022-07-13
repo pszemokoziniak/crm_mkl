@@ -1,17 +1,17 @@
 <template>
   <div>
-    <Head title="Badania" />
+    <Head title="Uprawienia" />
     <div>
       <WorkerMenu :contactId="contactId" />
     </div>
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Uprawnienia</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
-    <h1 class="mb-8 text-3xl font-bold">Szkolenia BHP</h1>
+    <h1 class="mb-8 text-3xl font-bold">Uprawnienia</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" :href="`/contacts/${contact.id}/bhp/create`">
+      <Link class="btn-indigo" :href="`/contacts/${contact.id}/uprawnienia/create`">
         <span>Dodaj</span>
       </Link>
     </div>
@@ -22,29 +22,29 @@
           <th class="pb-4 pt-6 px-6">Start</th>
           <th class="pb-4 pt-6 px-6">Koniec</th>
         </tr>
-        <tr v-for="item in bhps.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="item in uprawnienias.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/bhp/${item.id}/edit`">
-              <div v-if="item.bhp">
-                {{ item.bhp.name }}
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/uprawnienia/${item.id}/edit`">
+              <div v-if="item.uprawnienia">
+                {{ item.uprawnienia.name }}
               </div>
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/bhp/${item.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/uprawnienia/${item.id}/edit`">
               {{ item.start }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/bhp/${item.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/uprawnienia/${item.id}/edit`">
               {{ item.end }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/bhp/${item.id}/edit`" tabindex="-1">
+            <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/uprawnienia/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -77,14 +77,14 @@ export default {
   },
   layout: Layout,
   props: {
-    bhps: Object,
+    // bhps: Object,
     contact: Object,
-    badanias: Object,
-    badaniaTyp: Object,
+    uprawnienias: Object,
+    // badaniaTyp: Object,
   },
-  mounted: function () {
-    console.log(this.bads)
-  },
+  // mounted: function () {
+  //   console.log(this.bads)
+  // },
   data() {
     return {
       contactId: this.contact.id,
@@ -98,7 +98,7 @@ export default {
     form: {
       deep: true,
       handler: throttle(function () {
-        this.$inertia.get('/badania', pickBy(this.form), { preserveState: true })
+        this.$inertia.get('/uprawnienia', pickBy(this.form), { preserveState: true })
       }, 150),
     },
   },

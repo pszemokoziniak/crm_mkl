@@ -40,7 +40,7 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.city }}
+              <icon name="dot" class="block w-6 h-6 fill-green-400" />
             </Link>
           </td>
           <td class="border-t">
