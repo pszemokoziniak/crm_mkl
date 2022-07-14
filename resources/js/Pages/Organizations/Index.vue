@@ -22,7 +22,7 @@
           <tr class="text-left font-bold">
             <th class="pb-4 pt-6 px-6">Nazwa</th>
             <th class="pb-4 pt-6 px-6">Miasto</th>
-            <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
+            <th class="pb-4 pt-6 px-6" colspan="2">Kierownik</th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +40,7 @@
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/organizations/${organization.id}/edit`" tabindex="-1">
-                {{ organization.phone }}
+<!--                {{ organization.phone }}-->
               </Link>
             </td>
             <td class="w-px border-t">
@@ -50,7 +50,7 @@
             </td>
           </tr>
           <tr v-if="organizations.data.length === 0">
-            <td class="px-6 py-4 border-t" colspan="4">No organizations found.</td>
+            <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
           </tr>
         </tbody>
       </table>

@@ -6,6 +6,8 @@ use App\Models\Contact;
 use App\Models\Account;
 use App\Models\Funkcja;
 
+use App\Models\Jezyk;
+use http\Client\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
@@ -120,6 +122,7 @@ class ContactsController extends Controller
                 ->map
                 ->only('id', 'name'),
             'funkcjas' => Funkcja::all(),
+            'jezyks' => Jezyk::where('contact_id', $contact->id)->get(),
             // 'funkcja' => Funkcja::find($contact->funkcja),
         ]);
     }

@@ -9,6 +9,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
+<!--    <p>{{ jezyks }}</p>-->
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
@@ -36,11 +37,11 @@
           </select-input>
 
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
-            <text-input type="date" v-model="form.work_start" :error="form.errors.work_start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
-            <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
+          <text-input v-model="form.work_start" :error="form.errors.work_start" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
+          <text-input v-model="form.work_end" :error="form.errors.work_end" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
 
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
-            <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
+          <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
         </div>
 
 
@@ -78,6 +79,7 @@ export default {
     organizations: Array,
     funkcjas: Object,
     accounts: Object,
+    jezyks: Object,
   },
   remember: 'form',
   data() {
