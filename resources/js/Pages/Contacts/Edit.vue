@@ -9,47 +9,64 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
-<!--    <p>{{ jezyks }}</p>-->
+    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/2 text-center cursor-pointer">
+      <span>Edytuj</span>
+    </div>
+    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden mb-2">
+      <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
+        <span>Zanne języki:</span>
+      </h2>
+      <tr v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <td class="">
+          <div v-if="item.jezyk" class="m-1">
+            {{ item.jezyk.name }} -
+          </div>
+        </td>
+        <td class="">
+          {{ item.poziom }}
+        </td>
+      </tr>
+    </div>
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
-      <form @submit.prevent="update">
-        <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.first_name" :error="form.errors.first_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />
-          <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
+      <fieldset :disabled="disabled == 0">
+        <form @submit.prevent="update">
+          <div class="flex flex-wrap -mb-8 -mr-6 p-8">
+            <text-input v-model="form.first_name" :error="form.errors.first_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />
+            <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
 
-          <text-input type="date" v-model="form.birth_date" :error="form.errors.birth_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data Urodzenia" />
-          <text-input v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
+            <text-input type="date" v-model="form.birth_date" :error="form.errors.birth_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data Urodzenia" />
+            <text-input v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
 
-          <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce zamieszkania" />
+            <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce zamieszkania" />
 
-          <text-input v-model="form.idCard_number" :error="form.errors.idCard_number" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Dowodu" />
-          <text-input type="date" v-model="form.idCard_date" :error="form.errors.idCard_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
+            <text-input v-model="form.idCard_number" :error="form.errors.idCard_number" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Dowodu" />
+            <text-input type="date" v-model="form.idCard_date" :error="form.errors.idCard_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
 
-          <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
-          <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telefon" />
+            <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
+            <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telefon" />
 
-          <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
-            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-          </select-input>
+            <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
+              <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
+            </select-input>
 
-          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
-            <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
-          </select-input>
+            <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+              <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
+            </select-input>
 
-          <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
-          <text-input v-model="form.work_start" :error="form.errors.work_start" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
-          <text-input v-model="form.work_end" :error="form.errors.work_end" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
+            <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
+            <text-input v-model="form.work_start" :error="form.errors.work_start" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
+            <text-input v-model="form.work_end" :error="form.errors.work_end" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
 
-          <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
-          <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
-        </div>
-
-
-        <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <button v-if="!contact.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
-          <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
-        </div>
-      </form>
+            <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
+            <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
+          </div>
+          <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
+            <button v-if="!contact.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+            <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
+          </div>
+        </form>
+      </fieldset>
     </div>
   </div>
 </template>
@@ -85,6 +102,7 @@ export default {
   data() {
     return {
       contactId: this.contact.id,
+      disabled: 0,
       form: this.$inertia.form({
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,

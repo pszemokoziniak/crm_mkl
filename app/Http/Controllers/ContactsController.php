@@ -122,7 +122,17 @@ class ContactsController extends Controller
                 ->map
                 ->only('id', 'name'),
             'funkcjas' => Funkcja::all(),
-            'jezyks' => Jezyk::where('contact_id', $contact->id)->get(),
+//            'jezyks' => Jezyk::where('contact_id', $contact->id)->get(),
+            'jezyks' => Jezyk::with('jezykTyp')
+                ->where('contact_id', $contact->id)
+                ->orderByName()
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($jezyk) => [
+                    'id' => $jezyk->id,
+                    'poziom' => $jezyk->poziom,
+                    'jezyk' => $jezyk->jezykTyp ? $jezyk->jezykTyp : null,
+                ]),
             // 'funkcja' => Funkcja::find($contact->funkcja),
         ]);
     }

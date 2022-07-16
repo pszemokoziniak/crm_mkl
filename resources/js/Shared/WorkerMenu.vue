@@ -12,6 +12,9 @@
       </div>
       <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div class="text-md lg:flex-grow">
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/edit/`">
+            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane osobowe</div>
+          </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/badania/`">
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Badania lekarskie</div>
           </Link>
@@ -28,9 +31,9 @@
             <div :class="'text-indigo-300 group-hover:text-gray-900'">Języki</div>
           </Link>
         </div>
-        <div>
-          <a href="#" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">Download</a>
-        </div>
+<!--        <div>-->
+<!--          <a href="#" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">Download</a>-->
+<!--        </div>-->
       </div>
     </nav>
   </div>
