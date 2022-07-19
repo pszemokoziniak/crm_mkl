@@ -16,14 +16,15 @@ class CreateOrganizationsTable extends Migration
         Schema::create('organizations', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('account_id')->index();
-            $table->string('name', 100);
-            $table->string('email', 50)->nullable();
-            $table->string('phone', 50)->nullable();
-            $table->string('address', 150)->nullable();
-            $table->string('city', 50)->nullable();
-            $table->string('region', 50)->nullable();
-            $table->string('country', 2)->nullable();
-            $table->string('postal_code', 25)->nullable();
+            $table->string('name', 500);
+            $table->string('nazwaBud', 100)->nullable();
+            $table->string('numerBud', 50)->nullable();
+            $table->string('city', 450)->nullable();
+            $table->integer('kierownikBud_id')->index();
+            $table->string('zaklad', 350)->nullable();
+            $table->integer('country_id')->index();
+            $table->string('addressBud', 1500)->nullable();
+            $table->string('addressKwat', 1500)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

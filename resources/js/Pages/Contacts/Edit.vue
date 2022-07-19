@@ -16,16 +16,11 @@
       <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
         <span>Zanne języki:</span>
       </h2>
-      <tr v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-        <td class="">
-          <div v-if="item.jezyk" class="m-1">
-            {{ item.jezyk.name }} -
-          </div>
-        </td>
-        <td class="">
-          {{ item.poziom }}
-        </td>
-      </tr>
+      <span v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <span v-if="item.jezyk" class="m-1">
+            {{ item.jezyk.name }} - {{ item.poziom }}
+          </span>
+      </span>
     </div>
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">

@@ -10,19 +10,28 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa" />
-          <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
-          <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telfon" />
-          <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/2" label="Adres" />
+          <text-input v-model="form.nazwaBud" :error="form.errors.nazwaBud" class="pb-8 pr-6 w-full lg:w-1/1" label="Pełna Nazwa Budowy" />
+          <text-input v-model="form.numerBud" :error="form.errors.numerBud" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Budowy" />
           <text-input v-model="form.city" :error="form.errors.city" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
-          <text-input v-model="form.region" :error="form.errors.region" class="pb-8 pr-6 w-full lg:w-1/2" label="Województwo" />
-          <select-input v-model="form.country" :error="form.errors.country" class="pb-8 pr-6 w-full lg:w-1/2" label="Państwo">
-            <option :value="null" />
+          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa Budowy" />
+
+          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
+            <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.name }}</option>
+<!--            <option :value="null" />-->
+<!--            <option value="CA">Rysiek</option>-->
+<!--            <option value="US">Mietek</option>-->
+          </select-input>
+
+          <text-input v-model="form.zaklad" :error="form.errors.zaklad" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
+          <select-input v-model="form.country_id" :error="form.errors.country_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option value="CA">Polska</option>
             <option value="US">USA</option>
+            <option value="US">Mongolia</option>
           </select-input>
-          <text-input v-model="form.postal_code" :error="form.errors.postal_code" class="pb-8 pr-6 w-full lg:w-1/2" label="Kod Pocztowy" />
+          <text-input v-model="form.addressBud" :error="form.errors.addressBud" class="pb-8 pr-6 w-full lg:w-1/1" label="Adres Budowy" />
+          <text-input v-model="form.addressKwat" :error="form.errors.addressKwat" class="pb-8 pr-6 w-full lg:w-1/1" label="Adres Kwatery" />
         </div>
+
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!organization.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
@@ -34,7 +43,7 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Imię</th>
-          <th class="pb-4 pt-6 px-6">Miasto</th>
+          <th class="pb-4 pt-6 px-6">Nazwisko</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
         <tr v-for="contact in organization.contacts" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
@@ -46,12 +55,12 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.city }}
+              {{ contact.country_id }}
             </Link>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.phone }}
+              {{ contact.kierownikBud_id }}
             </Link>
           </td>
           <td class="w-px border-t">
@@ -90,34 +99,37 @@ export default {
   layout: Layout,
   props: {
     organization: Object,
+    kierownikBud_id: Object,
+    country_id: Object,
   },
   remember: 'form',
   data() {
     return {
       form: this.$inertia.form({
         name: this.organization.name,
-        email: this.organization.email,
-        phone: this.organization.phone,
-        address: this.organization.address,
+        nazwaBud: this.organization.nazwaBud,
+        numerBud: this.organization.numerBud,
         city: this.organization.city,
-        region: this.organization.region,
-        country: this.organization.country,
-        postal_code: this.organization.postal_code,
+        kierownikBud_id: this.organization.kierownikBud_id,
+        zaklad: this.organization.zaklad,
+        country_id: this.organization.country_id,
+        addressBud: this.organization.addressBud,
+        addressKwat: this.organization.addressKwat,
       }),
     }
   },
   methods: {
     update() {
-      this.form.put(`/organizations/${this.organization.id}`)
+      this.form.put(`/budowy/${this.organization.id}`)
     },
     destroy() {
       if (confirm('Jesteś pewnien, że chcesz usunąć budowę?')) {
-        this.$inertia.delete(`/organizations/${this.organization.id}`)
+        this.$inertia.delete(`/budowy/${this.organization.id}`)
       }
     },
     restore() {
       if (confirm('Jesteś pewnien, że chcesz przywrócić budowę?')) {
-        this.$inertia.put(`/organizations/${this.organization.id}/restore`)
+        this.$inertia.put(`/budowy/${this.organization.id}/restore`)
       }
     },
   },

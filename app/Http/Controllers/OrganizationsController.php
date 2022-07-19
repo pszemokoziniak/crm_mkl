@@ -22,8 +22,8 @@ class OrganizationsController extends Controller
                 ->through(fn ($organization) => [
                     'id' => $organization->id,
                     'name' => $organization->name,
-                    'phone' => $organization->phone,
-                    'city' => $organization->city,
+                    'country_id' => $organization->country_id,
+                    'kierownikBud_id' => $organization->kierownikBud_id,
                     'deleted_at' => $organization->deleted_at,
                 ]),
         ]);
@@ -38,14 +38,15 @@ class OrganizationsController extends Controller
     {
         Auth::user()->account->organizations()->create(
             Request::validate([
-                'name' => ['required', 'max:100'],
-                'email' => ['nullable', 'max:50', 'email'],
-                'phone' => ['nullable', 'max:50'],
-                'address' => ['nullable', 'max:150'],
-                'city' => ['nullable', 'max:50'],
-                'region' => ['nullable', 'max:50'],
-                'country' => ['nullable', 'max:2'],
-                'postal_code' => ['nullable', 'max:25'],
+                'name' => ['required', 'max:1200'],
+                'nazwaBud' => ['nullable', 'max:1200'],
+                'numerBud' => ['nullable', 'max:50'],
+                'city' => ['nullable', 'max:2000'],
+                'kierownikBud_id' => ['nullable', 'max:50'],
+                'zaklad' => ['nullable', 'max:50'],
+                'country_id' => ['nullable', 'max:1000'],
+                'addressBud' => ['nullable', 'max:25'],
+                'addressKwat' => ['nullable', 'max:25'],
             ])
         );
 
@@ -58,13 +59,14 @@ class OrganizationsController extends Controller
             'organization' => [
                 'id' => $organization->id,
                 'name' => $organization->name,
-                'email' => $organization->email,
-                'phone' => $organization->phone,
-                'address' => $organization->address,
+                'nazwaBud' => $organization->nazwaBud,
+                'numerBud' => $organization->numerBud,
                 'city' => $organization->city,
-                'region' => $organization->region,
-                'country' => $organization->country,
-                'postal_code' => $organization->postal_code,
+                'kierownikBud_id' => $organization->kierownikBud_id,
+                'zaklad' => $organization->zaklad,
+                'country_id' => $organization->country_id,
+                'addressBud' => $organization->addressBud,
+                'addressKwat' => $organization->addressKwat,
                 'deleted_at' => $organization->deleted_at,
                 'contacts' => $organization->contacts()->orderByName()->get()->map->only('id', 'name', 'city', 'phone'),
             ],

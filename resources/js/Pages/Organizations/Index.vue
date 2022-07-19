@@ -11,7 +11,7 @@
           <option value="only">test2</option>
         </select>
       </search-filter>
-      <Link class="btn-indigo" href="/organizations/create">
+      <Link class="btn-indigo" href="/budowy/create">
         <span>Utwórz</span>
         <span class="hidden md:inline">&nbsp;Budowę</span>
       </Link>
@@ -21,30 +21,30 @@
         <thead>
           <tr class="text-left font-bold">
             <th class="pb-4 pt-6 px-6">Nazwa</th>
-            <th class="pb-4 pt-6 px-6">Miasto</th>
+            <th class="pb-4 pt-6 px-6">Kraj</th>
             <th class="pb-4 pt-6 px-6" colspan="2">Kierownik</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="organization in organizations.data" :key="organization.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/organizations/${organization.id}/edit`">
+              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${organization.id}/edit`">
                 {{ organization.name }}
                 <icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               </Link>
             </td>
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/organizations/${organization.id}/edit`" tabindex="-1">
-                {{ organization.city }}
+              <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+                {{ organization.country_id }}
               </Link>
             </td>
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/organizations/${organization.id}/edit`" tabindex="-1">
-<!--                {{ organization.phone }}-->
+              <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+                {{ organization.kierownikBud_id }}
               </Link>
             </td>
             <td class="w-px border-t">
-              <Link class="flex items-center px-4" :href="`/organizations/${organization.id}/edit`" tabindex="-1">
+              <Link class="flex items-center px-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
                 <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
               </Link>
             </td>
@@ -94,7 +94,7 @@ export default {
     form: {
       deep: true,
       handler: throttle(function () {
-        this.$inertia.get('/organizations', pickBy(this.form), { preserveState: true })
+        this.$inertia.get('/budowy', pickBy(this.form), { preserveState: true })
       }, 150),
     },
   },

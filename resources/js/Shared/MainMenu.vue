@@ -7,9 +7,9 @@
       </Link>
     </div>
     <div class="mb-4">
-      <Link class="group flex items-center py-3" href="/organizations">
-        <icon name="office" class="mr-2 w-4 h-4" :class="isUrl('organizations') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('organizations') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Budowy</div>
+      <Link class="group flex items-center py-3" href="/budowy">
+        <icon name="office" class="mr-2 w-4 h-4" :class="isUrl('budowy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <div :class="isUrl('budowy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Budowy</div>
       </Link>
     </div>
     <div class="mb-4">

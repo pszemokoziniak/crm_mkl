@@ -23,20 +23,20 @@ class DatabaseSeeder extends Seeder
             'account_id' => $account->id,
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'email' => 'johndoe@example.com',
+            'email' => 'test@mkl.com',
             'password' => 'secret',
             'owner' => true,
         ]);
 
         User::factory(5)->create(['account_id' => $account->id]);
-
-        $organizations = Organization::factory(100)
-            ->create(['account_id' => $account->id]);
-
-        Contact::factory(100)
-            ->create(['account_id' => $account->id])
-            ->each(function ($contact) use ($organizations) {
-                $contact->update(['organization_id' => $organizations->random()->id]);
-            });
+//
+//        $organizations = Organization::factory(100)
+//            ->create(['account_id' => $account->id]);
+//
+//        Contact::factory(100)
+//            ->create(['account_id' => $account->id])
+//            ->each(function ($contact) use ($organizations) {
+//                $contact->update(['organization_id' => $organizations->random()->id]);
+//            });
     }
 }

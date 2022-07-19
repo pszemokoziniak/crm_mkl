@@ -86,31 +86,31 @@ Route::put('users/{user}/restore', [UsersController::class, 'restore'])
 
 // Organizations
 
-Route::get('organizations', [OrganizationsController::class, 'index'])
+Route::get('budowy', [OrganizationsController::class, 'index'])
     ->name('organizations')
     ->middleware('auth');
 
-Route::get('organizations/create', [OrganizationsController::class, 'create'])
+Route::get('budowy/create', [OrganizationsController::class, 'create'])
     ->name('organizations.create')
     ->middleware('auth');
 
-Route::post('organizations', [OrganizationsController::class, 'store'])
+Route::post('budowy', [OrganizationsController::class, 'store'])
     ->name('organizations.store')
     ->middleware('auth');
 
-Route::get('organizations/{organization}/edit', [OrganizationsController::class, 'edit'])
+Route::get('budowy/{organization}/edit', [OrganizationsController::class, 'edit'])
     ->name('organizations.edit')
     ->middleware('auth');
 
-Route::put('organizations/{organization}', [OrganizationsController::class, 'update'])
+Route::put('budowy/{organization}', [OrganizationsController::class, 'update'])
     ->name('organizations.update')
     ->middleware('auth');
 
-Route::delete('organizations/{organization}', [OrganizationsController::class, 'destroy'])
+Route::delete('budowy/{organization}', [OrganizationsController::class, 'destroy'])
     ->name('organizations.destroy')
     ->middleware('auth');
 
-Route::put('organizations/{organization}/restore', [OrganizationsController::class, 'restore'])
+Route::put('budowy/{organization}/restore', [OrganizationsController::class, 'restore'])
     ->name('organizations.restore')
     ->middleware('auth');
 
@@ -410,7 +410,7 @@ Route::delete('uprawnieniaTyp/{uprawnieniaTyp}', [UprawnieniaTypController::clas
     ->middleware('auth');
 
 Route::put('uprawnieniaTyp/{uprawnieniaTyp}/restore', [UprawnieniaTypController::class, 'restore'])
-    ->name('bhpTyp.restore')
+    ->name('uprawnieniaTyp.restore')
     ->middleware('auth');
 
 // Języki
