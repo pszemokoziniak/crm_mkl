@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\JezykController;
 use App\Http\Controllers\JezykTypController;
+use App\Http\Controllers\KrajTypController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UprawnieniaController;
@@ -441,6 +442,36 @@ Route::delete('jezykTyp/{jezykTyp}', [JezykTypController::class, 'destroy'])
 
 Route::put('jezykTyp/{jezykTyp}/restore', [JezykTypController::class, 'restore'])
     ->name('jezykTyp.restore')
+    ->middleware('auth');
+
+// Kraje
+
+Route::get('krajTyp', [KrajTypController::class, 'index'])
+    ->name('krajTyp')
+    ->middleware('auth');
+
+Route::get('krajTyp/create', [KrajTypController::class, 'create'])
+    ->name('krajTyp.create')
+    ->middleware('auth');
+
+Route::post('krajTyp', [KrajTypController::class, 'store'])
+    ->name('krajTyp.store')
+    ->middleware('auth');
+
+Route::get('krajTyp/{krajTyp}/edit', [KrajTypController::class, 'edit'])
+    ->name('krajTyp.edit')
+    ->middleware('auth');
+
+Route::put('krajTyp/{krajTyp}', [KrajTypController::class, 'update'])
+    ->name('krajTyp.update')
+    ->middleware('auth');
+
+Route::delete('krajTyp/{krajTyp}', [KrajTypController::class, 'destroy'])
+    ->name('krajTyp.destroy')
+    ->middleware('auth');
+
+Route::put('krajTyp/{krajTyp}/restore', [KrajTypController::class, 'restore'])
+    ->name('krajTyp.restore')
     ->middleware('auth');
 
 // Reports

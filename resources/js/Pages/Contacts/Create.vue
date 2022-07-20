@@ -26,7 +26,7 @@
             <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
           </select-input>
 
-          <select-input v-model="form.funkcja" :error="form.errors.funkcja" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
@@ -93,6 +93,7 @@ export default {
     organizations: Array,
     accounts: Array,
     funkcjas: Object,
+    errors: Object,
   },
   remember: 'form',
   data() {
@@ -101,24 +102,18 @@ export default {
         first_name: '',
         last_name: '',
         birth_date: '',
-
         pesel: '',
         idCard_number: '',
         idCard_date: '',
         position: '',
-        funkcja: '',
+        funkcja_id: '',
         work_start: '',
         work_end: '',
         ekuz: '',
-
         organization_id: null,
         email: '',
         phone: '',
         address: '',
-        // city: '',
-        // region: '',
-        // country: '',
-        // postal_code: '',
       }),
     }
   },

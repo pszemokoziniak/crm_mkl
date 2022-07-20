@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
+use App\Models\JezykTyp;
+use App\Models\KrajTyp;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -70,6 +73,8 @@ class OrganizationsController extends Controller
                 'deleted_at' => $organization->deleted_at,
                 'contacts' => $organization->contacts()->orderByName()->get()->map->only('id', 'name', 'city', 'phone'),
             ],
+            'krajTyps' => KrajTyp::all(),
+            'kierownikBud' => Contact::where('position', '=', 1)->get(),
         ]);
     }
 
@@ -78,13 +83,14 @@ class OrganizationsController extends Controller
         $organization->update(
             Request::validate([
                 'name' => ['required', 'max:100'],
-                'email' => ['nullable', 'max:50', 'email'],
-                'phone' => ['nullable', 'max:50'],
-                'address' => ['nullable', 'max:150'],
-                'city' => ['nullable', 'max:50'],
-                'region' => ['nullable', 'max:50'],
-                'country' => ['nullable', 'max:2'],
-                'postal_code' => ['nullable', 'max:25'],
+                'nazwaBud' => ['nullable', 'max:2250'],
+                'numerBud' => ['nullable', 'max:550'],
+                'city' => ['nullable', 'max:150'],
+                'kierownikBud_id' => ['nullable', 'max:25'],
+                'zaklad' => ['nullable', 'max:2000'],
+                'country_id' => ['nullable', 'max:25'],
+                'addressBud' => ['nullable', 'max:2000'],
+                'addressKwat' => ['nullable', 'max:2500'],
             ])
         );
 
