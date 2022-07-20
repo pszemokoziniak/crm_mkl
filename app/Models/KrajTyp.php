@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class KrajTyp extends Model
 {
     use HasFactory;
+
+    public function organization() {
+        return $this->hasOne(Organization::class);
+    }
 }

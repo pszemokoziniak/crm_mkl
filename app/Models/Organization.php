@@ -21,6 +21,10 @@ class Organization extends Model
         return $this->hasMany(Contact::class);
     }
 
+    public function krajTyp() {
+        return $this->belongsTo(KrajTyp::class, 'country_id','id');
+    }
+
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {

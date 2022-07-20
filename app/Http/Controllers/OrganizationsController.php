@@ -18,6 +18,7 @@ class OrganizationsController extends Controller
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Auth::user()->account->organizations()
+                ->with('krajTyp')
                 ->orderBy('name')
                 ->filter(Request::only('search', 'trashed'))
                 ->paginate(10)
@@ -25,7 +26,7 @@ class OrganizationsController extends Controller
                 ->through(fn ($organization) => [
                     'id' => $organization->id,
                     'name' => $organization->name,
-                    'country_id' => $organization->country_id,
+                    'country' => $organization->krajTyp ? $organization->krajTyp : null,
                     'kierownikBud_id' => $organization->kierownikBud_id,
                     'deleted_at' => $organization->deleted_at,
                 ]),

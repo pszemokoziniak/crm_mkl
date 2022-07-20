@@ -35,7 +35,9 @@
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-                {{ organization.country_id }}
+                <div v-if="organization.country">
+                {{ organization.country.name}}
+                </div>
               </Link>
             </td>
             <td class="border-t">
