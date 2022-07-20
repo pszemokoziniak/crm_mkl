@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDocumentRequest;
 use App\Models\CtnDocument;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -33,14 +34,8 @@ class CtnDocumentsController extends Controller
         ]);
     }
 
-    public function store(int $contactId): RedirectResponse
+    public function store(StoreDocumentRequest $request, int $contactId): RedirectResponse
     {
-        // @TODO to validate type of file, display errors on FE
-        Request::validate([
-            'name' => ['required', 'max:50'],
-            'document' => ['required', 'mimes:pdf'],
-        ]);
-
         $document = Request::file('document');
         $path = 'documents/' . $contactId;
 
