@@ -15,6 +15,7 @@
         <span>Dodaj</span>
       </Link>
     </div>
+
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -49,16 +50,16 @@ import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
-import Pagination from '@/Shared/Pagination'
-import SearchFilter from '@/Shared/SearchFilter'
+// import Pagination from '@/Shared/Pagination'
+// import SearchFilter from '@/Shared/SearchFilter'
 
 export default {
   components: {
     Head,
     Icon,
     Link,
-    Pagination,
-    SearchFilter,
+    // Pagination,
+    // SearchFilter,
   },
   layout: Layout,
   props: {

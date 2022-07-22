@@ -17,11 +17,11 @@
             <option v-for="item in jezykTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
           <select-input v-model="form.poziom" :error="form.errors.poziom" class="pb-8 pr-6 w-full lg:w-1/1" label="Poziom">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
+            <option value="poczatkujący">poczatkujący</option>
+            <option value="komunikatywny">komunikatywny</option>
+            <option value="dobry">dobry</option>
+            <option value="bardzo dobry">bardzo dobry</option>
+            <option value="płynny">płynny</option>
           </select-input>
         </div>
 

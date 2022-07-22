@@ -17,7 +17,7 @@ class CreateJezyksTable extends Migration
             $table->id();
             $table->integer('contact_id')->index();
             $table->integer('jezykTyp_id')->index();
-            $table->integer('poziom')->nullable();
+            $table->string('poziom')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

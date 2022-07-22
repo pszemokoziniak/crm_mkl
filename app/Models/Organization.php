@@ -24,6 +24,9 @@ class Organization extends Model
     public function krajTyp() {
         return $this->belongsTo(KrajTyp::class, 'country_id','id');
     }
+    public function contactTypName() {
+        return $this->belongsTo(Contact::class, 'kierownikBud_id','id');
+    }
 
     public function scopeFilter($query, array $filters)
     {

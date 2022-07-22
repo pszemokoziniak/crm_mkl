@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\JezykController;
 use App\Http\Controllers\JezykTypController;
+use App\Http\Controllers\KlientController;
 use App\Http\Controllers\KrajTypController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\ReportsController;
@@ -113,6 +114,36 @@ Route::delete('budowy/{organization}', [OrganizationsController::class, 'destroy
 
 Route::put('budowy/{organization}/restore', [OrganizationsController::class, 'restore'])
     ->name('organizations.restore')
+    ->middleware('auth');
+
+// Klient Budowa
+
+Route::get('budowy/{organization}/klient', [KlientController::class, 'index'])
+    ->name('klient.index')
+    ->middleware('auth');
+
+Route::get('budowy/{organization}/klient/create', [KlientController::class, 'create'])
+    ->name('klient.create')
+    ->middleware('auth');
+
+Route::post('klient/', [KlientController::class, 'store'])
+    ->name('klient.store')
+    ->middleware('auth');
+
+Route::get('budowy/{organization}/klient/{klient}/edit', [KlientController::class, 'edit'])
+    ->name('klient.edit')
+    ->middleware('auth');
+
+Route::put('budowy/{organization}/klient/{klient}', [KlientController::class, 'update'])
+    ->name('klient.update')
+    ->middleware('auth');
+
+Route::delete('budowy/{klient}', [KlientController::class, 'destroy'])
+    ->name('klient.destroy')
+    ->middleware('auth');
+
+Route::put('budowy/{klient}/restore', [KlientController::class, 'restore'])
+    ->name('klient.restore')
     ->middleware('auth');
 
 // Contacts
@@ -293,6 +324,7 @@ Route::delete('position/{account}', [AccountsController::class, 'destroy'])
 Route::put('position/{account}/restore', [AccountsController::class, 'restore'])
     ->name('position.restore')
     ->middleware('auth');
+
 
 // Funkcja
 

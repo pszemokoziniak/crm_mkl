@@ -42,7 +42,7 @@
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-                {{ organization.kierownikBud_id }}
+                {{ organization.kierownikBud_id.first_name }}
               </Link>
             </td>
             <td class="w-px border-t">

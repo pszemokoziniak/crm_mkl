@@ -27,7 +27,7 @@ class OrganizationsController extends Controller
                     'id' => $organization->id,
                     'name' => $organization->name,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
-                    'kierownikBud_id' => $organization->kierownikBud_id,
+                    'kierownikBud_id' => $organization->contactTypName ? $organization->contactTypName : null,
                     'deleted_at' => $organization->deleted_at,
                 ]),
         ]);

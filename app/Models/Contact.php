@@ -27,6 +27,10 @@ class Contact extends Model
         return $this->belongsTo(Funkcja::class);
     }
 
+    public function organizationKierownikname() {
+        return $this->hasOne(Organization::class);
+    }
+
     public function documents(): HasMany
     {
         return $this->hasMany(CtnDocument::class);
