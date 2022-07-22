@@ -15,7 +15,7 @@
           <select-input v-model="form.country_id" :error="form.errors.country_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
-          <text-input v-model="form.nameKontakt" :error="form.errors.nameKontakt" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa kontaktu" />
+          <text-input v-model="form.nameKontakt" :error="form.errors.nameKontakt" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa kontaktu" />
           <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Nr. telefonu" />
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
         </div>

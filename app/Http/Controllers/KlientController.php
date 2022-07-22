@@ -8,7 +8,9 @@ use App\Models\Klient;
 use App\Models\KrajTyp;
 use App\Models\Organization;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class KlientController extends Controller
@@ -38,14 +40,23 @@ class KlientController extends Controller
     //     ]);
     // }
 
-    public function edit(Account $account)
+    public function edit(Organization $organization, Klient $klient)
     {
-        return Inertia::render('Positions/Edit', [
-            'account' => [
-                'id' => $account->id,
-                'name' => $account->name,
-                'deleted_at' => $account->deleted_at,
+        return Inertia::render('Klients/Edit', [
+            'klient' => [
+                'id' => $klient->id,
+                'organization_id' => $klient->organization_id,
+                'nameFirma' => $klient->nameFirma,
+                'adres' => $klient->adres,
+                'city' => $klient->city,
+                'country_id' => $klient->country_id,
+                'nameKontakt' => $klient->nameKontakt,
+                'phone' => $klient->phone,
+                'email' => $klient->email,
             ],
+            'budId' => $organization->id,
+            'krajTyps' => KrajTyp::all(),
+
         ]);
     }
     public function destroy(Account $account)
@@ -66,16 +77,34 @@ class KlientController extends Controller
         return Redirect::back()->with('success', 'Objekt przywrócony.');
     }
 
-    public function update(Account $account)
+    public function update(Klient $klient)
     {
-        $account->update(
-            Request::validate([
-                'name' => ['required', 'max:50'],
+        $klient->update(
+            \Illuminate\Support\Facades\Request::validate([
+                'organization_id' => ['required', 'max:50'],
+                'nameFirma' => ['required', 'max:550'],
+                'adres' => ['nullable', 'max:1150'],
+                'city' => ['nullable', 'max:150'],
+                'country_id' => ['nullable', 'max:550'],
+                'nameKontakt' => ['nullable', 'max:550'],
+                'phone' => ['nullable', 'max:150'],
+                'email' => ['nullable', 'max:200', 'email'],
             ])
         );
+//        $data = Klient::find($klient->id);
+//        $data->organization_id = $klient->organization_id;
+//        $data->nameFirma = $klient->nameFirma;
+//        $data->adres = $klient->adres;
+//        $data->city = $klient->city;
+//        $data->country_id = $klient->country_id;
+//        $data->nameKontakt = $klient->nameKontakt;
+//        $data->phone = $klient->phone;
+//        $data->email = $klient->email;
+//        $data->save();
+
 
         // return Redirect::back()->with('success', 'Poprawiono.');
-        return Redirect::route('position')->with('success', 'Poprawiono.');
+        return Redirect::route('klient.index', $klient->organization_id)->with('success', 'Poprawiono.');
 
     }
 

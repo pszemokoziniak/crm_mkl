@@ -134,7 +134,7 @@ Route::get('budowy/{organization}/klient/{klient}/edit', [KlientController::clas
     ->name('klient.edit')
     ->middleware('auth');
 
-Route::put('budowy/{organization}/klient/{klient}', [KlientController::class, 'update'])
+Route::put('klient/{klient}', [KlientController::class, 'update'])
     ->name('klient.update')
     ->middleware('auth');
 

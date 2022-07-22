@@ -1,5 +1,6 @@
 <template>
   <div>
+    <BudMenu :budId="budId" />
     <Head title="Klient" />
     <h1 class="mb-8 text-3xl font-bold">Klient</h1>
     <div class="flex items-center justify-between mb-6">
@@ -7,20 +8,6 @@
         <span>Dodaj</span>
       </Link>
     </div>
-<!--    <div class="flex items-center justify-between mb-6">-->
-<!--      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">-->
-<!--        <label class="block text-gray-700">Trashed:</label>-->
-<!--        <select v-model="form.trashed" class="form-select mt-1 w-full">-->
-<!--          <option :value="null" />-->
-<!--          <option value="with">test1</option>-->
-<!--          <option value="only">test2</option>-->
-<!--        </select>-->
-<!--      </search-filter>-->
-<!--      <Link class="btn-indigo" href="/budowy/create">-->
-<!--        <span>Utwórz</span>-->
-<!--        <span class="hidden md:inline">&nbsp;Budowę</span>-->
-<!--      </Link>-->
-<!--    </div>-->
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
@@ -33,7 +20,7 @@
         <tbody>
           <tr v-for="item in klients" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${budId}/klient/`">
+              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${budId}/klient/${item.id}/edit`">
                 {{ item.nameFirma }}
                 <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               </Link>
