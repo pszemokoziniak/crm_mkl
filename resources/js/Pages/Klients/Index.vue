@@ -54,6 +54,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
+import BudMenu from '@/Shared/BudMenu'
 import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
@@ -65,6 +66,7 @@ export default {
     Head,
     Icon,
     Link,
+    BudMenu,
     // Pagination,
   },
   layout: Layout,
