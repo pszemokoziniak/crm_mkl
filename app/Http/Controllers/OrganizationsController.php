@@ -37,7 +37,10 @@ class OrganizationsController extends Controller
 
     public function create()
     {
-        return Inertia::render('Organizations/Create');
+        return Inertia::render('Organizations/Create', [
+            'krajTyps' => KrajTyp::all(),
+            'kierownikBud' => Contact::where('position', '=', 1)->get(),
+        ]);
     }
 
     public function store()

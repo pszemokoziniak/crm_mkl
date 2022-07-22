@@ -18,9 +18,6 @@
 
           <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
             <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }}</option>
-<!--            <option :value="null" />-->
-<!--            <option value="CA">Rysiek</option>-->
-<!--            <option value="US">Mietek</option>-->
           </select-input>
 
           <text-input v-model="form.zaklad" :error="form.errors.zaklad" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
@@ -100,8 +97,6 @@ export default {
   layout: Layout,
   props: {
     organization: Object,
-    // kierownikBud_id: Object,
-    // country_id: Object,
     krajTyps: Object,
     kierownikBud: Object,
   },
