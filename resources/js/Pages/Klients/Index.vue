@@ -1,8 +1,12 @@
 <template>
   <div>
     <Head title="Klient" />
-    {{klients}}
     <h1 class="mb-8 text-3xl font-bold">Klient</h1>
+    <div class="flex items-center justify-between mb-6">
+      <Link class="btn-indigo" :href="`/budowy/${budId}/klient/create`">
+        <span>Dodaj</span>
+      </Link>
+    </div>
 <!--    <div class="flex items-center justify-between mb-6">-->
 <!--      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">-->
 <!--        <label class="block text-gray-700">Trashed:</label>-->
@@ -29,25 +33,23 @@
         <tbody>
           <tr v-for="item in klients" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.id}/edit`">
+              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${budId}/klient/`">
                 {{ item.nameFirma }}
                 <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               </Link>
             </td>
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.country">
+              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/klient`" tabindex="-1">
                 {{ item.nameKontakt }}
-                </div>
               </Link>
             </td>
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/klient`" tabindex="-1">
                 {{ item.phone }}
               </Link>
             </td>
             <td class="w-px border-t">
-              <Link class="flex items-center px-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+              <Link class="flex items-center px-4" :href="`/budowy/${item.id}/klient`" tabindex="-1">
                 <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
               </Link>
             </td>
@@ -83,6 +85,7 @@ export default {
     filters: Object,
     organizations: Object,
     klients: Object,
+    budId: Number,
   },
   data() {
     return {

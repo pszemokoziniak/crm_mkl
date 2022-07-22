@@ -13,12 +13,12 @@ use Inertia\Inertia;
 
 class KlientController extends Controller
 {
-    public function index()
+    public function index(Organization $organization)
     {
-
+        $budId = $organization->id;
         $klients = Klient::all();
 
-        return Inertia('Klients/Index', compact('klients'));
+        return Inertia('Klients/Index', compact('klients', 'budId'));
 
     }
     // public function create()
