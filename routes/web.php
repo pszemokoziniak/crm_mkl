@@ -138,7 +138,7 @@ Route::put('klient/{klient}', [KlientController::class, 'update'])
     ->name('klient.update')
     ->middleware('auth');
 
-Route::delete('budowy/{klient}', [KlientController::class, 'destroy'])
+Route::delete('klient/{klient}/delete', [KlientController::class, 'destroy'])
     ->name('klient.destroy')
     ->middleware('auth');
 

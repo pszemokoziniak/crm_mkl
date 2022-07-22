@@ -18,7 +18,7 @@ class KlientController extends Controller
     public function index(Organization $organization)
     {
         $budId = $organization->id;
-        $klients = Klient::all();
+        $klients = Klient::where('organization_id', $organization->id)->get();
 
         return Inertia('Klients/Index', compact('klients', 'budId'));
 
@@ -59,13 +59,11 @@ class KlientController extends Controller
 
         ]);
     }
-    public function destroy(Account $account)
+    public function destroy(Klient $klient)
     {
-
-        $account->delete();
-
-        // return Redirect::back()->with('success', 'Objekt usunięty.');
-        return Redirect::route('position')->with('success', 'Usunięto.');
+        $klient->delete();
+//        return Redirect::route('position')->with('success', 'Usunięto.');
+        return Redirect::route('klient.index', $klient->organization_id)->with('success', 'Usunięto.');
 
 
     }

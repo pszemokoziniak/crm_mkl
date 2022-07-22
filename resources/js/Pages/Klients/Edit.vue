@@ -116,7 +116,7 @@ export default {
     },
     destroy() {
       if (confirm('Jesteś pewnien, że chcesz usunąć budowę?')) {
-        this.$inertia.delete(`/klient/${this.klient.id}`)
+        this.$inertia.delete(`/klient/${this.klient.id}/delete`)
       }
     },
     restore() {
