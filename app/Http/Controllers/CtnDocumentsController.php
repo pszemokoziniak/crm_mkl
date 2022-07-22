@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDocumentRequest;
 use App\Models\CtnDocument;
+use App\Services\CtnDocumentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
@@ -33,28 +36,21 @@ class CtnDocumentsController extends Controller
         ]);
     }
 
-    public function store(int $contactId): RedirectResponse
+    public function store(CtnDocumentService $documentService, StoreDocumentRequest $request, int $contactId): RedirectResponse
     {
-        // @TODO to validate type of file, display errors on FE
-        Request::validate([
-            'name' => ['required', 'max:50'],
-            'document' => ['required', 'mimes:pdf'],
-        ]);
+        $redirect = Redirect::route('documents.index', ['contact_id' => $contactId]);
 
-        $document = Request::file('document');
-        $path = 'documents/' . $contactId;
-
-        $document->storeAs($path, $document->getClientOriginalName());
-
-        CtnDocument::create(
-            Request::get('name'),
-            $path . '/' . $document->getClientOriginalName()
-            , $contactId,
-            $document->getClientOriginalName()
-        )->save();
-
-        return Redirect::route('documents.index', ['contact_id' => $contactId])
-            ->with('success', 'Usunięto dokument');
+        try {
+            $documentService->store(
+                Request::file('document'),
+                $contactId,
+                Request::get('name')
+            );
+        } catch (\Exception $e) {
+            Log::info('Error while storing document: ' . $e->getMessage());
+            return $redirect->with('error', 'Nie udało się dodać dokumentu');
+        }
+        return $redirect->with('success', 'Dodano dokument');
     }
 
     public function view(int $contactId, int $documentId): BinaryFileResponse
