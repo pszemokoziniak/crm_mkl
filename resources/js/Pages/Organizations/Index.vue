@@ -36,13 +36,15 @@
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
                 <div v-if="organization.country">
-                {{ organization.country.name}}
+                  {{ organization.country.name}}
                 </div>
               </Link>
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-                {{ organization.kierownikBud_id.first_name }}
+                <div v-if="organization.kierownikBud_id">
+                  {{ organization.kierownikBud_id.first_name }}
+                </div>
               </Link>
             </td>
             <td class="w-px border-t">

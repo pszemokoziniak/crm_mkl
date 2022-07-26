@@ -2,7 +2,7 @@
   <div>
     <Head :title="`${form.id} ${form.name}`" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/bhpTyp">Badania Lekarskie</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/bhpTyp">Badania BHP</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.name }}
     </h1>
@@ -59,12 +59,12 @@ export default {
     },
     destroy() {
       if (confirm('Chcesz usunąć?')) {
-        this.$inertia.delete(`/badaniaTyp/${this.badania.id}`)
+        this.$inertia.delete(`/bhpTyp/${this.bhp.id}`)
       }
     },
     restore() {
       if (confirm('Chcesz przywrócić?')) {
-        this.$inertia.put(`/badaniaTyp/${this.badania.id}/restore`)
+        this.$inertia.put(`/bhpTyp/${this.bhp.id}/restore`)
       }
     },
   },

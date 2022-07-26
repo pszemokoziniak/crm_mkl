@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreOrganizationRequest;
 use App\Models\Contact;
 use App\Models\JezykTyp;
 use App\Models\KrajTyp;
@@ -19,8 +20,7 @@ class OrganizationsController extends Controller
     {
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
-            'organizations' => Auth::user()->account->organizations()
-                ->with('krajTyp')
+            'organizations' => Organization::with('krajTyp')
                 ->orderBy('name')
                 ->filter(Request::only('search', 'trashed'))
                 ->paginate(10)
@@ -43,21 +43,34 @@ class OrganizationsController extends Controller
         ]);
     }
 
-    public function store()
+    public function store(StoreOrganizationRequest $req)
     {
-        Auth::user()->account->organizations()->create(
-            Request::validate([
-                'name' => ['required', 'max:1200'],
-                'nazwaBud' => ['nullable', 'max:1200'],
-                'numerBud' => ['nullable', 'max:50'],
-                'city' => ['nullable', 'max:2000'],
-                'kierownikBud_id' => ['nullable', 'max:50'],
-                'zaklad' => ['nullable', 'max:50'],
-                'country_id' => ['nullable', 'max:1000'],
-                'addressBud' => ['nullable', 'max:25'],
-                'addressKwat' => ['nullable', 'max:25'],
-            ])
-        );
+        $data = new Organization;
+        $data->name=$req->name;
+        $data->account_id=0;
+        $data->nazwaBud=$req->nazwaBud;
+        $data->numerBud=$req->numerBud;
+        $data->city=$req->city;
+        $data->kierownikBud_id=$req->kierownikBud_id;
+        $data->zaklad=$req->zaklad;
+        $data->country_id=$req->country_id;
+        $data->addressBud=$req->addressBud;
+        $data->addressKwat=$req->addressKwat;
+        $data->save();
+
+//        Auth::user()->account->organizations()->create(
+//            Request::validate([
+//                'name' => ['required', 'max:1200'],
+//                'nazwaBud' => ['nullable', 'max:1200'],
+//                'numerBud' => ['nullable', 'max:50'],
+//                'city' => ['nullable', 'max:2000'],
+//                'kierownikBud_id' => ['nullable', 'max:50'],
+//                'zaklad' => ['nullable', 'max:50'],
+//                'country_id' => ['nullable', 'max:1000'],
+//                'addressBud' => ['nullable', 'max:25'],
+//                'addressKwat' => ['nullable', 'max:25'],
+//            ])
+//        );
 
         return Redirect::route('organizations')->with('success', 'Budowa stworzona.');
     }
@@ -77,10 +90,11 @@ class OrganizationsController extends Controller
                 'addressBud' => $organization->addressBud,
                 'addressKwat' => $organization->addressKwat,
                 'deleted_at' => $organization->deleted_at,
-                'contacts' => $organization->contacts()->orderByName()->get()->map->only('id', 'name', 'city', 'phone'),
+                'contacts' => $organization->contacts()->orderByName()->get()->map->only('id', 'last_name', 'position', 'phone'),
             ],
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('position', '=', 1)->get(),
+            'contacts1' => Contact::where('organization_id', $organization->id)->get(),
         ]);
     }
 

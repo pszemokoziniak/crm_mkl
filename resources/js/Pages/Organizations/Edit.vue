@@ -38,25 +38,26 @@
     <div class="mt-6 bg-white rounded shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Imię</th>
           <th class="pb-4 pt-6 px-6">Nazwisko</th>
+          <th class="pb-4 pt-6 px-6">Pozycja</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
+        {{organization.contacts}}
         <tr v-for="contact in organization.contacts" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
-              {{ contact.name }}
+              {{ contact.last_name }}
               <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.country_id }}
+              {{ contact.position }}
             </Link>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.kierownikBud_id }}
+              {{ contact.phone }}
             </Link>
           </td>
           <td class="w-px border-t">
@@ -99,6 +100,7 @@ export default {
     organization: Object,
     krajTyps: Object,
     kierownikBud: Object,
+    contacts: Object,
   },
   remember: 'form',
   data() {

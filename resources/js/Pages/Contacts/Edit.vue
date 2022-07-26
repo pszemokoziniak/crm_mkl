@@ -4,6 +4,7 @@
     <div>
       <WorkerMenu :contactId="contactId" />
     </div>
+    {{errors}}
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
       <span class="text-indigo-400 font-medium">/</span>
@@ -14,7 +15,7 @@
     </div>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden mb-2">
       <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
-        <span>Zanne języki:</span>
+        <span>Znane języki:</span>
       </h2>
       <span v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <span v-if="item.jezyk" class="m-1">
@@ -92,6 +93,7 @@ export default {
     funkcjas: Object,
     accounts: Object,
     jezyks: Object,
+    errors: Object,
   },
   remember: 'form',
   data() {
