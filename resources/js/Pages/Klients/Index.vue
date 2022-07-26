@@ -12,7 +12,7 @@
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="text-left font-bold">
-            <th class="pb-4 pt-6 px-6">Nazwa</th>
+            <th class="pb-4 pt-6 px-6">Nazwa Firmy</th>
             <th class="pb-4 pt-6 px-6">Osoba</th>
             <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
           </tr>

@@ -142,10 +142,11 @@ class ContactsController extends Controller
                 'first_name' => ['required', 'max:50'],
                 'last_name' => ['required', 'max:50'],
                 'pesel' => ['required', 'max:50'],
-                'organization_id' => [
-                    'nullable',
-                    Rule::exists('organizations', 'id')->where(fn ($query) => $query->where('account_id', Auth::user()->account_id)),
-                ],
+                'organization_id' => ['nullable', 'max:50'],
+//                'organization_id' => [
+//                    'nullable',
+//                    Rule::exists('organizations', 'id')->where(fn ($query) => $query->where('account_id', Auth::user()->account_id)),
+//                ],
                 'email' => ['nullable', 'max:50', 'email'],
                 'phone' => ['nullable', 'max:50'],
                 'address' => ['nullable', 'max:150'],
