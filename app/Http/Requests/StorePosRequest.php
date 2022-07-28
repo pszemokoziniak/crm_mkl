@@ -24,7 +24,7 @@ class StorePosRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' =>'required|min:3|unique:accounts,name',
+            'name' =>'required|min:3|unique:funkcjas,name',
 //            'contact_id' =>'required',
         ];
     }

@@ -90,12 +90,25 @@ class OrganizationsController extends Controller
                 'addressBud' => $organization->addressBud,
                 'addressKwat' => $organization->addressKwat,
                 'deleted_at' => $organization->deleted_at,
-                'contacts' => $organization->contacts()->orderByName()->get()->map->only('id', 'last_name', 'position', 'phone'),
+//                'contacts' => $organization->contacts()->funkcja()->orderByName()->get()->map->only('id', 'last_name', 'position', 'phone', 'name'),
             ],
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('position', '=', 1)->get(),
-            'contacts1' => Contact::where('organization_id', $organization->id)->get(),
+//            'contacts' => Contact::where('organization_id', $organization->id)->get(),
             'contactsFree' => Contact::where('organization_id', null)->get()->map->only('id', 'last_name'),
+            'contacts' => Contact::with('funkcja')
+                ->where('organization_id', $organization->id)
+                ->orderByName()
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($contact) => [
+                    'id' => $contact->id,
+                    'last_name' => $contact->last_name,
+                    'phone' => $contact->phone,
+                    'funkcja_id' => $contact->funkcja_id,
+                    'deleted_at' => $contact->deleted_at,
+                    'funkcja' => $contact->funkcja,
+                ]),
         ]);
     }
 

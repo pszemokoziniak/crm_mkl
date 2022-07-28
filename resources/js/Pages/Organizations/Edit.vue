@@ -39,6 +39,9 @@
 
     <div class="mt-6 bg-white rounded shadow overflow-x-auto">
       <div v-show="toggle" class="m-5">
+        <tr v-if="contactsFree.length === 0">
+          <td class="px-6 py-4 border-t" colspan="4">Brak wolnych pracowników</td>
+        </tr>
         <label
           v-for="(item, index) in contactsFree"
           :key="index"
@@ -51,8 +54,9 @@
             v-model="checkedValues"
           />
         </label>
-        <loading-button :loading="form.processing" :data="checkedValues" class="btn-indigo ml-auto" @click='created'>Dodaj</loading-button>
-
+        <div v-if="contactsFree.length !== 0">
+          <loading-button :loading="form.processing" class="btn-indigo ml-auto" @click='created'>Dodaj</loading-button>
+        </div>
       </div>
 
       <table class="w-full whitespace-nowrap">
@@ -62,7 +66,7 @@
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
 <!--        {{organization.contacts}}-->
-        <tr v-for="contact in organization.contacts" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
               {{ contact.last_name }}
@@ -71,7 +75,7 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.position }}
+              {{ contact.funkcja.name }}
             </Link>
           </td>
           <td class="border-t">
@@ -85,7 +89,7 @@
             </Link>
           </td>
         </tr>
-        <tr v-if="organization.contacts.length === 0">
+        <tr v-if="contacts.data.length === 0">
           <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
         </tr>
       </table>
@@ -129,7 +133,7 @@ export default {
       checkedValues: [],
       toggle: false,
       button: {
-        text: 'Wolni pracownicy',
+        text: 'Dodaj pracownika',
       },
       form: this.$inertia.form({
         name: this.organization.name,
@@ -160,7 +164,7 @@ export default {
     },
     toggleSeen: function() {
       this.toggle = !this.toggle;
-      this.button.text = this.toggle ? 'Zamknij' : 'Otwórz';
+      this.button.text = this.toggle ? 'Zamknij' : 'Dodaj pracownika';
     },
     created() {
       console.log(this.checkedValues)
