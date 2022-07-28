@@ -39,7 +39,6 @@
 
     <div class="mt-6 bg-white rounded shadow overflow-x-auto">
       <div v-show="toggle" class="m-5">
-        {{ checkedValues }}
         <label
           v-for="(item, index) in contactsFree"
           :key="index"
@@ -52,7 +51,7 @@
             v-model="checkedValues"
           />
         </label>
-        <loading-button :loading="form.processing" :data="checkedValues" class="btn-indigo ml-auto" @click='created'>Zapisz</loading-button>
+        <loading-button :loading="form.processing" :data="checkedValues" class="btn-indigo ml-auto" @click='created'>Dodaj</loading-button>
 
       </div>
 
@@ -161,7 +160,7 @@ export default {
     },
     toggleSeen: function() {
       this.toggle = !this.toggle;
-      this.button.text = this.toggle ? 'Zamknij dodawanie' : 'Otwórz dodawanie';
+      this.button.text = this.toggle ? 'Zamknij' : 'Otwórz';
     },
     created() {
       console.log(this.checkedValues)
