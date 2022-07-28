@@ -17,6 +17,7 @@ class BuildingWorkTime extends Migration
             $table->id();
             $table->unsignedInteger('organization_id')->index();
             $table->unsignedInteger('contact_id');
+            $table->dateTimeTz('work_day');
             $table->dateTimeTz('work_from');
             $table->dateTimeTz('work_to');
             $table->char('effective_work_time');

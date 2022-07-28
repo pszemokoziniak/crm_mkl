@@ -544,3 +544,12 @@ Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsControl
 Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'delete'])
     ->name('documents.delete')
     ->middleware('auth');
+
+/** Building time sheets */
+Route::get('building/{contact_id}/time-sheet', [\App\Http\Controllers\Building::class, 'view'])
+    ->name('workTimeSheet.view')
+    ->middleware('auth');
+
+Route::post('building/{contact_id}/sheet', [\App\Http\Controllers\Building::class, 'store'])
+    ->name('workTimeSheet.store')
+    ->middleware('auth');
