@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Funkcja;
 
 use App\Models\Jezyk;
+use App\Models\Organization;
 use http\Client\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -68,10 +69,11 @@ class ContactsController extends Controller
                 'work_start' => ['required'],
                 'work_end' => ['required'],
                 'ekuz' => ['required'],
+                'organization_id' => ['nullable'],
 
-                'organization_id' => ['nullable', Rule::exists('organizations', 'id')->where(function ($query) {
-                    $query->where('account_id', Auth::user()->account_id);
-                })],
+//                'organization_id' => ['nullable', Rule::exists('organizations', 'id')->where(function ($query) {
+//                    $query->where('account_id', Auth::user()->account_id);
+//                })],
                 'email' => ['nullable', 'max:150', 'email'],
                 'phone' => ['nullable', 'max:150'],
                 'address' => ['nullable', 'max:150'],
@@ -180,5 +182,15 @@ class ContactsController extends Controller
         $contact->restore();
 
         return Redirect::back()->with('success', 'Pracownik przywrócony.');
+    }
+
+    public function storePracownik(Request $request, Organization $organization)
+    {
+        foreach ($request::all() as $item) {
+            $data = Contact::find($item);
+            $data->organization_id = $organization->id;
+            $data->save();
+        }
+        return Redirect::back()->with('success', 'Pracownik dodany.');
     }
 }

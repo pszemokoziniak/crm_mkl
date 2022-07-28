@@ -35,14 +35,34 @@
       </form>
     </div>
     <h2 class="mt-12 text-2xl font-bold">Pracownik</h2>
+    <loading-button :loading="form.processing" class="btn-indigo ml-auto" @click='toggleSeen'>{{button.text}}</loading-button>
+
     <div class="mt-6 bg-white rounded shadow overflow-x-auto">
+      <div v-show="toggle" class="m-5">
+        {{ checkedValues }}
+        <label
+          v-for="(item, index) in contactsFree"
+          :key="index"
+          class="m-3"
+        >
+          {{ item.last_name }}
+          <input
+            type="checkbox"
+            :value="item.id"
+            v-model="checkedValues"
+          />
+        </label>
+        <loading-button :loading="form.processing" :data="checkedValues" class="btn-indigo ml-auto" @click='created'>Zapisz</loading-button>
+
+      </div>
+
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwisko</th>
           <th class="pb-4 pt-6 px-6">Pozycja</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
-        {{organization.contacts}}
+<!--        {{organization.contacts}}-->
         <tr v-for="contact in organization.contacts" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
@@ -101,11 +121,17 @@ export default {
     krajTyps: Object,
     kierownikBud: Object,
     contacts: Object,
+    contactsFree: Object,
   },
   remember: 'form',
   data() {
     return {
       budId: this.organization.id,
+      checkedValues: [],
+      toggle: false,
+      button: {
+        text: 'Wolni pracownicy',
+      },
       form: this.$inertia.form({
         name: this.organization.name,
         nazwaBud: this.organization.nazwaBud,
@@ -132,6 +158,14 @@ export default {
       if (confirm('Jesteś pewnien, że chcesz przywrócić budowę?')) {
         this.$inertia.put(`/budowy/${this.organization.id}/restore`)
       }
+    },
+    toggleSeen: function() {
+      this.toggle = !this.toggle;
+      this.button.text = this.toggle ? 'Zamknij dodawanie' : 'Otwórz dodawanie';
+    },
+    created() {
+      console.log(this.checkedValues)
+      this.$inertia.post(`/contacts/${this.organization.id}/addPracownik`, this.checkedValues)
     },
   },
 }

@@ -175,6 +175,13 @@ Route::delete('contacts/{contact}', [ContactsController::class, 'destroy'])
 Route::put('contacts/{contact}/restore', [ContactsController::class, 'restore'])
     ->name('contacts.restore')
     ->middleware('auth');
+
+// Dodawanie pracownicy budowa
+
+Route::post('contacts/{organization}/addPracownik', [ContactsController::class, 'storePracownik'])
+    ->name('contacts.storePracownik')
+    ->middleware('auth');
+
 // Badania
 
 Route::get('contacts/{contact}/badania', [BadaniaController::class, 'index'])

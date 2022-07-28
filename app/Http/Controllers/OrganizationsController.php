@@ -95,6 +95,7 @@ class OrganizationsController extends Controller
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('position', '=', 1)->get(),
             'contacts1' => Contact::where('organization_id', $organization->id)->get(),
+            'contactsFree' => Contact::where('organization_id', null)->get()->map->only('id', 'last_name'),
         ]);
     }
 
