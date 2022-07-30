@@ -52,7 +52,6 @@
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { ExclamationIcon } from '@heroicons/vue/outline'
 import Layout from '@/Shared/Layout'
-import { ref } from 'vue'
 
 export default {
   components: {
@@ -66,7 +65,7 @@ export default {
   layout: Layout,
   data() {
     return {
-      open: ref(true),
+      open: false, // default value for modal
       days: new Array(31).fill(0).map((x, i) => i+1)
     }
   },
