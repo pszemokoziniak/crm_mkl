@@ -5,8 +5,8 @@
       <span class="ml-1 text-lg text-gray-600 font-normal">2022</span>
     </div>
     <div class="flex border-t border-l">
-      <div class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
-        <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">3</div>
+      <div v-for="day in days" :key="day"  class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
+        <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ day }}</div>
         <div class="overflow-y-auto mt-1" style="height: 80px;"></div>
       </div>
     </div>
@@ -17,13 +17,11 @@
 import Layout from '@/Shared/Layout'
 
 export default {
-  components: {},
   layout: Layout,
-  props: {
-    workers: Array,
-  },
   data() {
-    return {}
+    return {
+      days: new Array(31).fill(0).map((x, i) => i+1)
+    }
   },
 }
 </script>
