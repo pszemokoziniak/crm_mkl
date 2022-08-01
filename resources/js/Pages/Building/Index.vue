@@ -7,7 +7,10 @@
     <div class="flex border-t border-l">
       <div v-for="day in days" :key="day" class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
         <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ day }}</div>
-        <div class="overflow-y-auto mt-1" style="height: 80px;"></div>
+        <div @click="showModal" class="overflow-y-auto mt-1" style="height: 80px;">
+          7:00 - 15:00 <br>
+          Czas pracy: 8
+        </div>
       </div>
     </div>
   </div>
@@ -70,7 +73,9 @@ export default {
     }
   },
   methods: {
-    // open: ref(true)
+    showModal() {
+      this.open = true
+    }
   }
 }
 </script>
