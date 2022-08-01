@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Head :title="Contacts" />
+    <Head title="Contacts" />
     <h1 class="mb-8 text-3xl font-bold">Pracownicy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
@@ -20,7 +20,7 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwisko</th>
-          <th class="pb-4 pt-6 px-6">Funkcja</th>
+          <th class="pb-4 pt-6 px-6">Stanowisko</th>
           <th class="pb-4 pt-6 px-6">Pracuje</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>

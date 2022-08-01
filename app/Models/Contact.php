@@ -27,6 +27,11 @@ class Contact extends Model
         return $this->belongsTo(Funkcja::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function organizationKierownikname() {
         return $this->hasOne(Organization::class);
     }

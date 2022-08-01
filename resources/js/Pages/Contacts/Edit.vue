@@ -4,7 +4,6 @@
     <div>
       <WorkerMenu :contactId="contactId" />
     </div>
-    {{errors}}
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
       <span class="text-indigo-400 font-medium">/</span>
@@ -42,11 +41,11 @@
             <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
             <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telefon" />
 
-            <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
-              <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-            </select-input>
+<!--            <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">-->
+<!--              <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>-->
+<!--            </select-input>-->
 
-            <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+            <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
               <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
             </select-input>
 
@@ -113,7 +112,7 @@ export default {
         pesel: this.contact.pesel,
         idCard_number: this.contact.idCard_number,
         idCard_date: this.contact.idCard_date,
-        position: this.contact.position,
+        // position: this.contact.position,
         funkcja_id: this.contact.funkcja_id,
         work_start: this.contact.work_start,
         work_end: this.contact.work_end,

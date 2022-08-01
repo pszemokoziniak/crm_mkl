@@ -22,11 +22,11 @@
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
           <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telefon" />
 
-          <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
-            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-          </select-input>
+<!--          <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">-->
+<!--            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>-->
+<!--          </select-input>-->
 
-          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
@@ -105,7 +105,7 @@ export default {
         pesel: '',
         idCard_number: '',
         idCard_date: '',
-        position: '',
+        // position: '',
         funkcja_id: '',
         work_start: '',
         work_end: '',

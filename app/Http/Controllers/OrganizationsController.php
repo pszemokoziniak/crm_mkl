@@ -39,7 +39,7 @@ class OrganizationsController extends Controller
     {
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
-            'kierownikBud' => Contact::where('position', '=', 1)->get(),
+            'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
         ]);
     }
 
@@ -93,7 +93,7 @@ class OrganizationsController extends Controller
 //                'contacts' => $organization->contacts()->funkcja()->orderByName()->get()->map->only('id', 'last_name', 'position', 'phone', 'name'),
             ],
             'krajTyps' => KrajTyp::all(),
-            'kierownikBud' => Contact::where('position', '=', 1)->get(),
+            'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
 //            'contacts' => Contact::where('organization_id', $organization->id)->get(),
             'contactsFree' => Contact::where('organization_id', null)->get()->map->only('id', 'last_name'),
             'contacts' => Contact::with('funkcja')
