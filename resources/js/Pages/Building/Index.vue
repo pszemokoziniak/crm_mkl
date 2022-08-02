@@ -1,15 +1,15 @@
 <template>
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div>
-      <span class="text-lg font-bold text-gray-800">July</span>
+      <span class="text-lg font-bold text-gray-800">August</span>
       <span class="ml-1 text-lg text-gray-600 font-normal">2022</span>
     </div>
-    <div class="flex border-t border-l">
-      <div v-for="day in days" :key="day" class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
-        <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ day }}</div>
+    <div v-for="timeSheet in timeSheets" class="flex border-t border-l">
+      <div v-for="shift in timeSheet" :key="day" class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
+        <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ shift.day }}</div>
         <div @click="showModal" class="overflow-y-auto mt-1" style="height: 80px;">
-          7:00 - 15:00 <br>
-          Czas pracy: 8
+          {{ shift.from }} {{ shift.to }} <br>
+          {{ shift.work }}
         </div>
       </div>
     </div>
@@ -71,11 +71,28 @@ export default {
     TransitionRoot,
   },
   layout: Layout,
+
+  generateFakeTimeSheet() {
+
+  },
   data() {
     return {
       open: false, // default value for modal
-      days: new Array(31).fill(0).map((x, i) => i+1)
+      timeSheets: []
     }
+  },
+  mounted() {
+    const days = new Array(31).fill(0).map((x, i) => i+1).map((x) => {
+      return {
+        day: x,
+        month: 8,
+        from: '07:00',
+        to: '15:00',
+        work: '8:00'
+      }
+    })
+
+    this.timeSheets.push(days)
   },
   methods: {
     showModal() {
