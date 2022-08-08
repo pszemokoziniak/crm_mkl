@@ -5,9 +5,9 @@
       <span class="ml-1 text-lg text-gray-600 font-normal">2022</span>
     </div>
     <div v-for="timeSheet in timeSheets" class="flex border-t border-l">
-      <div v-for="shift in timeSheet" :key="day" class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
+      <div v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
         <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ shift.day }}</div>
-        <div @click="showModal" class="overflow-y-auto mt-1" style="height: 80px;">
+        <div @click="showModal(shift)" class="overflow-y-auto mt-1" style="height: 80px;">
           {{ shift.from }} {{ shift.to }} <br>
           {{ shift.work }}
         </div>
@@ -33,8 +33,8 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <text-input type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="od" />
-                            <text-input type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="do" />
+                            <text-input type="time" v-model="form.from" class="pb-8 pr-6 w-full lg:w-1/2" label="od" />
+                            <text-input type="time" v-model="form.to"  class="pb-8 pr-6 w-full lg:w-1/2" label="do" />
                           </div>
                         </form>
                       </fieldset>
@@ -44,7 +44,7 @@
                 </div>
               </div>
               <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm" @click="open = false">Zapisz</button>
+                <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
                 <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="open = false" ref="cancelButtonRef">Anuluj</button>
               </div>
             </DialogPanel>
@@ -78,25 +78,54 @@ export default {
   data() {
     return {
       open: false, // default value for modal
-      timeSheets: []
+      timeSheets: [],
+      form: this.$inertia.form({}),
     }
   },
   mounted() {
     const days = new Array(31).fill(0).map((x, i) => i+1).map((x) => {
       return {
+        id: 1,
         day: x,
         month: 8,
-        from: '07:00',
-        to: '15:00',
-        work: '8:00'
+        from: '08:00',
+        to: '16:00',
+        work: '8:00',
       }
     })
 
-    this.timeSheets.push(days)
+    console.log(days)
+
+    // worker id = 1 -> data for all days of month
+    this.timeSheets[1] = days
   },
   methods: {
-    showModal() {
+    showModal(shift) {
       this.open = true
+
+      this.form = {
+        id: shift.id,
+        day: shift.day,
+        from: shift.from,
+        to: shift.to,
+      }
+    },
+    saveHours() {
+      // send to db!
+      // change data on layout
+      this.timeSheets[this.form.id][this.form.day-1] = {
+        id: 1,
+        day: this.form.day,
+        month: 8,
+        from: this.form.from,
+        to: this.form.to,
+        work: '8:00',
+      }
+
+      // let shift = this.timeSheets[this.form.id].find(x => x.day = this.form.day)
+
+      // display notification
+      this.open = false
     }
   }
 }
