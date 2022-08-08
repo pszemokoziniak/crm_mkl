@@ -6,6 +6,7 @@ use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\BadaniaTypController;
 use App\Http\Controllers\BhpController;
 use App\Http\Controllers\BhpTypController;
+use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
@@ -546,10 +547,10 @@ Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsCont
     ->middleware('auth');
 
 /** Building time sheets */
-Route::get('building/{contact_id}/time-sheet', [\App\Http\Controllers\Building::class, 'view'])
+Route::get('building/{contact_id}/time-sheet', [BuildingTimeSheet::class, 'view'])
     ->name('workTimeSheet.view')
     ->middleware('auth');
 
-Route::post('building/{contact_id}/sheet', [\App\Http\Controllers\Building::class, 'store'])
+Route::post('building/{contact_id}/sheet', [BuildingTimeSheet::class, 'store'])
     ->name('workTimeSheet.store')
     ->middleware('auth');

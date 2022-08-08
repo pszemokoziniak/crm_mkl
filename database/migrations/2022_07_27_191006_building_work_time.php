@@ -13,7 +13,7 @@ class BuildingWorkTime extends Migration
      */
     public function up()
     {
-        Schema::create('building_work_time', function (Blueprint $table) {
+        Schema::create('building_time_sheets', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('organization_id')->index();
             $table->unsignedInteger('contact_id');

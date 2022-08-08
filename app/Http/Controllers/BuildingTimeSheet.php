@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class Building extends Controller
+class BuildingTimeSheet extends Controller
 {
     public function view(): Response
     {
