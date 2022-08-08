@@ -1,15 +1,15 @@
 <template>
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div>
-      <span class="text-lg font-bold text-gray-800">August</span>
-      <span class="ml-1 text-lg text-gray-600 font-normal">2022</span>
+      <span class="text-lg font-bold text-gray-800">Miesiąc</span>
+      <span class="ml-1 text-lg text-gray-600 font-normal">Rok</span>
     </div>
     <div v-for="timeSheet in timeSheets" class="flex border-t border-l">
-      <div v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative" style="width: 222px; height: 120px;">
+      <div v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative" style="width: 127px; height: 77px;">
         <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ shift.day }}</div>
         <div @click="showModal(shift)" class="overflow-y-auto mt-1" style="height: 80px;">
-          {{ shift.from }} {{ shift.to }} <br>
-          {{ shift.work }}
+          {{ shift.from }} - {{ shift.to }} <br>
+          Czas: {{ shift.work }}
         </div>
       </div>
     </div>
@@ -28,13 +28,14 @@
               <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                   <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <DialogTitle as="h3" class="text-lg leading-6 font-medium text-gray-900"> Wprowadź: </DialogTitle>
+                    <DialogTitle as="h3" class="text-lg leading-6 font-medium text-gray-900"> Wprowadź dane dla dnia: </DialogTitle>
                     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <text-input type="time" v-model="form.from" class="pb-8 pr-6 w-full lg:w-1/2" label="od" />
-                            <text-input type="time" v-model="form.to"  class="pb-8 pr-6 w-full lg:w-1/2" label="do" />
+                            <text-input type="time" v-model="form.from" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" />
+                            <text-input type="time" v-model="form.to"  class="pb-8 pr-6 w-full lg:w-1/2" label="Do" />
+                            <text-input type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
                           </div>
                         </form>
                       </fieldset>
@@ -121,8 +122,6 @@ export default {
         to: this.form.to,
         work: '8:00',
       }
-
-      // let shift = this.timeSheets[this.form.id].find(x => x.day = this.form.day)
 
       // display notification
       this.open = false
