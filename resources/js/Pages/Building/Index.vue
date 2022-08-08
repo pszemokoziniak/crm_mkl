@@ -5,7 +5,7 @@
       <span class="ml-1 text-lg text-gray-600 font-normal">Rok</span>
     </div>
     <div v-for="timeSheet in timeSheets" class="flex border-t border-l">
-      <div v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative" style="width: 127px; height: 77px;">
+      <div v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative cursor-pointer" style="width: 127px; height: 77px;">
         <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ shift.day }}</div>
         <div @click="showModal(shift)" class="overflow-y-auto mt-1" style="height: 80px;">
           {{ shift.from }} - {{ shift.to }} <br>
@@ -72,14 +72,12 @@ export default {
     TransitionRoot,
   },
   layout: Layout,
-
-  generateFakeTimeSheet() {
-
+  props: {
+    timeSheets: Array,
   },
   data() {
     return {
       open: false, // default value for modal
-      timeSheets: [],
       form: this.$inertia.form({}),
     }
   },
@@ -95,10 +93,10 @@ export default {
       }
     })
 
-    console.log(days)
-
+    // request returns array of month for worker
     // worker id = 1 -> data for all days of month
-    this.timeSheets[1] = days
+    // this.timeSheets[1] = days
+    console.log(this.timeSheets)
   },
   methods: {
     showModal(shift) {

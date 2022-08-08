@@ -547,10 +547,10 @@ Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsCont
     ->middleware('auth');
 
 /** Building time sheets */
-Route::get('building/{contact_id}/time-sheet', [BuildingTimeSheet::class, 'view'])
+Route::get('building/{build}/time-sheet', [BuildingTimeSheet::class, 'view'])
     ->name('workTimeSheet.view')
     ->middleware('auth');
 
-Route::post('building/{contact_id}/sheet', [BuildingTimeSheet::class, 'store'])
+Route::post('building/{build}/sheet', [BuildingTimeSheet::class, 'store'])
     ->name('workTimeSheet.store')
     ->middleware('auth');
