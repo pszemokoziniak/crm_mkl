@@ -1,13 +1,13 @@
 <template>
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div>
-      <span class="text-lg font-bold text-gray-800">{{ month }}</span>
+      <span class="text-lg font-bold text-gray-800">{{ month.toUpperCase() }}</span>
       <span class="ml-1 text-lg text-gray-600 font-normal">{{ year }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" class="flex border-t border-l">
-      <div v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative cursor-pointer" style="width: 127px; height: 77px;">
-        <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200">{{ shift.day }}</div>
-        <div @click="showModal(shift)" class="overflow-y-auto mt-1" style="height: 80px;">
+      <div @click="showModal(shift)" v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative cursor-pointer hover:border-green-600 hover:text-green-600 text-gray-500" style="width: 127px; height: 77px;">
+        <div class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">{{ shift.day }}</div>
+        <div class="overflow-y-auto mt-1" style="height: 80px;">
           {{ shift.from }} - {{ shift.to }} <br>
           Czas: {{ shift.work }}
         </div>
@@ -109,8 +109,8 @@ export default {
         }
       } catch (e) {
         console.error('Something happen while saving data.')
+        throw e
       }
-
 
       // display notification
       this.open = false
