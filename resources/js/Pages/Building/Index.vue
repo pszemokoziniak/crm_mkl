@@ -1,8 +1,8 @@
 <template>
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div>
-      <span class="text-lg font-bold text-gray-800">Miesiąc</span>
-      <span class="ml-1 text-lg text-gray-600 font-normal">Rok</span>
+      <span class="text-lg font-bold text-gray-800">{{ month }}</span>
+      <span class="ml-1 text-lg text-gray-600 font-normal">{{ year }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" class="flex border-t border-l">
       <div v-for="shift in timeSheet" :key="timeSheet.id" class="px-4 pt-2 border-r border-b relative cursor-pointer" style="width: 127px; height: 77px;">
@@ -35,7 +35,7 @@
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
                             <text-input type="time" v-model="form.from" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" />
                             <text-input type="time" v-model="form.to"  class="pb-8 pr-6 w-full lg:w-1/2" label="Do" />
-                            <text-input type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
+                            <text-input type="time" v-model="form.effective_work_time" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
                           </div>
                         </form>
                       </fieldset>
@@ -74,29 +74,14 @@ export default {
   layout: Layout,
   props: {
     timeSheets: Array,
+    month: String,
+    year: Number,
   },
   data() {
     return {
       open: false, // default value for modal
       form: this.$inertia.form({}),
     }
-  },
-  mounted() {
-    const days = new Array(31).fill(0).map((x, i) => i+1).map((x) => {
-      return {
-        id: 1,
-        day: x,
-        month: 8,
-        from: '08:00',
-        to: '16:00',
-        work: '8:00',
-      }
-    })
-
-    // request returns array of month for worker
-    // worker id = 1 -> data for all days of month
-    // this.timeSheets[1] = days
-    console.log(this.timeSheets)
   },
   methods: {
     showModal(shift) {
@@ -105,21 +90,27 @@ export default {
       this.form = {
         id: shift.id,
         day: shift.day,
-        from: shift.from,
-        to: shift.to,
+        from: shift.from ?? '07:00',
+        to: shift.to ?? '15:00',
       }
     },
     saveHours() {
       // send to db!
       // change data on layout
-      this.timeSheets[this.form.id][this.form.day-1] = {
-        id: 1,
-        day: this.form.day,
-        month: 8,
-        from: this.form.from,
-        to: this.form.to,
-        work: '8:00',
+
+      try {
+        this.timeSheets[this.form.id][this.form.day-1] = {
+          id: 1,
+          day: this.form.day,
+          month: 8,
+          from: this.form.from,
+          to: this.form.to,
+          work: '8:00',
+        }
+      } catch (e) {
+        console.error('Something happen while saving data.')
       }
+
 
       // display notification
       this.open = false
