@@ -30,6 +30,7 @@ class BuildingTimeSheet extends Controller
             // query (I'm sure it's a subquery
             foreach ($month as $day) {
                 $timeSheets[$worker->id][$day->day] = [
+                    "name" => $worker->first_name . ' ' . $worker->last_name,
                     "id" => $worker->id,
                     "day" => $day->day,
                     "month" => $day->month,
