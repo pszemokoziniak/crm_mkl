@@ -26,14 +26,37 @@ class BuildingTimeSheet extends Controller
             ->where('organization_id', $build)
             ->get();
 
+        $buildWorkersShifts = DB::table('building_time_sheets', 'b')
+            ->where('b.organization_id', $build)
+            ->join('contacts', 'contacts.id', '=', 'b.contact_id')
+            ->orderBy('b.contact_id')
+            ->orderBy('b.work_day')
+            ->get();
+
         $timeSheets = [];
-        foreach ($workersOnBuild as $worker) {
-            // query (I'm sure it's a subquery
+        foreach ($buildWorkersShifts as $workersShift) {
             foreach ($month as $day) {
-                $timeSheets[$worker->id][$day->day] = [
+                $shiftDay = Carbon::create($workersShift->work_day);
+                if ($shiftDay->isSameDay($day)) {
+                    // @TODO formatting on FE ?
+                    $timeSheets[$workersShift->id][$day->day] = [
+                        'build' => $build,
+                        "name" => $workersShift->first_name . ' ' . $workersShift->last_name,
+                        "id" => $workersShift->id,
+                        "day" => $day,
+                        "month" => $day->month,
+                        "from" => $workersShift->work_from ?? null,
+                        "to" => $workersShift->work_to ?? null,
+                        "work" => $workersShift->effective_work_time ?? null,
+                    ];
+
+                    continue;
+                }
+
+                $timeSheets[$workersShift->id][$day->day] = [
                     'build' => $build,
-                    "name" => $worker->first_name . ' ' . $worker->last_name,
-                    "id" => $worker->id,
+                    "name" => $workersShift->first_name . ' ' . $workersShift->last_name,
+                    "id" => $workersShift->id,
                     "day" => $day,
                     "month" => $day->month,
                     "from" => null,
@@ -42,6 +65,22 @@ class BuildingTimeSheet extends Controller
                 ];
             }
         }
+
+//        foreach ($workersOnBuild as $worker) {
+//            // query (I'm sure it's a subquery
+//            foreach ($month as $day) {
+//                $timeSheets[$worker->id][$day->day] = [
+//                    'build' => $build,
+//                    "name" => $worker->first_name . ' ' . $worker->last_name,
+//                    "id" => $worker->id,
+//                    "day" => $day,
+//                    "month" => $day->month,
+//                    "from" => null,
+//                    "to" => null,
+//                    "work" => null,
+//                ];
+//            }
+//        }
 
         // $dbTimeSheets = DB::table('building_work_time')->get();
         // as default current month

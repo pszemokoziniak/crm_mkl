@@ -9,7 +9,7 @@
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
         <div class="text-sm">{{ shift.name }}</div>
         <div class="overflow-y-auto mt-1" style="height: 80px;">
-          {{ shift.from }} - {{ shift.to }} <br>
+          {{ (new Date(shift.from)).getHours() + ':' + (new Date(shift.from)).getMinutes() }} - {{ (new Date(shift.to)).getHours() + ':' + (new Date(shift.to)).getMinutes() }} <br>
           Czas: {{ shift.work }}
         </div>
       </div>

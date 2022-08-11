@@ -13,14 +13,15 @@ class BuildingWorkTime extends Migration
      */
     public function up()
     {
+        // @TODO consider using proper names for domain
         Schema::create('building_time_sheets', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('organization_id')->index();
             $table->unsignedInteger('contact_id');
-            $table->dateTimeTz('work_day');
+            $table->dateTimeTz('work_day'); // @TODO only date
             $table->dateTimeTz('work_from');
             $table->dateTimeTz('work_to');
-            $table->char('effective_work_time');
+            $table->char('effective_work_time'); // consider is it a good name ?
             $table->foreign('contact_id')->references('id')->on('contacts');
             $table->foreign('organization_id')->references('id')->on('organizations');
             $table->timestamps();
