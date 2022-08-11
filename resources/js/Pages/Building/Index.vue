@@ -97,6 +97,7 @@ export default {
       this.open = true
 
       this.form = this.$inertia.form = ({
+        build: shift.build,
         id: shift.id ?? null,
         day: shift.day ?? '11-08-2022',
         from: shift.from ?? '07:00',
@@ -108,6 +109,7 @@ export default {
 
       try {
         this.timeSheets[this.form.id][this.form.day] = {
+          build: this.form.build,
           id: this.form.id ?? null,
           day: this.form.day,
           from: this.form.from,

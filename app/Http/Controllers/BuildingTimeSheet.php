@@ -31,6 +31,7 @@ class BuildingTimeSheet extends Controller
             // query (I'm sure it's a subquery
             foreach ($month as $day) {
                 $timeSheets[$worker->id][$day->day] = [
+                    'build' => $build,
                     "name" => $worker->first_name . ' ' . $worker->last_name,
                     "id" => $worker->id,
                     "day" => $day,
@@ -60,13 +61,30 @@ class BuildingTimeSheet extends Controller
          * @see #using factory: app/Http/Controllers/AccountsController.php:96
          * @see #using validated request: app/Http/Controllers/FunkcjaController.php:74
          */
+
+        $data = $request->all();
+
+        $workDay = new \DateTimeImmutable($data['day']);
+
+        $splitFrom = explode(':', $data['from']);
+        $splitTo = explode(':', $data['to']);
+
+        $dataToSave = [
+            'organization_id'       => $data['build'],
+            'contact_id'            => $data['id'],
+            'work_day'              => $workDay,
+            'work_from'             => clone $workDay->setTime((int) $splitFrom[0], (int) $splitFrom[1]),
+            'work_to'               => clone $workDay->setTime((int) $splitTo[0], (int) $splitTo[1]),
+            'effective_work_time'   => $data['workTime'],
+        ];
+
         try {
-            BuildingTimeSheetModel::create($request->all());
+            BuildingTimeSheetModel::create($dataToSave);
         } catch (\Exception $e) {
             return new JsonResponse([
                 'status'  => 'error',
                 'message' => $e->getMessage()
-            ]);
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
         return new JsonResponse(['status' => 'ok']);
