@@ -9,7 +9,7 @@
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
         <div class="text-sm">{{ shift.name }}</div>
         <div class="overflow-y-auto mt-1" style="height: 80px;">
-          {{ (new Date(shift.from)).getHours() + ':' + (new Date(shift.from)).getMinutes() }} - {{ (new Date(shift.to)).getHours() + ':' + (new Date(shift.to)).getMinutes() }} <br>
+          {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br>
           Czas: {{ shift.work }}
         </div>
       </div>
@@ -93,6 +93,13 @@ export default {
     }
   },
   methods: {
+    formatTimeRange(time) {
+
+      if (time === null) {
+        return ''
+      }
+      return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
+    },
     showModal(shift) {
       this.open = true
 
