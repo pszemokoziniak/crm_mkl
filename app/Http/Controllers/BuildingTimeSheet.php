@@ -66,24 +66,6 @@ class BuildingTimeSheet extends Controller
             }
         }
 
-//        foreach ($workersOnBuild as $worker) {
-//            // query (I'm sure it's a subquery
-//            foreach ($month as $day) {
-//                $timeSheets[$worker->id][$day->day] = [
-//                    'build' => $build,
-//                    "name" => $worker->first_name . ' ' . $worker->last_name,
-//                    "id" => $worker->id,
-//                    "day" => $day,
-//                    "month" => $day->month,
-//                    "from" => null,
-//                    "to" => null,
-//                    "work" => null,
-//                ];
-//            }
-//        }
-
-        // $dbTimeSheets = DB::table('building_work_time')->get();
-        // as default current month
         return Inertia::render('Building/Index.vue',
             [
                 'date'       => $date,
