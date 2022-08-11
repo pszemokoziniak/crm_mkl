@@ -551,6 +551,6 @@ Route::get('building/{build}/time-sheet', [BuildingTimeSheet::class, 'view'])
     ->name('workTimeSheet.view')
     ->middleware('auth');
 
-Route::post('building/{build}/sheet', [BuildingTimeSheet::class, 'store'])
+Route::post('building/{build}/time-sheet', [BuildingTimeSheet::class, 'store'])
     ->name('workTimeSheet.store')
     ->middleware('auth');

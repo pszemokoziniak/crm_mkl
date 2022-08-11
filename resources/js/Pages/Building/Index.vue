@@ -1,12 +1,12 @@
 <template>
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div>
-      <span class="text-lg font-bold text-gray-800">{{ month.toUpperCase() }}</span>
-      <span class="ml-1 text-lg text-gray-600 font-normal">{{ year }}</span>
+      <span class="text-lg font-bold text-gray-800">{{ month }}</span>
+      <span class="ml-1 text-lg text-gray-600 font-normal">{{ date.getFullYear() }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
       <div v-for="shift in timeSheet" @click="showModal(shift)" class="px-4 pt-2 border-r border-b relative cursor-pointer hover:border-green-600 hover:text-green-600 text-gray-500" style="width: 127px; height: 89px;">
-        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">{{ shift.day }}</div>
+        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
         <div class="text-sm">{{ shift.name }}</div>
         <div class="overflow-y-auto mt-1" style="height: 80px;">
           {{ shift.from }} - {{ shift.to }} <br>
@@ -36,7 +36,7 @@
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
                             <text-input type="time" v-model="form.from" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" />
                             <text-input type="time" v-model="form.to"  class="pb-8 pr-6 w-full lg:w-1/2" label="Do" />
-                            <text-input type="time" v-model="form.effective_work_time" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
+                            <text-input type="time" v-model="form.workTime" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
                           </div>
                         </form>
                       </fieldset>
@@ -61,6 +61,7 @@
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
+import axios from 'axios'
 
 export default {
   components: {
@@ -73,45 +74,65 @@ export default {
   },
   layout: Layout,
   props: {
+    build: Number,
     timeSheets: Array,
+    date: Date,
     month: String,
-    year: Number,
   },
   data() {
     return {
+      date: new Date(this.date),
       open: false, // default value for modal
-      form: this.$inertia.form({}),
+      form: this.$inertia.form({
+        id: null,
+        day: null,
+        from: null,
+        to: null,
+        workTime: null,
+      }),
     }
   },
   methods: {
     showModal(shift) {
       this.open = true
 
-      this.form = {
-        id: shift.id,
-        day: shift.day,
+      this.form = this.$inertia.form = ({
+        id: shift.id ?? null,
+        day: shift.day ?? '11-08-2022',
         from: shift.from ?? '07:00',
         to: shift.to ?? '15:00',
-      }
+        workTime: shift.workTime ?? '08:00',
+      })
     },
     saveHours() {
-      // send to db!
-      // change data on layout
 
       try {
-        this.timeSheets[this.form.id][this.form.day-1] = {
-          id: 1,
+        this.timeSheets[this.form.id][this.form.day] = {
+          id: this.form.id ?? null,
           day: this.form.day,
-          month: 8,
           from: this.form.from,
           to: this.form.to,
-          work: '8:00',
+          work: this.form.workTime,
         }
+
+        /**
+         * How to work with callback functions on $inertia
+         * @see resources/js/Pages/Users/Edit.vue:73
+         */
+        axios.post(`/building/${this.build}/time-sheet`,this.form)
+
+
       } catch (e) {
         console.error('Something happen while saving data.')
         throw e
       }
-
+      this.form = this.$inertia.form = ({
+        id: null,
+        day: '11-08-2022',
+        from: '07:00',
+        to: '15:00',
+        workTime: '08:00',
+      })
       // display notification
       this.open = false
     }
