@@ -9,6 +9,7 @@
       </h1>
       <img v-if="user.photo" class="block ml-4 w-8 h-8 rounded-full" :src="user.photo" />
     </div>
+    {{contacts}}
     <trashed-message v-if="user.deleted_at" class="mb-6" @restore="restore"> This user has been deleted. </trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
@@ -21,6 +22,9 @@
             <option :value="true">Yes</option>
             <option :value="false">No</option>
           </select-input>
+<!--          <select-input v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Użytkownik ID">-->
+<!--            <option v-for="item in contacts" :key="item.id" :value="item.id">{{ item.email }}</option>-->
+<!--          </select-input>-->
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Photo" />
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
@@ -54,6 +58,7 @@ export default {
   layout: Layout,
   props: {
     user: Object,
+    contacts: Object,
   },
   remember: 'form',
   data() {
@@ -66,6 +71,7 @@ export default {
         password: '',
         owner: this.user.owner,
         photo: null,
+        user_id: this.user.user_id,
       }),
     }
   },
@@ -76,7 +82,7 @@ export default {
       })
     },
     destroy() {
-      if (confirm('Are you sure you want to delete this user?')) {
+      if (confirm('Czy chcesz usunąć użytkownika ?')) {
         this.$inertia.delete(`/users/${this.user.id}`)
       }
     },

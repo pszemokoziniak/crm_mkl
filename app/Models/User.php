@@ -53,10 +53,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Account::class);
     }
-//    public function contact()
-//    {
-//        return $this->belongsTo(Contact::class);
-//    }
+    public function contact()
+    {
+        return $this->hasOne(Contact::class);
+    }
 
     public function getNameAttribute()
     {
