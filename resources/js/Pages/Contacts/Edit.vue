@@ -34,6 +34,7 @@
             <text-input v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
 
             <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce zamieszkania" />
+            <text-input v-model="form.miejsce_urodzenia" :error="form.errors.miejsce_urodzenia" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce urodzenia" />
 
             <text-input v-model="form.idCard_number" :error="form.errors.idCard_number" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Dowodu" />
             <text-input type="date" v-model="form.idCard_date" :error="form.errors.idCard_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
@@ -106,6 +107,7 @@ export default {
         email: this.contact.email,
         phone: this.contact.phone,
         address: this.contact.address,
+        miejsce_urodzenia: this.contact.miejsce_urodzenia,
         contactId: this.contact.id,
 
         birth_date: this.contact.birth_date,

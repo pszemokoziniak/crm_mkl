@@ -43,7 +43,7 @@
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
                 <div v-if="organization.kierownikBud_id">
-                  {{ organization.kierownikBud_id.first_name }}
+                  {{ organization.kierownikBud_id.last_name }} {{ organization.kierownikBud_id.first_name }}
                 </div>
               </Link>
             </td>

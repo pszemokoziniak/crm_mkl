@@ -22,16 +22,19 @@ class ContactsController extends Controller
         return Inertia::render('Contacts/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contacts' => Contact::with('funkcja')
+                ->with('organization')
                 ->orderByName()
                 ->paginate(10)
                 ->withQueryString()
                 ->through(fn ($contact) => [
                     'id' => $contact->id,
-                    'name' => $contact->name,
+                    'name' => $contact->first_name,
+                    'last_name' => $contact->last_name,
                     'phone' => $contact->phone,
                     'city' => $contact->city,
                     'deleted_at' => $contact->deleted_at,
                     'funkcja' => $contact->funkcja,
+                    'budowa' => $contact->organization,
                 ]),
         ]);
     }
@@ -62,20 +65,21 @@ class ContactsController extends Controller
                 'last_name' => ['required', 'max:150'],
                 'birth_date' => ['required'],
                 'pesel' => ['required'],
-                'idCard_number' => ['required'],
-                'idCard_date' => ['required'],
-                'funkcja_id' => ['required'],
+                'idCard_number' => ['nullable'],
+                'idCard_date' => ['nullable'],
+                'funkcja_id' => ['nullable'],
                 'work_start' => ['required'],
                 'work_end' => ['required'],
-                'ekuz' => ['required'],
+                'ekuz' => ['nullable'],
+                'miejsce_urodzenia' => ['nullable'],
                 'organization_id' => ['nullable'],
 
 //                'organization_id' => ['nullable', Rule::exists('organizations', 'id')->where(function ($query) {
 //                    $query->where('account_id', Auth::user()->account_id);
 //                })],
-                'email' => ['nullable', 'max:150', 'email'],
-                'phone' => ['nullable', 'max:150'],
-                'address' => ['nullable', 'max:150'],
+                'email' => ['required', 'max:150', 'email'],
+                'phone' => ['required', 'max:50'],
+                'address' => ['nullable'],
             ])
         );
 
@@ -102,6 +106,7 @@ class ContactsController extends Controller
                 'work_start' => $contact->work_start,
                 'work_end' => $contact->work_end,
                 'ekuz' => $contact->ekuz,
+                'miejsce_urodzenia' => $contact->miejsce_urodzenia,
 
                 // 'city' => $contact->city,
                 // 'region' => $contact->region,
@@ -162,6 +167,7 @@ class ContactsController extends Controller
                 'work_start' => ['nullable', 'date'],
                 'work_end' => ['nullable', 'date'],
                 'ekuz' => ['nullable', 'max:25'],
+                'miejsce_urodzenia' => ['nullable', 'max:150'],
                 'funkcja_id' => ['nullable', 'max:50'],
             ])
         );
