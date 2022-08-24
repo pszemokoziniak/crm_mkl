@@ -1,8 +1,5 @@
 # MKL CRM
 
-
-![](https://raw.githubusercontent.com/inertiajs/pingcrm/master/screenshot.png)
-
 ## Installation
 
 Install PHP dependencies:
