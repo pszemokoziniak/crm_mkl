@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\A1;
 use App\Models\Contact;
 use App\Models\Account;
 use App\Models\Funkcja;
@@ -35,6 +36,7 @@ class ContactsController extends Controller
                     'deleted_at' => $contact->deleted_at,
                     'funkcja' => $contact->funkcja,
                     'budowa' => $contact->organization,
+                    'a1' => A1::where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
                 ]),
         ]);
     }

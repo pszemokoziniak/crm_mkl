@@ -53,7 +53,9 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-<!--              {{ contact.phone }}--> testA1
+              <div v-if="contact.a1">
+                {{ contact.a1.end }}
+              </div>
             </Link>
           </td>
           <td class="w-px border-t">

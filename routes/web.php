@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\A1Controller;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BadaniaBHPController;
 use App\Http\Controllers\BadaniaController;
@@ -240,6 +241,36 @@ Route::delete('bhp/{bhp}', [BhpController::class, 'destroy'])
 
 Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
     ->name('bhp.restore')
+    ->middleware('auth');
+
+// A1
+
+Route::get('contacts/{contact}/a1', [A1Controller::class, 'index'])
+    ->name('a1.index')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/a1/create', [A1Controller::class, 'create'])
+    ->name('a1.create')
+    ->middleware('auth');
+
+Route::post('a1/{contact_id}', [A1Controller::class, 'store'])
+    ->name('a1.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/a1/{a1}/edit', [A1Controller::class, 'edit'])
+    ->name('a1.edit')
+    ->middleware('auth');
+
+Route::put('contacts/{contact}/a1/{a1}', [A1Controller::class, 'update'])
+    ->name('a1.update')
+    ->middleware('auth');
+
+Route::delete('a1/{a1}', [A1Controller::class, 'destroy'])
+    ->name('a1.destroy')
+    ->middleware('auth');
+
+Route::put('a1/{a1}/restore', [A1Controller::class, 'restore'])
+    ->name('a1.restore')
     ->middleware('auth');
 
 // Uprawnienia

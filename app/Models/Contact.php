@@ -27,6 +27,11 @@ class Contact extends Model
         return $this->belongsTo(Funkcja::class);
     }
 
+    public function a1()
+    {
+        return $this->belongsTo(A1::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
