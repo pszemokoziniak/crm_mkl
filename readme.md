@@ -1,4 +1,4 @@
-# Ping CRM
+# MKL CRM
 
 A demo application to illustrate how Inertia.js works.
 
