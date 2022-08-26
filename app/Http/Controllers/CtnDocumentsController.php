@@ -44,7 +44,8 @@ class CtnDocumentsController extends Controller
             $documentService->store(
                 Request::file('document'),
                 $contactId,
-                Request::get('name')
+                Request::get('name'),
+                Request::get('typ')
             );
         } catch (\Exception $e) {
             Log::info('Error while storing document: ' . $e->getMessage());

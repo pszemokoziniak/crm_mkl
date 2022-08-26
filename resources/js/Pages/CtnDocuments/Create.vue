@@ -9,6 +9,12 @@
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa" />
+          <select-input v-model="form.typ" :error="form.errors.typ" class="pb-8 pr-6 w-full lg:w-1/2" label="Typ dokumentu">
+            <option value="Lekarskie">Badania Lekarskie</option>
+            <option value="BHP">Szkolenia BHP</option>
+            <option value="Uprawnienia">Uprawnienia</option>
+            <option value="A1">A1</option>
+          </select-input>
           <file-input v-model="form.document" :errors="form.errors.document" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Dokument" />
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
@@ -25,6 +31,7 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import FileInput from "@/Shared/FileInput";
+import SelectInput from '@/Shared/SelectInput'
 
 export default {
   components: {
@@ -32,7 +39,8 @@ export default {
     Link,
     LoadingButton,
     TextInput,
-    FileInput
+    FileInput,
+    SelectInput,
   },
   layout: Layout,
   props: {
@@ -44,6 +52,7 @@ export default {
     return {
       form: this.$inertia.form({
         name: "",
+        typ: "",
         document: null,
       }),
     }

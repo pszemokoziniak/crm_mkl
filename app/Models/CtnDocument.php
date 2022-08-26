@@ -11,10 +11,11 @@ class CtnDocument extends Model
 {
     use HasFactory;
 
-    public static function create($name, $path, $contactId, $filename): self
+    public static function create($name, $typ, $path, $contactId, $filename): self
     {
         $self =  new self();
         $self->name = $name;
+        $self->typ = $typ;
         $self->path = $path;
         $self->contact_id = $contactId;
         $self->filename = $filename;

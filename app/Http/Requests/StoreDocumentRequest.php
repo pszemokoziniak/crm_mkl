@@ -17,6 +17,7 @@ class StoreDocumentRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:50', 'min:4'],
+            'typ' => ['required'],
             'document' => ['required', 'mimes:pdf'],
         ];
     }
