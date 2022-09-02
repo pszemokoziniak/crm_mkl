@@ -13,18 +13,22 @@ class A1Controller extends Controller
 {
     public function index(Contact $contact, A1 $a1)
     {
-        $a1s = A1::where('contact_id', $contact->id)
-            ->orderByName()
-            ->paginate(10)
-            ->withQueryString()
-            ->through(fn ($a1) => [
-                'id' => $a1->id,
-                'start' => $a1->start,
-                'end' => $a1->end,
-            ]);
+//        $a1s = A1::where('contact_id', $contact->id)
+//            ->orderByName()
+//            ->paginate(10)
+//            ->withQueryString()
+//            ->through(fn ($a1) => [
+//                'id' => $a1->id,
+//                'start' => $a1->start,
+//                'end' => $a1->end,
+//            ]);
+
+//        'documents' => A1::query()
+//        ->where('contact_id', $contact->id)
+//        ->paginate(10);
 
         return Inertia::render('A1/Index', [
-            'a1s' => $a1s,
+            'a1s' => A1::where('contact_id', $contact->id)->get(),
             'contact' => $contact
         ]);
     }

@@ -9,6 +9,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
+    {{a1s}}
     <h1 class="mb-8 text-3xl font-bold">A1</h1>
     <div class="flex items-center justify-between mb-6">
       <Link class="btn-indigo" :href="`/contacts/${contact.id}/a1/create`">
@@ -21,7 +22,7 @@
           <th class="pb-4 pt-6 px-6">Start</th>
           <th class="pb-4 pt-6 px-6">Koniec</th>
         </tr>
-        <tr v-for="item in a1s.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="item in a1s" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/a1/${item.id}/edit`">
               {{ item.start }}
