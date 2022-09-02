@@ -30,7 +30,7 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/jezyk/`">
             <div :class="'text-indigo-300 group-hover:text-gray-900'">Języki</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/a1`">
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/aw`">
             <div :class="'text-indigo-300 group-hover:text-gray-900'">A1</div>
           </Link>
         </div>
