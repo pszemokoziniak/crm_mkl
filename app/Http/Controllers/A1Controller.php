@@ -11,7 +11,7 @@ use Inertia\Inertia;
 
 class A1Controller extends Controller
 {
-    public function index(Contact $contact, A1 $a1)
+    public function index(Contact $contact)
     {
 //        $a1s = A1::where('contact_id', $contact->id)
 //            ->orderByName()
@@ -22,10 +22,6 @@ class A1Controller extends Controller
 //                'start' => $a1->start,
 //                'end' => $a1->end,
 //            ]);
-
-//        'documents' => A1::query()
-//        ->where('contact_id', $contact->id)
-//        ->paginate(10);
 
         return Inertia::render('A1/Index', [
             'a1s' => A1::where('contact_id', $contact->id)->get(),

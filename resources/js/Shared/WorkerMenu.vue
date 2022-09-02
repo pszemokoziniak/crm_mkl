@@ -30,17 +30,13 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/jezyk/`">
             <div :class="'text-indigo-300 group-hover:text-gray-900'">Języki</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/a1ww`">
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/a1`">
             <div :class="'text-indigo-300 group-hover:text-gray-900'">A1</div>
           </Link>
         </div>
-<!--        <div>-->
-<!--          <a href="#" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">Download</a>-->
-<!--        </div>-->
       </div>
     </nav>
   </div>
-
 </template>
 
 <script>
@@ -49,7 +45,7 @@ import { Link } from '@inertiajs/inertia-vue3'
 export default {
   name: 'WorkerMenu',
   props: {
-    contactId:Number
+    contactId:Number,
   },
   components: {
     Link,
