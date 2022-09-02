@@ -30,7 +30,7 @@ class CtnDocumentService
 
     private function storeEntity(string $path, int $id, string $name, string $typ, UploadedFile $file): void
     {
-        CtnDocument::create($name, $typ, $this->fullFilePath($path,$file), $id, $file)->getClientOriginalName()->save();
+        CtnDocument::create($name, $typ, $this->fullFilePath($path,$file), $id, $file->getClientOriginalName())->save();
     }
 
     private function fullFilePath(string $path, UploadedFile $file): string
