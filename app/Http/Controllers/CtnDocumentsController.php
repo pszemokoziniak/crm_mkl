@@ -83,4 +83,60 @@ class CtnDocumentsController extends Controller
         return Redirect::route('documents.index', ['contact_id' => $id, 'document_id' => $documentId])
             ->with('success', 'Usunięto dokument');
     }
+
+    public function deleteLek(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('badania.index', ['contact' => $id])
+            ->with('success', 'Usunięto dokument');
+    }
+
+    public function deleteBhp(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('bhp.index', ['contact' => $id])
+            ->with('success', 'Usunięto dokument');
+    }
+    public function deleteUpr(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('uprawnienia.index', ['contact' => $id])
+            ->with('success', 'Usunięto dokument');
+    }
 }

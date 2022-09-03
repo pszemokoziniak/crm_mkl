@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateBhpRequest;
 use App\Models\Bhp;
 use App\Models\BhpTyp;
 use App\Models\Contact;
+use App\Models\CtnDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -30,7 +31,11 @@ class BhpController extends Controller
         return Inertia::render('Bhp/Index', [
             'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
-            'bhps' => $bhps
+            'bhps' => $bhps,
+            'documents' => CtnDocument::query()
+                ->where('contact_id', $contact->id)
+                ->where('typ', 'BHP')
+                ->paginate(10)
         ]);
     }
     public function edit(Contact $contact, Bhp $bhp)

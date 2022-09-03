@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\A1Controller;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\BadaniaBHPController;
+//use App\Http\Controllers\BadaniaBHPController;
 use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\BadaniaTypController;
 use App\Http\Controllers\BhpController;
@@ -245,7 +245,7 @@ Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
 
 // A1
 
-Route::get('dupa/{contact}/dupa/', [A1Controller::class, 'index'])
+Route::get('contacts/{contact}/bhpbhp', [A1Controller::class, 'index'])
     ->name('a1.index')
     ->middleware('auth');
 
@@ -581,4 +581,20 @@ Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsControl
 
 Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'delete'])
     ->name('documents.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/lekarskie', [CtnDocumentsController::class, 'deleteLek'])
+    ->name('documentsLek.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/bhp', [CtnDocumentsController::class, 'deleteBhp'])
+    ->name('documentsBhp.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/uprawnienia', [CtnDocumentsController::class, 'deleteUpr'])
+    ->name('documentsUpr.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/a1', [CtnDocumentsController::class, 'deleteA1'])
+    ->name('documentsA1.delete')
     ->middleware('auth');
