@@ -245,9 +245,13 @@ Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
 
 // A1
 
-Route::get('contacts/{contact}/bhpbhp', [A1Controller::class, 'index'])
+Route::get('dupa/{contact}/dupa', [A1Controller::class, 'index'])
     ->name('a1.index')
     ->middleware('auth');
+
+//Route::get('contacts/{contact}/bhpbhp', [A1Controller::class, 'index'])
+//    ->name('a1.index')
+//    ->middleware('auth');
 
 Route::get('contacts/{contact}/a1/create', [A1Controller::class, 'create'])
     ->name('a1.create')
