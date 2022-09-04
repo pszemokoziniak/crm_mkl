@@ -22,7 +22,6 @@ class A1Controller extends Controller
 //                'start' => $a1->start,
 //                'end' => $a1->end,
 //            ]);
-        dd('test');
         return Inertia::render('A1/Index', [
             'a1s' => A1::where('contact_id', $contact->id)->get(),
             'contact' => $contact

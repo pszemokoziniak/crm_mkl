@@ -69,7 +69,7 @@ class ContactsController extends Controller
                 'pesel' => ['required'],
                 'idCard_number' => ['nullable'],
                 'idCard_date' => ['nullable'],
-                'funkcja_id' => ['nullable'],
+                'funkcja_id' => ['required'],
                 'work_start' => ['required'],
                 'work_end' => ['required'],
                 'ekuz' => ['nullable'],
@@ -82,6 +82,10 @@ class ContactsController extends Controller
                 'email' => ['required', 'max:150', 'email'],
                 'phone' => ['required', 'max:50'],
                 'address' => ['nullable'],
+            ],
+            [
+                'required' => 'Pole :attribute jest wymagane.',
+                'funkcja_id.required' => 'Pole stanowisko jest wymagane.'
             ])
         );
 

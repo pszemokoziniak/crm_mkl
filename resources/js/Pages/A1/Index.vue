@@ -9,7 +9,6 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
-    {{a1s}}
     <h1 class="mb-8 text-3xl font-bold">A1</h1>
     <div class="flex items-center justify-between mb-6">
       <Link class="btn-indigo" :href="`/contacts/${contact.id}/a1/create`">
