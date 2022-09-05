@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCustomersRequest;
 use App\Models\A1;
 use App\Models\Contact;
 use App\Models\Account;
@@ -13,6 +14,7 @@ use http\Client\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -59,35 +61,31 @@ class ContactsController extends Controller
         ]);
     }
 
-    public function store()
+    public function store(StoreCustomersRequest $request)
     {
-        Auth::user()->account->contacts()->create(
-            Request::validate([
-                'first_name' => ['required', 'max:150'],
-                'last_name' => ['required', 'max:150'],
-                'birth_date' => ['required'],
-                'pesel' => ['required'],
-                'idCard_number' => ['nullable'],
-                'idCard_date' => ['nullable'],
-                'funkcja_id' => ['required'],
-                'work_start' => ['required'],
-                'work_end' => ['required'],
-                'ekuz' => ['nullable'],
-                'miejsce_urodzenia' => ['nullable'],
-                'organization_id' => ['nullable'],
+
+        Auth::user()->account->contacts()->create([
+            'first_name' => Request::get('first_name'),
+            'last_name' => Request::get('last_name'),
+            'birth_date' => Request::get('birth_date'),
+            'pesel' => Request::get('pesel'),
+            'idCard_number' => Request::get('idCard_number'),
+            'idCard_date' => Request::get('idCard_date'),
+            'funkcja_id' => Request::get('funkcja_id'),
+            'work_start' => Request::get('work_start'),
+            'work_end' => Request::get('work_end'),
+            'ekuz' => Request::get('ekuz'),
+            'miejsce_urodzenia' => Request::get('miejsce_urodzenia'),
+            'organization_id' => Request::get('organization_id'),
+            'email' => Request::get('email'),
+            'phone' => Request::get('phone'),
+            'address' => Request::get('address'),
+            'photo_path' => Request::file('photo_path') ? Request::file('photo_path')->store('contacts') : null,
+        ]);
 
 //                'organization_id' => ['nullable', Rule::exists('organizations', 'id')->where(function ($query) {
 //                    $query->where('account_id', Auth::user()->account_id);
 //                })],
-                'email' => ['required', 'max:150', 'email'],
-                'phone' => ['required', 'max:50'],
-                'address' => ['nullable'],
-            ],
-            [
-                'required' => 'Pole :attribute jest wymagane.',
-                'funkcja_id.required' => 'Pole stanowisko jest wymagane.'
-            ])
-        );
 
         return Redirect::route('contacts')->with('success', 'Pracownik stworzony');
     }
@@ -113,11 +111,7 @@ class ContactsController extends Controller
                 'work_end' => $contact->work_end,
                 'ekuz' => $contact->ekuz,
                 'miejsce_urodzenia' => $contact->miejsce_urodzenia,
-
-                // 'city' => $contact->city,
-                // 'region' => $contact->region,
-                // 'country' => $contact->country,
-                // 'postal_code' => $contact->postal_code,
+                'photo_path' => $contact->photo_path ? URL::route('image', ['path' => $contact->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
                 'deleted_at' => $contact->deleted_at,
             ],
             'organizations' => Auth::user()->account->organizations()
@@ -147,34 +141,23 @@ class ContactsController extends Controller
 
     public function update(Contact $contact)
     {
-//        dd($contact->funkcja_id);
-
         $contact->update(
             Request::validate([
-                'first_name' => ['required', 'max:50'],
-                'last_name' => ['required', 'max:50'],
-                'pesel' => ['required', 'max:50'],
-                'organization_id' => ['nullable', 'max:50'],
-//                'organization_id' => [
-//                    'nullable',
-//                    Rule::exists('organizations', 'id')->where(fn ($query) => $query->where('account_id', Auth::user()->account_id)),
-//                ],
-                'email' => ['nullable', 'max:50', 'email'],
-                'phone' => ['nullable', 'max:50'],
-                'address' => ['nullable', 'max:150'],
-                'city' => ['nullable', 'max:50'],
-                'region' => ['nullable', 'max:50'],
-                'country' => ['nullable', 'max:2'],
-                'postal_code' => ['nullable', 'max:25'],
-                'birth_date' => ['nullable', 'date'],
-                'idCard_number' => ['nullable', 'max:50'],
-                'idCard_date' => ['nullable', 'date'],
-//                'position' => ['nullable', 'max:25'],
-                'work_start' => ['nullable', 'date'],
-                'work_end' => ['nullable', 'date'],
-                'ekuz' => ['nullable', 'max:25'],
-                'miejsce_urodzenia' => ['nullable', 'max:150'],
-                'funkcja_id' => ['nullable', 'max:50'],
+                'first_name' => ['required', 'max:150'],
+                'last_name' => ['required', 'max:150'],
+                'birth_date' => ['required'],
+                'pesel' => ['required'],
+                'idCard_number' => ['nullable'],
+                'idCard_date' => ['nullable'],
+                'funkcja_id' => ['required'],
+                'work_start' => ['required'],
+                'work_end' => ['required'],
+                'ekuz' => ['nullable'],
+                'miejsce_urodzenia' => ['nullable'],
+                'organization_id' => ['nullable'],
+                'email' => ['required', 'max:150', 'email'],
+                'phone' => ['required', 'max:50'],
+                'address' => ['nullable'],
             ])
         );
 

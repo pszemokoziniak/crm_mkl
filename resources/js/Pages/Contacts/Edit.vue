@@ -5,7 +5,7 @@
       <WorkerMenu :contactId="contactId" />
     </div>
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
@@ -99,7 +99,7 @@ export default {
   data() {
     return {
       contactId: this.contact.id,
-      disabled: 0,
+      disabled: 1,
       form: this.$inertia.form({
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,
@@ -109,26 +109,23 @@ export default {
         address: this.contact.address,
         miejsce_urodzenia: this.contact.miejsce_urodzenia,
         contactId: this.contact.id,
-
         birth_date: this.contact.birth_date,
         pesel: this.contact.pesel,
         idCard_number: this.contact.idCard_number,
         idCard_date: this.contact.idCard_date,
-        // position: this.contact.position,
         funkcja_id: this.contact.funkcja_id,
         work_start: this.contact.work_start,
         work_end: this.contact.work_end,
         ekuz: this.contact.ekuz,
-        // city: this.contact.city,
-        // region: this.contact.region,
-        // country: this.contact.country,
-        // postal_code: this.contact.postal_code,
+        photo_path: this.contact.photo_path,
       }),
     }
   },
   methods: {
     update() {
-      this.form.put(`/contacts/${this.contact.id}`)
+      this.form.put(`/contacts/${this.contact.id}`, {
+        onSuccess: () => this.form.reset('photo_path'),
+      })
     },
     destroy() {
       if (confirm('Chcesz usunąć?')) {

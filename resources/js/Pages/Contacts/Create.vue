@@ -31,13 +31,14 @@
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
+          <file-input v-model="form.photo_path" :error="form.errors.photo_path" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
+
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
             <text-input type="date" v-model="form.work_start" :error="form.errors.work_start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
             <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
 
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
             <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Termin ważności" />
-
 
 
           <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja" /> -->
@@ -80,6 +81,7 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
+import FileInput from '@/Shared/FileInput'
 
 export default {
   components: {
@@ -88,6 +90,7 @@ export default {
     LoadingButton,
     SelectInput,
     TextInput,
+    FileInput,
   },
   layout: Layout,
   props: {
@@ -116,12 +119,15 @@ export default {
         phone: '',
         address: '',
         miejsce_urodzenia: '',
+        photo_path: null,
       }),
     }
   },
   methods: {
     store() {
-      this.form.post('/contacts')
+      this.form.post('/contacts', {
+        onSuccess: () => this.form.reset('photo_path'),
+      })
     },
   },
 }
