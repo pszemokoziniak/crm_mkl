@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCustomersRequest;
 use App\Models\A1;
+use App\Models\Badania;
+use App\Models\Bhp;
 use App\Models\Contact;
 use App\Models\Account;
 use App\Models\Funkcja;
@@ -92,6 +94,9 @@ class ContactsController extends Controller
 
     public function edit(Contact $contact)
     {
+//        dd(BHP::where('contact_id', $contact->id)
+//                 ->orderBy('end', 'desc')
+//                 ->first());
         return Inertia::render('Contacts/Edit', [
             'contact' => [
                 'id' => $contact->id,
@@ -111,7 +116,7 @@ class ContactsController extends Controller
                 'work_end' => $contact->work_end,
                 'ekuz' => $contact->ekuz,
                 'miejsce_urodzenia' => $contact->miejsce_urodzenia,
-                'photo_path' => $contact->photo_path ? URL::route('image', ['path' => $contact->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
+                'photo_path' => $contact->photo_path ? URL::route('image', ['path' => $contact->photo_path, 'w' => 260, 'h' => 260, 'fit' => 'crop']) : null,
                 'deleted_at' => $contact->deleted_at,
             ],
             'organizations' => Auth::user()->account->organizations()
@@ -135,7 +140,13 @@ class ContactsController extends Controller
                     'poziom' => $jezyk->poziom,
                     'jezyk' => $jezyk->jezykTyp ? $jezyk->jezykTyp : null,
                 ]),
-            // 'funkcja' => Funkcja::find($contact->funkcja),
+//             'bhp' => BHP::where('contact_id', $contact->id)
+//                 ->orderBy('end', 'desc')
+//                 ->first(),
+            'bhp' => Bhp::select('end')->where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
+            'lekarskie' => Badania::select('end')->where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
+            'a1' => A1::select('end')->where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
+
         ]);
     }
 

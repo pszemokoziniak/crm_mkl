@@ -1,6 +1,30 @@
 <template>
   <div>
     <Head :title="`${form.first_name} ${form.last_name}`" />
+
+    <div class="mt-2 grid grid-cols-3 gap-2 bg-white rounded-md shadow overflow-hidden mb-2" >
+      <div class="card">
+        <img v-if="contact.photo_path" class="" :src="contact.photo_path" />
+      </div>
+      <div class="card">
+        <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
+          <span>Języki:</span>
+        </h2>
+        <span v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <h3 v-if="item.jezyk" class="m-1">
+            {{ item.jezyk.name }} - {{ item.poziom }}
+          </h3>
+        </span>
+      </div>
+      <div class="card">
+        <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
+          <span>Terminy:</span>
+        </h2>
+        <h3 class="m-3">BHP: <span v-if="bhp"> {{bhp.end}} </span></h3>
+        <h3 class="m-3">Badania lekarskie: <span v-if="lekarskie"> {{lekarskie.end}} </span> </h3>
+        <h3 class="m-3">A1: <span v-if="a1"> {{a1.end}} </span> </h3>
+      </div>
+    </div>
     <div>
       <WorkerMenu :contactId="contactId" />
     </div>
@@ -12,18 +36,8 @@
     <div @click="disabled = 1" class="mb-3 btn-indigo w-1/2 text-center cursor-pointer">
       <span>Edytuj</span>
     </div>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden mb-2">
-      <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
-        <span>Znane języki:</span>
-      </h2>
-      <span v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <span v-if="item.jezyk" class="m-1">
-            {{ item.jezyk.name }} - {{ item.poziom }}
-          </span>
-      </span>
-    </div>
-    <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
+    <div class="bg-white rounded-md shadow overflow-hidden">
       <fieldset :disabled="disabled == 0">
         <form @submit.prevent="update">
           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -39,12 +53,8 @@
             <text-input v-model="form.idCard_number" :error="form.errors.idCard_number" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Dowodu" />
             <text-input type="date" v-model="form.idCard_date" :error="form.errors.idCard_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
 
-            <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
-            <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telefon" />
-
-<!--            <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">-->
-<!--              <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>-->
-<!--            </select-input>-->
+            <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" type="email" label="Email" />
+            <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" type="tel" label="Telefon" />
 
             <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
               <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
@@ -94,6 +104,14 @@ export default {
     accounts: Object,
     jezyks: Object,
     errors: Object,
+    bhp: Object,
+    lekarskie: Object,
+    // lekarskie: {
+    //   required: false,
+    //   default: null,
+    //   type: [Object, String, Array],
+    // },
+    a1: Object,
   },
   remember: 'form',
   data() {
