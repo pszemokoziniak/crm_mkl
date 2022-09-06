@@ -33,36 +33,29 @@ class BuildingTimeSheet extends Controller
             ->orderBy('b.work_day')
             ->get();
 
-        $buildWorkers = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
-            $carry[$item->id][] = $item;
+        $buildWorkersSavedShifts = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
+            $carry[$item->id][Carbon::create($item->work_day)->day] = $item;
             return $carry;
         }, []);
 
-        $timeSheets = [];
-        foreach ($buildWorkers as $buildWorkersShifts) {
-            foreach ($buildWorkersShifts as $workersShift) {
-                foreach ($month as $day) {
-                    $shiftDay = Carbon::create($workersShift->work_day);
-                    if ($shiftDay->isSameDay($day)) {
-                        // @TODO formatting on FE ?
-                        $timeSheets[$workersShift->id][$day->day] = [
-                            'build' => $build,
-                            "name" => $workersShift->first_name . ' ' . $workersShift->last_name,
-                            "id" => $workersShift->id,
-                            "day" => $day,
-                            "month" => $day->month,
-                            "from" => $workersShift->work_from ?? null,
-                            "to" => $workersShift->work_to ?? null,
-                            "work" => $workersShift->effective_work_time ?? null,
-                        ];
-
-                        continue;
-                    }
-
-                    $timeSheets[$workersShift->id][$day->day] = [
+        foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
+            foreach ($month as $day) {
+                if (array_key_exists($day->day, $buildWorkersShifts)) {
+                    $buildWorkersSavedShifts[$workerId][$day->day] = [
                         'build' => $build,
-                        "name" => $workersShift->first_name . ' ' . $workersShift->last_name,
-                        "id" => $workersShift->id,
+                        "name" => $buildWorkersShifts[$day->day]->first_name . ' ' . $buildWorkersShifts[$day->day]->last_name,
+                        "id" => $buildWorkersShifts[$day->day]->id,
+                        "day" => $day,
+                        "month" => $day->month,
+                        "from" => $buildWorkersShifts[$day->day]->work_from ?? null,
+                        "to" => $buildWorkersShifts[$day->day]->work_to ?? null,
+                        "work" => $buildWorkersShifts[$day->day]->effective_work_time ?? null,
+                    ];
+                } else {
+                    $buildWorkersSavedShifts[$workerId][$day->day] = [
+                        'build' => $build,
+                        "name" => 'Jan Kowalski',
+                        "id" => $workerId,
                         "day" => $day,
                         "month" => $day->month,
                         "from" => null,
@@ -77,7 +70,7 @@ class BuildingTimeSheet extends Controller
             [
                 'date' => $date,
                 'month' => $date->monthName,
-                'timeSheets' => $timeSheets,
+                'timeSheets' => $buildWorkersSavedShifts,
                 'build' => $build,
             ]
         );
@@ -98,19 +91,19 @@ class BuildingTimeSheet extends Controller
         $splitTo = explode(':', $data['to']);
 
         $dataToSave = [
-            'organization_id'       => $data['build'],
-            'contact_id'            => $data['id'],
-            'work_day'              => $workDay,
-            'work_from'             => clone $workDay->setTime((int) $splitFrom[0], (int) $splitFrom[1]),
-            'work_to'               => clone $workDay->setTime((int) $splitTo[0], (int) $splitTo[1]),
-            'effective_work_time'   => $data['workTime'],
+            'organization_id' => $data['build'],
+            'contact_id' => $data['id'],
+            'work_day' => $workDay,
+            'work_from' => clone $workDay->setTime((int)$splitFrom[0], (int)$splitFrom[1]),
+            'work_to' => clone $workDay->setTime((int)$splitTo[0], (int)$splitTo[1]),
+            'effective_work_time' => $data['workTime'],
         ];
 
         try {
             BuildingTimeSheetModel::create($dataToSave);
         } catch (\Exception $e) {
             return new JsonResponse([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => $e->getMessage()
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
