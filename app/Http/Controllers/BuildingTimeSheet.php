@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\DTO\BuildingTimeSheet as BuildingTimeSheetDTO;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
@@ -41,28 +42,25 @@ class BuildingTimeSheet extends Controller
         foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
             foreach ($month as $day) {
                 if (array_key_exists($day->day, $buildWorkersShifts)) {
-                    $buildWorkersSavedShifts[$workerId][$day->day] = [
-                        'build' => $build,
-                        "name" => $buildWorkersShifts[$day->day]->first_name . ' ' . $buildWorkersShifts[$day->day]->last_name,
-                        "id" => $buildWorkersShifts[$day->day]->id,
-                        "day" => $day,
-                        "month" => $day->month,
-                        "from" => $buildWorkersShifts[$day->day]->work_from ?? null,
-                        "to" => $buildWorkersShifts[$day->day]->work_to ?? null,
-                        "work" => $buildWorkersShifts[$day->day]->effective_work_time ?? null,
-                    ];
-                } else {
-                    $buildWorkersSavedShifts[$workerId][$day->day] = [
-                        'build' => $build,
-                        "name" => 'Jan Kowalski',
-                        "id" => $workerId,
-                        "day" => $day,
-                        "month" => $day->month,
-                        "from" => null,
-                        "to" => null,
-                        "work" => null,
-                    ];
+                    $buildWorkersSavedShifts[$workerId][$day->day] = new BuildingTimeSheetDTO(
+                        id: $buildWorkersShifts[$day->day]->id,
+                        build: $build,
+                        name: $buildWorkersShifts[$day->day]->first_name . ' ' . $buildWorkersShifts[$day->day]->last_name,
+                        day: $day->day,
+                        month: $day->month,
+                        workFrom: $buildWorkersShifts[$day->day]->work_from ?? null,
+                        workTo: $buildWorkersShifts[$day->day]->work_to ?? null,
+                        work: $buildWorkersShifts[$day->day]->effective_work_time ?? null,
+                    );
+                    continue;
                 }
+                $buildWorkersSavedShifts[$workerId][$day->day] = new BuildingTimeSheetDTO(
+                    id: $workerId,
+                    build: $build,
+                    name: 'Jan Kowalski',
+                    day: $day->day,
+                    month: $day->month,
+                );
             }
         }
 
