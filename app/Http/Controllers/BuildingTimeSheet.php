@@ -33,45 +33,52 @@ class BuildingTimeSheet extends Controller
             ->orderBy('b.work_day')
             ->get();
 
+        $buildWorkers = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
+            $carry[$item->id][] = $item;
+            return $carry;
+        }, []);
+
         $timeSheets = [];
-        foreach ($buildWorkersShifts as $workersShift) {
-            foreach ($month as $day) {
-                $shiftDay = Carbon::create($workersShift->work_day);
-                if ($shiftDay->isSameDay($day)) {
-                    // @TODO formatting on FE ?
+        foreach ($buildWorkers as $buildWorkersShifts) {
+            foreach ($buildWorkersShifts as $workersShift) {
+                foreach ($month as $day) {
+                    $shiftDay = Carbon::create($workersShift->work_day);
+                    if ($shiftDay->isSameDay($day)) {
+                        // @TODO formatting on FE ?
+                        $timeSheets[$workersShift->id][$day->day] = [
+                            'build' => $build,
+                            "name" => $workersShift->first_name . ' ' . $workersShift->last_name,
+                            "id" => $workersShift->id,
+                            "day" => $day,
+                            "month" => $day->month,
+                            "from" => $workersShift->work_from ?? null,
+                            "to" => $workersShift->work_to ?? null,
+                            "work" => $workersShift->effective_work_time ?? null,
+                        ];
+
+                        continue;
+                    }
+
                     $timeSheets[$workersShift->id][$day->day] = [
                         'build' => $build,
                         "name" => $workersShift->first_name . ' ' . $workersShift->last_name,
                         "id" => $workersShift->id,
                         "day" => $day,
                         "month" => $day->month,
-                        "from" => $workersShift->work_from ?? null,
-                        "to" => $workersShift->work_to ?? null,
-                        "work" => $workersShift->effective_work_time ?? null,
+                        "from" => null,
+                        "to" => null,
+                        "work" => null,
                     ];
-
-                    continue;
                 }
-
-                $timeSheets[$workersShift->id][$day->day] = [
-                    'build' => $build,
-                    "name" => $workersShift->first_name . ' ' . $workersShift->last_name,
-                    "id" => $workersShift->id,
-                    "day" => $day,
-                    "month" => $day->month,
-                    "from" => null,
-                    "to" => null,
-                    "work" => null,
-                ];
             }
         }
 
         return Inertia::render('Building/Index.vue',
             [
-                'date'       => $date,
-                'month'      => $date->monthName,
+                'date' => $date,
+                'month' => $date->monthName,
                 'timeSheets' => $timeSheets,
-                'build'      => $build,
+                'build' => $build,
             ]
         );
     }

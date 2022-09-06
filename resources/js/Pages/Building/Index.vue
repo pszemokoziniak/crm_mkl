@@ -92,6 +92,9 @@ export default {
       }),
     }
   },
+  mounted() {
+    console.log(this.timeSheets)
+  },
   methods: {
     formatTimeRange(time) {
 
