@@ -6,7 +6,7 @@
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
       <div v-for="shift in timeSheet" @click="showModal(shift)" class="px-4 pt-2 border-r border-b relative cursor-pointer hover:border-green-600 hover:text-green-600 text-gray-500" style="width: 127px; height: 89px;">
-        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">{{ shift.day }}</div>
+        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
         <div class="text-sm">{{ shift.name }}</div>
         <div class="overflow-y-auto mt-1" style="height: 80px;">
           {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br>

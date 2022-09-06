@@ -12,7 +12,7 @@ class BuildingTimeSheet implements JsonSerializable
         public int $id,
         public int $build,
         public string $name,
-        public int $day,
+        public \DateTimeInterface $day,
         public int $month,
         public ?string $workFrom = null,
         public ?string $workTo = null,

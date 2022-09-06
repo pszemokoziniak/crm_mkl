@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\BuildingTimeSheet as BuildingTimeSheetModel;
 use Inertia\Response;
 
-
 class BuildingTimeSheet extends Controller
 {
     public function view(int $build): Response
@@ -46,7 +45,7 @@ class BuildingTimeSheet extends Controller
                         id: $buildWorkersShifts[$day->day]->id,
                         build: $build,
                         name: $buildWorkersShifts[$day->day]->first_name . ' ' . $buildWorkersShifts[$day->day]->last_name,
-                        day: $day->day,
+                        day: $day,
                         month: $day->month,
                         workFrom: $buildWorkersShifts[$day->day]->work_from ?? null,
                         workTo: $buildWorkersShifts[$day->day]->work_to ?? null,
@@ -58,7 +57,7 @@ class BuildingTimeSheet extends Controller
                     id: $workerId,
                     build: $build,
                     name: 'Jan Kowalski',
-                    day: $day->day,
+                    day: $day,
                     month: $day->month,
                 );
             }
