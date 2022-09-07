@@ -45,11 +45,23 @@ class UsersController extends Controller
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
             'email' => ['required', 'max:50', 'email', Rule::unique('users')],
-            'password' => ['nullable'],
-            'owner' => ['required', 'max:200'],
+            'password' => [
+                'required',
+                'min:8',
+                'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
+            ],
+            'owner' => ['required', 'max:10'],
             'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
-        ]);
+        ],
+            [
+                'required'  => 'Pole jest wymagane.',
+                'unique' => 'Nazwa użyta',
+                'numeric' => 'Pole attribute może zawierać tylko cyfry',
+                'password.regex' => 'Hasło musi zawierać dużą literę, znak specjalny, cyfrę',
+                'password.min' => 'Hasło musi zawierać 8 znaków',
+            ]
+        );
 
         Auth::user()->account->users()->create([
             'first_name' => Request::get('first_name'),
@@ -102,11 +114,24 @@ class UsersController extends Controller
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
             'email' => ['required', 'max:50', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => ['nullable'],
-            'owner' => ['required', 'int'],
+//            'password' => ['nullable'],
+            'password' => [
+                'nullable',
+                'min:8',
+                'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
+            ],
+            'owner' => ['nullable'],
             'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
-        ]);
+        ],
+        [
+            'required'  => 'Pole jest wymagane.',
+            'unique' => 'Nazwa użyta',
+            'numeric' => 'Pole :attribute może zawierać tylko cyfry',
+            'password.regex' => 'Hasło musi zawierać dużą literę, znak specjalny, cyfrę',
+            'password.min' => 'Hasło musi zawierać 8 znaków',
+        ]
+        );
 
         $user->update(Request::only('first_name', 'last_name', 'email', 'owner , ', 'contact_id' ));
 
