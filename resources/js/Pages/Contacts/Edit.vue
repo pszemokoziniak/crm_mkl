@@ -4,7 +4,8 @@
 
     <div class="mt-2 grid grid-cols-3 gap-2 bg-white rounded-md shadow overflow-hidden mb-2" >
       <div class="card">
-        <img v-if="contact.photo_path" class="" :src="contact.photo_path" />
+        <img v-if="contact.photo_path" class="" :src="contact.photo_path"/>
+        <img v-if="contact.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=crop"/>
       </div>
       <div class="card">
         <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
@@ -33,7 +34,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
-    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/2 text-center cursor-pointer">
+    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">
       <span>Edytuj</span>
     </div>
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
