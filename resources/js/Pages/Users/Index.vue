@@ -44,7 +44,10 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/users/${user.id}/edit`" tabindex="-1">
-              {{ user.owner ? 'Owner' : 'User' }}
+              <span v-if="user.owner = 1">Kierownik budowy</span>
+<!--              <span v-if="user.owner==2"Biuro</span>-->
+<!--              <span v-if="user.owner==3">Zarząd</span>-->
+<!--              {{ user.owner ? 'Owner' : 'User' }}-->
             </Link>
           </td>
           <td class="w-px border-t">
