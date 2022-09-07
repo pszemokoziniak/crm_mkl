@@ -40,7 +40,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'owner' => 'boolean',
+        'owner' => 'integer',
         'email_verified_at' => 'datetime',
     ];
 
