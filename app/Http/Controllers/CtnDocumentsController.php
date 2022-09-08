@@ -139,4 +139,22 @@ class CtnDocumentsController extends Controller
         return Redirect::route('uprawnienia.index', ['contact' => $id])
             ->with('success', 'Usunięto dokument');
     }
+    public function deleteA1(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('a1.index', ['contact' => $id])
+            ->with('success', 'Usunięto dokument');
+    }
 }

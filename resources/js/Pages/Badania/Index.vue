@@ -152,7 +152,7 @@ export default {
       this.form = mapValues(this.form, () => null)
     },
     removeDocument(documentId) {
-      this.$inertia.delete(`/contacts/${this.contactId}/documents/${documentId}/bhp`)
+      this.$inertia.delete(`/contacts/${this.contactId}/documents/${documentId}/lekarskie`)
     },
   },
 }

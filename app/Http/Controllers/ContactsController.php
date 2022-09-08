@@ -29,6 +29,7 @@ class ContactsController extends Controller
             'contacts' => Contact::with('funkcja')
                 ->with('organization')
                 ->orderByName()
+                ->filter(Request::only('search', 'trashed'))
                 ->paginate(10)
                 ->withQueryString()
                 ->through(fn ($contact) => [
@@ -36,6 +37,7 @@ class ContactsController extends Controller
                     'name' => $contact->first_name,
                     'last_name' => $contact->last_name,
                     'phone' => $contact->phone,
+                    'email' => $contact->email,
                     'city' => $contact->city,
                     'deleted_at' => $contact->deleted_at,
                     'funkcja' => $contact->funkcja,

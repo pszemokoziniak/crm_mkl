@@ -4,13 +4,14 @@
     <h1 class="mb-8 text-3xl font-bold">Użykownicy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-        <label class="block text-gray-700">Role:</label>
+        <label class="block text-gray-700">Uprawnienia:</label>
         <select v-model="form.role" class="form-select mt-1 w-full">
           <option :value="null" />
-          <option value="user">User</option>
-          <option value="owner">Owner</option>
+          <option value="1">Kierownik Budowy</option>
+          <option value="2">Biuro</option>
+          <option value="3">Zarząd</option>
         </select>
-        <label class="block mt-4 text-gray-700">Trashed:</label>
+        <label class="block mt-4 text-gray-700">Archiwum:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
           <option :value="null" />
           <option value="with">With Trashed</option>
@@ -18,8 +19,8 @@
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/users/create">
-        <span>Create</span>
-        <span class="hidden md:inline">&nbsp;Użykownik</span>
+        <span>Utwórz</span>
+        <span class="hidden md:inline">&nbsp;Użykownika</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">

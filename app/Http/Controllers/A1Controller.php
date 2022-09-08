@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreA1Request;
 use App\Models\A1;
 use App\Models\Contact;
+use App\Models\CtnDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -24,7 +25,11 @@ class A1Controller extends Controller
 //            ]);
         return Inertia::render('A1/Index', [
             'a1s' => A1::where('contact_id', $contact->id)->get(),
-            'contact' => $contact
+            'contact' => $contact,
+            'documents' => CtnDocument::query()
+                ->where('contact_id', $contact->id)
+                ->where('typ', 'A1')
+                ->paginate(10)
         ]);
     }
     public function edit(Contact $contact, A1 $a1)
