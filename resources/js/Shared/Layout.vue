@@ -20,7 +20,9 @@
 <!--            </dropdown>-->
           </div>
           <div class="md:text-md flex items-center justify-between p-4 w-full text-sm bg-white border-b md:px-12 md:py-0">
-            <div class="mr-4 mt-1">Stanowisko:  {{ auth.user.account.name }}</div>
+            <div v-if="auth.user.owner === 1" class="mr-4 mt-1">Stanowisko: Kierownik Budowy</div>
+            <div v-if="auth.user.owner === 2" class="mr-4 mt-1">Stanowisko: Biuro</div>
+            <div v-if="auth.user.owner === 3" class="mr-4 mt-1">Stanowisko: Zarząd</div>
             <dropdown class="mt-1" placement="bottom-end">
               <template #default>
                 <div class="group flex items-center cursor-pointer select-none">
@@ -72,6 +74,7 @@ export default {
   },
   props: {
     auth: Object,
+    // contact: Object,
   },
 }
 </script>

@@ -133,7 +133,7 @@ class UsersController extends Controller
         ]
         );
 
-        $user->update(Request::only('first_name', 'last_name', 'email', 'owner , ', 'contact_id' ));
+        $user->update(Request::only('first_name', 'last_name', 'email', 'owner', 'contact_id' ));
 
         if (Request::file('photo')) {
             $user->update(['photo_path' => Request::file('photo')->store('users')]);
