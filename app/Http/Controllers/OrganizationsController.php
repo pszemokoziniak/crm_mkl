@@ -95,14 +95,15 @@ class OrganizationsController extends Controller
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
 //            'contacts' => Contact::where('organization_id', $organization->id)->get(),
-            'contactsFree' => Contact::where('organization_id', null)->get()->map->only('id', 'last_name'),
+            'contactsFree' => Contact::where('organization_id', null)->where('funkcja_id', '!=', 1)->get()->map->only('id','first_name','last_name'),
             'contacts' => Contact::with('funkcja')
                 ->where('organization_id', $organization->id)
                 ->orderByName()
-                ->paginate(10)
+                ->paginate(1000)
                 ->withQueryString()
                 ->through(fn ($contact) => [
                     'id' => $contact->id,
+                    'first_name' => $contact->first_name,
                     'last_name' => $contact->last_name,
                     'phone' => $contact->phone,
                     'funkcja_id' => $contact->funkcja_id,

@@ -14,8 +14,8 @@
         <label class="block mt-4 text-gray-700">Archiwum:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
           <option :value="null" />
-          <option value="with">With Trashed</option>
-          <option value="only">Only Trashed</option>
+          <option value="with">Wszystkie</option>
+          <option value="only">Usunięte</option>
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/users/create">

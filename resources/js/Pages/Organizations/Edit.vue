@@ -5,7 +5,7 @@
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
       <span class="text-indigo-400 font-medium">/</span>
-      {{ form.name }}
+      {{ form.nazwaBud }}
     </h1>
     <trashed-message v-if="organization.deleted_at" class="mb-6" @restore="restore">Ta budowa będzie usunięta</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
@@ -47,7 +47,7 @@
           :key="index"
           class="m-3"
         >
-          {{ item.last_name }}
+          {{ item.first_name }} {{ item.last_name }}
           <input
             type="checkbox"
             :value="item.id"
@@ -61,7 +61,7 @@
 
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko</th>
+          <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
           <th class="pb-4 pt-6 px-6">Pozycja</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
@@ -69,7 +69,7 @@
         <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
-              {{ contact.last_name }}
+              {{ contact.first_name }} {{ contact.last_name }}
               <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
