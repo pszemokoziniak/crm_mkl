@@ -19,6 +19,7 @@ class BuildingTimeSheet extends Controller
 {
     public function view(int $build): Response
     {
+        //  @TODO get month in parameter for other months
         $date = Carbon::now()->toImmutable(); // default month from today
         $month = CarbonPeriod::create($date->firstOfMonth(), $date->lastOfMonth());
         $workersOnBuild = $this->getAllWorkersOnBuild($build);
@@ -38,7 +39,8 @@ class BuildingTimeSheet extends Controller
             return $carry;
         }, []);
 
-        // @TODO get names of workers
+        $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
+
         foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
             foreach ($month as $day) {
                 if (array_key_exists($day->day, $buildWorkersShifts)) {
@@ -61,12 +63,18 @@ class BuildingTimeSheet extends Controller
                 );
             }
         }
+        // filter worker data from previous steps
+        $calendarShifts = array_map(static function($workerShift) {
+            return array_filter($workerShift, static function($el) {
+                return is_numeric($el);
+            }, ARRAY_FILTER_USE_KEY);
+        }, $buildWorkersSavedShifts);
 
         return Inertia::render('Building/Index.vue',
             [
                 'date' => $date,
                 'month' => $date->monthName,
-                'timeSheets' => $buildWorkersSavedShifts,
+                'timeSheets' => $calendarShifts,
                 'build' => $build,
             ]
         );
