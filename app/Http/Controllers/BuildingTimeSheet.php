@@ -46,7 +46,6 @@ class BuildingTimeSheet extends Controller
                         build: $build,
                         name: $buildWorkersShifts[$day->day]->first_name . ' ' . $buildWorkersShifts[$day->day]->last_name,
                         day: $day,
-                        month: $day->month,
                         workFrom: $buildWorkersShifts[$day->day]->work_from ?? null,
                         workTo: $buildWorkersShifts[$day->day]->work_to ?? null,
                         work: $buildWorkersShifts[$day->day]->effective_work_time ?? null,
@@ -56,9 +55,8 @@ class BuildingTimeSheet extends Controller
                 $buildWorkersSavedShifts[$workerId][$day->day] = new BuildingTimeSheetDTO(
                     id: $workerId,
                     build: $build,
-                    name: 'Jan Kowalski',
+                    name: 'Jan Kowalski', // @TODO get worker data, static methods to create DTO's ?
                     day: $day,
-                    month: $day->month,
                 );
             }
         }
@@ -81,7 +79,7 @@ class BuildingTimeSheet extends Controller
          */
 
         $data = $request->all();
-
+        // @TODO create correct date! not only day but month!
         $workDay = new \DateTimeImmutable($data['day']);
 
         $splitFrom = explode(':', $data['from']);

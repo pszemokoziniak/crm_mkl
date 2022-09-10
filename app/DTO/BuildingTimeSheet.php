@@ -13,7 +13,6 @@ class BuildingTimeSheet implements JsonSerializable
         public int $build,
         public string $name,
         public \DateTimeInterface $day,
-        public int $month,
         public ?string $workFrom = null,
         public ?string $workTo = null,
         public ?string $work = null,
@@ -26,7 +25,6 @@ class BuildingTimeSheet implements JsonSerializable
             'build' => $this->build,
             'name' => $this->name,
             'day' => $this->day,
-            'month' => $this->month,
             'from' => $this->workFrom,
             'to' => $this->workTo,
             'work' => $this->work
