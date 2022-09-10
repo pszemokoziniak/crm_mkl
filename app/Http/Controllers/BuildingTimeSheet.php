@@ -56,7 +56,7 @@ class BuildingTimeSheet extends Controller
                 $buildWorkersSavedShifts[$workerId][$day->day] = new BuildingTimeSheetDTO(
                     id: $workerId,
                     build: $build,
-                    name: 'Jan Kowalski', // @TODO get worker data, static methods to create DTO's ?
+                    name: $workersOnBuildData[$workerId]['first_name']  . ' '  . $workersOnBuildData[$workerId]['last_name'],
                     day: $day,
                 );
             }
