@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\BuildingTimeSheet as BuildingTimeSheetModel;
@@ -19,25 +20,25 @@ class BuildingTimeSheet extends Controller
     public function view(int $build): Response
     {
         $date = Carbon::now()->toImmutable(); // default month from today
-
         $month = CarbonPeriod::create($date->firstOfMonth(), $date->lastOfMonth());
-        // fetch for worker on build.
-        $workersOnBuild = DB::table('contacts')
-            ->where('organization_id', $build)
-            ->get();
+        $workersOnBuild = $this->getAllWorkersOnBuild($build);
 
-        $buildWorkersShifts = DB::table('building_time_sheets', 'b')
-            ->where('b.organization_id', $build)
-            ->join('contacts', 'contacts.id', '=', 'b.contact_id')
-            ->orderBy('b.contact_id')
-            ->orderBy('b.work_day')
-            ->get();
+        $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
 
         $buildWorkersSavedShifts = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
             $carry[$item->id][Carbon::create($item->work_day)->day] = $item;
             return $carry;
         }, []);
 
+        $workersOnBuildData = array_reduce($workersOnBuild->toArray(), static function ($carry, $worker) {
+            $carry[$worker->id] = [
+                'first_name' => $worker->first_name,
+                'last_name' => $worker->last_name
+            ];
+            return $carry;
+        }, []);
+
+        // @TODO get names of workers
         foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
             foreach ($month as $day) {
                 if (array_key_exists($day->day, $buildWorkersShifts)) {
@@ -104,5 +105,32 @@ class BuildingTimeSheet extends Controller
         }
 
         return new JsonResponse(['status' => 'ok']);
+    }
+
+    /**
+     * Return all workers assigned to build (not shifts)
+     *
+     * @param int $build
+     * @return Collection
+     */
+    public function getAllWorkersOnBuild(int $build): Collection
+    {
+        return DB::table('contacts')
+            ->where('organization_id', $build)
+            ->get();
+    }
+
+    /**
+     * @param int $build
+     * @return Collection
+     */
+    public function getWorkersOnBuildShifts(int $build): Collection
+    {
+        return DB::table('building_time_sheets', 'b')
+            ->where('b.organization_id', $build)
+            ->join('contacts', 'contacts.id', '=', 'b.contact_id')
+            ->orderBy('b.contact_id')
+            ->orderBy('b.work_day')
+            ->get();
     }
 }
