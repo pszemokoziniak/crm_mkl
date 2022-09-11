@@ -15,6 +15,9 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/edit/`">
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane budowy</div>
           </Link>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/${budId}/time-sheet/`">
+            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">KCP budowy</div>
+          </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/klient/`">
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane klienta</div>
           </Link>
