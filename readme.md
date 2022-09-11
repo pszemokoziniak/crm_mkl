@@ -112,3 +112,7 @@ docker-compose exec app php artisan migrate
 docker-compose exec app php artisan db:seed
 ```
 
+## FrontEnd implementation
+* Calendar implementation based on https://tailwindcomponents.com/component/calendar-ui-with-tailwindcss-and-alpinejs
+* Installed axios for asynchronous responses
+
