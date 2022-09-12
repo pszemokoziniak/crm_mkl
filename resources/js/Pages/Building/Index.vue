@@ -24,11 +24,11 @@
       <span class="ml-1 text-lg text-gray-600 font-normal">{{ date.getFullYear() }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
-      <div class="px-4 pt-2 border-r border-b relative cursor-pointer hover:border-green-600 hover:text-green-600 text-gray-500" style="width: 127px; height: 68px;">
+      <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm">{{ timeSheet[1].name }}</div>
       </div>
-      <div v-for="shift in timeSheet" @click="showModal(shift)" class="px-4 pt-2 border-r border-b relative cursor-pointer hover:border-green-600 hover:text-green-600 text-gray-500" style="width: 127px; height: 68px;">
-        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 hover:bg-blue-200 text-gray-700 hover:bg-blue-200 text-sm">Dzień {{ (new Date(shift.day)).getDate() }}</div>
+      <div v-for="shift in timeSheet" @click="showModal(shift)" class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
+        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">Dzień {{ (new Date(shift.day)).getDate() }}</div>
         <div class="overflow-y-auto mt-1" style="height: 60px;">
           {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br>
           {{ shift.work }}
