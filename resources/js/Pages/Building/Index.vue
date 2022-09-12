@@ -113,7 +113,7 @@ export default {
   },
   methods: {
     previousMonth() {
-      let month = new Date(this.date).getMonth() - 2
+      let month = new Date(this.date).getMonth() - 1
       window.location = `/building/89/time-sheet?month=${(month < 0) ? 12 : month}`
     },
     nextMonth() {
