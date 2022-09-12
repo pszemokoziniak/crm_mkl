@@ -51,7 +51,10 @@ class BuildingTimeSheet extends Controller
 
         foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
             foreach ($month as $day) {
-                if (array_key_exists($day->day, $buildWorkersShifts)) {
+                if (
+                    array_key_exists($day->day, $buildWorkersShifts)
+                    && Carbon::create($buildWorkersShifts[$day->day]->work_day)->isSameDay($day)
+                ) {
                     $buildWorkersSavedShifts[$workerId][$day->day] = new BuildingTimeSheetDTO(
                         id: $buildWorkersShifts[$day->day]->id,
                         build: $build,
