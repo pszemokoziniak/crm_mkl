@@ -116,19 +116,11 @@ export default {
   methods: {
     previousMonth() {
       let month = new Date(this.date).getMonth() - 2
-      console.log(month)
-      if (month < 0) {
-        month = 12
-      }
-      window.location = `/building/89/time-sheet?month=${month}`
-
+      window.location = `/building/89/time-sheet?month=${(month < 0) ? 12 : month}`
     },
     nextMonth() {
       let month = new Date(this.date).getMonth() + 2
-      if (month > 12) {
-        month = 1
-      }
-      window.location = `/building/89/time-sheet?month=${month}`
+      window.location = `/building/89/time-sheet?month=${(month > 12) ? 1 : month}`
     },
     /**
      * Formatting from date to hh:mm
