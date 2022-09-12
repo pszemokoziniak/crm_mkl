@@ -2,6 +2,7 @@
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div>
       <button
+        @click="previousMonth()"
         type="button"
         class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
         <svg class="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
@@ -11,6 +12,7 @@
       </button>
       <div class="border-r inline-flex h-6"></div>
       <button
+        @click="nextMonth()"
         type="button"
         class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1">
         <svg class="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
@@ -77,6 +79,7 @@ import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } fro
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import axios from 'axios'
+// import from '@inertiajs/inertia-vue3'
 
 export default {
   components: {
@@ -111,6 +114,22 @@ export default {
     console.log(this.timeSheets)
   },
   methods: {
+    previousMonth() {
+      let month = new Date(this.date).getMonth() - 2
+      console.log(month)
+      if (month < 0) {
+        month = 12
+      }
+      window.location = `/building/89/time-sheet?month=${month}`
+
+    },
+    nextMonth() {
+      let month = new Date(this.date).getMonth() + 2
+      if (month > 12) {
+        month = 1
+      }
+      window.location = `/building/89/time-sheet?month=${month}`
+    },
     /**
      * Formatting from date to hh:mm
      * @param time {string}

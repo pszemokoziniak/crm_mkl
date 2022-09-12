@@ -17,11 +17,19 @@ use Inertia\Response;
 
 class BuildingTimeSheet extends Controller
 {
-    public function view(int $build): Response
+    public function view(int $build, Request $request): Response
     {
         //  @TODO get month in parameter for other months
-        $date = Carbon::now()->toImmutable(); // default month from today
-        $month = CarbonPeriod::create($date->firstOfMonth(), $date->lastOfMonth());
+        $date = Carbon::now(); // default month from today
+
+        if ($request->query->get('month')) {
+            $date->setMonth((int) $request->query->get('month'));
+        }
+
+        $periodDate = $date->clone()->toImmutable();
+
+        $month = CarbonPeriod::create($periodDate->firstOfMonth(), $periodDate->lastOfMonth()); // period
+
         $workersOnBuild = $this->getAllWorkersOnBuild($build);
 
         $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
