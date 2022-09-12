@@ -51,9 +51,9 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <text-input v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" />
-                            <text-input v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" />
-                            <text-input v-model="form.workTime" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
+                            <text-input @change="calculateEffectiveTime()" v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" />
+                            <text-input @change="calculateEffectiveTime()" v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" />
+                            <text-input v-model="form.workTime" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
                           </div>
                         </form>
                       </fieldset>
@@ -73,13 +73,12 @@
   </TransitionRoot>
 </template>
 
-
 <script>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
+import moment from 'moment'
 import axios from 'axios'
-// import from '@inertiajs/inertia-vue3'
 
 export default {
   components: {
@@ -110,9 +109,6 @@ export default {
       }),
     }
   },
-  mounted() {
-    console.log(this.timeSheets)
-  },
   methods: {
     previousMonth() {
       let month = new Date(this.date).getMonth() - 2
@@ -139,13 +135,19 @@ export default {
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
-        from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) :  '07:00',
-        to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : '15:00',
+        from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) :  '07:00:00 am',
+        to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : '15:00:00 pm',
         workTime: shift.workTime ?? '08:00',
       })
     },
     formatModalTimeToDate(day, time) {
       return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.split(':')[0], time.split(':')[1], 0)
+    },
+    calculateEffectiveTime() {
+      // from cannot be the greatest then to time
+      this.form.workTime = moment.utc(moment.duration(
+        moment(this.form.to, 'HH:mm').diff(moment(this.form.from, 'HH:mm'))
+      ).asMilliseconds()).format('HH:mm')
     },
     saveHours() {
       try {
@@ -164,8 +166,6 @@ export default {
           work: this.form.workTime,
         }
 
-        console.log(this.timeSheets)
-
         /**
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
@@ -177,10 +177,10 @@ export default {
       }
       this.form = this.$inertia.form = ({
         id: null,
-        day: '11-08-2022',
-        from: '07:00',
-        to: '15:00',
-        workTime: '08:00',
+        day: null,
+        from: null,
+        to: null,
+        workTime: null,
       })
       // display notification
       this.open = false
