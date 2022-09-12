@@ -19,21 +19,21 @@ class BuildingTimeSheet extends Controller
 {
     public function view(int $build, Request $request): Response
     {
-        //  @TODO get month in parameter for other months
-        $date = Carbon::now(); // default month from today
+        $date = Carbon::now();
+
+        $workersOnBuild = $this->getAllWorkersOnBuild($build);
+        $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
 
         if ($request->query->get('month')) {
             $date->setMonth((int) $request->query->get('month'));
         }
 
-        $periodDate = $date->clone()->toImmutable();
+        $month = CarbonPeriod::create(
+            $date->clone()->toImmutable()->firstOfMonth(),
+            $date->clone()->toImmutable()->lastOfMonth()
+        ); // period
 
-        $month = CarbonPeriod::create($periodDate->firstOfMonth(), $periodDate->lastOfMonth()); // period
-
-        $workersOnBuild = $this->getAllWorkersOnBuild($build);
-
-        $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
-
+        // steps to prepare data
         $buildWorkersSavedShifts = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
             $carry[$item->id][Carbon::create($item->work_day)->day] = $item;
             return $carry;
@@ -46,9 +46,10 @@ class BuildingTimeSheet extends Controller
             ];
             return $carry;
         }, []);
-
+        // merge shifts with workers without shifts
         $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
 
+        // build data for calendar
         foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
             foreach ($month as $day) {
                 if (
