@@ -81,7 +81,7 @@ class BuildingTimeSheet extends Controller
                 return is_numeric($el);
             }, ARRAY_FILTER_USE_KEY);
         }, $buildWorkersSavedShifts);
-
+        // return sum on month
         return Inertia::render('Building/Index.vue',
             [
                 'date' => $date,

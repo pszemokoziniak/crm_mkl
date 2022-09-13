@@ -137,9 +137,6 @@ export default {
      */
     criticalTime(time) {
       const criticalShiftWork = 570
-
-      console.log(moment.duration(time).asMinutes() > criticalShiftWork)
-
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
     showModal(shift) {
