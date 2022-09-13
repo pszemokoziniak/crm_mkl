@@ -26,7 +26,7 @@
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm">{{ timeSheet[1].name }}</div>
-        <div class="text-sm text-center">260:30</div>
+        <div class="text-sm text-center">{{ summarize(timeSheet) }}</div>
       </div>
       <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " @click="showModal(shift)"  class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
@@ -112,7 +112,21 @@ export default {
       }),
     }
   },
+  /**
+   * Calculate worker hour in month
+   */
+  onMounted() {
+
+  },
   methods: {
+    summarize(timeShift) {
+      const sum = Object.values(timeShift).map((shift) => shift.work).reduce((agg, elem) => {
+        agg += elem  ? moment.duration(elem).asMinutes() : 0
+        return agg
+      }, 0)
+
+      return sum / 60
+    },
     previousMonth() {
       let month = new Date(this.date).getMonth() - 1
       window.location = `/building/89/time-sheet?month=${(month < 0) ? 12 : month}`
