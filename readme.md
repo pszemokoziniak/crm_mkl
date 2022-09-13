@@ -55,6 +55,11 @@ Run database migrations:
 php artisan migrate
 ```
 
+Rollback last migration:
+```sh
+php artisan migrate:rollback --step=1
+```
+
 Run database seeder:
 
 ```sh
