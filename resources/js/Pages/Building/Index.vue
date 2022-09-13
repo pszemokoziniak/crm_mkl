@@ -57,6 +57,11 @@
                             <text-input @change="calculateEffectiveTime()" v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" />
                             <text-input @change="calculateEffectiveTime()" v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" />
                             <text-input v-model="form.workTime" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
+
+                            <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status">
+                              <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
+                            </select-input>
+
                           </div>
                         </form>
                       </fieldset>
@@ -82,9 +87,11 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import moment from 'moment'
 import axios from 'axios'
+import SelectInput from "@/Shared/SelectInput";
 
 export default {
   components: {
+    SelectInput,
     TextInput,
     Dialog,
     DialogPanel,
@@ -110,6 +117,7 @@ export default {
         from: null,
         to: null,
         workTime: null,
+        status: null
       }),
     }
   },
@@ -117,6 +125,11 @@ export default {
    * Calculate worker hour in month
    */
   mounted() {
+    this.shiftStatuses.push({
+      id: null,
+      title: 'Nie dotyczy',
+      code: 'brak'
+    })
   },
   methods: {
     summarize(timeShift) {
