@@ -98,6 +98,7 @@ export default {
     timeSheets: Array,
     date: Date,
     month: String,
+    shiftStatuses: Array,
   },
   data() {
     return {
@@ -115,8 +116,7 @@ export default {
   /**
    * Calculate worker hour in month
    */
-  onMounted() {
-
+  mounted() {
   },
   methods: {
     summarize(timeShift) {
@@ -209,7 +209,7 @@ export default {
       })
       // display notification
       this.open = false
-    }
-  }
+    },
+  },
 }
 </script>
