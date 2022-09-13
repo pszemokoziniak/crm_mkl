@@ -26,12 +26,13 @@
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm">{{ timeSheet[1].name }}</div>
+        <div class="text-sm text-center">260:30</div>
       </div>
       <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " @click="showModal(shift)"  class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
-        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">Dzień {{ (new Date(shift.day)).getDate() }}</div>
+        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
         <div class="overflow-y-auto mt-1" style="height: 60px;">
           {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br>
-          {{ shift.work }}
+          <div class="text-sm text-center">{{ shift.work }}</div>
         </div>
       </div>
     </div>
