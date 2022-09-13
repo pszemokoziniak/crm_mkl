@@ -27,7 +27,7 @@
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm">{{ timeSheet[1].name }}</div>
       </div>
-      <div v-for="shift in timeSheet" @click="showModal(shift)" class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
+      <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " @click="showModal(shift)"  class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">Dzień {{ (new Date(shift.day)).getDate() }}</div>
         <div class="overflow-y-auto mt-1" style="height: 60px;">
           {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br>
@@ -130,6 +130,17 @@ export default {
         return ''
       }
       return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
+    },
+    /**
+     *
+     * @param time string HH:mm
+     */
+    criticalTime(time) {
+      const criticalShiftWork = 570
+
+      console.log(moment.duration(time).asMinutes() > criticalShiftWork)
+
+      return moment.duration(time).asMinutes() > criticalShiftWork
     },
     showModal(shift) {
       this.open = true
