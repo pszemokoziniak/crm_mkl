@@ -33,7 +33,7 @@ class BuildingTimeSheet extends Controller
             $date->clone()->toImmutable()->firstOfMonth(),
             $date->clone()->toImmutable()->lastOfMonth()
         ); // period
-        
+
         // steps to prepare data
         $buildWorkersSavedShifts = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
             $carry[$item->id][Carbon::create($item->work_day)->day] = $item;
@@ -114,6 +114,7 @@ class BuildingTimeSheet extends Controller
             'work_day' => $workDay,
             'work_from' => clone $workDay->setTime((int)$splitFrom[0], (int)$splitFrom[1]),
             'work_to' => clone $workDay->setTime((int)$splitTo[0], (int)$splitTo[1]),
+            'shift_status_id' => $data['shift_status'] ?? null, // id
             'effective_work_time' => $data['workTime'],
         ];
 

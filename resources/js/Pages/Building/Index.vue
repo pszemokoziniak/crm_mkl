@@ -195,6 +195,12 @@ export default {
         const workerId = this.form.id
         const dayIndex = new Date(this.form.day).getDate()
 
+        /**
+         * How to work with callback functions on $inertia
+         * @see resources/js/Pages/Users/Edit.vue:73
+         */
+        axios.post(`/building/${this.build}/time-sheet`,this.form)
+
         this.timeSheets[workerId][dayIndex] = {
           id: this.form.id ?? null,
           build: this.form.build,
@@ -203,12 +209,6 @@ export default {
           to: this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
           work: this.form.workTime,
         }
-
-        /**
-         * How to work with callback functions on $inertia
-         * @see resources/js/Pages/Users/Edit.vue:73
-         */
-        axios.post(`/building/${this.build}/time-sheet`,this.form)
       } catch (e) {
         console.error('Something happen while saving data.')
         throw e
