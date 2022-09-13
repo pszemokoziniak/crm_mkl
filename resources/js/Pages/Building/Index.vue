@@ -195,7 +195,7 @@ export default {
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
          */
-        //axios.post(`/building/${this.build}/time-sheet`,this.form)
+        axios.post(`/building/${this.build}/time-sheet`,this.form)
       } catch (e) {
         console.error('Something happen while saving data.')
         throw e
