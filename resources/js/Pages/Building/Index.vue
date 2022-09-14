@@ -2,22 +2,28 @@
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div>
       <button
-        @click="previousMonth()"
         type="button"
-        class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
-        <svg class="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center"
+        @click="previousMonth()"
+      >
+        <svg
+          class="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
-      <div class="border-r inline-flex h-6"></div>
+      <div class="border-r inline-flex h-6" />
       <button
-        @click="nextMonth()"
         type="button"
-        class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1">
-        <svg class="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1"
+        @click="nextMonth()"
+      >
+        <svg
+          class="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
       <span class="text-lg font-bold text-gray-800">{{ month }}</span>
@@ -28,10 +34,10 @@
         <div class="text-sm">{{ timeSheet[1].name }}</div>
         <div class="text-sm text-center">{{ summarize(timeSheet) }}</div>
       </div>
-      <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " @click="showModal(shift)"  class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
+      <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
         <div class="overflow-y-auto mt-1" style="height: 60px;">
-          {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br>
+          {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br />
           <div class="text-sm text-center">{{ shift.work }}</div>
         </div>
       </div>
@@ -54,14 +60,12 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <text-input @change="calculateEffectiveTime()" v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" />
-                            <text-input @change="calculateEffectiveTime()" v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" />
-                            <text-input v-model="form.workTime" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
-
-                            <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status">
+                            <text-input :disabled="isStatus" v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" @change="calculateEffectiveTime()" />
+                            <text-input :disabled="isStatus" v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" @change="calculateEffectiveTime()" />
+                            <text-input :disabled="isStatus" v-model="form.workTime" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
+                            <select-input @change="statusChanged($event)" v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
-
                           </div>
                         </form>
                       </fieldset>
@@ -71,7 +75,7 @@
               </div>
               <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="open = false" ref="cancelButtonRef">Anuluj</button>
+                <button ref="cancelButtonRef" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -87,7 +91,7 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import moment from 'moment'
 import axios from 'axios'
-import SelectInput from "@/Shared/SelectInput";
+import SelectInput from '@/Shared/SelectInput'
 
 export default {
   components: {
@@ -111,13 +115,14 @@ export default {
     return {
       date: new Date(this.date),
       open: false, // default value for modal
+      isStatus: false,
       form: this.$inertia.form({
         id: null,
         day: null,
         from: null,
         to: null,
         workTime: null,
-        status: null
+        status: null,
       }),
     }
   },
@@ -126,12 +131,15 @@ export default {
    */
   mounted() {
     this.shiftStatuses.push({
-      id: null,
+      id: 0,
       title: 'Nie dotyczy',
       code: 'brak',
     })
   },
   methods: {
+    statusChanged(event) {
+      this.isStatus = Number(event.target.value) !== 0
+    },
     summarize(timeShift) {
       const sum = Object.values(timeShift).map((shift) => shift.work).reduce((agg, elem) => {
         agg += elem  ? moment.duration(elem).asMinutes() : 0
@@ -184,7 +192,7 @@ export default {
     calculateEffectiveTime() {
       // from cannot be the greatest then to time
       this.form.workTime = moment.utc(moment.duration(
-        moment(this.form.to, 'HH:mm').diff(moment(this.form.from, 'HH:mm'))
+        moment(this.form.to, 'HH:mm').diff(moment(this.form.from, 'HH:mm')),
       ).asMilliseconds()).format('HH:mm')
     },
     saveHours() {
