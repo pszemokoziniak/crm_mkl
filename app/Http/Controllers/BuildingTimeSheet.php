@@ -114,7 +114,7 @@ class BuildingTimeSheet extends Controller
             'work_day' => $workDay,
             'work_from' => clone $workDay->setTime((int)$splitFrom[0], (int)$splitFrom[1]),
             'work_to' => clone $workDay->setTime((int)$splitTo[0], (int)$splitTo[1]),
-            'shift_status_id' => $data['shift_status'] ?? null, // id
+            'shift_status_id' => $data['status'] ?? null, // id
             'effective_work_time' => $data['workTime'],
         ];
 

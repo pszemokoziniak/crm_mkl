@@ -128,7 +128,7 @@ export default {
     this.shiftStatuses.push({
       id: null,
       title: 'Nie dotyczy',
-      code: 'brak'
+      code: 'brak',
     })
   },
   methods: {
