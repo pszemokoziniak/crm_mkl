@@ -36,7 +36,11 @@
       </div>
       <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
-        <div class="overflow-y-auto mt-1" style="height: 60px;">
+        <div v-if="shift.status" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
+          {{ getStatusName(shift.status) }}
+        </div>
+
+        <div v-if="!shift.status" class="overflow-y-auto mt-1" style="height: 60px;">
           {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br />
           <div class="text-sm text-center">{{ shift.work }}</div>
         </div>
@@ -140,6 +144,9 @@ export default {
     statusChanged(event) {
       this.isStatus = Number(event.target.value) !== 0
     },
+    getStatusName(statusId) {
+      return this.shiftStatuses.find((elem) => elem.id = statusId).code
+    },
     summarize(timeShift) {
       const sum = Object.values(timeShift).map((shift) => shift.work).reduce((agg, elem) => {
         agg += elem  ? moment.duration(elem).asMinutes() : 0
@@ -184,6 +191,7 @@ export default {
         from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) :  '07:00:00 am',
         to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : '15:00:00 pm',
         workTime: shift.workTime ?? '08:00',
+        status: null,
       })
     },
     formatModalTimeToDate(day, time) {
@@ -202,7 +210,6 @@ export default {
          */
         const workerId = this.form.id
         const dayIndex = new Date(this.form.day).getDate()
-
         /**
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
@@ -216,7 +223,9 @@ export default {
           from: this.formatModalTimeToDate(new Date(this.form.day), this.form.from).toString(),
           to: this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
           work: this.form.workTime,
+          status: this.form.status,
         }
+
       } catch (e) {
         console.error('Something happen while saving data.')
         throw e
