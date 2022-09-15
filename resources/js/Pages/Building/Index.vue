@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
-    <div>
+    <div class="flex items-center py-2">
       <button
         type="button"
         class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center"
@@ -26,7 +26,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
-      <span class="text-lg font-bold text-gray-800">{{ month }}</span>
+      <span class="text-lg font-bold text-gray-800">{{ month.toUpperCase() }}</span>
       <span class="ml-1 text-lg text-gray-600 font-normal">{{ date.getFullYear() }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
