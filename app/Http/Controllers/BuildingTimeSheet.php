@@ -65,6 +65,7 @@ class BuildingTimeSheet extends Controller
                         workFrom: $buildWorkersShifts[$day->day]->work_from ?? null,
                         workTo: $buildWorkersShifts[$day->day]->work_to ?? null,
                         work: $buildWorkersShifts[$day->day]->effective_work_time ?? null,
+                        status: $buildWorkersShifts[$day->day]->shift_status_id ?? null,
                     );
                     continue;
                 }

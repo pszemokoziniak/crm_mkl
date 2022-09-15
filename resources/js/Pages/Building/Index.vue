@@ -134,6 +134,9 @@ export default {
    * Calculate worker hour in month
    */
   mounted() {
+
+    console.log(this.timeSheets)
+
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',

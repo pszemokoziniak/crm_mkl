@@ -16,6 +16,7 @@ class BuildingTimeSheet implements JsonSerializable
         public ?string $workFrom = null,
         public ?string $workTo = null,
         public ?string $work = null,
+        public ?int $status = null,
     ) {}
 
     public function jsonSerialize(): array
@@ -27,7 +28,8 @@ class BuildingTimeSheet implements JsonSerializable
             'day' => $this->day,
             'from' => $this->workFrom,
             'to' => $this->workTo,
-            'work' => $this->work
+            'work' => $this->work,
+            'status' => $this->status,
         ];
     }
 }
