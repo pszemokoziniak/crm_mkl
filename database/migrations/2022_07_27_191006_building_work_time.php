@@ -26,9 +26,9 @@ class BuildingWorkTime extends Migration
             $table->unsignedInteger('contact_id');
             $table->unsignedInteger('shift_status_id')->nullable();
             $table->dateTimeTz('work_day'); // @TODO only date
-            $table->dateTimeTz('work_from');
-            $table->dateTimeTz('work_to');
-            $table->char('effective_work_time'); // consider is it a good name ?
+            $table->dateTimeTz('work_from')->nullable();
+            $table->dateTimeTz('work_to')->nullable();
+            $table->char('effective_work_time')->nullable(); // consider is it a good name ?
 
             // constraints
             $table->foreign('contact_id')->references('id')->on('contacts');
