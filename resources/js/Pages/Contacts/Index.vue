@@ -6,7 +6,7 @@
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Trashed:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <option :value="null" />
+<!--          <option :value="null" />-->
           <option value="with">Wszystko</option>
           <option value="only">Usunięte</option>
         </select>
@@ -101,7 +101,7 @@ export default {
     return {
       form: {
         search: this.filters.search,
-        // trashed: this.filters.trashed,
+        trashed: this.filters.trashed,
       },
     }
   },

@@ -13,9 +13,9 @@
       </Link>
     </div>
     <div class="mb-4">
-      <Link class="group flex items-center py-3" href="/sprzet">
-        <icon name="sprzet" class="mr-0 ml-0 w-6 h-6" :class="isUrl('sprzet') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('sprzet') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Sprzęt</div>
+      <Link class="group flex items-center py-3" href="/narzedzia">
+        <icon name="sprzet2" class="mr-0 ml-0 w-6 h-6" :class="isUrl('narzedzia') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <div :class="isUrl('narzedzia') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Narzędzia</div>
       </Link>
     </div>
     <div class="mb-4">
@@ -30,7 +30,7 @@
         <div :class="isUrl('reports') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Raporty</div>
       </Link>
     </div>
-        <div class="mb-4">
+    <div class="mb-4">
       <Link class="group flex items-center py-3" href="/tools">
         <icon name="tools" class="mr-2 w-4 h-4" :class="isUrl('tools') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('tools') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Ustawienia</div>

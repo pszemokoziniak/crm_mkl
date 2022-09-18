@@ -35,7 +35,7 @@
             <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.typ }}</Link>
+            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.dokumentytyp.name }}</Link>
           </td>
           <td class="border-t">
             <div class="flex justify-end">

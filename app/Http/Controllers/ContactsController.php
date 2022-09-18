@@ -200,4 +200,13 @@ class ContactsController extends Controller
         }
         return Redirect::back()->with('success', 'Pracownik dodany.');
     }
+
+    public function destroyPracownikBudowa(Contact $contact)
+    {
+//        dd($contact);
+        $data = Contact::find($contact->id);
+        $data->organization_id = 0;
+        $data->save();
+        return Redirect::back()->with('success', 'Pracownik usunięty.');
+    }
 }

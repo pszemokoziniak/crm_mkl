@@ -39,9 +39,9 @@ class BadaniaController extends Controller
             'filters' => Request::all('search', 'trashed'),
             'contact' => $contact,
             'bads' => $bads,
-            'documents' => CtnDocument::query()
+            'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
-                ->where('typ', 'Lekarskie')
+                ->where('dokumentytyp_id', '1')
                 ->paginate(10)
         ]);
     }

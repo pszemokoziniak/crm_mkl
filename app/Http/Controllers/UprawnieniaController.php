@@ -34,9 +34,9 @@ class UprawnieniaController extends Controller
 //            'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
             'uprawnienias' => $uprawnienias,
-            'documents' => CtnDocument::query()
+            'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
-                ->where('typ', 'Uprawnienia')
+                ->where('dokumentytyp_id', '3')
                 ->paginate(10)
         ]);
     }

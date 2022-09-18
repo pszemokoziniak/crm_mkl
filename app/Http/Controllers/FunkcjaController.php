@@ -74,5 +74,4 @@ class FunkcjaController extends Controller
         Funkcja::create($req->validated());
         return Redirect::route('funkcja')->with('success', 'Zapisano.');
     }
-
 }

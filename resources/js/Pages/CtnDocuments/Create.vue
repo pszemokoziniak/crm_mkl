@@ -10,10 +10,7 @@
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa" />
           <select-input v-model="form.typ" :error="form.errors.typ" class="pb-8 pr-6 w-full lg:w-1/2" label="Typ dokumentu">
-            <option value="Lekarskie">Badania Lekarskie</option>
-            <option value="BHP">Szkolenia BHP</option>
-            <option value="Uprawnienia">Uprawnienia</option>
-            <option value="A1">A1</option>
+            <option v-for="item in dokumentyTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
           <file-input v-model="form.document" :errors="form.errors.document" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Dokument" />
         </div>
@@ -46,6 +43,7 @@ export default {
   props: {
     contactId: Number,
     errors: Object,
+    dokumentyTyps: Object,
   },
   remember: 'form',
   data() {

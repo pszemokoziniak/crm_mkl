@@ -15,11 +15,16 @@ class CtnDocument extends Model
     {
         $self =  new self();
         $self->name = $name;
-        $self->typ = $typ;
+        $self->dokumentytyp_id = $typ;
         $self->path = $path;
         $self->contact_id = $contactId;
         $self->filename = $filename;
 
         return $self;
+    }
+
+    public function dokumentytyp()
+    {
+        return $this->belongsTo(DokumentyTyp::class);
     }
 }

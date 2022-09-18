@@ -32,9 +32,9 @@ class BhpController extends Controller
             'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
             'bhps' => $bhps,
-            'documents' => CtnDocument::query()
+            'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
-                ->where('typ', 'BHP')
+                ->where('dokumentytyp_id', '2')
                 ->paginate(10)
         ]);
     }

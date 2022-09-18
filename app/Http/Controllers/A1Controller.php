@@ -26,9 +26,9 @@ class A1Controller extends Controller
         return Inertia::render('A1/Index', [
             'a1s' => A1::where('contact_id', $contact->id)->get(),
             'contact' => $contact,
-            'documents' => CtnDocument::query()
+            'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
-                ->where('typ', 'A1')
+                ->where('dokumentytyp_id', '4')
                 ->paginate(10)
         ]);
     }
@@ -57,8 +57,8 @@ class A1Controller extends Controller
     public function create(Contact $contact)
     {
         $contact_id = $contact->id;
-        $a1s   = A1::all();
-        return Inertia('A1/Create', compact('contact_id', 'a1s'));
+//        $a1s   = A1::all();
+        return Inertia('A1/Create', compact('contact_id'));
     }
 
     public function store(StoreA1Request $req, $contact_id)
