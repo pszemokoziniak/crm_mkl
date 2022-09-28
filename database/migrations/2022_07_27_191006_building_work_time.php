@@ -46,7 +46,7 @@ class BuildingWorkTime extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shiftStatusSeeder');
+        Schema::dropIfExists('shift_status');
         Schema::dropIfExists('building_work_time');
     }
 }
