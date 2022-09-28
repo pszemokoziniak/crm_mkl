@@ -85,43 +85,39 @@ class UsersController extends Controller
                 'last_name' => $user->last_name,
                 'email' => $user->email,
                 'owner' => $user->owner,
-                'contact_id' => $user->user_id,
+                'contact_id' => $user->contact_id,
                 'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
                 'deleted_at' => $user->deleted_at,
             ],
-            'contacts' => Contact::with('user')
-                ->orderByName()
-                ->paginate(10)
-                ->withQueryString()
-                ->through(fn ($contact) => [
-                    'id' => $contact->id,
-                    'name' => $contact->name,
-                    'phone' => $contact->phone,
-                    'city' => $contact->city,
-                    'deleted_at' => $contact->deleted_at,
-                    'users' => $contact->user,
-                ]),
+            'contacts' => Contact::whereHas('user')->get(),
+
+
+
+
+//        Contact::with('user')->where('user', 1)->get(),
+//                ->map
+//                ->only('id', 'first_name', 'last_name'),
+
         ]);
     }
 
-    public function update(User $user)
+    public function update(User $user, Request $request)
     {
         if (App::environment('demo') && $user->isDemoUser()) {
-            return Redirect::back()->with('error', 'Updating the demo user is not allowed.');
+            return Redirect::back()->with('error', 'Updating the Super Admin user is not allowed.');
         }
-
+//        dd($request);
         Request::validate([
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
             'email' => ['required', 'max:50', 'email', Rule::unique('users')->ignore($user->id)],
-//            'password' => ['nullable'],
             'password' => [
                 'nullable',
                 'min:8',
                 'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
             ],
-            'owner' => ['nullable'],
-            'contact_id' => ['nullable'],
+//            'owner' => ['nullable'],
+//            'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
         ],
         [

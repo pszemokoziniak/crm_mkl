@@ -8,6 +8,7 @@ use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
 use App\Models\Account;
+use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
 
 use App\Models\Jezyk;
@@ -193,11 +194,20 @@ class ContactsController extends Controller
 
     public function storePracownik(Request $request, Organization $organization)
     {
+        dd($request::all());
         foreach ($request::all() as $item) {
             $data = Contact::find($item);
             $data->organization_id = $organization->id;
             $data->save();
+
+            $data = new ContactWorkDate;
+            $data->contact_id = $item;
+            $data->organization_id = $organization->id;
+//            $data->start = $request->start;
+            $data->save();
         }
+
+
         return Redirect::back()->with('success', 'Pracownik dodany.');
     }
 
@@ -205,7 +215,7 @@ class ContactsController extends Controller
     {
 //        dd($contact);
         $data = Contact::find($contact->id);
-        $data->organization_id = 0;
+        $data->organization_id = null;
         $data->save();
         return Redirect::back()->with('success', 'Pracownik usunięty.');
     }

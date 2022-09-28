@@ -25,7 +25,17 @@
 <!--  <svg v-else-if="name === 'sprzet2'" class="h-8 w-8 text-red-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
 <!--  <svg v-else-if="name === 'sprzet2'" class="h-6 w-6 text-blue-300"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
 <!--  <svg v-else-if="name === 'sprzet2'" class="h-6 w-6 text-gray-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="none" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
-  <svg v-else-if="name === 'sprzet2'" class="h-6 w-6 text-black-400 fill-blue-500 stroke-red-400"  width="24" height="24" viewBox="0 0 24 24">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>
+<!--  <svg v-else-if="name === 'sprzet2'" class="h-6 w-6 text-black-400 fill-blue-500 stroke-red-400"  width="24" height="24" viewBox="0 0 24 24">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
+
+  <svg v-else-if="name === 'sprzet2'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24" height="24" viewBox="0 0 318.15 318.15" class="text-blue-300 " style="enable-background:new 0 0 318.15 318.15;" xml:space="preserve">
+    <path d="M232.015,112.306c1-1.226,2.021-2.484,3.088-3.789c-0.992-0.991-1.983-1.983-2.976-2.976
+      c3.532-3.567,7.097-7.17,10.716-10.836c-7.638-7.635-11.451-11.449-19.092-19.092c-3.666,3.62-7.268,7.184-10.836,10.716
+      c-0.992-0.992-1.984-1.983-2.976-2.976c-1.296,1.059-2.546,2.074-3.763,3.067C148.853,32.809,88.445,0.316,49.803,0l-5.789,5.789
+      c38.562,0.309,89.675,41.809,145.591,96.544c-1.217,1.536-2.414,3.17-3.597,4.952l2.89,2.89
+      C65.469,233.084,7.173,296.932,0.306,306.13l12.021,12.02c9.202-6.869,73.048-65.164,195.954-188.59l2.89,2.889
+      c1.778-1.18,3.409-2.374,4.942-3.589c54.994,56.298,96.318,107.835,95.939,146.199l5.79-5.791
+      C318.215,230.829,285.841,170.05,232.015,112.306z"/>
+</svg>
 
   <svg v-else-if="name === 'destroy'" width="72px" height="72px" viewBox="0 0 72 72" id="emoji" xmlns="http://www.w3.org/2000/svg">
     <g id="color">

@@ -12,11 +12,17 @@
       </div>
       <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div class="text-md lg:flex-grow">
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/pracownicy/${budId}/`">
+            <div :class="isUrl('pracownicy') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Pracownicy</div>
+          </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/edit/`">
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane budowy</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/klient/`">
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane klienta</div>
+          </Link>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/narzedzia/${budId}/`">
+            <div :class="isUrl('narzedzia') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Narzędzia</div>
           </Link>
         </div>
       </div>

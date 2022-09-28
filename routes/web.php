@@ -7,6 +7,7 @@ use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\BadaniaTypController;
 use App\Http\Controllers\BhpController;
 use App\Http\Controllers\BhpTypController;
+use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
@@ -197,7 +198,37 @@ Route::get('narzedzia/{narzedzia}/edit', [NarzedziaController::class, 'edit'])
     ->name('narzedzia.edit')
     ->middleware('auth');
 
-Route::put('narzedzia/{tool}', [NarzedziaController::class, 'update'])
+Route::put('narzedzia/{narzedzia}', [NarzedziaController::class, 'update'])
+    ->name('narzedzia.update')
+    ->middleware('auth');
+
+Route::delete('narzedzia/{narzedzia}', [NarzedziaController::class, 'destroy'])
+    ->name('narzedzia.destroy')
+    ->middleware('auth');
+
+Route::put('narzedzia/{narzedzia}/restore', [NarzedziaController::class, 'restore'])
+    ->name('narzedzia.restore')
+    ->middleware('auth');
+
+// Narzedzia Budowa
+
+Route::get('narzedzia', [NarzedziaController::class, 'index'])
+    ->name('narzedzia')
+    ->middleware('auth');
+
+Route::get('narzedzia/create', [NarzedziaController::class, 'create'])
+    ->name('narzedzia.create')
+    ->middleware('auth');
+
+Route::post('narzedzia', [NarzedziaController::class, 'store'])
+    ->name('narzedzia.store')
+    ->middleware('auth');
+
+Route::get('narzedzia/{narzedzia}/edit', [NarzedziaController::class, 'edit'])
+    ->name('narzedzia.edit')
+    ->middleware('auth');
+
+Route::put('narzedzia/{narzedzia}', [NarzedziaController::class, 'update'])
     ->name('narzedzia.update')
     ->middleware('auth');
 
@@ -241,8 +272,8 @@ Route::put('dokumentyTyp/{account}/restore', [DokumentyTypController::class, 're
 
 // Dodawanie pracownicy budowa
 
-Route::post('contacts/{organization}/addPracownik', [ContactsController::class, 'storePracownik'])
-    ->name('contacts.storePracownik')
+Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'index'])
+    ->name('pracownicy.index')
     ->middleware('auth');
 
 // Destroy pracownicy budowa
