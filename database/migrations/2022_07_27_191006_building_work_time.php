@@ -13,7 +13,7 @@ class BuildingWorkTime extends Migration
      */
     public function up()
     {
-        Schema::create('shiftStatusSeeder', function (Blueprint $table) {
+        Schema::create('shift_status', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title', 255);
             $table->char('code', 10);
