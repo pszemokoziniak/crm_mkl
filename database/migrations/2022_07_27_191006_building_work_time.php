@@ -46,7 +46,11 @@ class BuildingWorkTime extends Migration
      */
     public function down(): void
     {
+        Schema::table('building_time_sheets', function (BluePrint $table) {
+            $table->dropForeign('building_time_sheets_shift_status_id_foreign');
+        });
+
         Schema::dropIfExists('shift_status');
-        Schema::dropIfExists('building_work_time');
+        Schema::dropIfExists('building_time_sheets');
     }
 }
