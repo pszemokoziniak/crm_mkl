@@ -71,6 +71,69 @@
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
                           </div>
+
+                          <div class="flex flex-wrap -mb-8 -mr-6 p-8">
+                            <div class="mt-2 p-5 w-40 bg-white rounded-lg shadow-xl">
+                              <div class="flex">
+                                <select-input class="pb-8 pr-6 w-full">
+                                  <option selected :value="true">08</option>
+                                  <option :value="false">01</option>
+                                  <option :value="false">02</option>
+                                  <option :value="false">03</option>
+                                  <option :value="false">04</option>
+                                  <option :value="false">05</option>
+                                  <option :value="false">06</option>
+                                  <option :value="false">07</option>
+                                  <option :value="false">08</option>
+                                  <option :value="false">09</option>
+                                  <option :value="false">09</option>
+                                  <option :value="false">10</option>
+                                  <option :value="false">11</option>
+                                  <option :value="false">12</option>
+                                  <option :value="false">13</option>
+                                  <option :value="false">14</option>
+                                  <option :value="false">15</option>
+                                  <option :value="false">16</option>
+                                  <option :value="false">17</option>
+                                  <option :value="false">18</option>
+                                  <option :value="false">19</option>
+                                  <option :value="false">20</option>
+                                  <option :value="false">21</option>
+                                  <option :value="false">22</option>
+                                  <option :value="false">23</option>
+                                  <option :value="false">24</option>
+                                </select-input>
+                                <select-input class="pb-8 pr-6 w-full">
+                                  <option selected :value="true">08</option>
+                                  <option :value="false">01</option>
+                                  <option :value="false">02</option>
+                                  <option :value="false">03</option>
+                                  <option :value="false">04</option>
+                                  <option :value="false">05</option>
+                                  <option :value="false">06</option>
+                                  <option :value="false">07</option>
+                                  <option :value="false">08</option>
+                                  <option :value="false">09</option>
+                                  <option :value="false">09</option>
+                                  <option :value="false">10</option>
+                                  <option :value="false">11</option>
+                                  <option :value="false">12</option>
+                                  <option :value="false">13</option>
+                                  <option :value="false">14</option>
+                                  <option :value="false">15</option>
+                                  <option :value="false">16</option>
+                                  <option :value="false">17</option>
+                                  <option :value="false">18</option>
+                                  <option :value="false">19</option>
+                                  <option :value="false">20</option>
+                                  <option :value="false">21</option>
+                                  <option :value="false">22</option>
+                                  <option :value="false">23</option>
+                                  <option :value="false">24</option>
+                                </select-input>
+                              </div>
+                            </div>
+                          </div>
                         </form>
                       </fieldset>
                     </div>
