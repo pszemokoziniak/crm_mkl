@@ -164,11 +164,11 @@ export default {
     },
     previousMonth() {
       let month = new Date(this.date).getMonth()
-      window.location = `/building/89/time-sheet?month=${(month < 0) ? 12 : month}`
+      window.location = `/building/${this.build}/time-sheet?month=${(month < 0) ? 12 : month}`
     },
     nextMonth() {
       let month = new Date(this.date).getMonth() + 2
-      window.location = `/building/89/time-sheet?month=${(month > 12) ? 1 : month}`
+      window.location = `/building/${this.build}/time-sheet?month=${(month > 12) ? 1 : month}`
     },
     /**
      * Formatting from date to hh:mm
