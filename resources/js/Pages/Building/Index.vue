@@ -64,10 +64,10 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <Datepicker v-model="form.from" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <Datepicker v-model="form.to" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker v-model="form.from" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <text-input v-model="form.workTime" :disabled="isStatus" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
-                            <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status" @change="statusChanged($event)">
+                            <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
                           </div>
@@ -162,7 +162,7 @@ export default {
       return sum / 60
     },
     previousMonth() {
-      let month = new Date(this.date).getMonth() - 1
+      let month = new Date(this.date).getMonth()
       window.location = `/building/89/time-sheet?month=${(month < 0) ? 12 : month}`
     },
     nextMonth() {
@@ -205,6 +205,9 @@ export default {
       return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.split(':')[0], time.split(':')[1], 0)
     },
     calculateEffectiveTime() {
+
+      console.log('calculating!'); return;
+
       // from cannot be the greatest then to time
       this.form.workTime = moment.utc(moment.duration(
         moment(this.form.to, 'HH:mm').diff(moment(this.form.from, 'HH:mm')),
