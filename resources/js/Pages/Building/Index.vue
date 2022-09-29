@@ -67,7 +67,6 @@
                             <Datepicker v-model="form.from" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <Datepicker v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <Datepicker v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-<!--                            <text-input v-model="form.workTime" :disabled="isStatus" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />-->
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
@@ -134,13 +133,8 @@ export default {
       }),
     }
   },
-  /**
-   * Calculate worker hour in month
-   */
+  /** Calculate worker hour in month */
   mounted() {
-
-    console.log(this.timeSheets)
-
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -205,13 +199,16 @@ export default {
     formatModalTimeToDate(day, time) {
       return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.split(':')[0], time.split(':')[1], 0)
     },
-    calculateEffectiveTime() {
-      console.log('calculating!'); return;
 
-      // from cannot be the greatest then to time
-      this.form.workTime = moment.utc(moment.duration(
-        moment(this.form.to, 'HH:mm').diff(moment(this.form.from, 'HH:mm')),
+    calculateEffectiveTime() {
+      const calculated = moment.utc(moment.duration(
+        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
       ).asMilliseconds()).format('HH:mm')
+
+      this.form.workTime = {
+        hours: calculated.split(':').at(0),
+        minutes: calculated.split(':').at(1),
+      }
     },
     saveHours() {
       try {
