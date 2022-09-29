@@ -157,12 +157,13 @@ export default {
       return sum / 60
     },
     previousMonth() {
-      let month = new Date(this.date).getMonth()
-      window.location = `/building/${this.build}/time-sheet?month=${(month < 0) ? 12 : month}`
+      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
     },
     nextMonth() {
-      let month = new Date(this.date).getMonth() + 2
-      window.location = `/building/${this.build}/time-sheet?month=${(month > 12) ? 1 : month}`
+      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() + 2 > 12) ? 1 : this.getMonthNumber() + 2}`
+    },
+    getMonthNumber() {
+      return new Date(this.date).getMonth()
     },
     /**
      * Formatting from date to hh:mm
@@ -196,8 +197,14 @@ export default {
         status: null,
       })
     },
+    /**
+     *
+     * @param day
+     * @param time {hours: Number, minutes: Number}
+     * @returns {Date}
+     */
     formatModalTimeToDate(day, time) {
-      return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.split(':')[0], time.split(':')[1], 0)
+      return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.hours, time.minutes, 0)
     },
 
     calculateEffectiveTime() {
@@ -221,6 +228,13 @@ export default {
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
          */
+        console.log(
+          this.formatModalTimeToDate(new Date(this.form.day), this.form.from).toString(),
+          this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
+        )
+
+        return
+
         axios.post(`/building/${this.build}/time-sheet`,this.form)
 
         this.timeSheets[workerId][dayIndex] = {
