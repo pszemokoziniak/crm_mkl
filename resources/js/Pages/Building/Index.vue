@@ -66,7 +66,8 @@
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
                             <Datepicker v-model="form.from" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <Datepicker v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <text-input v-model="form.workTime" :disabled="isStatus" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
+                            <Datepicker v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+<!--                            <text-input v-model="form.workTime" :disabled="isStatus" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />-->
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
@@ -205,7 +206,6 @@ export default {
       return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.split(':')[0], time.split(':')[1], 0)
     },
     calculateEffectiveTime() {
-
       console.log('calculating!'); return;
 
       // from cannot be the greatest then to time
