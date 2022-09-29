@@ -1,17 +1,6 @@
-# Ping CRM
-
-A demo application to illustrate how Inertia.js works.
-
-![](https://raw.githubusercontent.com/inertiajs/pingcrm/master/screenshot.png)
+# MKL CRM
 
 ## Installation
-
-Clone the repo locally:
-
-```sh
-git clone https://github.com/inertiajs/pingcrm.git pingcrm
-cd pingcrm
-```
 
 Install PHP dependencies:
 
@@ -72,14 +61,12 @@ Run the dev server (the output will give the address):
 php artisan serve
 ```
 
-You're ready to go! Visit Ping CRM in your browser, and login with:
-
-- **Username:** johndoe@example.com
+- **Username:** test@mkl.com
 - **Password:** secret
 
 ## Running tests
 
-To run the Ping CRM tests, run:
+To run the MKL CRM tests, run:
 
 ```
 phpunit

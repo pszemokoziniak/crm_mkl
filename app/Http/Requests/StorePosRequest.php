@@ -24,8 +24,7 @@ class StorePosRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' =>'required|min:3|unique:accounts,name',
-//            'contact_id' =>'required',
+            'name' =>'required|min:3|unique:funkcjas,name',
         ];
     }
 
@@ -34,6 +33,12 @@ class StorePosRequest extends FormRequest
             'required'  => 'Pole :attribute jest wymagane.',
             'min'  => 'Wymagane 3 znaki.',
             'unique' => 'Nazwa użyta',
+        ];
+    }
+
+    public function attributes() {
+        return [
+            'name' => 'Nazwa'
         ];
     }
 }

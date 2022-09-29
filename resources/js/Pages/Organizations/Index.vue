@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Head title="Organizations" />
+    <Head title="Budowa" />
     <h1 class="mb-8 text-3xl font-bold">Budowy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
@@ -43,7 +43,7 @@
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
                 <div v-if="organization.kierownikBud_id">
-                  {{ organization.kierownikBud_id.first_name }}
+                  {{ organization.kierownikBud_id.last_name }} {{ organization.kierownikBud_id.first_name }}
                 </div>
               </Link>
             </td>

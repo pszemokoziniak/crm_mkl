@@ -24,6 +24,7 @@ class AddColumnsToContactsTable extends Migration
             $table->date('ekuz')->nullable();
             $table->unsignedBigInteger('funkcja_id')->nullable();
             $table->foreign('funkcja_id')->references('id')->on('funkcjas');
+            $table->string('miejsce_urodzenia')->nullable();
         });
     }
 

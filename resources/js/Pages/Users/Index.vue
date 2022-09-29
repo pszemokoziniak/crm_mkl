@@ -1,33 +1,34 @@
 <template>
   <div>
     <Head title="Users" />
-    <h1 class="mb-8 text-3xl font-bold">Users</h1>
+    <h1 class="mb-8 text-3xl font-bold">Użykownicy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-        <label class="block text-gray-700">Role:</label>
+        <label class="block text-gray-700">Uprawnienia:</label>
         <select v-model="form.role" class="form-select mt-1 w-full">
           <option :value="null" />
-          <option value="user">User</option>
-          <option value="owner">Owner</option>
+          <option value="1">Kierownik Budowy</option>
+          <option value="2">Biuro</option>
+          <option value="3">Zarząd</option>
         </select>
-        <label class="block mt-4 text-gray-700">Trashed:</label>
+        <label class="block mt-4 text-gray-700">Archiwum:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
           <option :value="null" />
-          <option value="with">With Trashed</option>
-          <option value="only">Only Trashed</option>
+          <option value="with">Wszystkie</option>
+          <option value="only">Usunięte</option>
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/users/create">
-        <span>Create</span>
-        <span class="hidden md:inline">&nbsp;User</span>
+        <span>Utwórz</span>
+        <span class="hidden md:inline">&nbsp;Użykownika</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Name</th>
+          <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Email</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Role</th>
+          <th class="pb-4 pt-6 px-6" colspan="2">Uprawnienia</th>
         </tr>
         <tr v-for="user in users" :key="user.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -44,7 +45,9 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/users/${user.id}/edit`" tabindex="-1">
-              {{ user.owner ? 'Owner' : 'User' }}
+              <span v-if="user.owner === 1">Kierownik budowy</span>
+              <span v-if="user.owner === 2">Biuro</span>
+              <span v-if="user.owner === 3">Zarząd</span>
             </Link>
           </td>
           <td class="w-px border-t">
@@ -54,7 +57,7 @@
           </td>
         </tr>
         <tr v-if="users.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">No users found.</td>
+          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono użykownika</td>
         </tr>
       </table>
     </div>
@@ -80,7 +83,7 @@ export default {
   layout: Layout,
   props: {
     filters: Object,
-    users: Array,
+    users: Object,
   },
   data() {
     return {

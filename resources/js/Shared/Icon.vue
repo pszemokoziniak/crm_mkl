@@ -21,6 +21,43 @@
     <path d="M13 9l7.383 7.418c.823 .82 .823 2.148 0 2.967a2.11 2.11 0 0 1 -2.976 0l-7.407 -7.385"></path>
     <path d="M6.66 15.66l-3.32 -3.32a1.25 1.25 0 0 1 .42 -2.044l3.24 -1.296l6 -6l3 3l-6 6l-1.296 3.24a1.25 1.25 0 0 1 -2.044 .42z"></path>
   </svg>
+
+<!--  <svg v-else-if="name === 'sprzet2'" class="h-8 w-8 text-red-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
+<!--  <svg v-else-if="name === 'sprzet2'" class="h-6 w-6 text-blue-300"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
+<!--  <svg v-else-if="name === 'sprzet2'" class="h-6 w-6 text-gray-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="none" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
+<!--  <svg v-else-if="name === 'sprzet2'" class="h-6 w-6 text-black-400 fill-blue-500 stroke-red-400"  width="24" height="24" viewBox="0 0 24 24">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6-6a6 6 0 0 1 -8 -8l3.5 3.5" /></svg>-->
+
+  <svg v-else-if="name === 'sprzet2'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24" height="24" viewBox="0 0 318.15 318.15" class="text-blue-300 " style="enable-background:new 0 0 318.15 318.15;" xml:space="preserve">
+    <path d="M232.015,112.306c1-1.226,2.021-2.484,3.088-3.789c-0.992-0.991-1.983-1.983-2.976-2.976
+      c3.532-3.567,7.097-7.17,10.716-10.836c-7.638-7.635-11.451-11.449-19.092-19.092c-3.666,3.62-7.268,7.184-10.836,10.716
+      c-0.992-0.992-1.984-1.983-2.976-2.976c-1.296,1.059-2.546,2.074-3.763,3.067C148.853,32.809,88.445,0.316,49.803,0l-5.789,5.789
+      c38.562,0.309,89.675,41.809,145.591,96.544c-1.217,1.536-2.414,3.17-3.597,4.952l2.89,2.89
+      C65.469,233.084,7.173,296.932,0.306,306.13l12.021,12.02c9.202-6.869,73.048-65.164,195.954-188.59l2.89,2.889
+      c1.778-1.18,3.409-2.374,4.942-3.589c54.994,56.298,96.318,107.835,95.939,146.199l5.79-5.791
+      C318.215,230.829,285.841,170.05,232.015,112.306z"/>
+</svg>
+
+  <svg v-else-if="name === 'destroy'" width="72px" height="72px" viewBox="0 0 72 72" id="emoji" xmlns="http://www.w3.org/2000/svg">
+    <g id="color">
+      <path fill="#FFFFFF" stroke="none" d="M51.7598,17H20.1525v37.65c0,4.0593,3.2907,5.6209,7.35,5.6209h16.9073c4.0593,0,7.35-1.5616,7.35-5.6209 V17z"/>
+      <polyline fill="#FFFFFF" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" points="31,16 31,12 41,12 41,16"/>
+      <polygon fill="#9b9b9a" stroke="none" points="51,37 51,46.5172 51,57.6207 48.3,60 33,60"/>
+      <rect x="17" y="16" width="38" height="4" fill="#FFFFFF" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
+    </g>
+    <g id="hair"/>
+    <g id="skin"/>
+    <g id="skin-shadow"/>
+    <g id="line">
+      <polyline fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" points="31,16 31,12 41,12 41,16"/>
+      <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M51,25v31c0,2.2091-1.7909,4-4,4H25c-2.2091,0-4-1.7909-4-4V25"/>
+      <rect x="17" y="16" width="38" height="4" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
+      <line x1="41" x2="41" y1="28.25" y2="55" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
+      <line x1="31" x2="31" y1="28.25" y2="55" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
+    </g>
+  </svg>
+
+
+
 </template>
 
 <script>

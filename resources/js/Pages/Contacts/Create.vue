@@ -15,55 +15,26 @@
           <text-input v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
 
           <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce zamieszkania" />
+          <text-input v-model="form.miejsce_urodzenia" :error="form.errors.miejsce_urodzenia" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce urodzenia" />
 
           <text-input v-model="form.idCard_number" :error="form.errors.idCard_number" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Dowodu" />
           <text-input type="date" v-model="form.idCard_date" :error="form.errors.idCard_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
 
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
-          <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" label="Telefon" />
+          <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" type="tel" label="Telefon" />
 
-          <select-input v-model="form.position" :error="form.errors.position" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
-            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-          </select-input>
-
-          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja">
+          <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
+          <file-input v-model="form.photo_path" :error="form.errors.photo_path" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
+
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
-            <text-input type="date" v-model="form.work_start" :error="form.errors.work_start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
-            <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
+          <text-input type="date" v-model="form.work_start" :error="form.errors.work_start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
+          <text-input type="date" v-model="form.work_end" :error="form.errors.work_end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
 
           <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
-            <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
-
-
-
-          <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Funkcja" /> -->
-          <!-- <text-input v-model="form.function" :error="form.errors.function" class="pb-8 pr-6 w-full lg:w-1/2" label="Umowa o pracę" /> -->
-          <!-- <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Języki obce</label>
-
-          <select-input v-model="form.lang" :error="form.errors.lang" class="pb-8 pr-6 w-full lg:w-1/2" label="Języki obce">
-            <option :value="null" />
-            <option value="PL">polski</option>
-            <option value="EN">angielski</option>
-            <option value="DE">niemiecki</option>
-          </select-input> -->
-
-
-
-
-
-
-
-          <!-- <text-input v-model="form.city" :error="form.errors.city" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
-          <text-input v-model="form.region" :error="form.errors.region" class="pb-8 pr-6 w-full lg:w-1/2" label="Województwo" />
-          <select-input v-model="form.country" :error="form.errors.country" class="pb-8 pr-6 w-full lg:w-1/2" label="Państwo">
-            <option :value="null" />
-            <option value="PL">Polska</option>
-            <option value="US">USA</option>
-          </select-input>
-          <text-input v-model="form.postal_code" :error="form.errors.postal_code" class="pb-8 pr-6 w-full lg:w-1/2" label="Kod pocztowy" /> -->
+          <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" class="pb-8 pr-6 w-full lg:w-1/2" label="Termin ważności" />
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj Pracownika</loading-button>
@@ -79,6 +50,7 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
+import FileInput from '@/Shared/FileInput'
 
 export default {
   components: {
@@ -87,6 +59,7 @@ export default {
     LoadingButton,
     SelectInput,
     TextInput,
+    FileInput,
   },
   layout: Layout,
   props: {
@@ -105,7 +78,7 @@ export default {
         pesel: '',
         idCard_number: '',
         idCard_date: '',
-        position: '',
+        // position: '',
         funkcja_id: '',
         work_start: '',
         work_end: '',
@@ -114,12 +87,16 @@ export default {
         email: '',
         phone: '',
         address: '',
+        miejsce_urodzenia: '',
+        photo_path: null,
       }),
     }
   },
   methods: {
     store() {
-      this.form.post('/contacts')
+      this.form.post('/contacts', {
+        onSuccess: () => this.form.reset('photo_path'),
+      })
     },
   },
 }

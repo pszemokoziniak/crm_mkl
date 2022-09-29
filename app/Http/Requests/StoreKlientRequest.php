@@ -32,6 +32,7 @@ class StoreKlientRequest extends FormRequest
             'nameKontakt' =>'required',
             'phone' =>'required',
             'email' =>'required',
+            'funkcja_id' => 'required',
         ];
     }
 

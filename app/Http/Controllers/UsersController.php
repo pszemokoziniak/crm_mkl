@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,7 @@ class UsersController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'owner' => $user->owner,
+                    'contact_id' => $user->user_id,
                     'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 40, 'h' => 40, 'fit' => 'crop']) : null,
                     'deleted_at' => $user->deleted_at,
                 ]),
@@ -43,10 +45,23 @@ class UsersController extends Controller
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
             'email' => ['required', 'max:50', 'email', Rule::unique('users')],
-            'password' => ['nullable'],
-            'owner' => ['required', 'boolean'],
+            'password' => [
+                'required',
+                'min:8',
+                'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
+            ],
+            'owner' => ['required', 'max:10'],
+            'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
-        ]);
+        ],
+            [
+                'required'  => 'Pole jest wymagane.',
+                'unique' => 'Nazwa użyta',
+                'numeric' => 'Pole attribute może zawierać tylko cyfry',
+                'password.regex' => 'Hasło musi zawierać dużą literę, znak specjalny, cyfrę',
+                'password.min' => 'Hasło musi zawierać 8 znaków',
+            ]
+        );
 
         Auth::user()->account->users()->create([
             'first_name' => Request::get('first_name'),
@@ -54,10 +69,11 @@ class UsersController extends Controller
             'email' => Request::get('email'),
             'password' => Request::get('password'),
             'owner' => Request::get('owner'),
+            'contact_id' => Request::get('user_id'),
             'photo_path' => Request::file('photo') ? Request::file('photo')->store('users') : null,
         ]);
 
-        return Redirect::route('users')->with('success', 'User created.');
+        return Redirect::route('users')->with('success', 'Użytkownik utworzony.');
     }
 
     public function edit(User $user)
@@ -69,28 +85,51 @@ class UsersController extends Controller
                 'last_name' => $user->last_name,
                 'email' => $user->email,
                 'owner' => $user->owner,
+                'contact_id' => $user->contact_id,
                 'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
                 'deleted_at' => $user->deleted_at,
             ],
+            'contacts' => Contact::whereHas('user')->get(),
+
+
+
+
+//        Contact::with('user')->where('user', 1)->get(),
+//                ->map
+//                ->only('id', 'first_name', 'last_name'),
+
         ]);
     }
 
-    public function update(User $user)
+    public function update(User $user, Request $request)
     {
         if (App::environment('demo') && $user->isDemoUser()) {
-            return Redirect::back()->with('error', 'Updating the demo user is not allowed.');
+            return Redirect::back()->with('error', 'Updating the Super Admin user is not allowed.');
         }
-
+//        dd($request);
         Request::validate([
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
             'email' => ['required', 'max:50', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => ['nullable'],
-            'owner' => ['required', 'boolean'],
+            'password' => [
+                'nullable',
+                'min:8',
+                'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
+            ],
+//            'owner' => ['nullable'],
+//            'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
-        ]);
+        ],
+        [
+            'required'  => 'Pole jest wymagane.',
+            'unique' => 'Nazwa użyta',
+            'numeric' => 'Pole :attribute może zawierać tylko cyfry',
+            'password.regex' => 'Hasło musi zawierać dużą literę, znak specjalny, cyfrę',
+            'password.min' => 'Hasło musi zawierać 8 znaków',
+        ]
+        );
 
-        $user->update(Request::only('first_name', 'last_name', 'email', 'owner'));
+        $user->update(Request::only('first_name', 'last_name', 'email', 'owner', 'contact_id' ));
 
         if (Request::file('photo')) {
             $user->update(['photo_path' => Request::file('photo')->store('users')]);
@@ -100,7 +139,7 @@ class UsersController extends Controller
             $user->update(['password' => Request::get('password')]);
         }
 
-        return Redirect::back()->with('success', 'User updated.');
+        return Redirect::back()->with('success', 'Użytkownik poprawiony.');
     }
 
     public function destroy(User $user)

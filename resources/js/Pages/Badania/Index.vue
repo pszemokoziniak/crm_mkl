@@ -54,6 +54,47 @@
         </tr> -->
       </table>
     </div>
+    <h1 class="m-4 font-bold">Dodane pliki</h1>
+    <div class="bg-white rounded-md shadow overflow-x-auto">
+      <table class="w-full whitespace-nowrap">
+        <tr class="text-left font-bold">
+          <th class="pb-4 pt-6 px-6">Nazwa</th>
+          <th class="pb-4 pt-6 px-6">Plik</th>
+          <th class="pb-4 pt-6 px-6">Typ</th>
+          <th class="pb-4 pt-6 px-6 text-center">Akcje</th>
+        </tr>
+        <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <td class="border-t" @click="download(document.path)">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500">{{ document.name }} </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.dokumentytyp.name }}</Link>
+          </td>
+          <td class="border-t">
+            <div class="flex justify-end">
+              <div class="text-center px-4 py-2 m-2">
+                <a target="_blank" :href="'/contacts/' + contactId + '/documents/'+ document.id" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+                  <DocumentDownloadIcon class="h-5 w-5 text-blue-500" />
+                  <span>Pobierz</span>
+                </a>
+              </div>
+              <div class="text-center px-4 py-2 m-2">
+                <a class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center cursor-pointer" target="_blank" @click="removeDocument(document.id)" >
+                  <TrashIcon class="h-5 w-5 text-blue-500" />
+                  <span>Usuń</span>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr v-if="documents.data.length === 0">
+          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono dokumentów</td>
+        </tr>
+      </table>
+    </div>
     <!-- <pagination class="mt-6" :links="accounts.links" /> -->
   </div>
 </template>
@@ -66,6 +107,7 @@ import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 import WorkerMenu from '@/Shared/WorkerMenu'
+import {DocumentDownloadIcon, TrashIcon} from '@heroicons/vue/solid'
 
 
 export default {
@@ -74,6 +116,8 @@ export default {
     Icon,
     Link,
     WorkerMenu,
+    DocumentDownloadIcon,
+    TrashIcon,
   },
   layout: Layout,
   props: {
@@ -81,9 +125,10 @@ export default {
     contact: Object,
     badanias: Object,
     badaniaTyp: Object,
+    documents: Object,
   },
   mounted: function () {
-    console.log(this.bads)
+    // console.log(this.bads)
   },
   data() {
     return {
@@ -105,6 +150,9 @@ export default {
   methods: {
     reset() {
       this.form = mapValues(this.form, () => null)
+    },
+    removeDocument(documentId) {
+      this.$inertia.delete(`/contacts/${this.contactId}/documents/${documentId}/lekarskie`)
     },
   },
 }

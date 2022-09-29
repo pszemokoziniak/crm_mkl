@@ -40,7 +40,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'owner' => 'boolean',
+        'owner' => 'integer',
         'email_verified_at' => 'datetime',
     ];
 
@@ -52,6 +52,10 @@ class User extends Authenticatable
     public function account()
     {
         return $this->belongsTo(Account::class);
+    }
+    public function contact()
+    {
+        return $this->belongsTo(Contact::class);
     }
 
     public function getNameAttribute()

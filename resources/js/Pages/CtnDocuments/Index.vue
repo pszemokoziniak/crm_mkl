@@ -24,6 +24,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Plik</th>
+          <th class="pb-4 pt-6 px-6">Typ</th>
           <th class="pb-4 pt-6 px-6 text-center">Akcje</th>
         </tr>
         <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
@@ -32,6 +33,9 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.dokumentytyp.name }}</Link>
           </td>
           <td class="border-t">
             <div class="flex justify-end">

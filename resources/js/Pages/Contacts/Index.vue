@@ -1,14 +1,14 @@
  <template>
   <div>
-    <Head :title="Contacts" />
+    <Head title="Contacts" />
     <h1 class="mb-8 text-3xl font-bold">Pracownicy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Trashed:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <option :value="null" />
-          <option value="with">With Trashed</option>
-          <option value="only">Only Trashed</option>
+<!--          <option :value="null" />-->
+          <option value="with">Wszystko</option>
+          <option value="only">Usunięte</option>
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/contacts/create">
@@ -19,15 +19,16 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko</th>
-          <th class="pb-4 pt-6 px-6">Funkcja</th>
-          <th class="pb-4 pt-6 px-6">Pracuje</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
+          <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
+          <th class="pb-4 pt-6 px-6">Stanowisko</th>
+<!--          <th class="pb-4 pt-6 px-6">Pracuje</th>-->
+          <th class="pb-4 pt-6 px-6">Status</th>
+          <th class="pb-4 pt-6 px-6" colspan="2">Data Ważności A1</th>
         </tr>
         <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
-              {{ contact.name }}
+              {{ contact.last_name }} {{ contact.name }}
               <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
@@ -38,14 +39,23 @@
               </div>
             </Link>
           </td>
+<!--          <td class="border-t">-->
+<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
+<!--              <icon name="dot" class="block w-6 h-6 fill-green-400" />-->
+<!--            </Link>-->
+<!--          </td>-->
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              <icon name="dot" class="block w-6 h-6 fill-green-400" />
+              <div v-if="contact.budowa">
+                {{ contact.budowa.nazwaBud }} / <br /> testUrlop
+              </div>
             </Link>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              {{ contact.phone }}
+              <div v-if="contact.a1">
+                {{ contact.a1.end }}
+              </div>
             </Link>
           </td>
           <td class="w-px border-t">

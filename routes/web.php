@@ -1,20 +1,24 @@
 <?php
 
+use App\Http\Controllers\A1Controller;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\BadaniaBHPController;
+//use App\Http\Controllers\BadaniaBHPController;
 use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\BadaniaTypController;
 use App\Http\Controllers\BhpController;
 use App\Http\Controllers\BhpTypController;
+use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DokumentyTypController;
 use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\JezykController;
 use App\Http\Controllers\JezykTypController;
 use App\Http\Controllers\KlientController;
 use App\Http\Controllers\KrajTypController;
+use App\Http\Controllers\NarzedziaController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UprawnieniaController;
@@ -176,6 +180,109 @@ Route::delete('contacts/{contact}', [ContactsController::class, 'destroy'])
 Route::put('contacts/{contact}/restore', [ContactsController::class, 'restore'])
     ->name('contacts.restore')
     ->middleware('auth');
+
+// Narzedzia
+
+Route::get('narzedzia', [NarzedziaController::class, 'index'])
+    ->name('narzedzia')
+    ->middleware('auth');
+
+Route::get('narzedzia/create', [NarzedziaController::class, 'create'])
+    ->name('narzedzia.create')
+    ->middleware('auth');
+
+Route::post('narzedzia', [NarzedziaController::class, 'store'])
+    ->name('narzedzia.store')
+    ->middleware('auth');
+
+Route::get('narzedzia/{narzedzia}/edit', [NarzedziaController::class, 'edit'])
+    ->name('narzedzia.edit')
+    ->middleware('auth');
+
+Route::put('narzedzia/{narzedzia}', [NarzedziaController::class, 'update'])
+    ->name('narzedzia.update')
+    ->middleware('auth');
+
+Route::delete('narzedzia/{narzedzia}', [NarzedziaController::class, 'destroy'])
+    ->name('narzedzia.destroy')
+    ->middleware('auth');
+
+Route::put('narzedzia/{narzedzia}/restore', [NarzedziaController::class, 'restore'])
+    ->name('narzedzia.restore')
+    ->middleware('auth');
+
+// Narzedzia Budowa
+
+Route::get('narzedzia', [NarzedziaController::class, 'index'])
+    ->name('narzedzia')
+    ->middleware('auth');
+
+Route::get('narzedzia/create', [NarzedziaController::class, 'create'])
+    ->name('narzedzia.create')
+    ->middleware('auth');
+
+Route::post('narzedzia', [NarzedziaController::class, 'store'])
+    ->name('narzedzia.store')
+    ->middleware('auth');
+
+Route::get('narzedzia/{narzedzia}/edit', [NarzedziaController::class, 'edit'])
+    ->name('narzedzia.edit')
+    ->middleware('auth');
+
+Route::put('narzedzia/{narzedzia}', [NarzedziaController::class, 'update'])
+    ->name('narzedzia.update')
+    ->middleware('auth');
+
+Route::delete('narzedzia/{narzedzia}', [NarzedziaController::class, 'destroy'])
+    ->name('narzedzia.destroy')
+    ->middleware('auth');
+
+Route::put('narzedzia/{narzedzia}/restore', [NarzedziaController::class, 'restore'])
+    ->name('narzedzia.restore')
+    ->middleware('auth');
+
+// Dokumenty Typ
+
+Route::get('dokumentyTyp', [DokumentyTypController::class, 'index'])
+    ->name('dokumentyTyp')
+    ->middleware('auth');
+
+Route::get('dokumentyTyp/create', [DokumentyTypController::class, 'create'])
+    ->name('dokumentyTyp.create')
+    ->middleware('auth');
+
+Route::post('dokumentyTyp', [DokumentyTypController::class, 'store'])
+    ->name('dokumentyTyp.store')
+    ->middleware('auth');
+
+Route::get('dokumentyTyp/{dokumentyTyp}/edit', [DokumentyTypController::class, 'edit'])
+    ->name('dokumentyTyp.edit')
+    ->middleware('auth');
+
+Route::put('dokumentyTyp/{dokumentyTyp}', [DokumentyTypController::class, 'update'])
+    ->name('dokumentyTyp.update')
+    ->middleware('auth');
+
+Route::delete('dokumentyTyp/{dokumentyTyp}', [DokumentyTypController::class, 'destroy'])
+    ->name('dokumentyTyp.destroy')
+    ->middleware('auth');
+
+Route::put('dokumentyTyp/{account}/restore', [DokumentyTypController::class, 'restore'])
+    ->name('dokumentyTyp.restore')
+    ->middleware('auth');
+
+// Dodawanie pracownicy budowa
+
+Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'index'])
+    ->name('pracownicy.index')
+    ->middleware('auth');
+
+// Destroy pracownicy budowa
+
+Route::get('contacts/{contact}/budowa/destroy', [ContactsController::class, 'destroyPracownikBudowa'])
+    ->name('contacts.destroyPracownikBudowa')
+    ->middleware('auth');
+
 // Badania
 
 Route::get('contacts/{contact}/badania', [BadaniaController::class, 'index'])
@@ -234,6 +341,36 @@ Route::delete('bhp/{bhp}', [BhpController::class, 'destroy'])
 
 Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
     ->name('bhp.restore')
+    ->middleware('auth');
+
+// A1
+
+Route::get('contacts/{contact}/a1', [A1Controller::class, 'index'])
+    ->name('a1.index')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/a1/create', [A1Controller::class, 'create'])
+    ->name('a1.create')
+    ->middleware('auth');
+
+Route::post('a1/{contact_id}', [A1Controller::class, 'store'])
+    ->name('a1.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/a1/{a1}/edit', [A1Controller::class, 'edit'])
+    ->name('a1.edit')
+    ->middleware('auth');
+
+Route::put('contacts/{contact}/a1/{a1}', [A1Controller::class, 'update'])
+    ->name('a1.update')
+    ->middleware('auth');
+
+Route::delete('a1/{a1}', [A1Controller::class, 'destroy'])
+    ->name('a1.destroy')
+    ->middleware('auth');
+
+Route::put('a1/{a1}/restore', [A1Controller::class, 'restore'])
+    ->name('a1.restore')
     ->middleware('auth');
 
 // Uprawnienia
@@ -327,7 +464,7 @@ Route::put('position/{account}/restore', [AccountsController::class, 'restore'])
     ->middleware('auth');
 
 
-// Funkcja
+// Funkcja Typ
 
 Route::get('funkcja', [FunkcjaController::class, 'index'])
     ->name('funkcja')
@@ -355,6 +492,36 @@ Route::delete('funkcja/{funkcja}', [FunkcjaController::class, 'destroy'])
 
 Route::put('funkcja/{account}/restore', [FunkcjaController::class, 'restore'])
     ->name('funkcja.restore')
+    ->middleware('auth');
+
+// Dokumenty Typ
+
+Route::get('dokumentyTyp', [DokumentyTypController::class, 'index'])
+    ->name('dokumentyTyp')
+    ->middleware('auth');
+
+Route::get('dokumentyTyp/create', [DokumentyTypController::class, 'create'])
+    ->name('dokumentyTyp.create')
+    ->middleware('auth');
+
+Route::post('dokumentyTyp', [DokumentyTypController::class, 'store'])
+    ->name('dokumentyTyp.store')
+    ->middleware('auth');
+
+Route::get('dokumentyTyp/{dokumentyTyp}/edit', [DokumentyTypController::class, 'edit'])
+    ->name('dokumentyTyp.edit')
+    ->middleware('auth');
+
+Route::put('dokumentyTyp/{dokumentyTyp}', [DokumentyTypController::class, 'update'])
+    ->name('dokumentyTyp.update')
+    ->middleware('auth');
+
+Route::delete('dokumentyTyp/{dokumentyTyp}', [DokumentyTypController::class, 'destroy'])
+    ->name('dokumentyTyp.destroy')
+    ->middleware('auth');
+
+Route::put('dokumentyTyp/{account}/restore', [DokumentyTypController::class, 'restore'])
+    ->name('dokumentyTyp.restore')
     ->middleware('auth');
 
 // Badania Typ
@@ -544,6 +711,22 @@ Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsControl
 
 Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'delete'])
     ->name('documents.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/lekarskie', [CtnDocumentsController::class, 'deleteLek'])
+    ->name('documentsLek.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/bhp', [CtnDocumentsController::class, 'deleteBhp'])
+    ->name('documentsBhp.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/uprawnienia', [CtnDocumentsController::class, 'deleteUpr'])
+    ->name('documentsUpr.delete')
+    ->middleware('auth');
+
+Route::delete('contacts/{contact_id}/documents/{document_id}/a1', [CtnDocumentsController::class, 'deleteA1'])
+    ->name('documentsA1.delete')
     ->middleware('auth');
 
 /** Building time sheets */

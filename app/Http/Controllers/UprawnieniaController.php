@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateBhpRequest;
 //use App\Models\Bhp;
 //use App\Models\BhpTyp;
 use App\Models\Contact;
+use App\Models\CtnDocument;
 use App\Models\Uprawnienia;
 use App\Models\UprawnieniaTyp;
 use Illuminate\Http\Request;
@@ -32,7 +33,11 @@ class UprawnieniaController extends Controller
         return Inertia::render('Uprawnienia/Index', [
 //            'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
-            'uprawnienias' => $uprawnienias
+            'uprawnienias' => $uprawnienias,
+            'documents' => CtnDocument::with('dokumentytyp')
+                ->where('contact_id', $contact->id)
+                ->where('dokumentytyp_id', '3')
+                ->paginate(10)
         ]);
     }
     public function edit(Contact $contact, Uprawnienia $uprawnienia)

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <Head title="Contacts" />
-    <h1 class="mb-8 text-3xl font-bold">Funkcja</h1>
+    <Head title="Stanowisko" />
+    <h1 class="mb-8 text-3xl font-bold">Stanowisko</h1>
     <div class="flex items-center justify-between mb-6">
       <!-- <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Trashed:</label>
@@ -33,9 +33,9 @@
             </Link>
           </td>
         </tr>
-        <!-- <tr v-if="accounts.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pozycji</td>
-        </tr> -->
+        <tr v-if="funkcjas.length === 0">
+          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono stanowiska</td>
+        </tr>
       </table>
     </div>
     <!-- <pagination class="mt-6" :links="accounts.links" /> -->
@@ -49,16 +49,16 @@ import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
-import Pagination from '@/Shared/Pagination'
-import SearchFilter from '@/Shared/SearchFilter'
+// import Pagination from '@/Shared/Pagination'
+// import SearchFilter from '@/Shared/SearchFilter'
 
 export default {
   components: {
     Head,
     Icon,
     Link,
-    Pagination,
-    SearchFilter,
+    // Pagination,
+    // SearchFilter,
   },
   layout: Layout,
   props: {

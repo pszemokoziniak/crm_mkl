@@ -18,6 +18,7 @@ class CreateCtnDocumentTable extends Migration
         Schema::create('ctn_documents', function (Blueprint $table) {
             $table->increments('id');
             $table->tinyText('name');
+            $table->string('typ');
             $table->tinyText('filename');
             $table->tinyText('path');
             $table->unsignedInteger('contact_id')->nullable();

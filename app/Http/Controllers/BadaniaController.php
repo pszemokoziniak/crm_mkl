@@ -9,6 +9,7 @@ use App\Models\Badania;
 use App\Models\BadaniaTyp;
 use App\Models\Contact;
 use App\Models\Account;
+use App\Models\CtnDocument;
 use App\Models\Funkcja;
 
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +38,11 @@ class BadaniaController extends Controller
         return Inertia::render('Badania/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contact' => $contact,
-            'bads' => $bads
+            'bads' => $bads,
+            'documents' => CtnDocument::with('dokumentytyp')
+                ->where('contact_id', $contact->id)
+                ->where('dokumentytyp_id', '1')
+                ->paginate(10)
         ]);
     }
     public function edit(Contact $contact, Badania $badania)

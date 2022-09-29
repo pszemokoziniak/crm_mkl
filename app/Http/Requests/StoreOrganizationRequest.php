@@ -30,7 +30,7 @@ class StoreOrganizationRequest extends FormRequest
             'city' => 'nullable | max:2000',
             'kierownikBud_id' => 'nullable | max:50',
             'zaklad' => 'nullable | max:500',
-            'country_id' => 'nullable | max:1000',
+            'country_id' => 'required',
             'addressBud' => 'nullable | max:2500',
             'addressKwat' => 'nullable | max:2500',
         ];

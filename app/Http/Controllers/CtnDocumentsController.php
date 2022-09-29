@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDocumentRequest;
 use App\Models\CtnDocument;
+use App\Models\DokumentyTyp;
 use App\Services\CtnDocumentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +24,7 @@ class CtnDocumentsController extends Controller
         return Inertia::render('CtnDocuments/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contactId' => Request::route('contact_id'),
-            'documents' => CtnDocument::query()
+            'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', Request::route('contact_id'))
                 ->paginate(10)
         ]);
@@ -32,7 +33,8 @@ class CtnDocumentsController extends Controller
     public function create(): Response
     {
         return Inertia::render('CtnDocuments/Create', [
-            'contactId' => Request::route('contact_id')
+            'contactId' => Request::route('contact_id'),
+            'dokumentyTyps' => DokumentyTyp::all()
         ]);
     }
 
@@ -40,11 +42,13 @@ class CtnDocumentsController extends Controller
     {
         $redirect = Redirect::route('documents.index', ['contact_id' => $contactId]);
 
+//        dd($request);
         try {
             $documentService->store(
                 Request::file('document'),
                 $contactId,
-                Request::get('name')
+                Request::get('name'),
+                Request::get('typ'),
             );
         } catch (\Exception $e) {
             Log::info('Error while storing document: ' . $e->getMessage());
@@ -80,6 +84,80 @@ class CtnDocumentsController extends Controller
 
         // @TODO remove file and add logger
         return Redirect::route('documents.index', ['contact_id' => $id, 'document_id' => $documentId])
+            ->with('success', 'Usunięto dokument');
+    }
+
+    public function deleteLek(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('badania.index', ['contact' => $id])
+            ->with('success', 'Usunięto dokument');
+    }
+
+    public function deleteBhp(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('bhp.index', ['contact' => $id])
+            ->with('success', 'Usunięto dokument');
+    }
+    public function deleteUpr(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('uprawnienia.index', ['contact' => $id])
+            ->with('success', 'Usunięto dokument');
+    }
+    public function deleteA1(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::query()->where('id', $documentId)->first();
+
+        if ($document) {
+            $document->delete();
+        }
+
+        try {
+            Storage::delete(storage_path("app/" . $document->path));
+        } catch (\Exception $exception) {
+            throw new \Exception('Cannot remove file ' . $document->path);
+        }
+
+        // @TODO remove file and add logger
+        return Redirect::route('a1.index', ['contact' => $id])
             ->with('success', 'Usunięto dokument');
     }
 }
