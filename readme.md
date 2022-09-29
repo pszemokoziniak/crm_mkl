@@ -44,6 +44,11 @@ Run database migrations:
 php artisan migrate
 ```
 
+Rollback last migration:
+```sh
+php artisan migrate:rollback --step=1
+```
+
 Run database seeder:
 
 ```sh
@@ -99,3 +104,7 @@ docker-compose exec app php artisan migrate
 docker-compose exec app php artisan db:seed
 ```
 
+## FrontEnd implementation
+* Calendar implementation based on https://tailwindcomponents.com/component/calendar-ui-with-tailwindcss-and-alpinejs
+* Installed axios for asynchronous responses
+* Datetime picker for vue3: https://vue3datepicker.com/

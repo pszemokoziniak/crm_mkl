@@ -7,22 +7,27 @@ services:
         container_name: crm-mkl-php
         restart: unless-stopped
         working_dir: /var/www/
+        environment:
+            - PHP_IDE_CONFIG=serverName=app
         volumes:
             - ./:/var/www
         networks:
             - crm-mkl
+        ports:
+            - "9000"
 
     db:
         image: mysql:8.0
         container_name: crm-mkl-db
-        restart: unless-stopped
         environment:
-            MYSQL_DATABASE: ${DB_DATABASE}
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-            MYSQL_PASSWORD: ${DB_PASSWORD}
-            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_DATABASE: pingcrm
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_PASSWORD: password
+            MYSQL_USER: user
             SERVICE_TAGS: dev
             SERVICE_NAME: mysql
+        volumes:
+            -   db:/var/lib/mysql
         env_file:
             -   .env
         ports:
@@ -41,6 +46,10 @@ services:
             - .docker/nginx:/etc/nginx/conf.d/
         networks:
             - crm-mkl
+
+volumes:
+    db:
+        driver: local
 
 networks:
     crm-mkl:
