@@ -64,20 +64,13 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-
-                            <Datepicker v-model="form.from" timePicker></Datepicker>
-
-                            <Datepicker v-model="form.to" timePicker></Datepicker>
-<!--                            <text-input :disabled="isStatus" v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" @change="calculateEffectiveTime()" />-->
-<!--                            <text-input :disabled="isStatus" v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" @change="calculateEffectiveTime()" />-->
-                            <text-input :disabled="isStatus" v-model="form.workTime" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
-                            <select-input @change="statusChanged($event)" v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status">
+                            <Datepicker v-model="form.from" time-picker minutes-increment="30" />
+                            <Datepicker v-model="form.to" time-picker minutes-increment="30" />
+                            <text-input v-model="form.workTime" :disabled="isStatus" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
+                            <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
                           </div>
-
-
-
                         </form>
                       </fieldset>
                     </div>
@@ -196,13 +189,14 @@ export default {
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
     showModal(shift) {
+
       this.open = true
       this.form = this.$inertia.form = ({
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
-        from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) :  '07:00:00 am',
-        to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : '15:00:00 pm',
+        from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) : { hours: '07', minutes: '00'},
+        to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : { hours: '15', minutes: '00'},
         workTime: shift.workTime ?? '08:00',
         status: null,
       })
