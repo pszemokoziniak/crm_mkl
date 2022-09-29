@@ -64,76 +64,20 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <text-input :disabled="isStatus" v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" @change="calculateEffectiveTime()" />
-                            <text-input :disabled="isStatus" v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" @change="calculateEffectiveTime()" />
+
+                            <Datepicker v-model="form.from" timePicker></Datepicker>
+
+                            <Datepicker v-model="form.to" timePicker></Datepicker>
+<!--                            <text-input :disabled="isStatus" v-model="form.from" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Od" @change="calculateEffectiveTime()" />-->
+<!--                            <text-input :disabled="isStatus" v-model="form.to" type="time" class="pb-8 pr-6 w-full lg:w-1/2" label="Do" @change="calculateEffectiveTime()" />-->
                             <text-input :disabled="isStatus" v-model="form.workTime" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
                             <select-input @change="statusChanged($event)" v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
                           </div>
 
-                          <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <div class="mt-2 p-5 w-40 bg-white rounded-lg shadow-xl">
-                              <div class="flex">
-                                <select-input class="pb-8 pr-6 w-full">
-                                  <option selected :value="true">08</option>
-                                  <option :value="false">01</option>
-                                  <option :value="false">02</option>
-                                  <option :value="false">03</option>
-                                  <option :value="false">04</option>
-                                  <option :value="false">05</option>
-                                  <option :value="false">06</option>
-                                  <option :value="false">07</option>
-                                  <option :value="false">08</option>
-                                  <option :value="false">09</option>
-                                  <option :value="false">09</option>
-                                  <option :value="false">10</option>
-                                  <option :value="false">11</option>
-                                  <option :value="false">12</option>
-                                  <option :value="false">13</option>
-                                  <option :value="false">14</option>
-                                  <option :value="false">15</option>
-                                  <option :value="false">16</option>
-                                  <option :value="false">17</option>
-                                  <option :value="false">18</option>
-                                  <option :value="false">19</option>
-                                  <option :value="false">20</option>
-                                  <option :value="false">21</option>
-                                  <option :value="false">22</option>
-                                  <option :value="false">23</option>
-                                  <option :value="false">24</option>
-                                </select-input>
-                                <select-input class="pb-8 pr-6 w-full">
-                                  <option selected :value="true">08</option>
-                                  <option :value="false">01</option>
-                                  <option :value="false">02</option>
-                                  <option :value="false">03</option>
-                                  <option :value="false">04</option>
-                                  <option :value="false">05</option>
-                                  <option :value="false">06</option>
-                                  <option :value="false">07</option>
-                                  <option :value="false">08</option>
-                                  <option :value="false">09</option>
-                                  <option :value="false">09</option>
-                                  <option :value="false">10</option>
-                                  <option :value="false">11</option>
-                                  <option :value="false">12</option>
-                                  <option :value="false">13</option>
-                                  <option :value="false">14</option>
-                                  <option :value="false">15</option>
-                                  <option :value="false">16</option>
-                                  <option :value="false">17</option>
-                                  <option :value="false">18</option>
-                                  <option :value="false">19</option>
-                                  <option :value="false">20</option>
-                                  <option :value="false">21</option>
-                                  <option :value="false">22</option>
-                                  <option :value="false">23</option>
-                                  <option :value="false">24</option>
-                                </select-input>
-                              </div>
-                            </div>
-                          </div>
+
+
                         </form>
                       </fieldset>
                     </div>
@@ -159,6 +103,8 @@ import TextInput from '@/Shared/TextInput'
 import moment from 'moment'
 import axios from 'axios'
 import SelectInput from '@/Shared/SelectInput'
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 export default {
   components: {
@@ -169,6 +115,7 @@ export default {
     DialogTitle,
     TransitionChild,
     TransitionRoot,
+    Datepicker,
   },
   layout: Layout,
   props: {

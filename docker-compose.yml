@@ -19,7 +19,6 @@ services:
     db:
         image: mysql:8.0
         container_name: crm-mkl-db
-        restart: unless-stopped
         environment:
             MYSQL_DATABASE: pingcrm
             MYSQL_ROOT_PASSWORD: password
@@ -27,6 +26,8 @@ services:
             MYSQL_USER: user
             SERVICE_TAGS: dev
             SERVICE_NAME: mysql
+        volumes:
+            -   db:/var/lib/mysql
         env_file:
             -   .env
         ports:
@@ -45,6 +46,10 @@ services:
             - .docker/nginx:/etc/nginx/conf.d/
         networks:
             - crm-mkl
+
+volumes:
+    db:
+        driver: local
 
 networks:
     crm-mkl:
