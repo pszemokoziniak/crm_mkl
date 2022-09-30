@@ -177,6 +177,18 @@ export default {
 
       return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
     },
+    formatTimeObject(time) {
+
+      if (time === null) {
+        return ''
+      }
+
+      return {
+        hours: String((new Date(time)).getHours()).padStart(2, '0'),
+        minutes: String((new Date(time)).getMinutes()).padStart(2, '0')
+      }
+
+    },
     /**
      *
      * @param time string HH:mm
@@ -192,8 +204,8 @@ export default {
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
-        from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) : { hours: '07', minutes: '00'},
-        to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : { hours: '15', minutes: '00'},
+        from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : { hours: '07', minutes: '00'},
+        to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : { hours: '15', minutes: '00'},
         workTime: shift.workTime ?? { hours: '08', minutes: '00'},
         status: null,
       })
@@ -244,6 +256,7 @@ export default {
 
       } catch (e) {
         console.error('Something happen while saving data.')
+        // @TODO display message with error
         throw e
       }
       this.form = this.$inertia.form = ({
