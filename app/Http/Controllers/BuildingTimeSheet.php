@@ -106,17 +106,14 @@ class BuildingTimeSheet extends Controller
         // @TODO create correct date! not only day but month!
         $workDay = new \DateTimeImmutable($data['day']);
 
-        $splitFrom = explode(':', $data['from']);
-        $splitTo = explode(':', $data['to']);
-
         $dataToSave = [
             'organization_id' => $data['build'],
             'contact_id' => $data['id'],
             'work_day' => $workDay,
-            'work_from' => clone $workDay->setTime((int)$splitFrom[0], (int)$splitFrom[1]),
-            'work_to' => clone $workDay->setTime((int)$splitTo[0], (int)$splitTo[1]),
+            'work_from' => clone $workDay->setTime((int)$data['from']['hours'], (int)$data['from']['minutes']),
+            'work_to' => clone $workDay->setTime((int)$data['to']['hours'], (int)$data['to']['hours']),
             'shift_status_id' => $data['status'] ?? null, // id
-            'effective_work_time' => $data['workTime'],
+            'effective_work_time' => $data['workTime']['hours'] . ':' . $data['workTime']['minutes'],
         ];
 
         try {

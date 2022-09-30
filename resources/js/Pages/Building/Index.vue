@@ -174,6 +174,7 @@ export default {
       if (time === null) {
         return ''
       }
+
       return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
     },
     /**
@@ -193,7 +194,7 @@ export default {
         day: shift.day,
         from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) : { hours: '07', minutes: '00'},
         to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : { hours: '15', minutes: '00'},
-        workTime: shift.workTime ?? '08:00',
+        workTime: shift.workTime ?? { hours: '08', minutes: '00'},
         status: null,
       })
     },
@@ -224,17 +225,11 @@ export default {
          */
         const workerId = this.form.id
         const dayIndex = new Date(this.form.day).getDate()
+
         /**
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
          */
-        console.log(
-          this.formatModalTimeToDate(new Date(this.form.day), this.form.from).toString(),
-          this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
-        )
-
-        return
-
         axios.post(`/building/${this.build}/time-sheet`,this.form)
 
         this.timeSheets[workerId][dayIndex] = {
@@ -243,7 +238,7 @@ export default {
           day: this.form.day,
           from: this.formatModalTimeToDate(new Date(this.form.day), this.form.from).toString(),
           to: this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
-          work: this.form.workTime,
+          work: this.form.workTime.hours + ':' + this.form.workTime.minutes,
           status: this.form.status,
         }
 
