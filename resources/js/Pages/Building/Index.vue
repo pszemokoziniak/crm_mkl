@@ -64,10 +64,10 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <Datepicker v-model="form.from" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <Datepicker v-model="form.to" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <text-input v-model="form.workTime" :disabled="isStatus" class="pb-8 pr-6 w-full lg:w-1/2" label="Efektywny czas pracy" />
-                            <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Status" @change="statusChanged($event)">
+                            <Datepicker v-model="form.from" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
                           </div>
@@ -133,13 +133,8 @@ export default {
       }),
     }
   },
-  /**
-   * Calculate worker hour in month
-   */
+  /** Calculate worker hour in month */
   mounted() {
-
-    console.log(this.timeSheets)
-
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -162,12 +157,13 @@ export default {
       return sum / 60
     },
     previousMonth() {
-      let month = new Date(this.date).getMonth() - 1
-      window.location = `/building/89/time-sheet?month=${(month < 0) ? 12 : month}`
+      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
     },
     nextMonth() {
-      let month = new Date(this.date).getMonth() + 2
-      window.location = `/building/89/time-sheet?month=${(month > 12) ? 1 : month}`
+      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() + 2 > 12) ? 1 : this.getMonthNumber() + 2}`
+    },
+    getMonthNumber() {
+      return new Date(this.date).getMonth()
     },
     /**
      * Formatting from date to hh:mm
@@ -178,7 +174,20 @@ export default {
       if (time === null) {
         return ''
       }
+
       return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
+    },
+    formatTimeObject(time) {
+
+      if (time === null) {
+        return ''
+      }
+
+      return {
+        hours: String((new Date(time)).getHours()).padStart(2, '0'),
+        minutes: String((new Date(time)).getMinutes()).padStart(2, '0')
+      }
+
     },
     /**
      *
@@ -195,20 +204,31 @@ export default {
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
-        from: this.formatTimeRange(shift.from) ?  this.formatTimeRange(shift.from) : { hours: '07', minutes: '00'},
-        to: this.formatTimeRange(shift.to) ? this.formatTimeRange(shift.to) : { hours: '15', minutes: '00'},
-        workTime: shift.workTime ?? '08:00',
+        from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : { hours: '07', minutes: '00'},
+        to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : { hours: '15', minutes: '00'},
+        workTime: shift.workTime ?? { hours: '08', minutes: '00'},
         status: null,
       })
     },
+    /**
+     *
+     * @param day
+     * @param time {hours: Number, minutes: Number}
+     * @returns {Date}
+     */
     formatModalTimeToDate(day, time) {
-      return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.split(':')[0], time.split(':')[1], 0)
+      return new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.hours, time.minutes, 0)
     },
+
     calculateEffectiveTime() {
-      // from cannot be the greatest then to time
-      this.form.workTime = moment.utc(moment.duration(
-        moment(this.form.to, 'HH:mm').diff(moment(this.form.from, 'HH:mm')),
+      const calculated = moment.utc(moment.duration(
+        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
       ).asMilliseconds()).format('HH:mm')
+
+      this.form.workTime = {
+        hours: calculated.split(':').at(0),
+        minutes: calculated.split(':').at(1),
+      }
     },
     saveHours() {
       try {
@@ -217,6 +237,7 @@ export default {
          */
         const workerId = this.form.id
         const dayIndex = new Date(this.form.day).getDate()
+
         /**
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
@@ -229,12 +250,13 @@ export default {
           day: this.form.day,
           from: this.formatModalTimeToDate(new Date(this.form.day), this.form.from).toString(),
           to: this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
-          work: this.form.workTime,
+          work: this.form.workTime.hours + ':' + this.form.workTime.minutes,
           status: this.form.status,
         }
 
       } catch (e) {
         console.error('Something happen while saving data.')
+        // @TODO display message with error
         throw e
       }
       this.form = this.$inertia.form = ({

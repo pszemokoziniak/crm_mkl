@@ -33,7 +33,7 @@ class BuildingWorkTime extends Migration
             // constraints
             $table->foreign('contact_id')->references('id')->on('contacts');
             $table->foreign('organization_id')->references('id')->on('organizations');
-            $table->foreign('shift_status_id')->references('id')->on('shiftStatusSeeder');
+            $table->foreign('shift_status_id')->references('id')->on('shift_status');
 
             $table->timestamps();
         });
