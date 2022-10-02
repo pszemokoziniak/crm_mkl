@@ -3,8 +3,8 @@
     <Head title="Kraje" />
     <h1 class="mb-8 text-3xl font-bold">Budowa Pracownicy</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" href="/pracownicy/create">
-        <span>Dodaj</span>
+      <Link class="btn-indigo" :href="`/pracownicy/${organization_id}/create`">
+        <span>Dodaj / Usuń</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
@@ -55,6 +55,7 @@ export default {
   layout: Layout,
   props: {
     contacts: Object,
+    organization_id: Number,
   },
   data() {
     return {

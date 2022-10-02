@@ -68,7 +68,6 @@ class ContactsController extends Controller
 
     public function store(StoreCustomersRequest $request)
     {
-
         Auth::user()->account->contacts()->create([
             'first_name' => Request::get('first_name'),
             'last_name' => Request::get('last_name'),
@@ -194,7 +193,6 @@ class ContactsController extends Controller
 
     public function storePracownik(Request $request, Organization $organization)
     {
-        dd($request::all());
         foreach ($request::all() as $item) {
             $data = Contact::find($item);
             $data->organization_id = $organization->id;

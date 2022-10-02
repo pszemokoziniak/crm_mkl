@@ -276,6 +276,22 @@ Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'ind
     ->name('pracownicy.index')
     ->middleware('auth');
 
+Route::get('pracownicy/{organization}/create', [BudowaPracownicyController::class, 'create'])
+    ->name('pracownicy.create')
+    ->middleware('auth');
+
+Route::post('pracownicy/{organization}', [BudowaPracownicyController::class, 'store'])
+    ->name('pracownicy.store')
+    ->middleware('auth');
+
+Route::get('pracownicy/{organization}/destroy/{contact}', [BudowaPracownicyController::class, 'destroy'])
+    ->name('pracownicy.destroy')
+    ->middleware('auth');
+
+Route::put('pracownicy/destroystore', [BudowaPracownicyController::class, 'destroyStore'])
+    ->name('pracownicy.destroystore')
+    ->middleware('auth');
+
 // Destroy pracownicy budowa
 
 Route::get('contacts/{contact}/budowa/destroy', [ContactsController::class, 'destroyPracownikBudowa'])

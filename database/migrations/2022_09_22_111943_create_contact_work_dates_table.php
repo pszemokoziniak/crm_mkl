@@ -17,8 +17,8 @@ class CreateContactWorkDatesTable extends Migration
             $table->id();
             $table->integer('contact_id');
             $table->integer('organization_id');
-            $table->date('start');
-            $table->date('end');
+            $table->date('start')->nullable();
+            $table->date('end')->nullable();
             $table->timestamps();
         });
     }

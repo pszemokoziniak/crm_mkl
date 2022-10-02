@@ -21,6 +21,11 @@ class Organization extends Model
         return $this->hasMany(Contact::class);
     }
 
+    public function contactworkdate()
+    {
+        return $this->hasMany(ContactWorkDate::class);
+    }
+
     public function krajTyp() {
         return $this->belongsTo(KrajTyp::class, 'country_id','id');
     }
