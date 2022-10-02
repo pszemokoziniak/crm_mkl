@@ -31,8 +31,8 @@
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
-        <div class="text-sm">{{ timeSheet[1].name }}</div>
-        <div class="text-sm text-center">{{ summarize(timeSheet) }}</div>
+        <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
+        <div class="text-sm text-center">Suma godzin: {{ summarize(timeSheet) }}</div>
       </div>
       <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
@@ -64,9 +64,9 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <Datepicker v-model="form.from" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <Datepicker v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <Datepicker v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker :disabled="isStatus" v-model="form.from" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker :disabled="isStatus" v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker :disabled="isStatus" v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
                             </select-input>
@@ -135,6 +135,9 @@ export default {
   },
   /** Calculate worker hour in month */
   mounted() {
+
+    console.log(this.timeSheets)
+
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -149,10 +152,12 @@ export default {
       return this.shiftStatuses.find((elem) => elem.id = statusId).code
     },
     summarize(timeShift) {
-      const sum = Object.values(timeShift).map((shift) => shift.work).reduce((agg, elem) => {
-        agg += elem  ? moment.duration(elem).asMinutes() : 0
-        return agg
-      }, 0)
+      const sum = Object.values(timeShift)
+        .filter((shift) => !shift.status)
+        .map((shift) => shift.work).reduce((agg, elem) => {
+          agg += elem ? moment.duration(elem).asMinutes() : 0
+          return agg
+        }, 0)
 
       return sum / 60
     },
