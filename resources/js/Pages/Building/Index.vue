@@ -135,6 +135,9 @@ export default {
   },
   /** Calculate worker hour in month */
   mounted() {
+
+    console.log(this.timeSheets)
+
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -149,10 +152,12 @@ export default {
       return this.shiftStatuses.find((elem) => elem.id = statusId).code
     },
     summarize(timeShift) {
-      const sum = Object.values(timeShift).map((shift) => shift.work).reduce((agg, elem) => {
-        agg += elem  ? moment.duration(elem).asMinutes() : 0
-        return agg
-      }, 0)
+      const sum = Object.values(timeShift)
+        .filter((shift) => !shift.status)
+        .map((shift) => shift.work).reduce((agg, elem) => {
+          agg += elem ? moment.duration(elem).asMinutes() : 0
+          return agg
+        }, 0)
 
       return sum / 60
     },
