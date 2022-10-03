@@ -22,11 +22,15 @@
           <p class="text-gray-700 text-base mt-3">
             Stanowisko: {{ contact.funkcja.name }}
           </p>
+          <hr>
+          <p class="text-gray-700 text-base mt-3">
+            Początek pracy na budowie: {{ dates.start }}
+          </p>
         </div>
-        <div v-show="dates" class="px-6 py-4 w-80">
-          Budowa: {{ dates.organization.name }}
-          Początek pracy na budowie: {{ dates.start }}
-        </div>
+<!--        <div v-show="dates" class="px-6 py-4 w-80">-->
+<!--          Budowa: {{ dates.organization.name }}-->
+<!--          Początek pracy na budowie: {{ dates.start }}-->
+<!--        </div>-->
       </div>
       <div class="m-5">
         <tr>

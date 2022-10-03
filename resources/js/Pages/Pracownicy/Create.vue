@@ -12,8 +12,8 @@
         <tr v-if="contactsFree.length === 0">
           <td class="px-6 py-4 border-t" colspan="4">Brak wolnych pracowników</td>
         </tr>
-        <tr>
-          <text-input v-model="form.start" :error="form.errors.start" type="date" class="pb-8 pr-6 w-full lg:w-1/1" label="Start" />
+        <tr v-if="contactsFree.length !== 0">
+          <text-input v-model="form.start" :error="form.errors.start" type="date" class="pb-8 pr-6 w-full lg:w-1/1" label="Początek pracy na budowie" />
         </tr>
         <label
           v-for="(item, index) in contactsFree"
@@ -43,18 +43,18 @@
     </tr>
     <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
       <td class="border-t">
-        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
+        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`">
           {{ contact.first_name }} {{ contact.last_name }}
           <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
         </Link>
       </td>
       <td class="border-t">
-        <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
+        <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
           {{ contact.funkcja.name }}
         </Link>
       </td>
       <td class="border-t">
-        <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
+        <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
           {{ contact.phone }}
         </Link>
       </td>
