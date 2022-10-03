@@ -8,6 +8,7 @@ use App\Http\Controllers\BadaniaTypController;
 use App\Http\Controllers\BhpController;
 use App\Http\Controllers\BhpTypController;
 use App\Http\Controllers\BudowaPracownicyController;
+use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
@@ -742,4 +743,13 @@ Route::delete('contacts/{contact_id}/documents/{document_id}/uprawnienia', [CtnD
 
 Route::delete('contacts/{contact_id}/documents/{document_id}/a1', [CtnDocumentsController::class, 'deleteA1'])
     ->name('documentsA1.delete')
+    ->middleware('auth');
+
+/** Building time sheets */
+Route::get('building/{build}/time-sheet', [BuildingTimeSheet::class, 'view'])
+    ->name('workTimeSheet.view')
+    ->middleware('auth');
+
+Route::post('building/{build}/time-sheet', [BuildingTimeSheet::class, 'store'])
+    ->name('workTimeSheet.store')
     ->middleware('auth');

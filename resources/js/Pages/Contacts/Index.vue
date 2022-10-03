@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div>
     <Head title="Contacts" />
     <h1 class="mb-8 text-3xl font-bold">Pracownicy</h1>
