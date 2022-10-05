@@ -212,7 +212,7 @@ export default {
         from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : { hours: '07', minutes: '00'},
         to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : { hours: '15', minutes: '00'},
         workTime: shift.workTime ?? { hours: '08', minutes: '00'},
-        status: null,
+        status: shift.status ?? null,
       })
     },
     /**
