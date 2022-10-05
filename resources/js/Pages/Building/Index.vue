@@ -146,7 +146,7 @@ export default {
       this.isStatus = Number(event.target.value) !== 0
     },
     getStatusName(statusId) {
-      return this.shiftStatuses.find((elem) => elem.id = statusId).code
+      return this.shiftStatuses.find((elem) => elem.id === statusId).code
     },
     summarize(timeShift) {
       const sum = Object.values(timeShift)
@@ -204,7 +204,6 @@ export default {
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
     showModal(shift) {
-
       this.open = true
       this.form = this.$inertia.form = ({
         build: shift.build,
