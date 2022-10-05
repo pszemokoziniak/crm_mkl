@@ -143,7 +143,10 @@ export default {
   },
   methods: {
     statusChanged(event) {
-      this.isStatus = Number(event.target.value) !== 0
+      this.isStatus = this.isSetStatus(event.target.value)
+    },
+    isSetStatus(status) {
+      return Number(status) !== 0
     },
     getStatusName(statusId) {
       return this.shiftStatuses.find((elem) => elem.id === statusId).code
@@ -214,6 +217,7 @@ export default {
         workTime: shift.workTime ?? { hours: '08', minutes: '00'},
         status: shift.status ?? null,
       })
+      this.isStatus = this.isSetStatus(shift.status)
     },
     /**
      *
