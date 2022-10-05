@@ -29,7 +29,7 @@
       <span class="text-lg font-bold text-gray-800">{{ month.toUpperCase() }}</span>
       <span class="ml-1 text-lg text-gray-600 font-normal">{{ date.getFullYear() }}</span>
     </div>
-    <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l">
+    <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l" :class="(Object.keys(timeSheets).length === 1) ? 'border-b' : '' ">
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
         <div class="text-sm text-center">Suma godzin: {{ summarize(timeSheet) }}</div>
@@ -68,7 +68,7 @@
                             <Datepicker :disabled="isStatus" v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <Datepicker :disabled="isStatus" v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
-                              <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}( {{ status.code }})</option>
+                              <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
                             </select-input>
                           </div>
                         </form>
@@ -135,9 +135,6 @@ export default {
   },
   /** Calculate worker hour in month */
   mounted() {
-
-    console.log(this.timeSheets)
-
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -146,20 +143,27 @@ export default {
   },
   methods: {
     statusChanged(event) {
-      this.isStatus = Number(event.target.value) !== 0
+      this.isStatus = this.isSetStatus(event.target.value)
+    },
+    isSetStatus(status) {
+      return Number(status) !== 0
     },
     getStatusName(statusId) {
-      return this.shiftStatuses.find((elem) => elem.id = statusId).code
+      return this.shiftStatuses.find((elem) => elem.id === statusId).code
     },
     summarize(timeShift) {
       const sum = Object.values(timeShift)
         .filter((shift) => !shift.status)
+        .filter((shift) => shift.work !== null)
         .map((shift) => shift.work).reduce((agg, elem) => {
           agg += elem ? moment.duration(elem).asMinutes() : 0
           return agg
         }, 0)
 
-      return sum / 60
+      const hours = Math.floor(sum / 60)
+      const minutes = sum - (60 * hours)
+
+      return hours + ':' + minutes
     },
     previousMonth() {
       window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
@@ -203,7 +207,6 @@ export default {
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
     showModal(shift) {
-
       this.open = true
       this.form = this.$inertia.form = ({
         build: shift.build,
@@ -212,8 +215,9 @@ export default {
         from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : { hours: '07', minutes: '00'},
         to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : { hours: '15', minutes: '00'},
         workTime: shift.workTime ?? { hours: '08', minutes: '00'},
-        status: null,
+        status: shift.status ?? null,
       })
+      this.isStatus = this.isSetStatus(shift.status)
     },
     /**
      *
