@@ -154,12 +154,17 @@ export default {
     summarize(timeShift) {
       const sum = Object.values(timeShift)
         .filter((shift) => !shift.status)
+        .filter((shift) => shift.work !== null)
         .map((shift) => shift.work).reduce((agg, elem) => {
+          console.log(elem)
           agg += elem ? moment.duration(elem).asMinutes() : 0
           return agg
         }, 0)
 
-      return sum / 60
+      const hours = Math.floor(sum / 60)
+      const minutes = sum - (60 * hours)
+
+      return hours + ':' + minutes
     },
     previousMonth() {
       window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
