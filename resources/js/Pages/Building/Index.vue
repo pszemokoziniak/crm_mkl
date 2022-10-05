@@ -135,9 +135,6 @@ export default {
   },
   /** Calculate worker hour in month */
   mounted() {
-
-    console.log(this.timeSheets)
-
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -156,7 +153,6 @@ export default {
         .filter((shift) => !shift.status)
         .filter((shift) => shift.work !== null)
         .map((shift) => shift.work).reduce((agg, elem) => {
-          console.log(elem)
           agg += elem ? moment.duration(elem).asMinutes() : 0
           return agg
         }, 0)
