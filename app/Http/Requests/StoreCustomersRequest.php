@@ -28,7 +28,7 @@ class StoreCustomersRequest extends FormRequest
             'first_name' => ['required', 'max:150'],
             'last_name' => ['required', 'max:150'],
             'birth_date' => ['required'],
-            'pesel' => ['required', 'numeric'],
+            'pesel' => 'required | numeric | unique:contacts',
             'idCard_number' => ['nullable'],
             'idCard_date' => ['nullable'],
             'funkcja_id' => ['required'],

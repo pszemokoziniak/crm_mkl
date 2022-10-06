@@ -9,7 +9,6 @@
       </h1>
       <img v-if="user.photo" class="block ml-4 w-8 h-8 rounded-full" :src="user.photo" />
     </div>
-    <trashed-message v-if="user.deleted_at" class="mb-6" @restore="restore"> This user has been deleted. </trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -22,8 +21,7 @@
             <option value="2">Biuro</option>
             <option value="3">Zarząd</option>
           </select-input>
-          {{contacts}}
-          <select-input v-model="form.contact_id" :error="form.errors.contact_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Pracownik">
+          <select-input v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Pracownik">
             <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.first_name}} {{item.last_name}}</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
@@ -44,7 +42,6 @@ import TextInput from '@/Shared/TextInput'
 import FileInput from '@/Shared/FileInput'
 import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
-import TrashedMessage from '@/Shared/TrashedMessage'
 
 export default {
   components: {
@@ -54,12 +51,11 @@ export default {
     LoadingButton,
     SelectInput,
     TextInput,
-    TrashedMessage,
   },
   layout: Layout,
   props: {
     user: Object,
-    contacts: Object,
+    contacts: Array,
   },
   remember: 'form',
   data() {
@@ -73,7 +69,7 @@ export default {
         owner: this.user.owner,
         photo: null,
         user_id: this.user.user_id,
-        contact_id: this.user.contact_id,
+        // contact_id: this.user.contact_id,
       }),
     }
   },

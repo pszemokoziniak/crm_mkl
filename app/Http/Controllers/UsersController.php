@@ -78,6 +78,20 @@ class UsersController extends Controller
 
     public function edit(User $user)
     {
+
+//        $contacts = Contact::where('funkcja_id', 1)->with('user')->get();
+//
+//        $freeKierownik = array();
+//
+//        foreach ($contacts as $item) {
+//            if($item->user == null) {
+//                $newFreeWorkers = array('id'=>$item->id, 'first_name'=>$item->first_name, 'last_name'=>$item->last_name);
+//                array_push($freeKierownik, $newFreeWorkers);
+//            }
+//        }
+
+//        $freeKierownik = (json_encode($freeKierownik));
+//        dd($freeKierownik);
         return Inertia::render('Users/Edit', [
             'user' => [
                 'id' => $user->id,
@@ -89,14 +103,10 @@ class UsersController extends Controller
                 'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
                 'deleted_at' => $user->deleted_at,
             ],
-            'contacts' => Contact::whereHas('user')->get(),
-
-
-
-
-//        Contact::with('user')->where('user', 1)->get(),
-//                ->map
-//                ->only('id', 'first_name', 'last_name'),
+            'contacts' => Contact::query()
+                ->where('funkcja_id', 1)
+                ->where('user_id', null)
+                ->get()->map->only('id', 'first_name', 'last_name'),
 
         ]);
     }
