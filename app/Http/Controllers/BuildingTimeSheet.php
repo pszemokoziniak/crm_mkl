@@ -21,18 +21,18 @@ class BuildingTimeSheet extends Controller
     {
         $date = Carbon::now();
 
-        $workersOnBuild = $this->getAllWorkersOnBuild($build);
+        $month = CarbonPeriod::create(
+            $date->clone()->toImmutable()->firstOfMonth(),
+            $date->clone()->toImmutable()->lastOfMonth()
+        ); // period
+
+        $workersOnBuild = $this->getAllWorkersOnBuild($build, $month);
         $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
         $monthId = $request->query->get('month');
 
         if ($monthId && in_array($monthId, range(1, 12))) {
             $date->setMonth((int) $monthId);
         }
-
-        $month = CarbonPeriod::create(
-            $date->clone()->toImmutable()->firstOfMonth(),
-            $date->clone()->toImmutable()->lastOfMonth()
-        ); // period
 
         // steps to prepare data
         $buildWorkersSavedShifts = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
@@ -128,16 +128,13 @@ class BuildingTimeSheet extends Controller
         return new JsonResponse(['status' => 'ok']);
     }
 
-    /**
-     * Return all workers assigned to build (not shifts)
-     *
-     * @param int $build
-     * @return Collection
-     */
-    public function getAllWorkersOnBuild(int $build): Collection
+    public function getAllWorkersOnBuild(int $build, CarbonPeriod $date): Collection
     {
-        return DB::table('contacts')
-            ->where('organization_id', $build)
+        return DB::table('contacts', 'c')
+            ->join('contact_work_dates', 'c.id', '=', 'contact_work_dates.contact_id')
+            ->where('contact_work_dates.organization_id', $build)
+            ->whereDate(column: 'start', operator: '>=', value: $date->first()->format('Y-m-d'))
+            ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
             ->get();
     }
 
