@@ -21,18 +21,19 @@ class BuildingTimeSheet extends Controller
     {
         $date = Carbon::now();
 
-        $month = CarbonPeriod::create(
-            $date->clone()->toImmutable()->firstOfMonth(),
-            $date->clone()->toImmutable()->lastOfMonth()
-        ); // period
-
-        $workersOnBuild = $this->getAllWorkersOnBuild($build, $month);
-        $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
         $monthId = $request->query->get('month');
 
         if ($monthId && in_array($monthId, range(1, 12))) {
             $date->setMonth((int) $monthId);
         }
+
+        $month = CarbonPeriod::create(
+            $date->clone()->toImmutable()->firstOfMonth(),
+            $date->clone()->toImmutable()->lastOfMonth()
+        );
+
+        $workersOnBuild = $this->getAllWorkersOnBuild($build, $month);
+        $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
 
         // steps to prepare data
         $buildWorkersSavedShifts = array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
@@ -43,7 +44,9 @@ class BuildingTimeSheet extends Controller
         $workersOnBuildData = array_reduce($workersOnBuild->toArray(), static function ($carry, $worker) {
             $carry[$worker->id] = [
                 'first_name' => $worker->first_name,
-                'last_name' => $worker->last_name
+                'last_name' => $worker->last_name,
+                'start' => $worker->start,
+                'end' => $worker->end,
             ];
             return $carry;
         }, []);
@@ -53,6 +56,13 @@ class BuildingTimeSheet extends Controller
         // build data for calendar
         foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
             foreach ($month as $day) {
+
+                // status out of worker time on building ?
+                $isBlocked = !$day->between(
+                    Carbon::createFromFormat('Y-m-d', $buildWorkersSavedShifts[$workerId]['start']),
+                    Carbon::createFromFormat('Y-m-d', $buildWorkersSavedShifts[$workerId]['end'])
+                );
+
                 if (
                     array_key_exists($day->day, $buildWorkersShifts)
                     && Carbon::create($buildWorkersShifts[$day->day]->work_day)->isSameDay($day)
@@ -66,6 +76,7 @@ class BuildingTimeSheet extends Controller
                         workTo: $buildWorkersShifts[$day->day]->work_to ?? null,
                         work: $buildWorkersShifts[$day->day]->effective_work_time ?? null,
                         status: $buildWorkersShifts[$day->day]->shift_status_id ?? null,
+                        isBlocked: $isBlocked
                     );
                     continue;
                 }
@@ -74,6 +85,7 @@ class BuildingTimeSheet extends Controller
                     build: $build,
                     name: $workersOnBuildData[$workerId]['first_name']  . ' '  . $workersOnBuildData[$workerId]['last_name'],
                     day: $day,
+                    isBlocked: $isBlocked
                 );
             }
         }
@@ -138,12 +150,9 @@ class BuildingTimeSheet extends Controller
             ->get();
     }
 
-    /**
-     * @param int $build
-     * @return Collection
-     */
     public function getWorkersOnBuildShifts(int $build): Collection
     {
+        // @TODO where is month ? - limit query
         return DB::table('building_time_sheets', 'b')
             ->where('b.organization_id', $build)
             ->join('contacts', 'contacts.id', '=', 'b.contact_id')

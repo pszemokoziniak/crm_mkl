@@ -34,7 +34,7 @@
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
         <div class="text-sm text-center">Suma godzin: {{ summarize(timeSheet) }}</div>
       </div>
-      <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
+      <div v-for="shift in timeSheet" :class="shiftBackground(shift)" class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
         <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
         <div v-if="shift.status" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
           {{ getStatusName(shift.status) }}
@@ -130,11 +130,15 @@ export default {
         to: null,
         workTime: null,
         status: null,
+        isBlocked: null,
       }),
     }
   },
   /** Calculate worker hour in month */
   mounted() {
+
+    console.log(this.timeSheets)
+
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -183,30 +187,41 @@ export default {
       if (time === null) {
         return ''
       }
-
       return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
     },
     formatTimeObject(time) {
-
       if (time === null) {
         return ''
       }
-
       return {
         hours: String((new Date(time)).getHours()).padStart(2, '0'),
         minutes: String((new Date(time)).getMinutes()).padStart(2, '0')
       }
-
     },
     /**
-     *
      * @param time string HH:mm
      */
     criticalTime(time) {
       const criticalShiftWork = 570
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
+    shiftBackground(shift) {
+      if (shift.isBlocked) {
+        return 'bg-gray-300'
+      }
+
+      if (this.criticalTime(shift.work)) {
+        return 'bg-red-300'
+      }
+
+      return ''
+    },
     showModal(shift) {
+
+      if (shift.isBlocked) {
+        return
+      }
+
       this.open = true
       this.form = this.$inertia.form = ({
         build: shift.build,
