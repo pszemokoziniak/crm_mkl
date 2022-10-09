@@ -21,7 +21,7 @@
             <option value="2">Biuro</option>
             <option value="3">Zarząd</option>
           </select-input>
-          <select-input v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Pracownik">
+          <select-input v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
             <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.first_name}} {{item.last_name}}</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
@@ -60,6 +60,8 @@ export default {
   remember: 'form',
   data() {
     return {
+      // user_id: this.user_id,
+
       form: this.$inertia.form({
         _method: 'put',
         first_name: this.user.first_name,
@@ -68,7 +70,7 @@ export default {
         password: '',
         owner: this.user.owner,
         photo: null,
-        user_id: this.user.user_id,
+        user_id: this.user_id,
         // contact_id: this.user.contact_id,
       }),
     }

@@ -20,7 +20,7 @@
           :key="index"
           class="m-3"
         >
-          {{ item.first_name }} {{ item.last_name }}
+          {{ item.last_name }} {{ item.first_name }}
           <input
             type="checkbox"
             :value="item.id"
