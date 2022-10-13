@@ -58,7 +58,7 @@ class BudowaPracownicyController extends Controller
 
     public function create(Organization $organization) {
         return Inertia::render('Pracownicy/Create', [
-            'contactsFree' => Contact::where('organization_id', null)->where('funkcja_id', '!=', 1)->get()->map->only('id','first_name','last_name'),
+            'contactsFree' => Contact::where('organization_id', null)->get()->map->only('id','first_name','last_name'),
             'contacts' => Contact::with('funkcja')
                 ->where('organization_id', $organization->id)
                 ->orderByName()

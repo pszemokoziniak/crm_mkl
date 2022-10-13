@@ -27,7 +27,7 @@ class OrganizationsController extends Controller
                 ->withQueryString()
                 ->through(fn ($organization) => [
                     'id' => $organization->id,
-                    'name' => $organization->name,
+                    'nazwaBud' => $organization->nazwaBud,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
                     'kierownikBud_id' => $organization->contactTypName ? $organization->contactTypName : null,
                     'deleted_at' => $organization->deleted_at,

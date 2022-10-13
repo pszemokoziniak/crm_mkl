@@ -116,7 +116,7 @@ class UsersController extends Controller
         if (App::environment('demo') && $user->isDemoUser()) {
             return Redirect::back()->with('error', 'Updating the Super Admin user is not allowed.');
         }
-//        dd($request);
+
         Request::validate([
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
@@ -127,7 +127,7 @@ class UsersController extends Controller
                 'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
             ],
 //            'owner' => ['nullable'],
-//            'contact_id' => ['nullable'],
+//            'user_id' => 'nullable | unique:contacts',
             'photo' => ['nullable', 'image'],
         ],
         [
@@ -139,7 +139,7 @@ class UsersController extends Controller
         ]
         );
 
-        $user->update(Request::only('first_name', 'last_name', 'email', 'owner', 'contact_id' ));
+        $user->update(Request::only('first_name', 'last_name', 'email', 'owner' ));
 
         if (Request::file('photo')) {
             $user->update(['photo_path' => Request::file('photo')->store('users')]);
@@ -147,6 +147,17 @@ class UsersController extends Controller
 
         if (Request::get('password')) {
             $user->update(['password' => Request::get('password')]);
+        }
+
+        if (Request::get('user_id')) {
+
+            $data = Contact::where('user_id', $user->id)->first();
+            if ($data !== null) {
+                $data->update(['user_id' => null]);
+            }
+            $data = Contact::find(Request::get('user_id'));
+            $data->user_id = $user->id;
+            $data->save();
         }
 
         return Redirect::back()->with('success', 'Użytkownik poprawiony.');
