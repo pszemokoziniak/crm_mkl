@@ -3,3 +3,6 @@ dev:
 
 stop:
 	docker-compose stop
+
+deploy:
+	bash ./build.sh
