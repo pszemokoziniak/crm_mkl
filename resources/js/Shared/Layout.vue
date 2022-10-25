@@ -23,6 +23,7 @@
             <div v-if="auth.user.owner === 1" class="mr-4 mt-1">Stanowisko: Kierownik Budowy</div>
             <div v-if="auth.user.owner === 2" class="mr-4 mt-1">Stanowisko: Biuro</div>
             <div v-if="auth.user.owner === 3" class="mr-4 mt-1">Stanowisko: Zarząd</div>
+<!--            <div>    {{auth.permissions.kierownik}}</div>-->
             <dropdown class="mt-1" placement="bottom-end">
               <template #default>
                 <div class="group flex items-center cursor-pointer select-none">
@@ -36,7 +37,7 @@
               <template #dropdown>
                 <div class="mt-2 py-2 text-sm bg-white rounded shadow-xl">
                   <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" :href="`/users/${auth.user.id}/edit`">Profil</Link>
-                  <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Zarządzaj</Link>
+                  <Link v-if="$page.props.permissions.kierownik" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Zarządzaj</Link>
                   <Link class="block px-6 py-2 w-full text-left hover:text-white hover:bg-indigo-500" href="/logout" method="delete" as="button">Wyloguj</Link>
                 </div>
               </template>

@@ -18,6 +18,8 @@ class OrganizationsController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny, Organization::class');
+
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Organization::with('krajTyp')
@@ -37,6 +39,8 @@ class OrganizationsController extends Controller
 
     public function create()
     {
+        $this->authorize('viewAny, Organization::class');
+
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
