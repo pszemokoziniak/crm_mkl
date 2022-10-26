@@ -18,7 +18,9 @@ class OrganizationsController extends Controller
 {
     public function index()
     {
-        $this->authorize('viewAny, Organization::class');
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
 
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
@@ -39,8 +41,9 @@ class OrganizationsController extends Controller
 
     public function create()
     {
-        $this->authorize('viewAny, Organization::class');
-
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
@@ -81,6 +84,10 @@ class OrganizationsController extends Controller
 
     public function edit(Organization $organization)
     {
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
+
         return Inertia::render('Organizations/Edit', [
             'organization' => [
                 'id' => $organization->id,

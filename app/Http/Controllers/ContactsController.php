@@ -25,6 +25,10 @@ class ContactsController extends Controller
 {
     public function index()
     {
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
+
         return Inertia::render('Contacts/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contacts' => Contact::with('funkcja')
@@ -50,6 +54,9 @@ class ContactsController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
 
         return Inertia::render('Contacts/Create', [
             'organizations' => Auth::user()->account
@@ -96,9 +103,10 @@ class ContactsController extends Controller
 
     public function edit(Contact $contact)
     {
-//        dd(BHP::where('contact_id', $contact->id)
-//                 ->orderBy('end', 'desc')
-//                 ->first());
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
+
         return Inertia::render('Contacts/Edit', [
             'contact' => [
                 'id' => $contact->id,
