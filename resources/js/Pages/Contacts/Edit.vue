@@ -34,9 +34,9 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
-    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">
-      <span>Edytuj</span>
-    </div>
+<!--    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">-->
+<!--      <span>Edytuj</span>-->
+<!--    </div>-->
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
       <fieldset :disabled="disabled == 0">
@@ -45,14 +45,14 @@
             <text-input v-model="form.first_name" :error="form.errors.first_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />
             <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
 
-            <text-input type="date" v-model="form.birth_date" :error="form.errors.birth_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data Urodzenia" />
+            <text-input v-model="form.birth_date" :error="form.errors.birth_date" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data Urodzenia" />
             <text-input v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
 
             <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce zamieszkania" />
             <text-input v-model="form.miejsce_urodzenia" :error="form.errors.miejsce_urodzenia" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce urodzenia" />
 
             <text-input v-model="form.idCard_number" :error="form.errors.idCard_number" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Dowodu" />
-            <text-input type="date" v-model="form.idCard_date" :error="form.errors.idCard_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
+            <text-input v-model="form.idCard_date" :error="form.errors.idCard_date" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data ważności dowodu" />
 
             <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" type="email" label="Email" />
             <text-input v-model="form.phone" :error="form.errors.phone" class="pb-8 pr-6 w-full lg:w-1/2" type="tel" label="Telefon" />
@@ -60,6 +60,8 @@
             <select-input v-model="form.funkcja_id" :error="form.errors.funkcja_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Stanowisko">
               <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
             </select-input>
+
+            <file-input v-model="form.photo_path" :error="form.errors.photo_path" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
 
             <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
             <text-input v-model="form.work_start" :error="form.errors.work_start" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
@@ -70,7 +72,7 @@
           </div>
           <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
             <button v-if="!contact.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
-            <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
+            <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zapisz</loading-button>
           </div>
         </form>
       </fieldset>
@@ -86,6 +88,8 @@ import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import WorkerMenu from '@/Shared/WorkerMenu'
+import FileInput from '@/Shared/FileInput'
+
 
 export default {
   components: {
@@ -96,6 +100,7 @@ export default {
     TextInput,
     TrashedMessage,
     WorkerMenu,
+    FileInput,
   },
   layout: Layout,
   props: {
@@ -120,6 +125,7 @@ export default {
       contactId: this.contact.id,
       disabled: 1,
       form: this.$inertia.form({
+        _method: 'put',
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,
         organization_id: this.contact.organization_id,
@@ -136,13 +142,13 @@ export default {
         work_start: this.contact.work_start,
         work_end: this.contact.work_end,
         ekuz: this.contact.ekuz,
-        photo_path: this.contact.photo_path,
+        photo_path: null,
       }),
     }
   },
   methods: {
     update() {
-      this.form.put(`/contacts/${this.contact.id}`, {
+      this.form.post(`/contacts/${this.contact.id}`, {
         onSuccess: () => this.form.reset('photo_path'),
       })
     },
