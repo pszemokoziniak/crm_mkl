@@ -37,7 +37,7 @@ class StoreCustomersRequest extends FormRequest
             'ekuz' => ['nullable'],
             'miejsce_urodzenia' => ['nullable'],
             'organization_id' => ['nullable'],
-            'email' => 'required | max:150| email | unique:contacts',
+            'email' => 'nullable | max:150| email | unique:contacts',
             'phone' => ['required', 'max:50', 'string'],
             'address' => ['nullable'],
         ];

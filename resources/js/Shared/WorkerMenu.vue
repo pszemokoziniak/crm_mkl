@@ -21,6 +21,9 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/bhp/`">
             <div :class="isUrl('bhp') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Szkolenia BHP</div>
           </Link>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/bhp/`">
+            <div :class="isUrl('bhp') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Szkolenia BHP</div>
+          </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/uprawnienia/`">
             <div :class="isUrl('uprawnienia') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Uprawnienia</div>
           </Link>

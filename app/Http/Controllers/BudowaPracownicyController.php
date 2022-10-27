@@ -23,7 +23,7 @@ class BudowaPracownicyController extends Controller
                 ->where('organization_id',$organization->id)
                 ->orderByName()
 //                ->filter(Request::only('search', 'trashed'))
-                ->paginate(10)
+                ->paginate(100)
                 ->withQueryString()
                 ->through(fn ($contact) => [
                     'id' => $contact->id,
@@ -58,7 +58,7 @@ class BudowaPracownicyController extends Controller
 
     public function create(Organization $organization) {
         return Inertia::render('Pracownicy/Create', [
-            'contactsFree' => Contact::where('organization_id', null)->get()->map->only('id','first_name','last_name'),
+            'contactsFree' => Contact::where('organization_id', null)->orderByName()->get()->map->only('id','first_name','last_name'),
             'contacts' => Contact::with('funkcja')
                 ->where('organization_id', $organization->id)
                 ->orderByName()

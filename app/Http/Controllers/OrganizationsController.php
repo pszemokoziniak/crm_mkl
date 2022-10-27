@@ -27,7 +27,7 @@ class OrganizationsController extends Controller
             'organizations' => Organization::with('krajTyp')
                 ->orderBy('name')
                 ->filter(Request::only('search', 'trashed'))
-                ->paginate(10)
+                ->paginate(100)
                 ->withQueryString()
                 ->through(fn ($organization) => [
                     'id' => $organization->id,

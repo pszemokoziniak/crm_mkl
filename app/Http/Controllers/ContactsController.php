@@ -35,7 +35,7 @@ class ContactsController extends Controller
                 ->with('organization')
                 ->orderByName()
                 ->filter(Request::only('search', 'trashed'))
-                ->paginate(10)
+                ->paginate(100)
                 ->withQueryString()
                 ->through(fn ($contact) => [
                     'id' => $contact->id,
