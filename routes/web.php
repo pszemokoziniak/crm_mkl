@@ -20,6 +20,7 @@ use App\Http\Controllers\KlientController;
 use App\Http\Controllers\KrajTypController;
 use App\Http\Controllers\NarzedziaController;
 use App\Http\Controllers\OrganizationsController;
+use App\Http\Controllers\PbiozController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UprawnieniaController;
 use App\Http\Controllers\UprawnieniaTypController;
@@ -357,6 +358,36 @@ Route::delete('bhp/{bhp}', [BhpController::class, 'destroy'])
 
 Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
     ->name('bhp.restore')
+    ->middleware('auth');
+
+// Pbioz
+
+Route::get('contacts/{contact}/pbioz', [PbiozController::class, 'index'])
+    ->name('pbioz.index')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/pbioz/create', [PbiozController::class, 'create'])
+    ->name('pbioz.create')
+    ->middleware('auth');
+
+Route::post('pbioz/{contact_id}', [PbiozController::class, 'store'])
+    ->name('pbioz.store')
+    ->middleware('auth');
+
+Route::get('contacts/{contact}/pbioz/{pbioz}/edit', [PbiozController::class, 'edit'])
+    ->name('pbioz.edit')
+    ->middleware('auth');
+
+Route::put('contacts/{contact}/pbioz/{pbioz}', [PbiozController::class, 'update'])
+    ->name('pbioz.update')
+    ->middleware('auth');
+
+Route::delete('pbioz/{pbioz}', [PbiozController::class, 'destroy'])
+    ->name('pbioz.destroy')
+    ->middleware('auth');
+
+Route::put('pbioz/{pbioz}/restore', [PbiozController::class, 'restore'])
+    ->name('pbioz.restore')
     ->middleware('auth');
 
 // A1
