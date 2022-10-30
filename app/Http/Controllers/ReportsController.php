@@ -10,4 +10,10 @@ class ReportsController extends Controller
     {
         return Inertia::render('Reports/Index');
     }
+
+    public function koniecUprawinien()
+    {
+        return Inertia::render('Reports/Index');
+    }
+
 }

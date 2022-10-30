@@ -727,6 +727,10 @@ Route::get('reports', [ReportsController::class, 'index'])
     ->name('reports')
     ->middleware('auth');
 
+Route::get('reports/koniecUprawinien', [ReportsController::class, 'koniecUprawinien'])
+    ->name('reports.koniecUprawinien')
+    ->middleware('auth');
+
 // Tools
 
 Route::get('tools', [ToolsController::class, 'index'])
