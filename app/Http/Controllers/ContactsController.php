@@ -13,6 +13,9 @@ use App\Models\Funkcja;
 
 use App\Models\Jezyk;
 use App\Models\Organization;
+use App\Models\Pbioz;
+use App\Models\Uprawnienia;
+use Carbon\Carbon;
 use http\Client\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -153,9 +156,11 @@ class ContactsController extends Controller
 //             'bhp' => BHP::where('contact_id', $contact->id)
 //                 ->orderBy('end', 'desc')
 //                 ->first(),
-            'bhp' => Bhp::select('end')->where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
-            'lekarskie' => Badania::select('end')->where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
-            'a1' => A1::select('end')->where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
+            'bhp' => Bhp::select('end')->where('contact_id', $contact->id)->where('end', '>', Carbon::now()->subDays())->where('end', '<', Carbon::now()->subDays(-30))->orderBy('end', 'desc')->get(),
+            'lekarskie' => Badania::select('end')->where('contact_id', $contact->id)->where('end', '>', Carbon::now()->subDays())->where('end', '<', Carbon::now()->subDays(-30))->orderBy('end', 'desc')->get(),
+            'a1' => A1::select('end')->where('contact_id', $contact->id)->where('end', '>', Carbon::now()->subDays())->where('end', '<', Carbon::now()->subDays(-30))->orderBy('end', 'desc')->get(),
+            'uprawnienia' => Uprawnienia::select('end')->where('contact_id', $contact->id)->where('end', '>', Carbon::now()->subDays())->where('end', '<', Carbon::now()->subDays(-30))->orderBy('end', 'desc')->get(),
+            'pbioz' => Pbioz::select('end')->where('contact_id', $contact->id)->where('end', '>', Carbon::now()->subDays())->where('end', '<', Carbon::now()->subDays(-30))->orderBy('end', 'desc')->get(),
 
         ]);
     }

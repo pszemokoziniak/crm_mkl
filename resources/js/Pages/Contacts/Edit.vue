@@ -21,9 +21,45 @@
         <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
           <span>Terminy:</span>
         </h2>
-        <h3 class="m-3">BHP: <span v-if="bhp"> {{bhp.end}} </span></h3>
-        <h3 class="m-3">Badania lekarskie: <span v-if="lekarskie"> {{lekarskie.end}} </span> </h3>
-        <h3 class="m-3">A1: <span v-if="a1"> {{a1.end}} </span> </h3>
+        <h3 class="m-3">BHP:
+          <span v-for="item in bhp" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <span v-if="item.end" class="m-1">
+              {{ item.end }}
+            </span>
+          </span>
+        </h3>
+        <h3 class="m-3">Badania lekarskie:
+          <span v-for="item in lekarskie" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <span v-if="item.end" class="m-1">
+              {{ item.end }}
+            </span>
+          </span>
+        </h3>
+        <h3 class="m-3">A1:
+          <span v-for="item in a1" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <span v-if="item.end" class="m-1">
+              {{ item.end }}
+            </span>
+          </span>
+        </h3>
+        <h3 class="m-3">Uprawnienia:
+          <span v-for="item in uprawnienia" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <span v-if="item.end" class="m-1">
+              {{ item.end }}
+            </span>
+          </span>
+        </h3>
+        <h3 class="m-3">PBIOZ:
+          <span v-for="item in pbioz" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <span v-if="item.end" class="m-1">
+              {{ item.end }}
+            </span>
+          </span>
+        </h3>
+<!--        <h3 class="m-3">Badania lekarskie: <span v-if="lekarskie"> {{lekarskie.end}} </span> </h3>-->
+<!--        <h3 class="m-3">A1: <span v-if="a1"> {{a1.end}} </span> </h3>-->
+<!--        <h3 class="m-3">Uprawnienia: <span v-if="uprawnienia"> {{uprawnienia.end}} </span> </h3>-->
+<!--        <h3 class="m-3">PBIOZ: <span v-if="pbioz"> {{pbioz.end}} </span> </h3>-->
       </div>
     </div>
     <div>
@@ -118,6 +154,8 @@ export default {
     //   type: [Object, String, Array],
     // },
     a1: Object,
+    pbioz: Object,
+    uprawnienia: Object,
   },
   remember: 'form',
   data() {

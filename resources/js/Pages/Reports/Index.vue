@@ -4,6 +4,7 @@
     <h1 class="mb-8 text-3xl font-bold">Raporty</h1>
   </div>
   <RaportMenu/>
+  {{bhp}}
 </template>
 
 <script>
@@ -18,7 +19,7 @@ export default {
   },
   layout: Layout,
   props: {
-
+    bhp: Object
   },
   data() {
     return {
