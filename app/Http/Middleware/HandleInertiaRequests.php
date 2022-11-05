@@ -58,6 +58,7 @@ class HandleInertiaRequests extends Middleware
                     'error' => $request->session()->get('error'),
                 ];
             },
+            'permissions' => auth()->user()->permissions ?? []
         ]);
     }
 }

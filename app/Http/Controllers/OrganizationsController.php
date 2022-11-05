@@ -18,12 +18,16 @@ class OrganizationsController extends Controller
 {
     public function index()
     {
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
+
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Organization::with('krajTyp')
                 ->orderBy('name')
                 ->filter(Request::only('search', 'trashed'))
-                ->paginate(10)
+                ->paginate(100)
                 ->withQueryString()
                 ->through(fn ($organization) => [
                     'id' => $organization->id,
@@ -37,6 +41,9 @@ class OrganizationsController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
@@ -77,6 +84,10 @@ class OrganizationsController extends Controller
 
     public function edit(Organization $organization)
     {
+        if (!auth()->user()->permissions['kierownik']) {
+            abort(403);
+        }
+
         return Inertia::render('Organizations/Edit', [
             'organization' => [
                 'id' => $organization->id,

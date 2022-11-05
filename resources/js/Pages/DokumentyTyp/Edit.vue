@@ -13,7 +13,7 @@
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa" />
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <button v-if="form.id !== 1 && form.id !== 2 && form.id !== 3 && form.id !== 4" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+          <button v-if="form.id !== 1 && form.id !== 2 && form.id !== 3 && form.id !== 4 && form.id !== 5" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>

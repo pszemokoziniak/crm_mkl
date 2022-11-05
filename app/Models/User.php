@@ -104,4 +104,10 @@ class User extends Authenticatable
             }
         });
     }
+
+    public function getPermissionsAttribute() {
+        return [
+            'kierownik' => $this->owner !== 1,
+        ];
+    }
 }
