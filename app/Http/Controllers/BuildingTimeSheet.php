@@ -20,9 +20,9 @@ class BuildingTimeSheet extends Controller
     public function view(int $build, Request $request): Response
     {
         $date = Carbon::now()->setMonth($request->query->get('month'));
-        $month = $this->generatePeriod($date);
+        $period = $this->generatePeriod($date);
 
-        $workersOnBuild = $this->getAllWorkersOnBuild($build, $month);
+        $workersOnBuild = $this->getAllWorkersOnBuild($build, $period);
         $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
 
         // steps to prepare data
@@ -31,12 +31,12 @@ class BuildingTimeSheet extends Controller
             return $carry;
         }, []);
 
-        $workersOnBuildData = array_reduce($workersOnBuild->toArray(), static function ($carry, $worker) use ($month) {
+        $workersOnBuildData = array_reduce($workersOnBuild->toArray(), static function ($carry, $worker) use ($period) {
             $carry[$worker->id] = [
                 'first_name' => $worker->first_name,
                 'last_name' => $worker->last_name,
                 'start' => $worker->start,
-                'end' => $worker->end ?? $month->last(),
+                'end' => $worker->end ?? $period->last()->format('Y-m-d'),
             ];
             return $carry;
         }, []);
@@ -45,7 +45,7 @@ class BuildingTimeSheet extends Controller
 
         // build data for calendar
         foreach ($buildWorkersSavedShifts as $workerId => $buildWorkersShifts) {
-            foreach ($month as $day) {
+            foreach ($period as $day) {
 
                 // status out of worker time on building ?
                 $isBlocked = !$day->between(
@@ -137,6 +137,7 @@ class BuildingTimeSheet extends Controller
             ->where('contact_work_dates.organization_id', $build)
             ->whereDate(column: 'start', operator: '>=', value: $date->first()->format('Y-m-d'))
             ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
+            ->orWhereNull(column: 'end')
             ->get();
     }
 
