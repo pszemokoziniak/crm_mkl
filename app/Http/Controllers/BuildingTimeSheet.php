@@ -19,18 +19,8 @@ class BuildingTimeSheet extends Controller
 {
     public function view(int $build, Request $request): Response
     {
-        $date = Carbon::now();
-
-        $monthId = $request->query->get('month');
-
-        if ($monthId && in_array($monthId, range(1, 12))) {
-            $date->setMonth((int) $monthId);
-        }
-
-        $month = CarbonPeriod::create(
-            $date->clone()->toImmutable()->firstOfMonth(),
-            $date->clone()->toImmutable()->lastOfMonth()
-        );
+        $date = Carbon::now()->setMonth($request->query->get('month'));
+        $month = $this->generatePeriod($date);
 
         $workersOnBuild = $this->getAllWorkersOnBuild($build, $month);
         $buildWorkersShifts = $this->getWorkersOnBuildShifts($build);
@@ -41,12 +31,12 @@ class BuildingTimeSheet extends Controller
             return $carry;
         }, []);
 
-        $workersOnBuildData = array_reduce($workersOnBuild->toArray(), static function ($carry, $worker) {
+        $workersOnBuildData = array_reduce($workersOnBuild->toArray(), static function ($carry, $worker) use ($month) {
             $carry[$worker->id] = [
                 'first_name' => $worker->first_name,
                 'last_name' => $worker->last_name,
                 'start' => $worker->start,
-                'end' => $worker->end,
+                'end' => $worker->end ?? $month->last(),
             ];
             return $carry;
         }, []);
@@ -164,5 +154,17 @@ class BuildingTimeSheet extends Controller
     private function getShiftStatuses(): Collection
     {
         return DB::table('shift_status', 's')->get();
+    }
+
+    /**
+     * @param Carbon $date
+     * @return CarbonPeriod
+     */
+    public function generatePeriod(Carbon $date): CarbonPeriod
+    {
+        return CarbonPeriod::create(
+            $date->clone()->toImmutable()->firstOfMonth(),
+            $date->clone()->toImmutable()->lastOfMonth()
+        );
     }
 }
