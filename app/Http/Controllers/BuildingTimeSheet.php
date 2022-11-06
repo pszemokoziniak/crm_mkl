@@ -80,11 +80,7 @@ class BuildingTimeSheet extends Controller
             }
         }
         // filter worker data from previous steps
-        $calendarShifts = array_map(static function($workerShift) {
-            return array_filter($workerShift, static function($el) {
-                return is_numeric($el);
-            }, ARRAY_FILTER_USE_KEY);
-        }, $buildWorkersSavedShifts);
+        $calendarShifts = $this->filterDayShiftsData($buildWorkersSavedShifts);
         // return sum on month
         return Inertia::render('Building/Index.vue',
             [
@@ -167,5 +163,21 @@ class BuildingTimeSheet extends Controller
             $date->clone()->toImmutable()->firstOfMonth(),
             $date->clone()->toImmutable()->lastOfMonth()
         );
+    }
+
+    /**
+     * Filter previous generated data to returns only days indexed shifts
+     * I think it will be refactored
+     *
+     * @param mixed $buildWorkersSavedShifts
+     * @return array
+     */
+    public function filterDayShiftsData(mixed $buildWorkersSavedShifts): array
+    {
+        return array_map(static function ($workerShift) {
+            return array_filter($workerShift, static function ($el) {
+                return is_numeric($el);
+            }, ARRAY_FILTER_USE_KEY);
+        }, $buildWorkersSavedShifts);
     }
 }
