@@ -123,17 +123,17 @@ export default {
   },
   methods: {
     store() {
-      console.log(this.form.checkedValues)
+      // console.log(this.form.checkedValues)
       this.form.post(`/pracownicy/${this.organization.id}`)
 
     },
-    toggleSeen: function() {
-      this.toggle = !this.toggle;
-      this.button.text = this.toggle ? 'Zamknij' : 'Dodaj pracownika';
-    },
+    // toggleSeen: function() {
+    //   this.toggle = !this.toggle;
+    //   this.button.text = this.toggle ? 'Zamknij' : 'Dodaj pracownika';
+    // },
   },
   mounted: function() {
-    console.log(this.start)
+    // console.log(this.start)
   },
 }
 </script>

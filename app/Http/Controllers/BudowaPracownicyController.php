@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DestroyBudowaPracownicyRequest;
 use App\Http\Requests\StoreBudowaPracownicyRequest;
 use App\Http\Requests\StoredestroyStoreRequest;
 use App\Models\Contact;
@@ -57,8 +58,26 @@ class BudowaPracownicyController extends Controller
     }
 
     public function create(Organization $organization) {
+
+        $contactsBusyArray = array();
+        $contactArray = array();
+
+        $contactsBusy = ContactWorkDate::where('end', NULL)->get();
+        foreach ($contactsBusy as $item) {
+            array_push($contactsBusyArray, $item->contact_id);
+        }
+
+        $contacts = Contact::get();
+        foreach ($contacts as $item) {
+            array_push($contactArray, $item->id);
+        }
+        $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
+
+        $contactFree = Contact::whereIn('id', $contactFreeArray)->get();
+
         return Inertia::render('Pracownicy/Create', [
-            'contactsFree' => Contact::where('organization_id', null)->orderByName()->get()->map->only('id','first_name','last_name'),
+//            'contactsFree' => Contact::where('organization_id', null)->orderByName()->get()->map->only('id','first_name','last_name'),
+            'contactsFree' => $contactFree,
             'contacts' => Contact::with('funkcja')
                 ->where('organization_id', $organization->id)
                 ->orderByName()
@@ -92,7 +111,7 @@ class BudowaPracownicyController extends Controller
         ]);
     }
 
-    public function destroyStore(Request $request)
+    public function destroyStore(DestroyBudowaPracownicyRequest $request)
     {
             // dd($request);
             $data = ContactWorkDate::find($request->id);
