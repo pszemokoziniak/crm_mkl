@@ -19,7 +19,7 @@ class BuildingTimeSheet extends Controller
 {
     public function view(int $build, Request $request): Response
     {
-        $date = Carbon::now()->setMonth($request->query->get('month'));
+        $date = (Carbon::now())->setMonth($request->query->get('month') ?? Carbon::now()->month);
         $period = $this->generatePeriod($date);
 
         $workersOnBuild = $this->getAllWorkersOnBuild($build, $period);
@@ -35,8 +35,8 @@ class BuildingTimeSheet extends Controller
             $carry[$worker->id] = [
                 'first_name' => $worker->first_name,
                 'last_name' => $worker->last_name,
-                'start' => $worker->start,
-                'end' => $worker->end ?? $period->last()->format('Y-m-d'),
+                'work_start' => $worker->start,
+                'work_end' => $worker->end ?? $period->last()->format('Y-m-d'),
             ];
             return $carry;
         }, []);
@@ -49,8 +49,8 @@ class BuildingTimeSheet extends Controller
 
                 // status out of worker time on building ?
                 $isBlocked = !$day->between(
-                    Carbon::createFromFormat('Y-m-d', $buildWorkersSavedShifts[$workerId]['start']),
-                    Carbon::createFromFormat('Y-m-d', $buildWorkersSavedShifts[$workerId]['end'])
+                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start']),
+                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])
                 );
 
                 if (
