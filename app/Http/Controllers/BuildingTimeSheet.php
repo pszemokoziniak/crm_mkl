@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\DTO\BuildingTimeSheet as BuildingTimeSheetDTO;
 use App\Services\BuildTimeShiftCreator;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -23,8 +22,7 @@ class BuildingTimeSheet extends Controller
         $date = (Carbon::now())->setMonth($request->query->get('month') ?? Carbon::now()->month);
         $period = $this->generatePeriod($date);
 
-        $buildTimeShiftCreator = new BuildTimeShiftCreator();
-        $timeShifts = $buildTimeShiftCreator->create($build, $period);
+        $timeShifts = (new BuildTimeShiftCreator())->create($build, $period);
 
         return Inertia::render('Building/Index.vue',
             [

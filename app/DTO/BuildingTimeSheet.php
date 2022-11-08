@@ -12,7 +12,7 @@ class BuildingTimeSheet implements JsonSerializable
         public int $id,
         public int $build,
         public string $name,
-        public \DateTimeInterface $day,
+        public string $day,
         public ?string $workFrom = null,
         public ?string $workTo = null,
         public ?string $work = null,
@@ -33,5 +33,31 @@ class BuildingTimeSheet implements JsonSerializable
             'status' => $this->status,
             'isBlocked' => $this->isBlocked,
         ];
+    }
+
+    public static function createFromShift(\stdClass $shift, int $build, bool $isBlocked): self
+    {
+        return new self(
+            id: $shift->id,
+            build: $build,
+            name: $shift->first_name . ' ' . $shift->last_name,
+            day: $shift->work_day,
+            workFrom: $shift->work_from ?? null,
+            workTo: $shift->work_to ?? null,
+            work: $shift->effective_work_time ?? null,
+            status: $shift->shift_status_id ?? null,
+            isBlocked: $isBlocked
+        );
+    }
+
+    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked): BuildingTimeSheet
+    {
+        return new self(
+            id: $id,
+            build: $build,
+            name: $fullName,
+            day: $day,
+            isBlocked: $isBlocked
+        );
     }
 }
