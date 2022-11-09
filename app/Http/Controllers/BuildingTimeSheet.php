@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BuildTimeShiftRequest;
 use App\Services\BuildTimeShiftCreator;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -41,27 +42,25 @@ class BuildingTimeSheet extends Controller
         );
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(BuildTimeShiftRequest $request): JsonResponse
     {
-        /**
-         * @see #using factory: app/Http/Controllers/AccountsController.php:96
-         * @see #using validated request: app/Http/Controllers/FunkcjaController.php:74
-         */
-        $data = $request->all();
-        // @TODO create correct date! not only day but month!
-        $workDay = new \DateTimeImmutable($data['day']);
         try {
             BuildingTimeSheetModel::updateOrCreate(
                 [
-                    'organization_id' => $data['build'],
-                    'contact_id' => $data['id'],
-                    'work_day' => $workDay
+                    'organization_id' => $request->get('build'),
+                    'contact_id' => $request->get('id'),
+                    'work_day' => new \DateTimeImmutable($request->get('day'))
                 ],
                 [
-                    'work_from' => clone $workDay->setTime((int)$data['from']['hours'], (int)$data['from']['minutes']),
-                    'work_to' => clone $workDay->setTime((int)$data['to']['hours'], (int)$data['to']['minutes']),
-                    'shift_status_id' => $data['status'] ?? null, // id
-                    'effective_work_time' => $data['workTime']['hours'] . ':' . $data['workTime']['minutes'],
+                    'work_from' => (new \DateTimeImmutable($request->get('day')))->setTime(
+                        (int)$request->get('from')['hours'],
+                        (int)$request->get('from')['minutes']),
+                    'work_to' => (new \DateTimeImmutable($request->get('day')))->setTime(
+                        (int)$request->get('to')['hours'],
+                        (int)$request->get('to')['minutes']
+                    ),
+                    'shift_status_id' => $request->get('status') ?? null,
+                    'effective_work_time' => $request->get('workTime')['hours'] . ':' . $request->get('workTime')['minutes'],
                 ]
             );
         } catch (\Exception $e) {
