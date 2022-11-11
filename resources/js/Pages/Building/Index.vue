@@ -34,7 +34,7 @@
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
         <div class="text-sm text-center">Suma: {{ summarize(timeSheet) }}</div>
       </div>
-      <div v-for="shift in timeSheet" :class="shiftBackground(shift)" class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
+      <div v-for="shift in timeSheet" :class="shiftBackground(shift)" class="text-sm px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
         <div class="flex justify-between">
           <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
           <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ dayOfWeek(new Date(shift.day)) }}</div>
@@ -105,7 +105,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 const DEFAULT_RANGES = {
   from: { hours: '07', minutes: '00'},
   to: { hours: '15', minutes: '00'},
-  shift: { hours: '08', minutes: '00'}
+  shift: { hours: '08', minutes: '00'},
 }
 
 export default {
@@ -213,7 +213,7 @@ export default {
       }
       return {
         hours: String((new Date(time)).getHours()).padStart(2, '0'),
-        minutes: String((new Date(time)).getMinutes()).padStart(2, '0')
+        minutes: String((new Date(time)).getMinutes()).padStart(2, '0'),
       }
     },
     /**
@@ -224,6 +224,14 @@ export default {
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
     shiftBackground(shift) {
+      if (this.isSunday(shift)) {
+        return 'bg-red-200'
+      }
+
+      if (this.isSaturday(shift)) {
+        return 'bg-yellow-200'
+      }
+
       if (shift.isBlocked) {
         return 'bg-gray-300'
       }
@@ -233,6 +241,12 @@ export default {
       }
 
       return ''
+    },
+    isSunday(shift) {
+      return (new Date(shift.day)).getDay() === 0
+    },
+    isSaturday(shift) {
+      return (new Date(shift.day)).getDay() === 6
     },
     showModal(shift) {
 
