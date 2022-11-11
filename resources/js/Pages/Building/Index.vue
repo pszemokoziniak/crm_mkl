@@ -95,17 +95,22 @@
 <script>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import Layout from '@/Shared/Layout'
-import TextInput from '@/Shared/TextInput'
 import moment from 'moment'
 import axios from 'axios'
 import SelectInput from '@/Shared/SelectInput'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
+
+const DEFAULT_RANGES = {
+  from: { hours: '07', minutes: '00'},
+  to: { hours: '15', minutes: '00'},
+  shift: { hours: '08', minutes: '00'}
+}
+
 export default {
   components: {
     SelectInput,
-    TextInput,
     Dialog,
     DialogPanel,
     DialogTitle,
@@ -124,7 +129,7 @@ export default {
   data() {
     return {
       date: new Date(this.date),
-      open: false, // default value for modal
+      open: false,
       isStatus: false,
       form: this.$inertia.form({
         id: null,
@@ -196,6 +201,12 @@ export default {
       }
       return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
     },
+    /**
+     * Formatting from string to object - using by datepicker
+     *
+     * @param time
+     * @returns {string|{hours: string, minutes: string}}
+     */
     formatTimeObject(time) {
       if (time === null) {
         return ''
@@ -234,9 +245,9 @@ export default {
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
-        from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : { hours: '07', minutes: '00'},
-        to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : { hours: '15', minutes: '00'},
-        workTime: shift.workTime ?? { hours: '08', minutes: '00'},
+        from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : DEFAULT_RANGES.from,
+        to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
+        workTime: shift.work ? { hours: shift.work.split(':')[0], minutes: shift.work.split(':')[1] } : DEFAULT_RANGES.shift,
         status: shift.status ?? null,
       })
       this.isStatus = this.isSetStatus(shift.status)
