@@ -32,7 +32,7 @@
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l" :class="(Object.keys(timeSheets).length === 1) ? 'border-b' : '' ">
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
-        <div class="text-sm text-center">Suma godzin: {{ summarize(timeSheet) }}</div>
+        <div class="text-sm text-center">Suma: {{ summarize(timeSheet) }}</div>
       </div>
       <div v-for="shift in timeSheet" :class="shiftBackground(shift)" class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
         <div class="flex justify-between">
