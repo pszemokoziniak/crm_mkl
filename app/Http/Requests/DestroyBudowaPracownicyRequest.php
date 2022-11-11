@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBudowaPracownicyRequest extends FormRequest
+class DestroyBudowaPracownicyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class StoreBudowaPracownicyRequest extends FormRequest
     public function rules()
     {
         return [
-            'start' => ['required'],
-            'checkedValues' => ['required'],
+            'end' => ['required'],
         ];
     }
     public function messages() {
@@ -36,7 +35,7 @@ class StoreBudowaPracownicyRequest extends FormRequest
     public function attributes()
     {
         return [
-            'start' => 'Początek pracy na budowie',
+            'end' => 'Koniec pracy na budowie',
         ];
     }
 }

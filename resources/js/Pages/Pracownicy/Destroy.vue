@@ -5,19 +5,19 @@
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">{{organization.name}}</Link>
       <span class="text-indigo-400 font-medium">/</span>
-      <p class="text-base">Usuń pracownika z budowy</p>
+      <p class="text-base mt-3">Usuń pracownika z budowy</p>
     </h1>
     <div class="mt-6 bg-white rounded shadow overflow-x-auto">
       <div class="rounded overflow-hidden shadow-lg">
-        <div class="px-6 py-4 w-80">
+        <div class="px-6 py-4 w-100">
           <div class="font-bold text-xl mb-2">Dane pracownika</div>
           <p class="text-gray-700 text-base">
-            Imię: {{ contact.first_name }}
+            Nazwa: {{ contact.last_name }} {{ contact.first_name }}
           </p>
-          <hr>
-          <p class="text-gray-700 text-base mt-3">
-            Nazwisko: {{ contact.last_name }}
-          </p>
+<!--          <hr>-->
+<!--          <p class="text-gray-700 text-base mt-3">-->
+<!--            Nazwisko: {{ contact.last_name }}-->
+<!--          </p>-->
           <hr>
           <p class="text-gray-700 text-base mt-3">
             Stanowisko: {{ contact.funkcja.name }}
