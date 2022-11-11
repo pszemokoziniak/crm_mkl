@@ -295,7 +295,6 @@ Route::put('pracownicy/destroystore', [BudowaPracownicyController::class, 'destr
     ->middleware('auth');
 
 // Destroy pracownicy budowa
-
 Route::get('contacts/{contact}/budowa/destroy', [ContactsController::class, 'destroyPracownikBudowa'])
     ->name('contacts.destroyPracownikBudowa')
     ->middleware('auth');

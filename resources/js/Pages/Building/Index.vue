@@ -32,10 +32,13 @@
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l" :class="(Object.keys(timeSheets).length === 1) ? 'border-b' : '' ">
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
-        <div class="text-sm text-center">Suma godzin: {{ summarize(timeSheet) }}</div>
+        <div class="text-sm text-center">Suma: {{ summarize(timeSheet) }}</div>
       </div>
-      <div v-for="shift in timeSheet" :class="criticalTime(shift.work) ? 'bg-red-300' : '' " class="px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
-        <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
+      <div v-for="shift in timeSheet" :class="shiftBackground(shift)" class="text-sm px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
+        <div class="flex justify-between">
+          <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
+          <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ dayOfWeek(new Date(shift.day)) }}</div>
+        </div>
         <div v-if="shift.status" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
           {{ getStatusName(shift.status) }}
         </div>
@@ -92,17 +95,22 @@
 <script>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import Layout from '@/Shared/Layout'
-import TextInput from '@/Shared/TextInput'
 import moment from 'moment'
 import axios from 'axios'
 import SelectInput from '@/Shared/SelectInput'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
+
+const DEFAULT_RANGES = {
+  from: { hours: '07', minutes: '00'},
+  to: { hours: '15', minutes: '00'},
+  shift: { hours: '08', minutes: '00'},
+}
+
 export default {
   components: {
     SelectInput,
-    TextInput,
     Dialog,
     DialogPanel,
     DialogTitle,
@@ -121,7 +129,7 @@ export default {
   data() {
     return {
       date: new Date(this.date),
-      open: false, // default value for modal
+      open: false,
       isStatus: false,
       form: this.$inertia.form({
         id: null,
@@ -130,11 +138,16 @@ export default {
         to: null,
         workTime: null,
         status: null,
+        isBlocked: null,
       }),
     }
   },
-  /** Calculate worker hour in month */
+  /**
+   *  Calculate worker hour in month
+   *
+   */
   mounted() {
+    console.log(this.timeSheets)
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -142,6 +155,9 @@ export default {
     })
   },
   methods: {
+    dayOfWeek(date) {
+      return new Intl.DateTimeFormat('pl-PL', { weekday: 'long' }).format(date).slice(0, 3)
+    },
     statusChanged(event) {
       this.isStatus = this.isSetStatus(event.target.value)
     },
@@ -183,38 +199,69 @@ export default {
       if (time === null) {
         return ''
       }
-
       return String((new Date(time)).getHours()).padStart(2, '0') + ':' + String((new Date(time)).getMinutes()).padStart(2, '0')
     },
+    /**
+     * Formatting from string to object - using by datepicker
+     *
+     * @param time
+     * @returns {string|{hours: string, minutes: string}}
+     */
     formatTimeObject(time) {
-
       if (time === null) {
         return ''
       }
-
       return {
         hours: String((new Date(time)).getHours()).padStart(2, '0'),
-        minutes: String((new Date(time)).getMinutes()).padStart(2, '0')
+        minutes: String((new Date(time)).getMinutes()).padStart(2, '0'),
       }
-
     },
     /**
-     *
      * @param time string HH:mm
      */
     criticalTime(time) {
       const criticalShiftWork = 570
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
+    shiftBackground(shift) {
+      if (this.isSunday(shift)) {
+        return 'bg-red-200'
+      }
+
+      if (this.isSaturday(shift)) {
+        return 'bg-yellow-200'
+      }
+
+      if (shift.isBlocked) {
+        return 'bg-gray-300'
+      }
+
+      if (this.criticalTime(shift.work)) {
+        return 'bg-red-300'
+      }
+
+      return ''
+    },
+    isSunday(shift) {
+      return (new Date(shift.day)).getDay() === 0
+    },
+    isSaturday(shift) {
+      return (new Date(shift.day)).getDay() === 6
+    },
     showModal(shift) {
+
+      if (shift.isBlocked) {
+        return
+      }
+
       this.open = true
       this.form = this.$inertia.form = ({
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
-        from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : { hours: '07', minutes: '00'},
-        to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : { hours: '15', minutes: '00'},
-        workTime: shift.workTime ?? { hours: '08', minutes: '00'},
+        from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : DEFAULT_RANGES.from,
+        to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
+        workTime: shift.work ? { hours: shift.work.split(':')[0], minutes: shift.work.split(':')[1] } : DEFAULT_RANGES.shift,
         status: shift.status ?? null,
       })
       this.isStatus = this.isSetStatus(shift.status)
