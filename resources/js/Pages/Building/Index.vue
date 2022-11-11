@@ -224,12 +224,18 @@ export default {
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
     shiftBackground(shift) {
+
+
       if (this.isSunday(shift)) {
         return 'bg-red-200'
       }
 
       if (this.isSaturday(shift)) {
         return 'bg-yellow-200'
+      }
+
+      if (this.isSetStatus(shift.status)) {
+        return 'bg-green-100'
       }
 
       if (shift.isBlocked) {
@@ -239,6 +245,7 @@ export default {
       if (this.criticalTime(shift.work)) {
         return 'bg-red-300'
       }
+
 
       return ''
     },
