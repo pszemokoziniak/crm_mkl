@@ -1,39 +1,26 @@
 <template>
-<!--  <Head :title="form.name" />-->
+<!--  <Head :title="organization.name" />-->
   <BudMenu :budId="budId" />
-  <form @submit.prevent="store">
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">{{organization.name}}</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      <p class="text-base">Dodaj pracowników do budowy</p>
-    </h1>
-    <div class="mt-6 bg-white rounded shadow overflow-x-auto">
-      <div class="m-5">
-        <tr v-if="contactsFree.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Brak wolnych pracowników</td>
-        </tr>
-        <tr v-if="contactsFree.length !== 0">
-          <text-input v-model="form.start" :error="form.errors.start" type="date" class="pb-8 pr-6 w-full lg:w-1/1" label="Początek pracy na budowie" />
-        </tr>
-        <label
-          v-for="(item, index) in contactsFree"
-          :key="index"
-          class="m-3"
-        >
-          {{ item.last_name }} {{ item.first_name }}
-          <input
-            type="checkbox"
-            :value="item.id"
-            v-model="form.checkedValues"
-            :error="form.errors.checkedValues"
-          />
-        </label>
-        <div v-if="contactsFree.length !== 0">
-          <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Dodaj</loading-button>
-        </div>
+  <h1 class="mb-8 text-3xl font-bold">
+    <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">{{organization.name}}</Link>
+    <span class="text-indigo-400 font-medium">/</span>
+    <p class="text-base">Dodaj pracowników do budowy</p>
+  </h1>
+
+  <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <form @submit.prevent="find()">
+      <div class="flex flex-wrap -mb-3 -mr-6 p-8">
+        <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek pracy na budowie" />
+        <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec pracy na budowie" />
+        <text-input type="hidden" value="@{{contact_id}}" v-model="form.contact_id" :error="form.errors.contact_id" />
       </div>
-    </div>
-  </form>
+      <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
+        <loading-button :loading="form.processing" class="btn-indigo" type="submit">Znajdź wolnych pracowników</loading-button>
+      </div>
+    </form>
+  </div>
+
+  <FreeContactsList :contactsFree="contactsFree" :data="org" :dates="form"/>
 
   <table class="w-full whitespace-nowrap">
     <tr class="text-left font-bold">
@@ -62,10 +49,6 @@
         <Link class="flex items-center px-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
           <icon name="destroy" class="block w-6 h-6 fill-gray-400" />
         </Link>
-<!--        <loading-button :loading="form.processing" class="btn-indigo ml-auto" @click='toggleSeen'>{{button.text}}</loading-button>-->
-<!--        <button class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button" data-modal-toggle="authentication-modal">-->
-<!--          Toggle modal-->
-<!--        </button>-->
       </td>
     </tr>
     <tr v-if="contacts.data.length === 0">
@@ -77,24 +60,23 @@
 
 <script>
 import { Link } from '@inertiajs/inertia-vue3'
-
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import BudMenu from '@/Shared/BudMenu'
+// import mapValues from 'lodash/mapValues'
+import FreeContactsList from '@/Pages/Pracownicy/FreeContactsList'
 
 export default {
   components: {
+    FreeContactsList,
     Icon,
     LoadingButton,
     TextInput,
     Link,
     BudMenu,
   },
-  // created() {
-  //   console.log(this.message) // injected value
-  // },
   layout: Layout,
   props: {
     organization: Object,
@@ -105,26 +87,25 @@ export default {
   data() {
     return {
       budId: this.organization.id,
-      // checkedValues: [],
-
-      // toggle: true,
-      button: {
-        text: 'Usuń',
+      org: {
+        org: this.organization,
       },
-      // start_test: {
-      //   start: this.start
-      // },
-
+      checkedValues: [],
       form: this.$inertia.form({
-        start: null,
-        checkedValues: [],
+        start: '',
+        end: '',
       }),
     }
   },
   methods: {
-    store() {
+    // store() {
+    //   console.log(this.checkedValues)
+    //   this.form.post(`/pracownicy/${this.organization.id}`)
+    //
+    // },
+    find() {
       // console.log(this.form.checkedValues)
-      this.form.post(`/pracownicy/${this.organization.id}`)
+      this.form.post(`/pracownicy/${this.organization.id}/find`)
 
     },
     // toggleSeen: function() {

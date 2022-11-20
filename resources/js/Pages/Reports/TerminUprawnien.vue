@@ -13,9 +13,9 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Start</th>
-          <th class="pb-4 pt-6 px-6"  colspan="2">End</th>
+          <th class="pb-4 pt-6 px-6">Nazwa Uprawnień</th>
+          <th class="pb-4 pt-6 px-6">Początek</th>
+          <th class="pb-4 pt-6 px-6"  colspan="2">Koniec</th>
 <!--          <th class="pb-4 pt-6 px-6" colspan="2">Data Ważności A1</th>-->
         </tr>
         <tr v-for="item in data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
