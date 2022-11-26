@@ -6,7 +6,7 @@ namespace App\DTO;
 
 use JsonSerializable;
 
-class BuildingTimeSheet implements JsonSerializable
+class Shift implements JsonSerializable
 {
     public function __construct(
         public int $id,
@@ -50,7 +50,7 @@ class BuildingTimeSheet implements JsonSerializable
         );
     }
 
-    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked): BuildingTimeSheet
+    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked): Shift
     {
         return new self(
             id: $id,
