@@ -12,3 +12,7 @@ deploy:
 
 seed:
 	docker-compose exec app php artisan db:seed
+
+seed-dev:
+	docker-compose exec app php artisan db:seed --class=CountrySeeder
+	docker-compose exec app php artisan db:seed --class=FunkcjaSeeder
