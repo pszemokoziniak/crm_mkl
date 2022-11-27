@@ -9,3 +9,6 @@ migrate:
 
 deploy:
 	bash ./build.sh
+
+seed:
+	docker-compose exec app php artisan db:seed
