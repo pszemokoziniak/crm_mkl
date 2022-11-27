@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBudowaPracownicyRequest extends FormRequest
+class FindPracownicyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,22 +21,25 @@ class StoreBudowaPracownicyRequest extends FormRequest
      *
      * @return array
      */
+
     public function rules()
     {
         return [
-            'checkedValues' => ['required'],
+            'start' => 'required|date|before_or_equal:end',
+            'end' => 'required|date',
         ];
     }
     public function messages() {
         return [
-            'required'  => 'Pole :attribute jest wymagane.',
+            'required'  => ':attribute jest wymagane.',
+            'before_or_equal' => 'Pole :attribute musi być mniejsze niż Koniec pracy na budowie.'
         ];
     }
     public function attributes()
     {
         return [
-//            'start' => 'Początek pracy na budowie',
-//            'end' => 'Koniec pracy na budowie',
+            'start' => 'Początek pracy na budowie',
+            'end' => 'Koniec pracy na budowie',
         ];
     }
 }

@@ -286,6 +286,10 @@ Route::post('pracownicy/{organization}', [BudowaPracownicyController::class, 'st
     ->name('pracownicy.store')
     ->middleware('auth');
 
+Route::post('pracownicy/{organization}/find', [BudowaPracownicyController::class, 'find'])
+    ->name('pracownicy.find')
+    ->middleware('auth');
+
 Route::get('pracownicy/{organization}/destroy/{contact}', [BudowaPracownicyController::class, 'destroy'])
     ->name('pracownicy.destroy')
     ->middleware('auth');
