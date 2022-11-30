@@ -191,14 +191,16 @@ export default {
       }
     },
     previousMonth() {
-      window.location = `/building/${this.build}/time-sheet?date=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
+      const previousMonthNumber = this.getMonthNumber() < 0
+      const year = previousMonthNumber ? this.getYear() - 1: this.getYear()
+
+      window.location = `/building/${this.build}/time-sheet?date=${year}-${previousMonthNumber ? 12 : this.getMonthNumber().toString().padStart(2, '0')}`
     },
     nextMonth() {
-
       const nextMonthNumber = this.getMonthNumber() + 2 > 12
       const year = nextMonthNumber ? this.getYear() + 1: this.getYear()
 
-      window.location = `/building/${this.build}/time-sheet?date=${year}-${nextMonthNumber ? 1 : this.getMonthNumber() + 2}`
+      window.location = `/building/${this.build}/time-sheet?date=${year}-${nextMonthNumber ? '01' : (this.getMonthNumber() + 2).toString().padStart(2, '0')}`
     },
     getMonthNumber() {
       return new Date(this.date).getMonth()
