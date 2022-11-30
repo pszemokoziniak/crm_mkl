@@ -21,7 +21,9 @@ class BuildingTimeSheet extends Controller
 {
     public function view(int $build, Request $request): Response
     {
-        $date = (Carbon::now())->setMonth($request->query->get('month') ?? Carbon::now()->month);
+        $date = $request->query->get('date')
+            ? Carbon::createFromTimeString($request->query->get('date') . 1)
+            : Carbon::now();
 
         $timeShifts = (new BuildTimeShiftCreator())->create(
             $build,

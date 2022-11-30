@@ -10,4 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class BuildingTimeSheet extends Model
 {
 
+    public static function updateOrCreate(array $array, array $array1)
+    {
+    }
 }

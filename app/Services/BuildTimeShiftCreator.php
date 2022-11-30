@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\DTO\BuildingTimeSheet as BuildingTimeSheetDTO;
+use App\DTO\Shift;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
@@ -33,10 +33,10 @@ class BuildTimeShiftCreator
                     array_key_exists($dayIndex, $shifts)
                     && Carbon::create($shifts[$dayIndex]->work_day)->isSameDay($day)
                 ) {
-                    $buildWorkersSavedShifts[$workerId][$dayIndex] = BuildingTimeSheetDTO::createFromShift($shifts[$dayIndex], $build, $isBlocked);
+                    $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createFromShift($shifts[$dayIndex], $build, $isBlocked);
                     continue;
                 }
-                $buildWorkersSavedShifts[$workerId][$dayIndex] = BuildingTimeSheetDTO::createDraft(
+                $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createDraft(
                     id: $workerId,
                     build: $build,
                     fullName: $workersOnBuildData[$workerId]['first_name']  . ' '  . $workersOnBuildData[$workerId]['last_name'],
@@ -107,7 +107,8 @@ class BuildTimeShiftCreator
             ->join('contact_work_dates', 'c.id', '=', 'contact_work_dates.contact_id')
             ->where('contact_work_dates.organization_id', $build)
             ->whereDate(column: 'start', operator: '>=', value: $date->first()->format('Y-m-d'))
-            ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
+            ->orWhereDate(column: 'start', operator: '<=', value: $date->first()->format('Y-m-d'))
+            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'))
             ->orWhereNull(column: 'end')
             ->get();
     }
