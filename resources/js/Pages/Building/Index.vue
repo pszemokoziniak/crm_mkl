@@ -191,16 +191,25 @@ export default {
       }
     },
     previousMonth() {
-      const previousMonthNumber = this.getMonthNumber() < 0
+      const previousMonthNumber = this.getMonthNumber() < 1
       const year = previousMonthNumber ? this.getYear() - 1: this.getYear()
 
-      window.location = `/building/${this.build}/time-sheet?date=${year}-${previousMonthNumber ? 12 : this.getMonthNumber().toString().padStart(2, '0')}`
+      this.redirect(
+        this.dateUrl(this.build, year, previousMonthNumber ? 12 : this.getMonthNumber()),
+      )
     },
     nextMonth() {
       const nextMonthNumber = this.getMonthNumber() + 2 > 12
       const year = nextMonthNumber ? this.getYear() + 1: this.getYear()
-
-      window.location = `/building/${this.build}/time-sheet?date=${year}-${nextMonthNumber ? '01' : (this.getMonthNumber() + 2).toString().padStart(2, '0')}`
+      this.redirect(
+        this.dateUrl(this.build, year, nextMonthNumber ? '01' : this.getMonthNumber() + 2),
+      )
+    },
+    redirect(url) {
+      window.location = url
+    },
+    dateUrl(build, year, month) {
+      return `/building/${this.build}/time-sheet?date=${year}-${month.toString().padStart(2, '0')}`
     },
     getMonthNumber() {
       return new Date(this.date).getMonth()
