@@ -49,10 +49,14 @@
       </div>
     </div>
 
-    <div class="text-sm px-4 pt-2 border-r border-1 border hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
+    <div v-if="timeSheets.length > 0" class="text-sm px-4 pt-2 border-r border-1 border hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
       <div class="overflow-y-auto mt-1" style="height: 60px;">
         <div class="text-sm text-center">Suma: </div>
       </div>
+    </div>
+
+    <div v-if="timeSheets.length < 1" class="flex px-4 pt-2">
+      Brak pracowników
     </div>
 
     </div>
