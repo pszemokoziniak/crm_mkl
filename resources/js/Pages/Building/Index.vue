@@ -191,13 +191,20 @@ export default {
       }
     },
     previousMonth() {
-      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
+      window.location = `/building/${this.build}/time-sheet?date=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
     },
     nextMonth() {
-      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() + 2 > 12) ? 1 : this.getMonthNumber() + 2}`
+
+      const nextMonthNumber = this.getMonthNumber() + 2 > 12
+      const year = nextMonthNumber ? this.getYear() + 1: this.getYear()
+
+      window.location = `/building/${this.build}/time-sheet?date=${year}-${nextMonthNumber ? 1 : this.getMonthNumber() + 2}`
     },
     getMonthNumber() {
       return new Date(this.date).getMonth()
+    },
+    getYear() {
+      return new Date(this.date).getFullYear()
     },
     formatRangeToDisplay(range) {
       return String(range.hours).padStart(2, '0') + ':' + String(range.minutes).padStart(2, '0')
@@ -257,7 +264,6 @@ export default {
       if (this.criticalTime(shift.work)) {
         return 'bg-red-300'
       }
-
 
       return ''
     },
