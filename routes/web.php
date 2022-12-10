@@ -10,6 +10,7 @@ use App\Http\Controllers\BhpTypController;
 use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
+use App\Http\Controllers\CountryFeastsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumentyTypController;
@@ -799,3 +800,17 @@ Route::get('building/{build}/time-sheet', [BuildingTimeSheet::class, 'view'])
 Route::post('building/{build}/time-sheet', [BuildingTimeSheet::class, 'store'])
     ->name('workTimeSheet.store')
     ->middleware('auth');
+
+/** Country Feasts */
+Route::get('country/{country}/feasts', [CountryFeastsController::class, 'index'])
+    ->name('country_feasts')
+    ->middleware('auth');
+
+Route::get('country/{country}/feasts', [CountryFeastsController::class, 'create'])
+    ->name('country_feasts')
+    ->middleware('auth');
+
+Route::get('country/{country}/feasts/{id}', [CountryFeastsController::class, 'edit'])
+    ->name('country_feasts')
+    ->middleware('auth');
+

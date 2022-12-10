@@ -1,9 +1,9 @@
 <template>
   <div>
     <Head title="Kraje" />
-    <h1 class="mb-8 text-3xl font-bold">Kraje</h1>
+    <h1 class="mb-8 text-3xl font-bold">Święta</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" href="/krajTyp/create">
+      <Link class="btn-indigo" :href="`country/1/feasts`">
         <span>Dodaj</span>
       </Link>
     </div>
@@ -12,7 +12,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
         </tr>
-        <tr v-for="item in krajTypes" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="feast in feasts" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/krajTyp/${item.id}/edit`">
               {{ item.name }}
@@ -33,11 +33,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
-import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
-import throttle from 'lodash/throttle'
-import mapValues from 'lodash/mapValues'
-
 
 export default {
   components: {
@@ -47,25 +43,12 @@ export default {
   },
   layout: Layout,
   props: {
-    krajTypes: Object,
+    feast: Object,
   },
   data() {
     return {
       form: {},
     }
-  },
-  watch: {
-    form: {
-      deep: true,
-      handler: throttle(function () {
-        this.$inertia.get('/krajTyp', pickBy(this.form), { preserveState: true })
-      }, 150),
-    },
-  },
-  methods: {
-    reset() {
-      this.form = mapValues(this.form, () => null)
-    },
   },
 }
 </script>

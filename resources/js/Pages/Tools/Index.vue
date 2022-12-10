@@ -4,9 +4,6 @@
     <h1 class="mb-8 text-3xl font-bold">Ustawiania</h1>
     <h3 class="mb-8">Dodaj</h3>
     <div class="grid grid-cols-4 gap-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-2">
-<!--    <Link class="btn-indigo mr-5" :href="`/position`">-->
-<!--        <span>Pozycja</span>-->
-<!--    </Link>-->
       <Link class="btn-indigo mr-5" :href="`/funkcja`">
         <span>Stanowisko</span>
       </Link>
