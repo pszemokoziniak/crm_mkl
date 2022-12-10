@@ -2,7 +2,7 @@
   <div>
     <Head :title="`${form.name}`" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/krajTyp">Kraje</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/krajTyp">Pracownik</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.name }}
     </h1>

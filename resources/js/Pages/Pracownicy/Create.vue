@@ -20,6 +20,8 @@
     </form>
   </div>
 
+<!--  {{output}}-->
+
   <FreeContactsList :contactsFree="contactsFree" :data="org" :dates="form"/>
 
   <table class="w-full whitespace-nowrap">
@@ -67,6 +69,8 @@ import LoadingButton from '@/Shared/LoadingButton'
 import BudMenu from '@/Shared/BudMenu'
 // import mapValues from 'lodash/mapValues'
 import FreeContactsList from '@/Pages/Pracownicy/FreeContactsList'
+import pickBy from 'lodash/pickBy'
+import axios from 'axios'
 
 export default {
   components: {
@@ -95,6 +99,7 @@ export default {
         start: '',
         end: '',
       }),
+      output: '',
     }
   },
   methods: {
@@ -103,9 +108,24 @@ export default {
     //   this.form.post(`/pracownicy/${this.organization.id}`)
     //
     // },
+
     find() {
-      // console.log(this.form.checkedValues)
-      this.form.post(`/pracownicy/${this.organization.id}/find`)
+    //   let currentObj = this
+    //   axios.post(`/api/pracownicy/${this.organization.id}/find`,{
+    //     start:this.form.start,
+    //     end:this.form.end,
+    //   })
+    //     .then(function(response){
+    //       console.log(response.data)
+    //       currentObj.output=response.data
+    //     })
+    //     .catch(function(error){
+    //       currentObj.output=error
+    //     })
+    // },
+
+      console.log(this.form.start);
+      this.$inertia.post(`/pracownicy/${this.organization.id}/create`, this.form)
 
     },
     // toggleSeen: function() {

@@ -32,7 +32,7 @@
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l" :class="(Object.keys(timeSheets).length === 1) ? 'border-b' : '' ">
       <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
-        <div class="text-sm text-center">Suma: {{ summarize(timeSheet) }}</div>
+        <div class="text-sm text-center">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
       </div>
       <div v-for="shift in timeSheet" :class="shiftBackground(shift)" class="text-sm px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
         <div class="flex justify-between">
@@ -42,14 +42,24 @@
         <div v-if="shift.status" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
           {{ getStatusName(shift.status) }}
         </div>
-
         <div v-if="!shift.status" class="overflow-y-auto mt-1" style="height: 60px;">
           {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br />
           <div class="text-sm text-center">{{ shift.work }}</div>
         </div>
       </div>
     </div>
-  </div>
+
+    <div v-if="timeSheets.length > 0" class="text-sm px-4 pt-2 border-r border-1 border hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
+      <div class="overflow-y-auto mt-1" style="height: 60px;">
+        <div class="text-sm text-center">Suma: </div>
+      </div>
+    </div>
+
+    <div v-if="timeSheets.length < 1" class="flex px-4 pt-2">
+      Brak pracowników
+    </div>
+
+    </div>
   <TransitionRoot as="template" :show="open">
     <Dialog as="div" class="relative z-10" @close="open = false">
       <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
@@ -179,16 +189,40 @@ export default {
       const hours = Math.floor(sum / 60)
       const minutes = sum - (60 * hours)
 
-      return hours + ':' + minutes
+      return {
+        hours: hours,
+        minutes: minutes,
+      }
     },
     previousMonth() {
-      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() < 0) ? 12 : this.getMonthNumber()}`
+      const previousMonthNumber = this.getMonthNumber() < 1
+      const year = previousMonthNumber ? this.getYear() - 1: this.getYear()
+
+      this.redirect(
+        this.dateUrl(this.build, year, previousMonthNumber ? 12 : this.getMonthNumber()),
+      )
     },
     nextMonth() {
-      window.location = `/building/${this.build}/time-sheet?month=${(this.getMonthNumber() + 2 > 12) ? 1 : this.getMonthNumber() + 2}`
+      const nextMonthNumber = this.getMonthNumber() + 2 > 12
+      const year = nextMonthNumber ? this.getYear() + 1: this.getYear()
+      this.redirect(
+        this.dateUrl(this.build, year, nextMonthNumber ? '01' : this.getMonthNumber() + 2),
+      )
+    },
+    redirect(url) {
+      window.location = url
+    },
+    dateUrl(build, year, month) {
+      return `/building/${this.build}/time-sheet?date=${year}-${month.toString().padStart(2, '0')}`
     },
     getMonthNumber() {
       return new Date(this.date).getMonth()
+    },
+    getYear() {
+      return new Date(this.date).getFullYear()
+    },
+    formatRangeToDisplay(range) {
+      return String(range.hours).padStart(2, '0') + ':' + String(range.minutes).padStart(2, '0')
     },
     /**
      * Formatting from date to hh:mm
@@ -224,12 +258,18 @@ export default {
       return moment.duration(time).asMinutes() > criticalShiftWork
     },
     shiftBackground(shift) {
+
+
       if (this.isSunday(shift)) {
         return 'bg-red-200'
       }
 
       if (this.isSaturday(shift)) {
         return 'bg-yellow-200'
+      }
+
+      if (this.isSetStatus(shift.status)) {
+        return 'bg-green-100'
       }
 
       if (shift.isBlocked) {
