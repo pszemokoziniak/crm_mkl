@@ -278,17 +278,25 @@ Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'ind
     ->name('pracownicy.index')
     ->middleware('auth');
 
+Route::post('pracownicy/{organization}/create', [BudowaPracownicyController::class, 'find'])
+    ->name('pracownicy.create.post')
+    ->middleware('auth');
+
 Route::get('pracownicy/{organization}/create', [BudowaPracownicyController::class, 'create'])
     ->name('pracownicy.create')
+    ->middleware('auth');
+
+Route::get('pracownicy/{organization}/edit/{contact}', [BudowaPracownicyController::class, 'edit'])
+    ->name('pracownicy.edit')
     ->middleware('auth');
 
 Route::post('pracownicy/{organization}', [BudowaPracownicyController::class, 'store'])
     ->name('pracownicy.store')
     ->middleware('auth');
 
-Route::post('pracownicy/{organization}/find', [BudowaPracownicyController::class, 'find'])
-    ->name('pracownicy.find')
-    ->middleware('auth');
+//Route::post('api/pracownicy/{organization}/find', [BudowaPracownicyController::class, 'find'])
+//    ->name('pracownicy.find')
+//    ->middleware('auth');
 
 Route::get('pracownicy/{organization}/destroy/{contact}', [BudowaPracownicyController::class, 'destroy'])
     ->name('pracownicy.destroy')

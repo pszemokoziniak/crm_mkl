@@ -25,6 +25,9 @@ class StoreBudowaPracownicyRequest extends FormRequest
     {
         return [
             'checkedValues' => ['required'],
+            'start' => ['required'],
+            'end' => ['required'],
+
         ];
     }
     public function messages() {
@@ -35,8 +38,8 @@ class StoreBudowaPracownicyRequest extends FormRequest
     public function attributes()
     {
         return [
-//            'start' => 'Początek pracy na budowie',
-//            'end' => 'Koniec pracy na budowie',
+            'start' => 'Początek pracy na budowie',
+            'end' => 'Koniec pracy na budowie',
         ];
     }
 }

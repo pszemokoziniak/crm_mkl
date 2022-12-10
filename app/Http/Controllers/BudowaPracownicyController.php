@@ -10,8 +10,10 @@ use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
 use App\Models\Organization;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -19,25 +21,34 @@ class BudowaPracownicyController extends Controller
 {
     public function index(Organization $organization)
     {
+        $workers = DB::table('contact_work_dates')
+            ->select('contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end')
+            ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
+            ->where('contact_work_dates.organization_id', $organization->id)
+            ->where('contact_work_dates.start', '<=', Carbon::now()->format('Y-m-d'))
+            ->where('contact_work_dates.end', '>=', Carbon::now()->format('Y-m-d'))
+            ->get();
+
+//dd($workers);
         return Inertia::render('Pracownicy/Index', [
-//            'filters' => Request::all('search', 'trashed'),
-            'contacts' => Contact::with('funkcja')
-                ->where('organization_id',$organization->id)
-                ->orderByName()
-//                ->filter(Request::only('search', 'trashed'))
-                ->paginate(100)
-                ->withQueryString()
-                ->through(fn ($contact) => [
-                    'id' => $contact->id,
-                    'name' => $contact->first_name,
-                    'last_name' => $contact->last_name,
-                    'phone' => $contact->phone,
-                    'email' => $contact->email,
-                    'city' => $contact->city,
-                    'deleted_at' => $contact->deleted_at,
-                    'funkcja' => $contact->funkcja,
-                ]),
+
+//            'contacts' => Contact::with('funkcja')
+//                ->where('organization_id',$organization->id)
+//                ->orderByName()
+//                ->paginate(100)
+//                ->withQueryString()
+//                ->through(fn ($contact) => [
+//                    'id' => $contact->id,
+//                    'name' => $contact->first_name,
+//                    'last_name' => $contact->last_name,
+//                    'phone' => $contact->phone,
+//                    'email' => $contact->email,
+//                    'city' => $contact->city,
+//                    'deleted_at' => $contact->deleted_at,
+//                    'funkcja' => $contact->funkcja,
+//                ]),
             'organization_id' => $organization->id,
+            'contacts' => $workers
         ]);
     }
 
@@ -59,6 +70,20 @@ class BudowaPracownicyController extends Controller
 
     }
 
+    public function edit(Organization $organization, Contact $contact)
+    {
+        return Inertia::render('Pracownicy/Edit', [
+            'contact' => [
+                'id' => $contact->id,
+//                'bhpTyp_id' => $contact->bhpTyp_id,
+                'start' => $contact->start,
+                'end' => $contact->end,
+                'deleted_at' => $contact->deleted_at,
+            ],
+//            'bhpTyps' => BhpTyp::all(),
+            'contact' => $contact
+        ]);
+    }
     public function find(FindPracownicyRequest $request, Organization $organization)
     {
         $contactsBusy = ContactWorkDate::query()
@@ -66,7 +91,7 @@ class BudowaPracownicyController extends Controller
             ->where(function ($query) use ($request){
                $query->where('start', '>=', $request->start)
                    ->where('end', '<=', $request->end);
-           })
+            })
             ->orWhere(function ($query) use ($request){
                 $query->where('start', '<=', $request->start)
                     ->where('end', '>=', $request->start);
@@ -90,6 +115,10 @@ class BudowaPracownicyController extends Controller
             array_push($contactArray, $item->id);
         }
         $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
+
+//        return Redirect::route('pracownicy.create', $organization->id)->with(['contactFreeArray' => $contactFreeArray, 'organization' => $organization]);
+
+//        return response()->$contactFreeArray;
 
 //        $contactFree = Contact::with('funkcja')
 //            ->whereIn('id', $contactFreeArray)
@@ -149,6 +178,7 @@ class BudowaPracownicyController extends Controller
         $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
 
         $contactFree = Contact::whereIn('id', $contactFreeArray)->get();
+//        return $contactFree;
 
         return Inertia::render('Pracownicy/Create', [
 //            'contactsFree' => Contact::where('organization_id', null)->orderByName()->get()->map->only('id','first_name','last_name'),
