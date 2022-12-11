@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     store() {
-      this.form.post('/krajTyp')
+      this.form.post(`/country/1/feasts`)
     },
     format(date) {
       const day = date.getDate()

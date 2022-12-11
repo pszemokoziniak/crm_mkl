@@ -3,7 +3,7 @@
     <Head title="Kraje" />
     <h1 class="mb-8 text-3xl font-bold">Święta</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" :href="`country/1/feasts`">
+      <Link class="btn-indigo" :href="`/country/1/feasts/create`">
         <span>Dodaj</span>
       </Link>
     </div>

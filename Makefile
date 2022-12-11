@@ -1,6 +1,9 @@
 dev:
 	docker-compose up -d && npm run watch
 
+app-bash:
+	docker-compose exec app /bin/bash
+
 stop:
 	docker-compose stop
 

@@ -803,14 +803,17 @@ Route::post('building/{build}/time-sheet', [BuildingTimeSheet::class, 'store'])
 
 /** Country Feasts */
 Route::get('country/{country}/feasts', [CountryFeastsController::class, 'index'])
-    ->name('country_feasts')
+    ->name('country_feasts.index')
     ->middleware('auth');
 
-Route::get('country/{country}/feasts', [CountryFeastsController::class, 'create'])
-    ->name('country_feasts')
+Route::get('country/{country}/feasts/create', [CountryFeastsController::class, 'create'])
+    ->name('country_feasts.create')
     ->middleware('auth');
 
-Route::get('country/{country}/feasts/{id}', [CountryFeastsController::class, 'edit'])
-    ->name('country_feasts')
+Route::put('country/{country}/feasts/{id}', [CountryFeastsController::class, 'edit'])
+    ->name('country_feasts.edit')
     ->middleware('auth');
 
+Route::post('country/{country}/feasts', [CountryFeastsController::class, 'store'])
+    ->name('country_feasts.store')
+    ->middleware('auth');
