@@ -4,31 +4,36 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FestDaysRequest;
 use App\Models\FeastDays;
 use App\Models\KrajTyp;
-use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\Request;
 
 class CountryFeastsController extends Controller
 {
     public function index(KrajTyp $country): Response
     {
         return Inertia::render('CountryFeasts/Index', [
-            'feasts' => $country->feasts()
+            'countryId' => $country->id,
+            'feasts'    => $country->feasts()
         ]);
     }
 
-    public function create(): Response
+    public function create(KrajTyp $country): Response
     {
-        return Inertia::render('CountryFeasts/Create', []);
+        return Inertia::render('CountryFeasts/Create', [
+            'countryId' => $country->id,
+        ]);
     }
 
-    public function edit(): Response
+    public function edit(KrajTyp $country): Response
     {
-        return Inertia::render('CountryFeasts/Edit', []);
+        return Inertia::render('CountryFeasts/Edit', [
+            'countryId' => $country->id,
+        ]);
     }
 
     public function remove(): Response
@@ -36,18 +41,9 @@ class CountryFeastsController extends Controller
         return Inertia::render('CountryFeasts/Remove', []);
     }
 
-    public function store(Request $request, $country)
+    public function store(FestDaysRequest $request, $country): RedirectResponse
     {
-        // @TODO to implement
-        $feast = FeastDays::create(
-            [
-                'country_id' => 1,
-                'name' => 'testing feasts',
-                'feast_date' => Carbon::create()
-            ]
-
-        );
-        $feast->save();
+        FeastDays::create($request->validated())->save();
 
         return Redirect::route('country_feasts.index', $country);
     }
