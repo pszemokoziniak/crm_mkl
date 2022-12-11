@@ -18,6 +18,6 @@ class KrajTyp extends Model
 
     public function feasts(): HasMany
     {
-        return $this->hasMany(CountryFeast::class);
+        return $this->hasMany(FeastDays::class);
     }
 }
