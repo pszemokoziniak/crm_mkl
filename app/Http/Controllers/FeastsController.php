@@ -12,34 +12,39 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class CountryFeastsController extends Controller
+class FeastsController extends Controller
 {
     public function index(KrajTyp $country): Response
     {
-        return Inertia::render('CountryFeasts/Index', [
-            'countryId' => $country->id,
-            'feasts'    => $country->feasts
+        return Inertia::render('Feasts/Index', [
+            'countryId' => $country->getAttribute('id'),
+            'feasts'    => $country->getAttribute('feasts')
         ]);
     }
 
     public function create(KrajTyp $country): Response
     {
-        return Inertia::render('CountryFeasts/Create', [
+        return Inertia::render('Feasts/Create', [
             'countryId' => $country->id,
         ]);
     }
 
     public function edit(KrajTyp $country, Feast $feast): Response
     {
-        return Inertia::render('CountryFeasts/Edit', [
+        return Inertia::render('Feasts/Edit', [
             'countryId' => $country->id,
             'feast'     => $feast
         ]);
     }
 
-    public function remove(): Response
+    public function delete(KrajTyp $country, Feast $feast): Response
     {
-        return Inertia::render('CountryFeasts/Remove', []);
+        $feast->delete();
+
+        return Inertia::render('Feasts/Index', [
+            'countryId' => $country->id,
+            'feasts'    => $country->feasts
+        ]);
     }
 
     public function store(FeastRequest $request, int $country): RedirectResponse

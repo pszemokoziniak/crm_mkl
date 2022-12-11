@@ -12,6 +12,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Data</th>
+          <th class="pb-4 pt-6 px-6">Akcje</th>
         </tr>
         <tr v-for="feast in feasts" :key="feast.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -20,6 +21,11 @@
             </Link>
           </td>
           <td class="border-t">{{ feast.date }}</td>
+          <td class="border-t">
+            <Link method='delete' class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`">
+              <icon name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
         </tr>
       </table>
     </div>

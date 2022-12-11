@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\A1Controller;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-//use App\Http\Controllers\BadaniaBHPController;
 use App\Http\Controllers\BadaniaController;
 use App\Http\Controllers\BadaniaTypController;
 use App\Http\Controllers\BhpController;
@@ -10,10 +9,10 @@ use App\Http\Controllers\BhpTypController;
 use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
-use App\Http\Controllers\CountryFeastsController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumentyTypController;
+use App\Http\Controllers\FeastsController;
 use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\JezykController;
 use App\Http\Controllers\JezykTypController;
@@ -802,18 +801,22 @@ Route::post('building/{build}/time-sheet', [BuildingTimeSheet::class, 'store'])
     ->middleware('auth');
 
 /** Country Feasts */
-Route::get('country/{country}/feasts', [CountryFeastsController::class, 'index'])
+Route::get('country/{country}/feasts', [FeastsController::class, 'index'])
     ->name('country_feasts.index')
     ->middleware('auth');
 
-Route::get('country/{country}/feasts/create', [CountryFeastsController::class, 'create'])
+Route::get('country/{country}/feasts/create', [FeastsController::class, 'create'])
     ->name('country_feasts.create')
     ->middleware('auth');
 
-Route::get('country/{country}/feasts/{feast}', [CountryFeastsController::class, 'edit'])
+Route::get('country/{country}/feasts/{feast}', [FeastsController::class, 'edit'])
     ->name('country_feasts.edit')
     ->middleware('auth');
 
-Route::post('country/{country}/feasts', [CountryFeastsController::class, 'store'])
+Route::post('country/{country}/feasts', [FeastsController::class, 'store'])
     ->name('country_feasts.store')
+    ->middleware('auth');
+
+Route::delete('country/{country}/feasts/{feast}/delete', [FeastsController::class, 'delete'])
+    ->name('country_feasts.delete')
     ->middleware('auth');
