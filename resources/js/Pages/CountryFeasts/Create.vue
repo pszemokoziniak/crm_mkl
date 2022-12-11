@@ -9,7 +9,7 @@
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa"/>
-          <Datepicker :format="format" v-model="form.fest_date" class="pb-8 pr-6 w-full lg:w-3/4" label="Dzień"/>
+          <Datepicker :enable-time-picker="false" :format="format" v-model="form.date" class="pb-8 pr-6 w-full lg:w-3/4" label="Dzień"/>
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo" type="submit">Zapisz</loading-button>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {Head, Link} from '@inertiajs/inertia-vue3'
+import {Head, Link, useForm } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
@@ -38,24 +38,25 @@ export default {
   layout: Layout,
   remember: 'form',
   props: {
-    countryId: Number
+    countryId: Number,
   },
-  mounted() {
-    console.log(this.countryId)
-  },
-  data() {
-    return {
-      form: this.$inertia.form({
-        country_id: this.countryId,
-        name: '',
-        fest_date: null,
-      }),
-    }
+  setup(props) {
+    const form = useForm({
+      country_id: props.countryId,
+      name: '',
+      date: null,
+    })
+    return { form }
   },
   methods: {
     store() {
-      this.form.post(`/country/1/feasts`)
+      this.form.post(`/country/${this.countryId}/feasts`)
     },
+    /**
+     * Displaying only day/month on DateTime picker for fest
+     * @param date
+     * @returns {string}
+     */
     format(date) {
       const day = date.getDate()
       const month = date.getMonth() + 1

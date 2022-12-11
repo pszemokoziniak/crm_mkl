@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\FestDaysRequest;
-use App\Models\FeastDays;
+use App\Http\Requests\FeastRequest;
+use App\Models\Feast;
 use App\Models\KrajTyp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -41,9 +41,9 @@ class CountryFeastsController extends Controller
         return Inertia::render('CountryFeasts/Remove', []);
     }
 
-    public function store(FestDaysRequest $request, $country): RedirectResponse
+    public function store(FeastRequest $request, int $country): RedirectResponse
     {
-        FeastDays::create($request->validated())->save();
+        Feast::create($request->validated())->save();
 
         return Redirect::route('country_feasts.index', $country);
     }

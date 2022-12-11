@@ -13,12 +13,11 @@ class FeastDays extends Migration
      */
     public function up(): void
     {
-        Schema::create('feast_days', function (Blueprint $table) {
+        Schema::create('feasts', function (Blueprint $table) {
             $table->id();
-            $table->integer('country_id');
+            $table->unsignedBigInteger('country_id');
             $table->char('name');
-            $table->dateTimeTz('fest_date');
-
+            $table->date('date');
             $table->foreign('country_id')->references('id')->on('kraj_typs');
         });
     }

@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class FestDaysRequest extends FormRequest
+class FeastRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,7 +17,15 @@ class FestDaysRequest extends FormRequest
         return [
             'country_id'            =>'required|int',
             'name'                  =>'required|max:255',
-            'fest_date'             =>'required|date',
+            'date'                  =>'required|date',
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'date' => Carbon::createFromTimeString($this->date),
+        ]);
+    }
 }
+
