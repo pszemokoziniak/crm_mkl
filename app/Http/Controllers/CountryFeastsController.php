@@ -18,7 +18,7 @@ class CountryFeastsController extends Controller
     {
         return Inertia::render('CountryFeasts/Index', [
             'countryId' => $country->id,
-            'feasts'    => $country->feasts()
+            'feasts'    => $country->feasts
         ]);
     }
 

@@ -18,6 +18,6 @@ class KrajTyp extends Model
 
     public function feasts(): HasMany
     {
-        return $this->hasMany(Feast::class);
+        return $this->hasMany(Feast::class, 'country_id');
     }
 }
