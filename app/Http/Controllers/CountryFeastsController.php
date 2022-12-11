@@ -29,10 +29,11 @@ class CountryFeastsController extends Controller
         ]);
     }
 
-    public function edit(KrajTyp $country): Response
+    public function edit(KrajTyp $country, Feast $feast): Response
     {
         return Inertia::render('CountryFeasts/Edit', [
             'countryId' => $country->id,
+            'feast'     => $feast
         ]);
     }
 
@@ -43,7 +44,7 @@ class CountryFeastsController extends Controller
 
     public function store(FeastRequest $request, int $country): RedirectResponse
     {
-        Feast::create($request->validated())->save();
+        Feast::updateOrCreate(['id' => $request->get('id')], $request->all())->save();
 
         return Redirect::route('country_feasts.index', $country);
     }

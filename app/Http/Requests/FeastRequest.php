@@ -15,6 +15,7 @@ class FeastRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id'                    =>'nullable',
             'country_id'            =>'required|int',
             'name'                  =>'required|max:255',
             'date'                  =>'required|date',
@@ -24,7 +25,7 @@ class FeastRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'date' => Carbon::createFromTimeString($this->date),
+            'date' => new Carbon($this->date),
         ]);
     }
 }

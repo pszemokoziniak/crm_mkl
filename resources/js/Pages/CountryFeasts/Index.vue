@@ -15,7 +15,7 @@
         </tr>
         <tr v-for="feast in feasts" :key="feast.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/country/${feast.country_id}/feast/${feast.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}`">
               {{ feast.name }}
             </Link>
           </td>

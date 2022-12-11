@@ -810,7 +810,7 @@ Route::get('country/{country}/feasts/create', [CountryFeastsController::class, '
     ->name('country_feasts.create')
     ->middleware('auth');
 
-Route::put('country/{country}/feasts/{id}', [CountryFeastsController::class, 'edit'])
+Route::get('country/{country}/feasts/{feast}', [CountryFeastsController::class, 'edit'])
     ->name('country_feasts.edit')
     ->middleware('auth');
 
