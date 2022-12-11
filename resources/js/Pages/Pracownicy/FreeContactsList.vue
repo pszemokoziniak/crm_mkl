@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+  <div class="max-w bg-white rounded-md shadow overflow-hidden my-5">
     <form @submit.prevent="store()">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -7,7 +7,7 @@
           <th class="pb-4 pt-6 px-6">Pozycja</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
-        <tr v-for="free in contactsFree.data" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="free in contactsFree" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <input
               class="ml-2 mr-2"
@@ -19,17 +19,17 @@
             <icon v-if="free.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${data.org.id}/destroy/${free.id}`" tabindex="-1">
-              {{ free.funkcja.name }}
+            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
+              {{ free.fn_name }}
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${data.org.id}/destroy/${free.id}`" tabindex="-1">
+            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
               {{ free.phone }}
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/pracownicy/${data.org.id}/destroy/${free.id}`" tabindex="-1">
+            <Link class="flex items-center px-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -65,6 +65,7 @@ export default {
     contacts: Object,
     contactsFree: Object,
     dates: Object,
+    organization: Object,
   },
   remember: 'form',
   data() {
@@ -78,11 +79,11 @@ export default {
   },
   methods: {
     store() {
-      this.form.post(`/pracownicy/${this.data.org.id}/?start=${this.dates.start}&end=${this.dates.end}`)
+      this.form.get(`/pracownicy/${this.organization.id}/?start=${this.start}&end=${this.end}`)
     },
   },
   mounted: function() {
-    // console.log(this.start)
+    console.log(this.organization)
   },
 }
 </script>

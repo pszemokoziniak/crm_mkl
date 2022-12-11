@@ -7,7 +7,7 @@
     <p class="text-base">Dodaj pracowników do budowy</p>
   </h1>
 
-  <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+  <div class="max-w bg-white rounded-md shadow overflow-hidden">
     <form @submit.prevent="find()">
       <div class="flex flex-wrap -mb-3 -mr-6 p-8">
         <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek pracy na budowie" />
@@ -19,44 +19,45 @@
       </div>
     </form>
   </div>
+  <div v-if = "contactsFree" class="max-w" >
+    <FreeContactsList :contactsFree="contactsFree" :organization="organization" :start="form.start" :end="form.end"/>
+  </div>
 
-<!--  {{output}}-->
-
-  <FreeContactsList :contactsFree="contactsFree" :data="org" :dates="form"/>
-
-  <table class="w-full whitespace-nowrap">
-    <tr class="text-left font-bold">
-      <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
-      <th class="pb-4 pt-6 px-6">Pozycja</th>
-      <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
-    </tr>
-    <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-      <td class="border-t">
-        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`">
-          {{ contact.first_name }} {{ contact.last_name }}
-          <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-        </Link>
-      </td>
-      <td class="border-t">
-        <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
-          {{ contact.funkcja.name }}
-        </Link>
-      </td>
-      <td class="border-t">
-        <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
-          {{ contact.phone }}
-        </Link>
-      </td>
-      <td class="w-px border-t">
-        <Link class="flex items-center px-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
-          <icon name="destroy" class="block w-6 h-6 fill-gray-400" />
-        </Link>
-      </td>
-    </tr>
-    <tr v-if="contacts.data.length === 0">
-      <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
-    </tr>
-  </table>
+  <div class="max-w bg-white rounded-md shadow overflow-hidden my-5">
+    <table class="w-full whitespace-nowrap">
+      <tr class="text-left font-bold">
+        <th class="pb-4 pt-6 px-6">Nazwisko</th>
+        <th class="pb-4 pt-6 px-6">Daty</th>
+        <th class="pb-4 pt-6 px-6" colspan="2">Stanowisko</th>
+      </tr>
+      <tr v-for="contact in contacts" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <td class="border-t">
+          <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`">
+            {{ contact.last_name }} {{ contact.first_name }}
+            <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+          </Link>
+        </td>
+        <td class="border-t">
+          <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
+            od: {{ contact.start }}  do: {{ contact.end }}
+          </Link>
+        </td>
+        <td class="border-t">
+          <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
+            {{ contact.name }}
+          </Link>
+        </td>
+        <td class="w-px border-t">
+          <Link class="flex items-center px-4" :href="`/pracownicy/${organization.id}/destroy/${contact.id}`" tabindex="-1">
+            <icon name="destroy" class="block w-6 h-6 fill-gray-400" />
+          </Link>
+        </td>
+      </tr>
+      <tr v-if="contacts.length === 0">
+        <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
+      </tr>
+    </table>
+  </div>
 
 </template>
 
@@ -69,8 +70,7 @@ import LoadingButton from '@/Shared/LoadingButton'
 import BudMenu from '@/Shared/BudMenu'
 // import mapValues from 'lodash/mapValues'
 import FreeContactsList from '@/Pages/Pracownicy/FreeContactsList'
-import pickBy from 'lodash/pickBy'
-import axios from 'axios'
+
 
 export default {
   components: {
@@ -85,7 +85,7 @@ export default {
   props: {
     organization: Object,
     contacts: Object,
-    contactsFree: Object,
+    contactsFree: null,
   },
   remember: 'form',
   data() {
