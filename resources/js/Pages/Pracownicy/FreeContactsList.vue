@@ -1,5 +1,6 @@
 <template>
   <div class="max-w bg-white rounded-md shadow overflow-hidden my-5">
+    <h3 class="font-medium text-xl  p-4">Dostępni pracownicy</h3>
     <form @submit.prevent="store()">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -64,26 +65,28 @@ export default {
     data: Object,
     contacts: Object,
     contactsFree: Object,
-    dates: Object,
+    // dates: Object,
     organization: Object,
+    start: String,
+    end: String,
   },
   remember: 'form',
   data() {
     return {
-      start: '',
-      end: '',
       form: this.$inertia.form({
         checkedValues: [],
+        start: this.start,
+        end: this.end,
       }),
     }
   },
   methods: {
     store() {
-      this.form.get(`/pracownicy/${this.organization.id}/?start=${this.start}&end=${this.end}`)
+      this.form.post(`/pracownicy/${this.organization.id}/`)
     },
   },
   mounted: function() {
-    console.log(this.organization)
+    console.log(this.start)
   },
 }
 </script>

@@ -25,8 +25,8 @@ class StoreBudowaPracownicyRequest extends FormRequest
     {
         return [
             'checkedValues' => ['required'],
-//            'start' => ['required'],
-//            'end' => ['required'],
+            'start' => ['required'],
+            'end' => ['required'],
 
         ];
     }

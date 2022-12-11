@@ -19,11 +19,10 @@ use Inertia\Inertia;
 
 class BudowaPracownicyController extends Controller
 {
-//    public $workers;
 
     public function listWorkers($organization) {
         $workers = DB::table('contact_work_dates')
-            ->select('contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
+            ->select('contact_work_dates.id as work_id', 'contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
             ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('contact_work_dates.organization_id', $organization)
@@ -40,68 +39,66 @@ class BudowaPracownicyController extends Controller
 //            ->where('contact_work_dates.start', '<=', Carbon::now()->format('Y-m-d'))
 //            ->where('contact_work_dates.end', '>=', Carbon::now()->format('Y-m-d'))
 //            ->get();
-//        $this->workers = DB::table('contact_work_dates')
-//            ->select('contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
-//            ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
-//            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-//            ->where('contact_work_dates.organization_id', $organization->id)
-//            ->get();
-        $workers = $this->listWorkers($organization->id);
-//dd($this->workers);
-        return Inertia::render('Pracownicy/Index', [
 
-//            'contacts' => Contact::with('funkcja')
-//                ->where('organization_id',$organization->id)
-//                ->orderByName()
-//                ->paginate(100)
-//                ->withQueryString()
-//                ->through(fn ($contact) => [
-//                    'id' => $contact->id,
-//                    'name' => $contact->first_name,
-//                    'last_name' => $contact->last_name,
-//                    'phone' => $contact->phone,
-//                    'email' => $contact->email,
-//                    'city' => $contact->city,
-//                    'deleted_at' => $contact->deleted_at,
-//                    'funkcja' => $contact->funkcja,
-//                ]),
+        $workers = $this->listWorkers($organization->id);
+        return Inertia::render('Pracownicy/Index', [
             'organization_id' => $organization->id,
-            'contacts' => $workers
+            'contacts' => $workers,
         ]);
     }
+    public function create(Organization $organization) {
 
+        $workers = $this->listWorkers($organization->id);
+
+        return Inertia::render('Pracownicy/Create', [
+            'contacts' => $workers,
+            'organization' => $organization,
+        ]);
+    }
     public function store(StoreBudowaPracownicyRequest $request, Organization $organization)
     {
         foreach ($request->checkedValues as $item) {
-//            $data = Contact::find($item);
-//            $data->organization_id = $organization->id;
-//            $data->save();
-
             $data = new ContactWorkDate;
             $data->contact_id = $item;
             $data->organization_id = $organization->id;
-            $data->start = $_GET['start'];
-            $data->end = $_GET['end'];
+            $data->start = $request->start;
+            $data->end = $request->end;
             $data->save();
         }
         return Redirect::route('pracownicy.create', $organization->id)->with('success', 'Pracownik stworzony');
-
     }
 
-    public function edit(Organization $organization, Contact $contact)
+    public function edit(Organization $organization, ContactWorkDate $contactWorkDate)
     {
         return Inertia::render('Pracownicy/Edit', [
-            'contact' => [
-                'id' => $contact->id,
-//                'bhpTyp_id' => $contact->bhpTyp_id,
-                'start' => $contact->start,
-                'end' => $contact->end,
-                'deleted_at' => $contact->deleted_at,
+            'contactWorkDate' => [
+                'id' => $contactWorkDate->id,
+                'start' => $contactWorkDate->start,
+                'end' => $contactWorkDate->end,
             ],
-//            'bhpTyps' => BhpTyp::all(),
-            'contact' => $contact
+            'contact' => Contact::where('id', $contactWorkDate->contact_id)->first(),
+            'organization' => Organization::where('id', $contactWorkDate->organization_id)->first(),
         ]);
     }
+
+    public function update(ContactWorkDate $contactWorkDate)
+    {
+        $contactWorkDate->update(
+            \Illuminate\Support\Facades\Request::validate([
+                'start' => ['required', 'date'],
+                'end' => ['required', 'date'],
+            ])
+        );
+        return Redirect::route('pracownicy.index', $contactWorkDate->organization_id)->with('success', 'Poprawiono.');
+    }
+
+    public function destroy(ContactWorkDate $contactWorkDate)
+    {
+        $contactWorkDate->delete();
+
+        return Redirect::route('pracownicy.index', $contactWorkDate->organization_id)->with('success', 'Usunięto.');
+    }
+
     public function find(FindPracownicyRequest $request, Organization $organization)
     {
         $contactsBusy = ContactWorkDate::query()
@@ -143,79 +140,5 @@ class BudowaPracownicyController extends Controller
             'contacts' => $workers,
             'organization' => $organization,
         ]);
-
-    }
-
-    public function create(Organization $organization) {
-
-//        $contactsBusyArray = array();
-//        $contactArray = array();
-//
-//        $contactsBusy = ContactWorkDate::where('end', NULL)->get();
-//        foreach ($contactsBusy as $item) {
-//            array_push($contactsBusyArray, $item->contact_id);
-//        }
-//
-//        $contacts = Contact::get();
-//        foreach ($contacts as $item) {
-//            array_push($contactArray, $item->id);
-//        }
-//        $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
-//
-//        $contactFree = Contact::whereIn('id', $contactFreeArray)->get();
-
-        $workers = $this->listWorkers($organization->id);
-//        return $contactFree;
-//        dd($this->workers);
-        return Inertia::render('Pracownicy/Create', [
-//            'contactsFree' => Contact::where('organization_id', null)->orderByName()->get()->map->only('id','first_name','last_name'),
-//            'contactsFree' => $contactFree,
-//            'contacts' => Contact::with('funkcja')
-//                ->where('organization_id', $organization->id)
-//                ->orderByName()
-//                ->paginate(1000)
-//                ->withQueryString()
-//                ->through(fn ($contact) => [
-//                    'id' => $contact->id,
-//                    'first_name' => $contact->first_name,
-//                    'last_name' => $contact->last_name,
-//                    'phone' => $contact->phone,
-//                    'funkcja_id' => $contact->funkcja_id,
-//                    'deleted_at' => $contact->deleted_at,
-//                    'funkcja' => $contact->funkcja,
-//                ]),
-            'contacts' => $workers,
-            'organization' => $organization,
-        ]);
-    }
-
-    public function destroy(Organization $organization, Contact $contact)
-    {
-        return Inertia::render('Pracownicy/Destroy', [
-            'organization' => $organization,
-            'contact' => Contact::with('funkcja')
-                ->where('id', $contact->id)
-                ->first(),
-            'dates' => ContactWorkDate::with('organization')
-                ->where('contact_id', $contact->id)
-                ->where('organization_id', $organization->id)
-                ->where('end', null)
-                ->first(),
-        ]);
-    }
-
-    public function destroyStore(DestroyBudowaPracownicyRequest $request)
-    {
-            // dd($request);
-            $data = ContactWorkDate::find($request->id);
-            $data->end = $request->end;
-            $data->save();
-
-            $data = Contact::find($request->contact_id);
-            $data->organization_id = null;
-            $data->save();
-
-
-        return Redirect::route('pracownicy.create', [$request->organization_id])->with('success', 'Pracownik usunięty.');
     }
 }
