@@ -18,7 +18,6 @@
         </div>
       </form>
     </div>
-    <Link href="/" replace>Home</Link>
   </div>
 </template>
 

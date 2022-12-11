@@ -19,13 +19,15 @@ class BuildTimeShiftCreator
 
         $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
 
+        $feasts = $this->getFeasts($build);
+
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
             foreach ($period as $day) {
-
+                /** Blocked day by not fit to work dates */
                 $isBlocked = !$day->between(
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start']),
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])
-                );
+                ) || $feasts->some(fn($fest) => $day->isSameDay($fest->date));
 
                 $dayIndex = $day->day;
 
@@ -121,6 +123,15 @@ class BuildTimeShiftCreator
             ->whereBetween('work_day', [$period->first()->format('Y-m-d'), $period->last()->format('Y-m-d')])
             ->orderBy('b.contact_id')
             ->orderBy('b.work_day')
+            ->get();
+    }
+
+    private function getFeasts(int $build): Collection
+    {
+        return DB::table('feasts', 'f')
+            ->join('kraj_typs', 'kraj_typs.id', '=', 'f.country_id')
+            ->join('organizations', 'organizations.country_id', 'kraj_typs.id')
+            ->where('organizations.id', $build)
             ->get();
     }
 }
