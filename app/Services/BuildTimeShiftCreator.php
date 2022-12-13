@@ -20,18 +20,13 @@ class BuildTimeShiftCreator
     {
         $shifts = $this->getWorkersOnBuildShifts($build, $period);
         $buildWorkersSavedShifts = $this->transform($shifts);
-
+        $feasts = $this->getFeasts($build);
         $workersOnBuildData = $this->workersData($build, $period);
 
         $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
 
-        $feasts = $this->getFeasts($build);
-
-
-
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
             foreach ($period as $day) {
-
 
                 $constraints = new Collection();
                 $constraints->add(new FeastDaysConstraint($feasts, $day));
