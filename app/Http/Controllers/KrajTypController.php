@@ -4,19 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePosRequest;
 use App\Models\KrajTyp;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Inertia\Response;
+use Inertia\ResponseFactory;
 
 class KrajTypController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
-        $krajTypes = KrajTyp::all();
-        return Inertia('KrajTyp/Index', compact('krajTypes'));
+        return Inertia('KrajTyp/Index', ['krajTypes' => KrajTyp::all()]);
     }
 
-    public function edit(KrajTyp $krajTyp)
+    public function edit(KrajTyp $krajTyp): Response
     {
         return Inertia::render('KrajTyp/Edit', [
             'kraj' => [
@@ -24,6 +24,7 @@ class KrajTypController extends Controller
                 'name' => $krajTyp->name,
                 'deleted_at' => $krajTyp->deleted_at,
             ],
+            'feasts' => $krajTyp->getAttribute('feasts')
         ]);
     }
 

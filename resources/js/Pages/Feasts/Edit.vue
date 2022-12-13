@@ -41,9 +41,6 @@ export default {
     countryId: Number,
     feast: Object,
   },
-  mounted() {
-    console.log(this.feast)
-  },
   setup(props) {
     const form = useForm({
       id: props.feast.id,

@@ -2,7 +2,7 @@
   <div>
     <Head :title="`${form.name}`" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/krajTyp">Kraje</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/krajTyp">Kraj</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.name }}
     </h1>
@@ -18,6 +18,36 @@
         </div>
       </form>
     </div>
+
+    <h1 class="mt-8 mb-8 text-3xl font-bold">
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/krajTyp">Skonfigurowane święta</Link>
+      <span class="text-indigo-400 font-medium">/</span>
+      {{ form.name }}
+    </h1>
+
+    <div class="bg-white rounded-md shadow overflow-x-auto">
+      <table class="w-full whitespace-nowrap">
+        <tr class="text-left font-bold">
+          <th class="pb-4 pt-6 px-6">Nazwa</th>
+          <th class="pb-4 pt-6 px-6">Data</th>
+          <th class="pb-4 pt-6 px-6">Akcje</th>
+        </tr>
+        <tr v-for="feast in feasts" :key="feast.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}`">
+              {{ feast.name }}
+            </Link>
+          </td>
+          <td class="border-t">{{ feast.date }}</td>
+          <td class="border-t">
+            <Link method='delete' class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`">
+              <Icon name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
+        </tr>
+      </table>
+    </div>
+
   </div>
 </template>
 
@@ -27,6 +57,7 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
+import Icon from '@/Shared/Icon'
 
 export default {
   components: {
@@ -35,10 +66,12 @@ export default {
     LoadingButton,
     TextInput,
     TrashedMessage,
+    Icon,
   },
   layout: Layout,
   props: {
     kraj: Object,
+    feasts: Object,
   },
   remember: 'form',
   data() {

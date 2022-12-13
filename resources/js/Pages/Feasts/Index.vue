@@ -47,8 +47,5 @@ export default {
   props: {
     feasts: Object,
   },
-  mounted() {
-    console.log(this.feasts)
-  },
 }
 </script>
