@@ -25,12 +25,8 @@
             </Link>
           </td>
         </tr>
-        <!-- <tr v-if="accounts.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pozycji</td>
-        </tr> -->
       </table>
     </div>
-    <!-- <pagination class="mt-6" :links="accounts.links" /> -->
   </div>
 </template>
 
@@ -55,10 +51,7 @@ export default {
   },
   data() {
     return {
-      form: {
-        // search: this.filters.search,
-        // trashed: this.filters.trashed,
-      },
+      form: {},
     }
   },
   watch: {

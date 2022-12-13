@@ -14,7 +14,7 @@ class RenameCtnDocumentsColumn extends Migration
     public function up()
     {
         Schema::table('ctn_documents', function(Blueprint $table) {
-            $table->renameColumn('typ', 'dokumentytyp_id');
+            //$table->renameColumn('typ', 'dokumentytyp_id');
         });
     }
 

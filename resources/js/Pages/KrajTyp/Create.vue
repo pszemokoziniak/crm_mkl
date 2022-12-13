@@ -32,10 +32,6 @@ export default {
     TextInput,
   },
   layout: Layout,
-  // props: {
-  //   organizations: Array,
-  //   accounts: Array,
-  // },
   remember: 'form',
   data() {
     return {

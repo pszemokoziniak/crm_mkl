@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DTO;
 
 use JsonSerializable;
+use phpDocumentor\Reflection\Utils;
 
 class Shift implements JsonSerializable
 {
@@ -18,6 +19,7 @@ class Shift implements JsonSerializable
         public ?string $work = null,
         public ?int $status = null,
         public ?bool $isBlocked = null,
+        public ?string $blockedType = null,
     ) {}
 
     public function jsonSerialize(): array
@@ -32,10 +34,11 @@ class Shift implements JsonSerializable
             'work' => $this->work,
             'status' => $this->status,
             'isBlocked' => $this->isBlocked,
+            'blockedType' => $this->blockedType,
         ];
     }
 
-    public static function createFromShift(\stdClass $shift, int $build, bool $isBlocked): self
+    public static function createFromShift(\stdClass $shift, int $build, bool $isBlocked, ?string $blockedType): self
     {
         return new self(
             id: $shift->id,
@@ -46,18 +49,20 @@ class Shift implements JsonSerializable
             workTo: $shift->work_to ?? null,
             work: $shift->effective_work_time ?? null,
             status: $shift->shift_status_id ?? null,
-            isBlocked: $isBlocked
+            isBlocked: $isBlocked,
+            blockedType: $blockedType,
         );
     }
 
-    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked): Shift
+    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked, ?string $blockedType): Shift
     {
         return new self(
             id: $id,
             build: $build,
             name: $fullName,
             day: $day,
-            isBlocked: $isBlocked
+            isBlocked: $isBlocked,
+            blockedType: $blockedType,
         );
     }
 }
