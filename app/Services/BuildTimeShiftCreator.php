@@ -1,9 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Constraints\CalendarConstraintInterface;
+use App\Constraints\FeastDaysConstraint;
+use App\Constraints\ShiftOutWorkDatesConstraint;
 use App\DTO\Shift;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -21,13 +27,22 @@ class BuildTimeShiftCreator
 
         $feasts = $this->getFeasts($build);
 
+
+
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
             foreach ($period as $day) {
-                /** Blocked day by not fit to work dates */
-                $isBlocked = !$day->between(
+
+
+                $constraints = new Collection();
+                $constraints->add(new FeastDaysConstraint($feasts, $day));
+                $constraints->add(new ShiftOutWorkDatesConstraint(
+                    $day,
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start']),
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])
-                ) || $feasts->some(fn($fest) => $day->isSameDay($fest->date));
+                ));
+
+                $constraintResult = $this->checkConstraints($constraints);
+                $isBlocked = (bool) $constraintResult;
 
                 $dayIndex = $day->day;
 
@@ -35,20 +50,32 @@ class BuildTimeShiftCreator
                     array_key_exists($dayIndex, $shifts)
                     && Carbon::create($shifts[$dayIndex]->work_day)->isSameDay($day)
                 ) {
-                    $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createFromShift($shifts[$dayIndex], $build, $isBlocked);
+                    $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createFromShift(
+                        $shifts[$dayIndex],
+                        $build,
+                        $isBlocked,
+                        $constraintResult?->getType()
+                    );
                     continue;
                 }
+
                 $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createDraft(
                     id: $workerId,
                     build: $build,
                     fullName: $workersOnBuildData[$workerId]['first_name']  . ' '  . $workersOnBuildData[$workerId]['last_name'],
                     day: $day->toString(),
-                    isBlocked: $isBlocked
+                    isBlocked: $isBlocked,
+                    blockedType: $constraintResult?->getType()
                 );
 
             }
         }
         return $this->filterDayShiftsData($buildWorkersSavedShifts);
+    }
+
+    private function checkConstraints(Collection $constraints): ?CalendarConstraintInterface
+    {
+        return $constraints->first(fn($constraint) => $constraint->isAllowed());
     }
 
     /**
@@ -102,6 +129,7 @@ class BuildTimeShiftCreator
             return $carry;
         }, []);
     }
+
 
     private function getAllWorkersOnBuild(int $build, CarbonPeriod $date): Collection
     {
