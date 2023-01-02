@@ -25,6 +25,12 @@
       {{ form.name }}
     </h1>
 
+    <div class="flex items-center justify-between mb-6">
+      <Link class="btn-indigo" :href="`/country/${kraj.id}/feasts/create`">
+        <span>Dodaj</span>
+      </Link>
+    </div>
+
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
