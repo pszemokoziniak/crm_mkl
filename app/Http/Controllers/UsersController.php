@@ -93,6 +93,7 @@ class UsersController extends Controller
 //        $freeKierownik = (json_encode($freeKierownik));
 //        dd($freeKierownik);
         return Inertia::render('Users/Edit', [
+            'userLoged' => Auth::user()->owner,
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
