@@ -23,7 +23,7 @@ class CtnDocumentsController extends Controller
     {
         return Inertia::render('CtnDocuments/Index', [
             'filters' => Request::all('search', 'trashed'),
-            'contactId' => Request::route('contact_id'),
+            'contactId' => (int) Request::route('contact_id'),
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', Request::route('contact_id'))
                 ->paginate(10)

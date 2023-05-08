@@ -23,7 +23,7 @@ class Organization extends Model
 
     public function contactworkdate()
     {
-        return $this->hasMany(ContactWorkDate::class);
+        return $this->hasOne(ContactWorkDate::class, 'organization_id', 'id');
     }
 
     public function krajTyp() {

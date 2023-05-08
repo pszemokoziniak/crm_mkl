@@ -16,7 +16,7 @@ class DevUserSeeder extends Seeder
             'last_name' => 'Doe',
             'email' => 'test@mkl.com',
             'password' => 'secret',
-            'owner' => 0,
+            'owner' => 2,
         ]);
     }
 }

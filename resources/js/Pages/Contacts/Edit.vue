@@ -2,14 +2,14 @@
   <div>
     <Head :title="`${form.first_name} ${form.last_name}`" />
 
-    <div class="mt-2 grid grid-cols-3 gap-2 bg-white rounded-md shadow overflow-hidden mb-2" >
-      <div class="card">
+    <div class="grid grid-cols-3 bg-white rounded-md shadow overflow-hidden">
+      <div class="grid col-span-1">
         <img v-if="contact.photo_path" class="" :src="contact.photo_path"/>
-        <img v-if="contact.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=crop"/>
+        <img v-if="contact.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill"/>
       </div>
-      <div class="card">
+      <div class="grid col-span-1 p-2">
         <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
-          <span>Języki:</span>
+          <span class="p-4">Języki:</span>
         </h2>
         <span v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <h3 v-if="item.jezyk" class="m-1">
@@ -17,7 +17,7 @@
           </h3>
         </span>
       </div>
-      <div class="card">
+      <div class="grid col-span-1 p-2">
         <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
           <span>Terminy:</span>
         </h2>
@@ -65,11 +65,14 @@
     <div>
       <WorkerMenu :contactId="contactId" />
     </div>
-    <h1 class="mb-8 text-3xl font-bold">
+    <h1 class="mb-4 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
+    <h2 class="mb-4 text-indigo-400 font-medium">
+      Obecna budowa: <span class="text-lg">{{ obecna_budowa.organization.name }}</span>
+    </h2>
 <!--    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">-->
 <!--      <span>Edytuj</span>-->
 <!--    </div>-->
@@ -156,6 +159,7 @@ export default {
     a1: Object,
     pbioz: Object,
     uprawnienia: Object,
+    obecna_budowa: Object,
   },
   remember: 'form',
   data() {

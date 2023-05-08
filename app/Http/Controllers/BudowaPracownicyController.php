@@ -22,7 +22,7 @@ class BudowaPracownicyController extends Controller
 
     public function listWorkers($organization) {
         $workers = DB::table('contact_work_dates')
-            ->select('contact_work_dates.id as work_id', 'contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
+            ->select('contact_work_dates.id as work_id', 'contacts.id', 'contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
             ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('contact_work_dates.organization_id', $organization)
@@ -131,7 +131,7 @@ class BudowaPracownicyController extends Controller
         }
         $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
         $contactFree = Contact::join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-            ->select('contacts.id', 'contacts.first_name', 'contacts.last_name', 'funkcjas.name as fn_name')
+            ->select('contacts.id', 'contacts.first_name', 'contacts.last_name', 'contacts.phone', 'funkcjas.name as fn_name')
             ->whereIn('contacts.id', $contactFreeArray)
             ->get();
         $workers = $this->listWorkers($organization->id);
