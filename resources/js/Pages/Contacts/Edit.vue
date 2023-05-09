@@ -70,8 +70,10 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
-    <h2 class="mb-4 text-indigo-400 font-medium">
-      Obecna budowa: <span class="text-lg">{{ obecna_budowa.organization.name }}</span>
+    <h2 class="mb-4 font-medium">
+      <span class="text-indigo-400">Obecna budowa: </span>
+      <span v-if="obecna_budowa !== 'Nie pracuje'" class="text-lg">{{ obecna_budowa.organization.name }}</span>
+      <span v-if="obecna_budowa === 'Nie pracuje'" class="text-lg">Nie pracuje</span>
     </h2>
 <!--    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">-->
 <!--      <span>Edytuj</span>-->
@@ -159,7 +161,11 @@ export default {
     a1: Object,
     pbioz: Object,
     uprawnienia: Object,
-    obecna_budowa: Object,
+    obecna_budowa: {
+      type: [String, Object],
+      required: false,
+      default: null,
+    },
   },
   remember: 'form',
   data() {

@@ -109,6 +109,10 @@ class ContactsController extends Controller
         if (!auth()->user()->permissions['kierownik']) {
             abort(403);
         }
+
+        $obecna_budowa = (ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first())?ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first():'Nie pracuje';
+//dd($obecna_budowa);
+
         return Inertia::render('Contacts/Edit', [
             'contact' => [
                 'id' => $contact->id,
@@ -160,7 +164,7 @@ class ContactsController extends Controller
             'a1' => A1::select('start', 'end')->where('contact_id', $contact->id)->where('end', '>=', Carbon::now())->where('start', '<=', Carbon::now())->get()->map->only('end'),
             'uprawnienia' => Uprawnienia::select('start', 'end')->where('contact_id', $contact->id)->where('end', '>=', Carbon::now())->where('start', '<=', Carbon::now())->get()->map->only('end'),
             'pbioz' => Pbioz::select('start', 'end')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->get()->map->only('end'),
-            'obecna_budowa' => ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first(),
+            'obecna_budowa' => $obecna_budowa,
 
         ]);
     }
