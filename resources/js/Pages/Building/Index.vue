@@ -30,7 +30,7 @@
       <span class="ml-1 text-lg text-gray-600 font-normal">{{ date.getFullYear() }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l" :class="(Object.keys(timeSheets).length === 1) ? 'border-b' : '' ">
-      <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
+      <div class="sticky left-0 px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
         <div class="text-sm text-center">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
       </div>
@@ -119,8 +119,8 @@ import '@vuepic/vue-datepicker/dist/main.css'
 
 const DEFAULT_RANGES = {
   from: { hours: '07', minutes: '00'},
-  to: { hours: '15', minutes: '00'},
-  shift: { hours: '08', minutes: '00'},
+  to: { hours: '17', minutes: '00'},
+  shift: { hours: '10', minutes: '00'},
 }
 
 export default {
