@@ -154,7 +154,8 @@ export default {
         workTime: null,
         status: null,
         isBlocked: null,
-        blockedType: null
+        blockedType: null,
+        name: null,
       }),
     }
   },
@@ -301,6 +302,7 @@ export default {
 
       this.open = true
       this.form = this.$inertia.form = ({
+        name: shift.name,
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
@@ -346,6 +348,7 @@ export default {
         axios.post(`/building/${this.build}/time-sheet`,this.form)
 
         this.timeSheets[workerId][dayIndex] = {
+          name: this.form.name,
           id: this.form.id ?? null,
           build: this.form.build,
           day: this.form.day,
