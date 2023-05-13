@@ -30,7 +30,7 @@
       <span class="ml-1 text-lg text-gray-600 font-normal">{{ date.getFullYear() }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l" :class="(Object.keys(timeSheets).length === 1) ? 'border-b' : '' ">
-      <div class="sticky left-0 px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500 bg-gray-100 z-50" style="width: 127px; height: 68px;">
+      <div class="sticky left-0 px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500 bg-gray-100 z-10" style="width: 127px; height: 68px;">
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
         <div class="text-sm text-center">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
       </div>
