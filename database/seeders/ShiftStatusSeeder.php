@@ -42,6 +42,10 @@ class ShiftStatusSeeder extends Seeder
             [
                 'title' => 'Badania lekarskie',
                 'code' => 'BL'
+            ],
+            [
+                'title' => 'Nieobecnośc pracownika',
+                'code' => 'NN'
             ]
         ]);
     }
