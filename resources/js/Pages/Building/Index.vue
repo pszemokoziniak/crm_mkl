@@ -40,8 +40,8 @@
           <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ dayOfWeek(new Date(shift.day)) }}</div>
         </div>
 
-        <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
-            {{ (shift.status === 8) ? getStatusName(shift.status) : 'Święto' }}
+        <div v-if="shift.isBlocked && shift.blockedType === 'feast' && shift.status !== 8" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
+            Święto
         </div>
 
         <div v-if="shift.status" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
