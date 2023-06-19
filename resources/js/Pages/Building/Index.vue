@@ -30,7 +30,7 @@
       <span class="ml-1 text-lg text-gray-600 font-normal">{{ date.getFullYear() }}</span>
     </div>
     <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-t border-l" :class="(Object.keys(timeSheets).length === 1) ? 'border-b' : '' ">
-      <div class="px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;">
+      <div class="sticky left-0 px-4 pt-2 border-r border-1 relative cursor-pointer text-gray-500 bg-gray-100 z-10" style="width: 127px; height: 68px;">
         <div class="text-sm text-center">{{ timeSheet[1].name }}</div>
         <div class="text-sm text-center">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
       </div>
@@ -41,7 +41,7 @@
         </div>
 
         <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
-          Święto
+            {{ (shift.status === 8) ? getStatusName(shift.status) : 'Święto' }}
         </div>
 
         <div v-if="shift.status" class="overflow-y-auto mt-1 text-center" style="height: 60px;">
@@ -63,8 +63,7 @@
     <div v-if="timeSheets.length < 1" class="flex px-4 pt-2">
       Brak pracowników
     </div>
-
-    </div>
+  </div>
   <TransitionRoot as="template" :show="open">
     <Dialog as="div" class="relative z-10" @close="open = false">
       <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
@@ -82,9 +81,9 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <Datepicker :disabled="isStatus" v-model="form.from" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <Datepicker :disabled="isStatus" v-model="form.to" @update:modelValue="calculateEffectiveTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
-                            <Datepicker :disabled="isStatus" v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker v-model="form.from" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
+                            <Datepicker v-model="form.to" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
+                            <Datepicker v-model="form.workTime" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
                             </select-input>
@@ -119,8 +118,8 @@ import '@vuepic/vue-datepicker/dist/main.css'
 
 const DEFAULT_RANGES = {
   from: { hours: '07', minutes: '00'},
-  to: { hours: '15', minutes: '00'},
-  shift: { hours: '08', minutes: '00'},
+  to: { hours: '17', minutes: '00'},
+  shift: { hours: '10', minutes: '00'},
 }
 
 export default {
@@ -154,7 +153,8 @@ export default {
         workTime: null,
         status: null,
         isBlocked: null,
-        blockedType: null
+        blockedType: null,
+        name: null,
       }),
     }
   },
@@ -264,8 +264,11 @@ export default {
     },
     shiftBackground(shift) {
 
-
       if (this.isSunday(shift)) {
+        return 'bg-red-200'
+      }
+
+      if (shift.status === 8) {
         return 'bg-red-200'
       }
 
@@ -294,13 +297,14 @@ export default {
       return (new Date(shift.day)).getDay() === 6
     },
     showModal(shift) {
-
-      if (shift.isBlocked) {
+      // exception for feasts
+      if (shift.isBlocked && shift.blockedType !== 'feast') {
         return
       }
 
       this.open = true
       this.form = this.$inertia.form = ({
+        name: shift.name,
         build: shift.build,
         id: shift.id ?? null,
         day: shift.day,
@@ -346,6 +350,7 @@ export default {
         axios.post(`/building/${this.build}/time-sheet`,this.form)
 
         this.timeSheets[workerId][dayIndex] = {
+          name: this.form.name,
           id: this.form.id ?? null,
           build: this.form.build,
           day: this.form.day,
