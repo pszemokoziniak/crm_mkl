@@ -272,7 +272,7 @@ Route::put('dokumentyTyp/{account}/restore', [DokumentyTypController::class, 're
     ->name('dokumentyTyp.restore')
     ->middleware('auth');
 
-// Dodawanie pracownicy budowa
+// Pracownicy budowa
 
 Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'index'])
     ->name('pracownicy.index')

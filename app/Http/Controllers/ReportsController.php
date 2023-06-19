@@ -33,7 +33,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'bhp_typs.name', 'bhps.start', 'bhps.end']);
 
         foreach ($bhps as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name, 'first_name' => $item->first_name, 'name' => 'BHP / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'BHP / '.$item->name, 'start' => $item->start, 'end' => $item->end);
         }
 
         $a1s = A1::join('contacts', 'a1_s.contact_id', '=', 'contacts.id')
@@ -42,7 +42,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'a1_s.start', 'a1_s.end']);
 
         foreach ($a1s as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name, 'first_name' => $item->first_name, 'name' => 'A1', 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'A1', 'start' => $item->start, 'end' => $item->end);
         }
 
         $badania = Badania::join('contacts', 'badanias.contact_id', '=', 'contacts.id')
@@ -52,7 +52,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'badania_typs.name', 'badanias.start', 'badanias.end']);
 
         foreach ($badania as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name, 'first_name' => $item->first_name, 'name' => 'Lekarskie / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'Lekarskie / '.$item->name, 'start' => $item->start, 'end' => $item->end);
         }
 
         $uprawnienia = Uprawnienia::join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
@@ -62,7 +62,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'uprawnienia_typs.name', 'uprawnienias.start', 'uprawnienias.end']);
 
         foreach ($uprawnienia as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name, 'first_name' => $item->first_name, 'name' => 'Uprawnienia / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'Uprawnienia / '.$item->name, 'start' => $item->start, 'end' => $item->end);
         }
 
         $pbioz = Pbioz::join('contacts', 'pbiozs.contact_id', '=', 'contacts.id')
@@ -71,12 +71,22 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'pbiozs.name', 'pbiozs.start', 'pbiozs.end']);
 
         foreach ($pbioz as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name, 'first_name' => $item->first_name, 'name' => 'PBIOZ / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'PBIOZ / '.$item->name, 'start' => $item->start, 'end' => $item->end);
         }
 
-
+//        dd($data);
         $all = collect($data)->sortBy('end')->values()->toArray();
-
+//        $all = array_unique(collect($data)->pluck('last_name')->toArray());
+//
+//        foreach ($all as $name) {
+//
+//            foreach ($data as $item) {
+//                if ($item['last_name'] === $name) {
+//                    dd($item['last_name']);
+//                }
+//            }
+//        }
+//dd($all);
         return Inertia::render('Reports/TerminUprawnien', [
             'data' => $all,
         ]);

@@ -21,13 +21,17 @@ class BudowaPracownicyController extends Controller
 {
 
     public function listWorkers($organization) {
+        $today = Carbon::today()->format('Y-m-d');
         $workers = DB::table('contact_work_dates')
             ->select('contact_work_dates.id as work_id', 'contacts.id', 'contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
             ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
+            ->where('start', '<=', $today )->where('end', '>=', $today)
             ->where('contact_work_dates.organization_id', $organization)
             ->get();
         return $workers;
+
+
     }
 
     public function index(Organization $organization)
@@ -39,6 +43,13 @@ class BudowaPracownicyController extends Controller
 //            ->where('contact_work_dates.start', '<=', Carbon::now()->format('Y-m-d'))
 //            ->where('contact_work_dates.end', '>=', Carbon::now()->format('Y-m-d'))
 //            ->get();
+//        $workers = DB::table('contacts', 'c')
+//            ->join('contact_work_dates', 'c.id', '=', 'contact_work_dates.contact_id')
+//            ->where('contact_work_dates.organization_id', $build)
+//            ->whereDate(column: 'start', operator: '<=', value: $date->first()->format('Y-m-d'))
+//            ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
+//            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
+//            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'));
 
         $workers = $this->listWorkers($organization->id);
         return Inertia::render('Pracownicy/Index', [
