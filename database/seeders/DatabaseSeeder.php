@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         User::factory(5)->create(['account_id' => $account->id]);
 
         $this->call([
-            ShiftStatusSeeder::class
+//            ShiftStatusSeeder::class
         ]);
 //
 //        $organizations = Organization::factory(100)

@@ -22,36 +22,83 @@ class BudowaPracownicyController extends Controller
 
     public function listWorkers($organization) {
         $today = Carbon::today()->format('Y-m-d');
-        $workers = DB::table('contact_work_dates')
-            ->select('contact_work_dates.id as work_id', 'contacts.id', 'contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
-            ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
-            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-            ->where('start', '<=', $today )->where('end', '>=', $today)
-            ->where('contact_work_dates.organization_id', $organization)
-            ->get();
-        return $workers;
 
+        $workers = DB::table('contacts')->get();
 
-    }
-
-    public function index(Organization $organization)
-    {
 //        $workers = DB::table('contact_work_dates')
-//            ->select('contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end')
+//            ->select('contact_work_dates.id as work_id', 'contacts.id', 'contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
 //            ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
-//            ->where('contact_work_dates.organization_id', $organization->id)
-//            ->where('contact_work_dates.start', '<=', Carbon::now()->format('Y-m-d'))
-//            ->where('contact_work_dates.end', '>=', Carbon::now()->format('Y-m-d'))
-//            ->get();
-//        $workers = DB::table('contacts', 'c')
-//            ->join('contact_work_dates', 'c.id', '=', 'contact_work_dates.contact_id')
-//            ->where('contact_work_dates.organization_id', $build)
+//            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
+//            ->where(function ($query, $today){
+//                $query->where('start', '<=', $today)
+//                    ->where('end', '>=', $today);
+//            })->orWhere(function ($query, $today){
+//                $query->where('start', '<=', $today)
+//                    ->where('end', '>', $today);
+//            })
+//            ->whereDate('start', '<=', $today )->orWhereDate('end', '>=', $today)
+//            ->whereDate('start', '<', $today)->orWhereDate('end', '>', $today)
 //            ->whereDate(column: 'start', operator: '<=', value: $date->first()->format('Y-m-d'))
 //            ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
 //            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
 //            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'));
 
-        $workers = $this->listWorkers($organization->id);
+//            ->where('contact_work_dates.organization_id', $organization)
+//            ->get();
+//        dd($workers);
+        return $workers;
+
+
+    }
+
+    public function organizationWorkers($id) {
+        $workers = DB::table('contact_work_dates', 'cwd')
+            ->select('contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name', 'funkcjas.id')
+            ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
+            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
+            ->where('cwd.organization_id', $id)
+            ->orWhere('contacts.funkcja_id', '!==', 1)
+            ->get();
+        return $workers;
+    }
+
+    public function index(Organization $organization)
+    {
+
+//        $workers = ContactWorkDate::query()
+//            ->select('id', 'contact_id')
+//            ->where(function ($query) use ($request){
+//                $query->where('start', '>=', $request->start)
+//                    ->where('end', '<=', $request->end);
+//            })
+//            ->orWhere(function ($query) use ($request){
+//                $query->where('start', '<=', $request->start)
+//                    ->where('end', '>=', $request->start);
+//            })
+//            ->orWhere(function ($query) use ($request){
+//                $query->where('start', '<=', $request->end)
+//                    ->where('end', '>=', $request->end);
+//            })
+//            ->distinct()
+//            ->get();
+
+//        $workers = DB::table('contact_work_dates', 'cwd')
+//            ->select('contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name')
+//            ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
+//            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
+//            ->where('cwd.organization_id', $organization->id)
+//            ->where('funkcjas.id', '!==', 1)
+//            ->get();
+//        $workers = DB::table('contacts', 'c')
+//            ->join('contact_work_dates', 'c.id', '=', 'contact_work_dates.contact_id')
+//            ->where('contact_work_dates.organization_id', $organization->id)->get();
+//            ->whereDate(column: 'start', operator: '<=', value: $date->first()->format('Y-m-d'))
+//            ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
+//            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
+//            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'));
+
+        $workers = $this->organizationWorkers($organization->id);
+
         return Inertia::render('Pracownicy/Index', [
             'organization_id' => $organization->id,
             'contacts' => $workers,
@@ -59,7 +106,7 @@ class BudowaPracownicyController extends Controller
     }
     public function create(Organization $organization) {
 
-        $workers = $this->listWorkers($organization->id);
+        $workers = $this->organizationWorkers($organization->id);
 
         return Inertia::render('Pracownicy/Create', [
             'contacts' => $workers,
@@ -112,7 +159,8 @@ class BudowaPracownicyController extends Controller
 
     public function find(FindPracownicyRequest $request, Organization $organization)
     {
-        $contactsBusy = ContactWorkDate::query()
+        $contactsBusy = DB::table('contact_work_dates')
+
             ->select('id', 'contact_id')
             ->where(function ($query) use ($request){
                $query->where('start', '>=', $request->start)
@@ -138,14 +186,16 @@ class BudowaPracownicyController extends Controller
 
         $contacts = Contact::get();
         foreach ($contacts as $item) {
-            array_push($contactArray, $item->id);
+            ($item->funkcja_id === 1)?:array_push($contactArray, $item->id);
         }
         $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
         $contactFree = Contact::join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-            ->select('contacts.id', 'contacts.first_name', 'contacts.last_name', 'contacts.phone', 'funkcjas.name as fn_name')
+            ->select('contacts.id', 'contacts.first_name', 'contacts.last_name', 'contacts.phone', 'funkcjas.name as fn_name', 'contacts.funkcja_id')
             ->whereIn('contacts.id', $contactFreeArray)
             ->get();
-        $workers = $this->listWorkers($organization->id);
+
+        $workers = $this->organizationWorkers($organization->id);
+
         return Inertia::render('Pracownicy/Create', [
             'contactsFree' => $contactFree,
             'contacts' => $workers,

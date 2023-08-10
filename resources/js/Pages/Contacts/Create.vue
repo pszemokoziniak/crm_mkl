@@ -12,7 +12,7 @@
           <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
 
           <text-input type="date" v-model="form.birth_date" :error="form.errors.birth_date" class="pb-8 pr-6 w-full lg:w-1/2" label="Data Urodzenia" />
-          <text-input v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
+          <text-input type="number" v-model="form.pesel" :error="form.errors.pesel" class="pb-8 pr-6 w-full lg:w-1/2" label="PESEL" />
 
           <text-input v-model="form.address" :error="form.errors.address" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce zamieszkania" />
           <text-input v-model="form.miejsce_urodzenia" :error="form.errors.miejsce_urodzenia" class="pb-8 pr-6 w-full lg:w-1/1" label="Miejsce urodzenia" />

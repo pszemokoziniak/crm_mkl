@@ -28,7 +28,7 @@ class StoreCustomersRequest extends FormRequest
             'first_name' => ['required', 'max:150'],
             'last_name' => ['required', 'max:150'],
             'birth_date' => ['required'],
-            'pesel' => 'required | numeric | unique:contacts',
+            'pesel' => ['required', 'numeric', 'unique:contacts', 'digits:11'],
             'idCard_number' => ['nullable'],
             'idCard_date' => ['nullable'],
             'funkcja_id' => ['required'],
@@ -48,6 +48,7 @@ class StoreCustomersRequest extends FormRequest
             'required'  => 'Pole :attribute jest wymagane.',
             'unique' => 'Nazwa użyta',
             'numeric' => 'Pole :attribute może zawierać tylko cyfry',
+            'digits' => 'PESEL musi mieć 11 cyfr',
         ];
     }
 
