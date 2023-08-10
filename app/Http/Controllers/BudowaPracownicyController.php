@@ -20,37 +20,6 @@ use Inertia\Inertia;
 class BudowaPracownicyController extends Controller
 {
 
-    public function listWorkers($organization) {
-        $today = Carbon::today()->format('Y-m-d');
-
-        $workers = DB::table('contacts')->get();
-
-//        $workers = DB::table('contact_work_dates')
-//            ->select('contact_work_dates.id as work_id', 'contacts.id', 'contacts.first_name', 'contacts.last_name', 'contact_work_dates.organization_id', 'contact_work_dates.start', 'contact_work_dates.end', 'funkcjas.name')
-//            ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
-//            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-//            ->where(function ($query, $today){
-//                $query->where('start', '<=', $today)
-//                    ->where('end', '>=', $today);
-//            })->orWhere(function ($query, $today){
-//                $query->where('start', '<=', $today)
-//                    ->where('end', '>', $today);
-//            })
-//            ->whereDate('start', '<=', $today )->orWhereDate('end', '>=', $today)
-//            ->whereDate('start', '<', $today)->orWhereDate('end', '>', $today)
-//            ->whereDate(column: 'start', operator: '<=', value: $date->first()->format('Y-m-d'))
-//            ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
-//            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
-//            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'));
-
-//            ->where('contact_work_dates.organization_id', $organization)
-//            ->get();
-//        dd($workers);
-        return $workers;
-
-
-    }
-
     public function organizationWorkers($id) {
         $workers = DB::table('contact_work_dates', 'cwd')
             ->select('contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name', 'funkcjas.id')
@@ -64,38 +33,6 @@ class BudowaPracownicyController extends Controller
 
     public function index(Organization $organization)
     {
-
-//        $workers = ContactWorkDate::query()
-//            ->select('id', 'contact_id')
-//            ->where(function ($query) use ($request){
-//                $query->where('start', '>=', $request->start)
-//                    ->where('end', '<=', $request->end);
-//            })
-//            ->orWhere(function ($query) use ($request){
-//                $query->where('start', '<=', $request->start)
-//                    ->where('end', '>=', $request->start);
-//            })
-//            ->orWhere(function ($query) use ($request){
-//                $query->where('start', '<=', $request->end)
-//                    ->where('end', '>=', $request->end);
-//            })
-//            ->distinct()
-//            ->get();
-
-//        $workers = DB::table('contact_work_dates', 'cwd')
-//            ->select('contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name')
-//            ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
-//            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-//            ->where('cwd.organization_id', $organization->id)
-//            ->where('funkcjas.id', '!==', 1)
-//            ->get();
-//        $workers = DB::table('contacts', 'c')
-//            ->join('contact_work_dates', 'c.id', '=', 'contact_work_dates.contact_id')
-//            ->where('contact_work_dates.organization_id', $organization->id)->get();
-//            ->whereDate(column: 'start', operator: '<=', value: $date->first()->format('Y-m-d'))
-//            ->whereDate(column: 'end', operator: '<=', value: $date->last()->format('Y-m-d'))
-//            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
-//            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'));
 
         $workers = $this->organizationWorkers($organization->id);
 
@@ -123,7 +60,7 @@ class BudowaPracownicyController extends Controller
             $data->end = $request->end;
             $data->save();
         }
-        return Redirect::route('pracownicy.create', $organization->id)->with('success', 'Pracownik stworzony');
+        return Redirect::route('pracownicy.create', $organization->id)->with('success', 'Pracownik dodany');
     }
 
     public function edit(Organization $organization, ContactWorkDate $contactWorkDate)
