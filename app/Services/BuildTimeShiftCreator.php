@@ -130,11 +130,8 @@ class BuildTimeShiftCreator
     {
 
         $query = DB::table('contact_work_dates', 'cwd')
-            ->select('contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name', 'funkcjas.id')
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
-            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $build)
-            ->orWhere('contacts.funkcja_id', '!==', 1)
             ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
             ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'))
             ->get();
