@@ -13,9 +13,6 @@ class DashboardController extends Controller
     public function index()
     {
 
-//        $organizations = Contact::join('organizations', 'contacts.organization_id', 'organizations.id')->get();
-//        dd($organizations);
-
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Organization::join('contacts', 'organizations.kierownikBud_id', '=', 'contacts.id')
@@ -23,4 +20,5 @@ class DashboardController extends Controller
                 ->get(['organizations.id','organizations.nazwaBud','organizations.kierownikBud_id', 'contacts.user_id']),
         ]);
     }
+
 }

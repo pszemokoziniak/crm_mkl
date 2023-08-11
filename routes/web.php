@@ -56,11 +56,21 @@ Route::post('login', [AuthenticatedSessionController::class, 'store'])
 Route::delete('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
+Route::get('password/expired', [AuthenticatedSessionController::class, 'expired'])
+    ->name('password.expired')
+    ->middleware('auth');
+
+
+Route::post('password/expired', [AuthenticatedSessionController::class, 'postExpired'])
+    ->name('password.expired.post')
+    ->middleware('auth');
+
+
 // Dashboard
 
 Route::get('/', [DashboardController::class, 'index'])
     ->name('dashboard')
-    ->middleware('auth');
+    ->middleware('auth', 'password_expired');
 
 // Users
 
