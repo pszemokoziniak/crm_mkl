@@ -16,7 +16,7 @@
 <!--          <text-input type="hidden" value="@{{contact_id}}" v-model="form.contact_id" :error="form.errors.contact_id" />-->
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-<!--          <button class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>-->
+          <button class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>

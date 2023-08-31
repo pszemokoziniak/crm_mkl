@@ -6,15 +6,17 @@ use App\Http\Requests\DestroyBudowaPracownicyRequest;
 use App\Http\Requests\FindPracownicyRequest;
 use App\Http\Requests\StoreBudowaPracownicyRequest;
 use App\Http\Requests\StoredestroyStoreRequest;
+use App\Models\A1;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
 use App\Models\Organization;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+//use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
 class BudowaPracownicyController extends Controller
@@ -26,19 +28,32 @@ class BudowaPracownicyController extends Controller
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $id)
-            ->orWhere('contacts.funkcja_id', '!==', 1)
+            ->orderBy('last_name')
             ->get();
+
         return $workers;
     }
 
     public function index(Organization $organization)
     {
 
-        $workers = $this->organizationWorkers($organization->id);
-
         return Inertia::render('Pracownicy/Index', [
             'organization_id' => $organization->id,
-            'contacts' => $workers,
+            'filters' => Request::all('search', 'trashed'),
+            'contactworkdates' => ContactWorkDate::with('organization')
+                ->with('contact')
+                ->with('contact.funkcja')
+                ->where('organization_id', $organization->id)
+                ->filter(Request::only('search', 'trashed'))
+                ->paginate(100)
+                ->withQueryString()
+                ->through(fn ($contactworkdate) => [
+                    'id' => $contactworkdate->id,
+                    'contact' => $contactworkdate->contact,
+                    'funkcja' => $contactworkdate->funkcja,
+                    'start' => $contactworkdate->start,
+                    'end' => $contactworkdate->end,
+                ]),
         ]);
     }
     public function create(Organization $organization) {
@@ -123,7 +138,8 @@ class BudowaPracownicyController extends Controller
 
         $contacts = Contact::get();
         foreach ($contacts as $item) {
-            ($item->funkcja_id === 1)?:array_push($contactArray, $item->id);
+            array_push($contactArray, $item->id);
+//            ($item->funkcja_id === 1)?:array_push($contactArray, $item->id);
         }
         $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
         $contactFree = Contact::join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')

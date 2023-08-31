@@ -24,6 +24,7 @@ class BuildTimeShiftCreator
         $workersOnBuildData = $this->workersData($build, $period);
 //        $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
         $buildWorkersSavedShifts = $workersOnBuildData;
+        $buildWorkersSavedShifts = collect($buildWorkersSavedShifts)->sortBy('last_name')->toArray();
 
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
             foreach ($period as $day) {
@@ -56,12 +57,11 @@ class BuildTimeShiftCreator
                 $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createDraft(
                     id: $workerId,
                     build: $build,
-                    fullName: $workersOnBuildData[$workerId]['first_name']  . ' '  . $workersOnBuildData[$workerId]['last_name'],
+                    fullName: $workersOnBuildData[$workerId]['last_name']  . ' '  . $workersOnBuildData[$workerId]['first_name'],
                     day: $day->toString(),
                     isBlocked: $isBlocked,
                     blockedType: $constraintResult?->getType()
                 );
-
             }
         }
         return $this->filterDayShiftsData($buildWorkersSavedShifts);
@@ -133,6 +133,7 @@ class BuildTimeShiftCreator
             ->where('cwd.organization_id', $build)
             ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
             ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'))
+            ->orderBy('contacts.last_name', 'ASC')
             ->get();
 
 //        $query = DB::table('contacts', 'c')
