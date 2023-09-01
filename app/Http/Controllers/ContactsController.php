@@ -111,7 +111,6 @@ class ContactsController extends Controller
         }
 
         $obecna_budowa = (ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first())?ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first():'Nie pracuje';
-//dd($obecna_budowa);
 
         return Inertia::render('Contacts/Edit', [
             'contact' => [

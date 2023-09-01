@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Models\Contact;
+use App\Models\ContactWorkDate;
 use App\Models\JezykTyp;
 use App\Models\KrajTyp;
 use App\Models\Organization;
@@ -145,6 +146,10 @@ class OrganizationsController extends Controller
 
     public function destroy(Organization $organization)
     {
+        $checkWorker = ContactWorkDate::where('organization_id', $organization->id)->get();
+        if (count($checkWorker) > 0) {
+            return Redirect::back()->with('error', 'Budowa nie została usunięta, najpierw proszę usunąć pracowników przypisanych do budowy');
+        }
         $organization->delete();
 
         return Redirect::back()->with('success', 'Budowa usunięta.');
