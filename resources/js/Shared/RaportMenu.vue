@@ -12,12 +12,12 @@
       </div>
       <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div class="text-md lg:flex-grow">
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`reports/koniecUprawinien`">
-            <div :class="isUrl('koniecUprawinien') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Termin Uprawnień</div>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/reports/koniecUprawinien`">
+            <div :class="isUrl('koniecUprawinien') ? 'text-indigo-800' : 'text-indigo-300 group-hover:text-gray-900'">Termin Uprawnień</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/edit/`">
-            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Test</div>
-          </Link>
+<!--          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/edit/`">-->
+<!--            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Test</div>-->
+<!--          </Link>-->
         </div>
       </div>
     </nav>

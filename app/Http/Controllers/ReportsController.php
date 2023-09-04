@@ -9,7 +9,9 @@ use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class ReportsController extends Controller
 {
@@ -18,13 +20,13 @@ class ReportsController extends Controller
         return Inertia::render('Reports/Index');
     }
 
-    public function koniecUprawinien()
+    public function koniecUprawinien(Request $request)
     {
 
         //zmienne
         // ilość dni po którym uprawnienia znikają z raport koniec uprawnien
         $prevDays = 7;
-
+        $data = array();
 
         $bhps = BHP::join('contacts', 'bhps.contact_id', '=', 'contacts.id')
             ->join('bhp_typs', 'bhps.bhpTyp_id', '=', 'bhp_typs.id')
@@ -74,21 +76,25 @@ class ReportsController extends Controller
             $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'PBIOZ / '.$item->name, 'start' => $item->start, 'end' => $item->end);
         }
 
-//        dd($data);
-        $all = collect($data)->sortBy('end')->values()->toArray();
-//        $all = array_unique(collect($data)->pluck('last_name')->toArray());
-//
-//        foreach ($all as $name) {
-//
-//            foreach ($data as $item) {
-//                if ($item['last_name'] === $name) {
-//                    dd($item['last_name']);
-//                }
-//            }
-//        }
-//dd($all);
+        if ($data) {
+            $all = collect($data)->sortBy('end')->values();
+        } else {
+            $all = array();
+        }
+        if (Request::all()) {
+            $search = strtolower(collect(Request::only('search'))->first());
+            $collectionWhereLike = function ($collection, $key, $search) {
+                $filtered = $collection->filter(fn ($item) => Str::contains(strtolower($item['last_name']), $search) || Str::contains(strtolower($item['name']), $search));
+                $reIndexed = array_values($filtered->toArray());
+                return collect($reIndexed);
+            };
+
+            $data = $collectionWhereLike($all, 'last_name', $search);
+        }
+
         return Inertia::render('Reports/TerminUprawnien', [
-            'data' => $all,
+            'filters' => Request::all('search'),
+            'data' => $data,
         ]);
     }
 

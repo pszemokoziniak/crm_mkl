@@ -4,6 +4,14 @@
     <h1 class="mb-8 text-3xl font-bold">Termin uprawnień</h1>
     <RaportMenu/>
     <div class="flex items-center justify-between mb-6">
+      <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+<!--        <label class="block text-gray-700">Trashed:</label>-->
+<!--        <select v-model="form.trashed" class="form-select mt-1 w-full">-->
+<!--          <option :value="null" />-->
+<!--          <option value="with">test1</option>-->
+<!--          <option value="only">test2</option>-->
+<!--        </select>-->
+      </search-filter-no-filtr>
 <!--      <Link class="btn-indigo" href="/contacts/create">-->
 <!--        <span>Dodaj</span>-->
 <!--        <span class="hidden md:inline">&nbsp;Pracownika</span>-->
@@ -62,9 +70,14 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import RaportMenu from '@/Shared/RaportMenu'
+import pickBy from 'lodash/pickBy'
+import throttle from 'lodash/throttle'
+import mapValues from 'lodash/mapValues'
+import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
 
 export default {
   components: {
+    SearchFilterNoFiltr,
     Head,
     Icon,
     Link,
@@ -74,31 +87,32 @@ export default {
   props: {
     bhps: Object,
     data: Object,
+    filters: Object,
   },
   data() {
     return {
       form: {
-        // search: this.filters.search,
-        // trashed: this.filters.trashed,
+        search: this.filters.search,
+        trashed: this.filters.trashed,
       },
     }
   },
-  // watch: {
-  //   form: {
-  //     deep: true,
-  //     handler: throttle(function () {
-  //       this.$inertia.get('/contacts', pickBy(this.form), { preserveState: true })
-  //     }, 150),
-  //   },
-  // },
+  watch: {
+    form: {
+      deep: true,
+      handler: throttle(function () {
+        this.$inertia.get('/reports/koniecUprawinien', pickBy(this.form), { preserveState: true })
+      }, 150),
+    },
+  },
   methods: {
     checkDays(end_date){
       var dni = Math.round(( new Date(end_date).getTime() - new Date().getTime() ) / (1000*3600*24));
       return dni < 7
-    }
-    // reset() {
-    //   this.form = mapValues(this.form, () => null)
-    // },
+    },
+    reset() {
+      this.form = mapValues(this.form, () => null)
+    },
   },
 }
 </script>
