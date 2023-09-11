@@ -22,6 +22,7 @@ use App\Http\Controllers\NarzedziaController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PbiozController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
 use App\Http\Controllers\UprawnieniaTypController;
 use App\Http\Controllers\UsersController;
@@ -222,34 +223,38 @@ Route::put('narzedzia/{narzedzia}/restore', [NarzedziaController::class, 'restor
     ->name('narzedzia.restore')
     ->middleware('auth');
 
-// Narzedzia Budowa
+//  Budowa Narzedzia
 
-Route::get('narzedzia', [NarzedziaController::class, 'index'])
-    ->name('narzedzia')
+Route::get('budowy/{organization}/narzedzia', [ToolWorkDatesController::class, 'index'])
+    ->name('budowy.narzedzia')
     ->middleware('auth');
 
-Route::get('narzedzia/create', [NarzedziaController::class, 'create'])
-    ->name('narzedzia.create')
+Route::get('budowy/{organization}/narzedzia/create', [ToolWorkDatesController::class, 'create'])
+    ->name('budowy.narzedzia.create')
     ->middleware('auth');
 
-Route::post('narzedzia', [NarzedziaController::class, 'store'])
-    ->name('narzedzia.store')
+Route::post('budowy/{organization}/narzedzia/create', [ToolWorkDatesController::class, 'find'])
+    ->name('budowy.narzedzia.post')
     ->middleware('auth');
 
-Route::get('narzedzia/{narzedzia}/edit', [NarzedziaController::class, 'edit'])
-    ->name('narzedzia.edit')
+Route::post('budowy/{organization}/narzedzia', [ToolWorkDatesController::class, 'store'])
+    ->name('budowy.narzedzia.store')
     ->middleware('auth');
 
-Route::put('narzedzia/{narzedzia}', [NarzedziaController::class, 'update'])
-    ->name('narzedzia.update')
+Route::get('budowy/{organization}/narzedzia/{narzedzia}/edit', [ToolWorkDatesController::class, 'edit'])
+    ->name('budowy.narzedzia.edit')
     ->middleware('auth');
 
-Route::delete('narzedzia/{narzedzia}', [NarzedziaController::class, 'destroy'])
-    ->name('narzedzia.destroy')
+Route::put('budowy/{organization}/narzedzia/{narzedzia}', [ToolWorkDatesController::class, 'update'])
+    ->name('budowy.narzedzia.update')
     ->middleware('auth');
 
-Route::put('narzedzia/{narzedzia}/restore', [NarzedziaController::class, 'restore'])
-    ->name('narzedzia.restore')
+Route::delete('budowy/{organization}/narzedzia/{narzedzia}', [ToolWorkDatesController::class, 'destroy'])
+    ->name('budowy.narzedzia.destroy')
+    ->middleware('auth');
+
+Route::put('budowy/{organization}/narzedzia/{narzedzia}/restore', [ToolWorkDatesController::class, 'restore'])
+    ->name('budowy.narzedzia.restore')
     ->middleware('auth');
 
 // Dokumenty Typ

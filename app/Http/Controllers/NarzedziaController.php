@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
 use App\Models\Narzedzia;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -62,4 +63,5 @@ class NarzedziaController extends Controller
         Narzedzia::create($req->validated());
         return Redirect::route('narzedzia')->with('success', 'Zapisano.');
     }
+
 }

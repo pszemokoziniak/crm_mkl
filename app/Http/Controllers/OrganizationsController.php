@@ -33,6 +33,7 @@ class OrganizationsController extends Controller
                 ->through(fn ($organization) => [
                     'id' => $organization->id,
                     'nazwaBud' => $organization->nazwaBud,
+                    'numerBud' => $organization->numerBud,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
                     'kierownikBud_id' => $organization->contactTypName ? $organization->contactTypName : null,
                     'deleted_at' => $organization->deleted_at,
