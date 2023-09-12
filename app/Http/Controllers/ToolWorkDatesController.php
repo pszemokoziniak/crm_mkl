@@ -112,11 +112,11 @@ class ToolWorkDatesController extends Controller
         return Redirect::route('pracownicy.index', $contactWorkDate->organization_id)->with('success', 'Poprawiono.');
     }
 
-    public function destroy(ContactWorkDate $contactWorkDate)
+    public function destroy(Organization $organization, ToolWorkDate $toolWorkDate)
     {
-        $contactWorkDate->delete();
+        $toolWorkDate->delete();
 
-        return Redirect::route('pracownicy.index', $contactWorkDate->organization_id)->with('success', 'Usunięto.');
+        return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Usunięto.');
     }
 
     public function toolsBusy($request, $id) {
@@ -139,10 +139,10 @@ class ToolWorkDatesController extends Controller
 
             ->groupBy('narzedzia_id')
             ->get()->where('narzedzia_id', $id)->first();
-//dd($data->total_narzedzia_nb);
-//        $data = $data[0]->total_narzedzia_nb;
-        return (integer) $data->total_narzedzia_nb;
 
+        if ($data === null)  {return 0;} else {return (integer) $data->total_narzedzia_nb;}
+
+        return (integer) $data->total_narzedzia_nb;
     }
     public function find(Request $request, Organization $organization)
     {

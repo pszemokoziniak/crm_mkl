@@ -50,7 +50,7 @@
             </Link>
           </td>
         </tr>
-        <tr v-if="contacts === null">
+        <tr v-if="contactworkdates === null">
           <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
         </tr>
       </table>

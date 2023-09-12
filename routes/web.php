@@ -249,7 +249,7 @@ Route::put('budowy/{organization}/narzedzia/{narzedzia}', [ToolWorkDatesControll
     ->name('budowy.narzedzia.update')
     ->middleware('auth');
 
-Route::delete('budowy/{organization}/narzedzia/{narzedzia}', [ToolWorkDatesController::class, 'destroy'])
+Route::delete('budowy/{organization}/narzedzia/{toolWorkDate}/destroy', [ToolWorkDatesController::class, 'destroy'])
     ->name('budowy.narzedzia.destroy')
     ->middleware('auth');
 
