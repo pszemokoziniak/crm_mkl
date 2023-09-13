@@ -24,13 +24,12 @@ class BudowaPracownicyController extends Controller
 
     public function organizationWorkers($id) {
         $workers = DB::table('contact_work_dates', 'cwd')
-            ->select('contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name', 'funkcjas.id')
+            ->select('cwd.id', 'cwd.contact_id', 'contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name')
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $id)
             ->orderBy('last_name')
             ->get();
-
         return $workers;
     }
 

@@ -45,9 +45,12 @@
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/pracownicy/${item.id}/edit/${item.id}`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+            <Link class="flex items-center px-4" tabindex="-1" @click="destroy(item.id)">
+              <icon name="destroy" class="block w-6 h-6 fill-gray-400" />
             </Link>
+<!--            <Link class="flex items-center px-4" :href="`/pracownicy/${item.id}/edit/${item.id}`" tabindex="-1">-->
+<!--              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />-->
+<!--            </Link>-->
           </td>
         </tr>
         <tr v-if="contactworkdates === null">
@@ -103,6 +106,11 @@ export default {
   methods: {
     reset() {
       this.form = mapValues(this.form, () => null)
+    },
+    destroy(worker) {
+      if (confirm('Chcesz usunąć?')) {
+        this.$inertia.delete(`/pracownicy/${worker}`)
+      }
     },
   },
 }
