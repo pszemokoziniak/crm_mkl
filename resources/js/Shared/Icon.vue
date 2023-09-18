@@ -55,7 +55,9 @@
       <line x1="31" x2="31" y1="28.25" y2="55" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
     </g>
   </svg>
-
+  <svg v-else-if="name === 'zablokuj'" xmlns="http://www.w3.org/2000/svg" width="11.967" height="11.967" viewBox="0 0 11.967 11.967">
+    <path id="Icon_metro-blocked" data-name="Icon metro-blocked" d="M12.785,3.681a5.983,5.983,0,1,0,1.752,4.231,5.944,5.944,0,0,0-1.752-4.231Zm.257,4.231a4.463,4.463,0,0,1-.831,2.6L5.955,4.255a4.485,4.485,0,0,1,7.086,3.657Zm-8.975,0a4.463,4.463,0,0,1,.831-2.6l6.255,6.255A4.486,4.486,0,0,1,4.067,7.911Z" transform="translate(-2.571 -1.928)" fill="#d5233f"/>
+  </svg>
 
 
 </template>

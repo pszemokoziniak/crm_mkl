@@ -13,6 +13,7 @@
             <input id="remember" v-model="form.remember" class="mr-1" type="checkbox" />
             <span class="text-sm">Zapamiętaj mnie</span>
           </label>
+          <p v-if="$page.props.flash.error" class="flex items-center justify-between mt-5 p-5 max-w-3xl bg-red-500 rounded">{{$page.props.flash.error}}</p>
         </div>
         <div class="flex px-10 py-4 bg-gray-100 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zaloguj</loading-button>

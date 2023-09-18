@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\CreateUserPassword;
 use App\Models\Contact;
 use App\Models\Uprawnienia;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\URL;
@@ -74,25 +76,14 @@ class UsersController extends Controller
             'photo_path' => Request::file('photo') ? Request::file('photo')->store('users') : null,
         ]);
 
+        Mail::send(new CreateUserPassword(Request::get('email'), Request::get('password')));
+
         return Redirect::route('users')->with('success', 'Użytkownik utworzony.');
     }
 
     public function edit(User $user)
     {
 
-//        $contacts = Contact::where('funkcja_id', 1)->with('user')->get();
-//
-//        $freeKierownik = array();
-//
-//        foreach ($contacts as $item) {
-//            if($item->user == null) {
-//                $newFreeWorkers = array('id'=>$item->id, 'first_name'=>$item->first_name, 'last_name'=>$item->last_name);
-//                array_push($freeKierownik, $newFreeWorkers);
-//            }
-//        }
-
-//        $freeKierownik = (json_encode($freeKierownik));
-//        dd($freeKierownik);
         return Inertia::render('Users/Edit', [
             'userLoged' => Auth::user()->owner,
             'user' => [
@@ -104,6 +95,7 @@ class UsersController extends Controller
                 'contact_id' => $user->contact_id,
                 'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
                 'deleted_at' => $user->deleted_at,
+                'active' => $user->active,
             ],
             'contacts' => Contact::query()
                 ->where('funkcja_id', 1)
@@ -182,4 +174,19 @@ class UsersController extends Controller
 
         return Redirect::back()->with('success', 'User restored.');
     }
+
+    public function block(User $user)
+    {
+        $user->active = 0;
+        $user->save();
+        return Redirect::back()->with('success', 'Użytkownik zablokowany.');
+    }
+
+    public function unblock(User $user)
+    {
+        $user->active = 1;
+        $user->save();
+        return Redirect::back()->with('success', 'Użytkownik odblokowany.');
+    }
+
 }

@@ -103,6 +103,14 @@ Route::put('users/{user}/restore', [UsersController::class, 'restore'])
     ->name('users.restore')
     ->middleware('auth');
 
+Route::post('users/{user}/block', [UsersController::class, 'block'])
+    ->name('users.block')
+    ->middleware('auth');
+
+Route::post('users/{user}/unblock', [UsersController::class, 'unblock'])
+    ->name('users.unblock')
+    ->middleware('auth');
+
 // Organizations
 
 Route::get('budowy', [OrganizationsController::class, 'index'])
