@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use function PHPUnit\Framework\isEmpty;
 
 class ContactsController extends Controller
 {
@@ -31,12 +32,6 @@ class ContactsController extends Controller
         if (!auth()->user()->permissions['kierownik']) {
             abort(403);
         }
-//        dd(Carbon::today()->format('Y-m-d'));
-//        $test = ContactWorkDate::where('contact_id', 1)
-//            ->where('start' <= Carbon::today()->format('Y-m-d'))
-////            ->where('end' >= Carbon::today())
-//            ->first();
-//        dd($test);
 
         return Inertia::render('Contacts/Index', [
             'filters' => Request::all('search', 'trashed'),
@@ -57,6 +52,7 @@ class ContactsController extends Controller
                     'funkcja' => $contact->funkcja,
                     'budowa' => $contact->organization,
                     'a1' => A1::where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
+                    'pracuje' => $this->findPresentBuild($contact->id),
                 ]),
         ]);
     }
@@ -244,5 +240,24 @@ class ContactsController extends Controller
         $data->organization_id = null;
         $data->save();
         return Redirect::back()->with('success', 'Pracownik usunięty.');
+    }
+
+    public function findPresentBuild($id) {
+
+        $dateToday = Carbon::today()->format('Y-m-d');
+        $data = ContactWorkDate::with('organization')
+            ->where('contact_id', $id)
+            ->where(function ($query) use ($dateToday){
+                $query->where('start', '<=', $dateToday);
+            })
+            ->where(function ($query) use ($dateToday){
+                $query->where('end', '>=', $dateToday);
+            })
+            ->latest()->get()->pluck('organization.name')->toArray();
+
+        if(!$data) {
+            return "Nie pracuje";
+        }
+        return $data[0];
     }
 }
