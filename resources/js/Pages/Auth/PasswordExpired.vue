@@ -7,7 +7,7 @@
         <div class="px-10 py-12">
           <h1 class="text-center text-3xl font-bold">Zmiana hasła</h1>
           <div class="mt-6 mx-auto w-24 border-b-2" />
-          <text-input v-model="form.password" :error="form.errors.password" class="mt-6" label="Nowe hasło"/>
+          <text-input type="password" v-model="form.password" :error="form.errors.password" class="mt-6" label="Nowe hasło"/>
         </div>
         <div class="flex px-10 py-4 bg-gray-100 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zmień hasło</loading-button>

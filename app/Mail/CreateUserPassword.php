@@ -33,7 +33,6 @@ class CreateUserPassword extends Mailable
      */
     public function build()
     {
-//        dd($this->to);
         return $this
             ->from('hrm@mkl.pl', 'Admin - Nowy Użytkownik')
             ->to($this->email)

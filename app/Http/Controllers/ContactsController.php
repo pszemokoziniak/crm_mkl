@@ -31,6 +31,12 @@ class ContactsController extends Controller
         if (!auth()->user()->permissions['kierownik']) {
             abort(403);
         }
+//        dd(Carbon::today()->format('Y-m-d'));
+//        $test = ContactWorkDate::where('contact_id', 1)
+//            ->where('start' <= Carbon::today()->format('Y-m-d'))
+////            ->where('end' >= Carbon::today())
+//            ->first();
+//        dd($test);
 
         return Inertia::render('Contacts/Index', [
             'filters' => Request::all('search', 'trashed'),

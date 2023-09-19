@@ -33,6 +33,7 @@ class UsersController extends Controller
                     'contact_id' => $user->user_id,
                     'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 40, 'h' => 40, 'fit' => 'crop']) : null,
                     'deleted_at' => $user->deleted_at,
+                    'login_time' => $user->login_time,
                 ]),
         ]);
     }

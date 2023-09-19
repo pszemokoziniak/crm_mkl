@@ -28,7 +28,8 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Email</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Uprawnienia</th>
+          <th class="pb-4 pt-6 px-6">Uprawnienia</th>
+          <th class="pb-4 pt-6 px-6">Logowanie</th>
         </tr>
         <tr v-for="user in users" :key="user.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -48,6 +49,11 @@
               <span v-if="user.owner === 1">Kierownik budowy</span>
               <span v-if="user.owner === 2">Biuro</span>
               <span v-if="user.owner === 3">Zarząd</span>
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" :href="`/users/${user.id}/edit`" tabindex="-1">
+              {{ user.login_time }}
             </Link>
           </td>
           <td class="w-px border-t">

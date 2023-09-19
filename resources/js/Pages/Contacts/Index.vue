@@ -21,9 +21,8 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
           <th class="pb-4 pt-6 px-6">Stanowisko</th>
-<!--          <th class="pb-4 pt-6 px-6">Pracuje</th>-->
-          <th class="pb-4 pt-6 px-6">Status</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Data Ważności A1</th>
+          <th class="pb-4 pt-6 px-6">Pracuje</th>
+<!--          <th class="pb-4 pt-6 px-6">Status</th>-->
         </tr>
         <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -47,17 +46,17 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
               <div v-if="contact.budowa">
-                {{ contact.budowa.nazwaBud }} / <br /> testUrlop
+                {{ contact.budowa.nazwaBud }}
               </div>
             </Link>
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-              <div v-if="contact.a1">
-                {{ contact.a1.end }}
-              </div>
-            </Link>
-          </td>
+<!--          <td class="border-t">-->
+<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
+<!--              <div v-if="contact.a1">-->
+<!--                {{ contact.a1.end }}-->
+<!--              </div>-->
+<!--            </Link>-->
+<!--          </td>-->
           <td class="w-px border-t">
             <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
