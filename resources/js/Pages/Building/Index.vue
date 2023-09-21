@@ -1,4 +1,8 @@
 <template>
+  <Head title="KCP" />
+  <BudMenu :budId="build" />
+  <h1 class="mb-8 text-3xl font-bold">KCP</h1>
+
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div class="flex items-center py-2">
       <button
@@ -114,6 +118,8 @@ import axios from 'axios'
 import SelectInput from '@/Shared/SelectInput'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import BudMenu from '@/Shared/BudMenu.vue'
+import { Head } from '@inertiajs/inertia-vue3'
 
 
 const DEFAULT_RANGES = {
@@ -124,6 +130,7 @@ const DEFAULT_RANGES = {
 
 export default {
   components: {
+    BudMenu,
     SelectInput,
     Dialog,
     DialogPanel,
@@ -131,6 +138,7 @@ export default {
     TransitionChild,
     TransitionRoot,
     Datepicker,
+    Head,
   },
   layout: Layout,
   props: {
