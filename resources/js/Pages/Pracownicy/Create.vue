@@ -11,8 +11,8 @@
     <h3 class="font-medium text-xl  p-4">Znajdź wolnego pracownika</h3>
     <form @submit.prevent="find()">
       <div class="flex flex-wrap -mb-3 -mr-6 p-8">
-        <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek pracy na budowie" />
-        <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec pracy na budowie" />
+        <date-input v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek pracy na budowie" />
+        <date-input v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec pracy na budowie" />
         <text-input type="hidden" value="@{{contact_id}}" v-model="form.contact_id" :error="form.errors.contact_id" />
       </div>
       <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
@@ -72,6 +72,7 @@ import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
+import DateInput from '@/Shared/DateInput.vue'
 import BudMenu from '@/Shared/BudMenu'
 // import mapValues from 'lodash/mapValues'
 import FreeContactsList from '@/Pages/Pracownicy/FreeContactsList'
@@ -85,6 +86,7 @@ export default {
     TextInput,
     Link,
     BudMenu,
+    DateInput,
   },
   layout: Layout,
   props: {

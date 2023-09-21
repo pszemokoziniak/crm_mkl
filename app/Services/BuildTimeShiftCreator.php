@@ -32,8 +32,8 @@ class BuildTimeShiftCreator
                 $constraints->add(new FeastDaysConstraint($feasts, $day));
                 $constraints->add(new ShiftOutWorkDatesConstraint(
                     $day,
-                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start']),
-                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])
+                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start'])->startOfDay(),
+                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])->startOfDay()
                 ));
 
                 $constraintResult = $this->checkConstraints($constraints);
