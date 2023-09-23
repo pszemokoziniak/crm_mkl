@@ -18,12 +18,14 @@ class BuildTimeShiftCreator
 {
     public function create(int $build, CarbonPeriod $period): iterable
     {
-//        $shifts = $this->getWorkersOnBuildShifts($build, $period);
-//        $buildWorkersSavedShifts = $this->transform($shifts);
+        $shifts = $this->getWorkersOnBuildShifts($build, $period);
+        $buildWorkersSavedShifts = $this->transform($shifts);
+
         $feasts = $this->getFeasts($build);
         $workersOnBuildData = $this->workersData($build, $period);
-//        $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
-        $buildWorkersSavedShifts = $workersOnBuildData;
+
+        $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
+
         $buildWorkersSavedShifts = collect($buildWorkersSavedShifts)->sortBy('last_name')->toArray();
 
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
