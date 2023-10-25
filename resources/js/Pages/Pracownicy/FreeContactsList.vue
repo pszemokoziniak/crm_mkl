@@ -16,7 +16,7 @@
               :value="free.id"
               v-model="form.checkedValues"
             />
-            {{ free.first_name }} {{ free.last_name }}
+            {{ free.last_name }} {{ free.first_name }}
             <icon v-if="free.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
           </td>
           <td class="border-t">

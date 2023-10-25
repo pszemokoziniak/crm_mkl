@@ -144,6 +144,7 @@ class BudowaPracownicyController extends Controller
         $contactFree = Contact::join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->select('contacts.id', 'contacts.first_name', 'contacts.last_name', 'contacts.phone', 'funkcjas.name as fn_name', 'contacts.funkcja_id')
             ->whereIn('contacts.id', $contactFreeArray)
+            ->orderBy('contacts.last_name', 'asc')
             ->get();
 
         $workers = $this->organizationWorkers($organization->id);
