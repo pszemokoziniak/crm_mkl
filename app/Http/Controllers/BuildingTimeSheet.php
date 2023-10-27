@@ -8,9 +8,11 @@ use App\Http\Requests\BuildTimeShiftRequest;
 use App\Services\BuildTimeShiftCreator;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\BuildingTimeSheet as BuildingTimeSheetModel;
@@ -73,6 +75,17 @@ class BuildingTimeSheet extends Controller
         }
 
         return new JsonResponse(['status' => 'ok']);
+    }
+
+    public function delete(BuildTimeShiftRequest $request)
+    {
+        $work_day = new DateTimeImmutable($request->get('day'));
+        echo $work_day->format('Y-m-d H:i:s');
+        BuildingTimeSheetModel::where('organization_id', $request->get('build'))
+            ->where('contact_id', $request->get('id'))
+            ->where('work_day', $work_day->format('Y-m-d H:i:s'))->delete();
+
+        return Redirect::back()->with('success', 'Godziny pracy usunięte.');
     }
 
     private function getShiftStatuses(): Collection

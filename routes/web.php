@@ -823,6 +823,11 @@ Route::post('building/{build}/time-sheet', [BuildingTimeSheet::class, 'store'])
     ->name('workTimeSheet.store')
     ->middleware('auth');
 
+Route::post('building/{build}/time-sheet/delete', [BuildingTimeSheet::class, 'delete'])
+    ->name('workTimeSheet.delete')
+    ->middleware('auth');
+
+
 /** Country Feasts */
 Route::get('country/{country}/feasts', [FeastsController::class, 'index'])
     ->name('country_feasts.index')

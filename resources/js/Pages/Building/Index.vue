@@ -2,7 +2,6 @@
   <Head title="KCP" />
   <BudMenu :budId="build" />
   <h1 class="mb-8 text-3xl font-bold">KCP</h1>
-
   <div class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div class="flex items-center py-2">
       <button
@@ -87,7 +86,7 @@
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
                             <Datepicker v-model="form.from" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
                             <Datepicker v-model="form.to" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
-                            <Datepicker v-model="form.workTime" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+                            <Datepicker v-model="form.workTime" :disabled=true time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
                             </select-input>
@@ -101,6 +100,7 @@
               <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
                 <button ref="cancelButtonRef" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
+                <button class="text-red-600 hover:underline mr-auto" tabindex="-1" type="button" @click="destroy">Usuń</button>
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -341,6 +341,27 @@ export default {
       this.form.workTime = {
         hours: calculated.split(':').at(0),
         minutes: calculated.split(':').at(1),
+      }
+    },
+    destroy() {
+      if (confirm('Chcesz usunąć?')) {
+        try {
+          this.$inertia.post(`/building/${this.build}/time-sheet/delete`, this.form)
+        } catch (e) {
+          console.error('Bład usnięcie godzin pracy.')
+          // @TODO display message with error
+          throw e
+        }
+
+        this.form = this.$inertia.form = ({
+          id: null,
+          day: null,
+          from: null,
+          to: null,
+          workTime: null,
+        })
+        // display notification
+        this.open = false
       }
     },
     saveHours() {
