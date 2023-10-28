@@ -25,6 +25,9 @@
       <Link class="btn-indigo mr-5" :href="`/dokumentyTyp`">
         <span>Dokumenty</span>
       </Link>
+      <Link class="btn-indigo mr-5" :href="`/shiftStatusTyp`">
+        <span>Godziny Pracy</span>
+      </Link>
     </div>
  </div>
 

@@ -22,6 +22,7 @@ use App\Http\Controllers\NarzedziaController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PbiozController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
 use App\Http\Controllers\UprawnieniaTypController;
@@ -753,6 +754,36 @@ Route::delete('krajTyp/{krajTyp}', [KrajTypController::class, 'destroy'])
 
 Route::put('krajTyp/{krajTyp}/restore', [KrajTypController::class, 'restore'])
     ->name('krajTyp.restore')
+    ->middleware('auth');
+
+// ShiftStatus
+
+Route::get('shiftStatusTyp', [ShiftStatusController::class, 'index'])
+    ->name('shiftStatusTyp')
+    ->middleware('auth');
+
+Route::get('shiftStatusTyp/create', [ShiftStatusController::class, 'create'])
+    ->name('shiftStatusTyp.create')
+    ->middleware('auth');
+
+Route::post('shiftStatusTyp', [ShiftStatusController::class, 'store'])
+    ->name('shiftStatusTyp.store')
+    ->middleware('auth');
+
+Route::get('shiftStatusTyp/{shiftStatus}/edit', [ShiftStatusController::class, 'edit'])
+    ->name('shiftStatusTyp.edit')
+    ->middleware('auth');
+
+Route::put('shiftStatusTyp/{shiftStatus}', [ShiftStatusController::class, 'update'])
+    ->name('shiftStatusTyp.update')
+    ->middleware('auth');
+
+Route::delete('shiftStatusTyp/{shiftStatus}', [ShiftStatusController::class, 'destroy'])
+    ->name('shiftStatusTyp.destroy')
+    ->middleware('auth');
+
+Route::put('shiftStatusTyp/{shiftStatus}/restore', [ShiftStatusController::class, 'restore'])
+    ->name('shiftStatusTyp.restore')
     ->middleware('auth');
 
 // Reports
