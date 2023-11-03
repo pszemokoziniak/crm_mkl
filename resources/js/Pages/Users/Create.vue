@@ -13,9 +13,9 @@
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
           <text-input v-model="form.password" :error="form.errors.password" class="pb-8 pr-6 w-full lg:w-1/2" type="password" autocomplete="new-password" label="Hasło" />
           <select-input v-model="form.owner" :error="form.errors.owner" class="pb-8 pr-6 w-full lg:w-1/2" label="Uprawnienia">
-            <option value="1">Kierownik budowy</option>
+            <option value="1">Administrator</option>
             <option value="2">Biuro</option>
-            <option value="3">Zarząd</option>
+            <option value="3">Kierownik budowy</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcia" />
         </div>

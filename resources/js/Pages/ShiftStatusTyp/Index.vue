@@ -7,6 +7,16 @@
         <span>Dodaj</span>
       </Link>
     </div>
+    <div class="flex items-center justify-between mb-6">
+      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+  <!--      <label class="block mt-4 text-gray-700">Archiwum:</label>-->
+        <select v-model="form.trashed" class="form-select mt-1 w-full">
+          <option :value="null" />
+          <option value="with">Wszystkie</option>
+          <option value="only">Usunięte</option>
+        </select>
+      </search-filter>
+    </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -41,10 +51,14 @@
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
-
+import SearchFilter from '@/Shared/SearchFilter.vue'
+import mapValues from 'lodash/mapValues'
+import pickBy from 'lodash/pickBy'
+import throttle from 'lodash/throttle'
 
 export default {
   components: {
+    SearchFilter,
     Head,
     Icon,
     Link,
@@ -52,13 +66,28 @@ export default {
   layout: Layout,
   props: {
     ShiftStatusTypes: Object,
+    filters: Object,
   },
   data() {
     return {
-      form: {},
+      form: {
+        search: this.filters.search,
+        trashed: this.filters.trashed,
+      },
     }
   },
+  watch: {
+    form: {
+      deep: true,
+      handler: throttle(function () {
+        this.$inertia.get('/shiftStatusTyp', pickBy(this.form), { preserveState: true })
+      }, 150),
+    },
+  },
   methods: {
+    reset() {
+      this.form = mapValues(this.form, () => null)
+    },
   },
 }
 </script>

@@ -12,14 +12,17 @@ use Inertia\Response;
 
 class ShiftStatusController extends Controller
 {
-    public function index(): Response
+    public function index()
     {
-        return Inertia('ShiftStatusTyp/Index', ['ShiftStatusTypes' => ShiftStatus::get()]);
+        return Inertia('ShiftStatusTyp/Index', [
+            'filters' => Request::all('search', 'trashed'),
+            'ShiftStatusTypes' => ShiftStatus::filter(Request::only('search', 'trashed'))
+                ->get()
+        ]);
     }
 
-    public function edit(ShiftStatus $shiftStatus): Response
+    public function edit(ShiftStatus $shiftStatus)
     {
-//        dd($shiftStatus);
         return Inertia::render('ShiftStatusTyp/Edit', [
             'shiftStatus' => [
                 'id' => $shiftStatus->id,

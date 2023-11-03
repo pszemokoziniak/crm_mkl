@@ -9,6 +9,7 @@
       </h1>
       <img v-if="user.photo" class="block ml-4 w-8 h-8 rounded-full" :src="user.photo" />
     </div>
+    <trashed-message v-if="user.deleted_at" class="mb-6" @restore="restore"> Usunięte. </trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -49,9 +50,11 @@ import FileInput from '@/Shared/FileInput'
 import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import Icon from '@/Shared/Icon'
+import TrashedMessage from '@/Shared/TrashedMessage.vue'
 
 export default {
   components: {
+    TrashedMessage,
     FileInput,
     Head,
     Link,

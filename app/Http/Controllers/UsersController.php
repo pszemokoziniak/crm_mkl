@@ -173,7 +173,7 @@ class UsersController extends Controller
     {
         $user->restore();
 
-        return Redirect::back()->with('success', 'User restored.');
+        return Redirect::back()->with('success', 'Obiekt przywrócony.');
     }
 
     public function block(User $user)

@@ -1,13 +1,12 @@
 <template>
   <div>
     <Head :title="`${form.title}`" />
-    {{shiftStatus}}
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/shiftStatusTyp">Typ nieobecności w pracy</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.title }}
     </h1>
-     <trashed-message v-if="shiftStatus.deleted_at" class="mb-6" @restore="restore">Usunąć?</trashed-message>
+     <trashed-message v-if="shiftStatus.deleted_at" class="mb-6" @restore="restore">Przywrócić?</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
