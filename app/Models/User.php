@@ -108,7 +108,9 @@ class User extends Authenticatable
 
     public function getPermissionsAttribute() {
         return [
-            'kierownik' => $this->owner !== 1,
+            'admin' => $this->owner==1,
+            'biuro' => $this->owner==2,
+            'kierownik' => $this->owner==3,
         ];
     }
 }

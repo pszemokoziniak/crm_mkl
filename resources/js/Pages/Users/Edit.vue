@@ -18,10 +18,9 @@
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
           <text-input v-show="userLoged === 4 || userLoged === 2" v-model="form.password" :error="form.errors.password" class="pb-8 pr-6 w-full lg:w-1/2" type="password" autocomplete="new-password" label="Hasło" />
           <select-input v-show="userLoged === 2" v-model="form.owner" :error="form.errors.owner" class="pb-8 pr-6 w-full lg:w-1/2" label="Uprawnienia">
-            <option value="1">Kierownik budowy</option>
+            <option value="1">Administrator</option>
             <option value="2">Biuro</option>
-            <option value="3">Zarząd</option>
-            <option value="4">Administrator</option>
+            <option value="3">Kierownik budowy</option>
           </select-input>
           <select-input v-if="userLoged === 2" v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
             <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.first_name}} {{item.last_name}}</option>

@@ -11,10 +11,10 @@
           <option value="only">test2</option>
         </select>
       </search-filter>
-      <Link class="btn-indigo" href="/budowy/create">
-        <span>Utwórz</span>
-        <span class="hidden md:inline">&nbsp;Budowę</span>
-      </Link>
+<!--      <Link class="btn-indigo" href="/budowy/create">-->
+<!--        <span>Utwórz</span>-->
+<!--        <span class="hidden md:inline">&nbsp;Budowę</span>-->
+<!--      </Link>-->
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
