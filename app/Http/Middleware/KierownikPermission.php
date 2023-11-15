@@ -17,7 +17,7 @@ class KierownikPermission
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!in_array(Auth::user()->owner, [3])) {
+        if (Auth::user()->owner !== 3) {
             abort(403);
         }
         return $next($request);

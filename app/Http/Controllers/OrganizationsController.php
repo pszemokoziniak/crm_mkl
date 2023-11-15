@@ -19,9 +19,6 @@ class OrganizationsController extends Controller
 {
     public function index()
     {
-        if (!auth()->user()->permissions['kierownik']) {
-            abort(403);
-        }
 
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
@@ -43,9 +40,7 @@ class OrganizationsController extends Controller
 
     public function create()
     {
-        if (!auth()->user()->permissions['kierownik']) {
-            abort(403);
-        }
+
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
@@ -67,28 +62,11 @@ class OrganizationsController extends Controller
         $data->addressKwat=$req->addressKwat;
         $data->save();
 
-//        Auth::user()->account->organizations()->create(
-//            Request::validate([
-//                'name' => ['required', 'max:1200'],
-//                'nazwaBud' => ['nullable', 'max:1200'],
-//                'numerBud' => ['nullable', 'max:50'],
-//                'city' => ['nullable', 'max:2000'],
-//                'kierownikBud_id' => ['nullable', 'max:50'],
-//                'zaklad' => ['nullable', 'max:50'],
-//                'country_id' => ['nullable', 'max:1000'],
-//                'addressBud' => ['nullable', 'max:25'],
-//                'addressKwat' => ['nullable', 'max:25'],
-//            ])
-//        );
-
         return Redirect::route('organizations')->with('success', 'Budowa stworzona.');
     }
 
     public function edit(Organization $organization)
     {
-        if (!auth()->user()->permissions['kierownik']) {
-            abort(403);
-        }
 
         return Inertia::render('Organizations/Edit', [
             'organization' => [
