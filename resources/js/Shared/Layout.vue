@@ -27,7 +27,7 @@
               <template #dropdown>
                 <div class="mt-2 py-2 text-sm bg-white rounded shadow-xl">
                   <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" :href="`/users/${auth.user.id}/edit`">Profil</Link>
-                  <Link v-if="$page.props.permissions.kierownik" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
+                  <Link v-if="auth.user.owner === 1 || auth.user.owner === 2" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
                   <Link class="block px-6 py-2 w-full text-left hover:text-white hover:bg-indigo-500" href="/logout" method="delete" as="button">Wyloguj</Link>
                 </div>
               </template>
