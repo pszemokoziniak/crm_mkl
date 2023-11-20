@@ -243,7 +243,7 @@ class ContactsController extends Controller
             ->where(function ($query) use ($dateToday){
                 $query->where('end', '>=', $dateToday);
             })
-            ->latest()->get()->pluck('organization.name')->toArray();
+            ->latest()->get()->pluck('organization.nazwaBud')->toArray();
 
         if(!$data) {
             return "Nie pracuje";

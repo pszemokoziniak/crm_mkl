@@ -72,7 +72,7 @@
     </h1>
     <h2 class="mb-4 font-medium">
       <span class="text-indigo-400">Obecna budowa: </span>
-      <span v-if="obecna_budowa !== 'Nie pracuje'" class="text-lg">{{ obecna_budowa.organization.name }}</span>
+      <span v-if="obecna_budowa !== 'Nie pracuje'" class="text-lg">{{ obecna_budowa.organization.nazwaBud }}</span>
       <span v-if="obecna_budowa === 'Nie pracuje'" class="text-lg">Nie pracuje</span>
     </h2>
 <!--    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">-->
