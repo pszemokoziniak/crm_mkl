@@ -9,6 +9,7 @@ use App\Http\Requests\StoredestroyStoreRequest;
 use App\Models\A1;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
+use App\Models\BuildingTimeSheet;
 use App\Models\Funkcja;
 use App\Models\Organization;
 use Carbon\Carbon;
@@ -104,6 +105,10 @@ class BudowaPracownicyController extends Controller
     public function destroy(ContactWorkDate $contactWorkDate)
     {
         $contactWorkDate->delete();
+
+        BuildingTimeSheet::where('contact_id', $contactWorkDate->contact_id)
+            ->where('organization_id', $contactWorkDate->organization_id)
+            ->delete();
 
         return Redirect::route('pracownicy.index', $contactWorkDate->organization_id)->with('success', 'Usunięto.');
     }

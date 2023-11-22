@@ -31,13 +31,13 @@
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/pracownicy/${item.organization_id}/edit/${item.id}`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/pracownicy/${organization_id}/edit/${item.id}`">
               od: {{ item.start }}  do: {{ item.end }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/pracownicy/${item.organization_id}/edit/${item.id}`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/pracownicy/${organization_id}/edit/${item.id}`">
               <div v-if="item.contact.funkcja">
                 {{ item.contact.funkcja.name }}
               </div>
