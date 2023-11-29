@@ -38,6 +38,7 @@
         <div class="text-sm text-center">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
       </div>
       <div v-for="shift in timeSheet" :key="shift.id" :class="shiftBackground(shift)" class="text-sm px-4 pt-2 border-r border-1 hover:bg-gray-200 relative cursor-pointer text-gray-500" style="width: 127px; height: 68px;" @click="showModal(shift)">
+        {{shift.work}}
         <div class="flex justify-between">
           <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ (new Date(shift.day)).getDate() }}</div>
           <div class="inline-flex items-center justify-center cursor-pointer text-center leading-none rounded-full text-gray-700 text-sm">{{ dayOfWeek(new Date(shift.day)) }}</div>
@@ -125,7 +126,7 @@ import { Head } from '@inertiajs/inertia-vue3'
 const DEFAULT_RANGES = {
   from: { hours: '07', minutes: '00'},
   to: { hours: '17', minutes: '00'},
-  shift: { hours: '10', minutes: '00'},
+  shift: { hours: '09', minutes: '30'},
 }
 
 export default {
@@ -309,6 +310,9 @@ export default {
       if (shift.isBlocked && shift.blockedType !== 'feast') {
         return
       }
+      // workbrake -30min
+      if (shift.work)
+      {var d = moment().hours(shift.work.split(':')[0]).minutes(shift.work.split(':')[1]).add(-30, 'minutes').format('hh:mm')}
 
       this.open = true
       this.form = this.$inertia.form = ({
@@ -318,7 +322,7 @@ export default {
         day: shift.day,
         from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : DEFAULT_RANGES.from,
         to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
-        workTime: shift.work ? { hours: shift.work.split(':')[0], minutes: shift.work.split(':')[1] } : DEFAULT_RANGES.shift,
+        workTime: shift.work ? { hours: d.split(':')[0], minutes: d.split(':')[1] } : DEFAULT_RANGES.shift,
         status: shift.status ?? null,
       })
       this.isStatus = this.isSetStatus(shift.status)
@@ -335,7 +339,7 @@ export default {
 
     calculateEffectiveTime() {
       const calculated = moment.utc(moment.duration(
-        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
+        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').add(-30, 'minutes').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
       ).asMilliseconds()).format('HH:mm')
 
       this.form.workTime = {
