@@ -4,6 +4,9 @@ services:
         build:
             context: ./
             dockerfile: .docker/php/Dockerfile
+            args:
+                userid: 1000
+                groupid: 1000
         container_name: crm-mkl-php
         restart: unless-stopped
         working_dir: /var/www/
@@ -34,6 +37,7 @@ services:
             - "3306:3306"
         networks:
             - crm-mkl
+        command: '--default-authentication-plugin=mysql_native_password'
 
     nginx:
         image: nginx:alpine
