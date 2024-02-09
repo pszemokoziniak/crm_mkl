@@ -22,6 +22,6 @@ seed-dev:
 	docker-compose exec app php artisan db:seed --class=DevUserSeeder
 
 load-bk:
-	docker cp filename.sql crm-mkl-db:filename.sql \
-	&& docker-compose exec db bash -c "mysql -uuser -ppassword pingcrm < filename.sql"
+	docker cp backup.sql crm-mkl-db:backup.sql \
+	&& docker-compose exec db bash -c "mysql -uuser -ppassword pingcrm < backup.sql"
 
