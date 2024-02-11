@@ -92,9 +92,6 @@ class ContactsController extends Controller
             'photo_path' => Request::file('photo_path') ? Request::file('photo_path')->store('contacts') : null,
         ]);
 
-//                'organization_id' => ['nullable', Rule::exists('organizations', 'id')->where(function ($query) {
-//                    $query->where('account_id', Auth::user()->account_id);
-//                })],
 
         return Redirect::route('contacts')->with('success', 'Pracownik stworzony');
     }
@@ -117,7 +114,6 @@ class ContactsController extends Controller
                 'pesel' => $contact->pesel,
                 'idCard_number' => $contact->idCard_number,
                 'idCard_date' => $contact->idCard_date,
-//                'position' => $contact->position,
                 'funkcja_id' => $contact->funkcja_id,
                 'work_start' => $contact->work_start,
                 'work_end' => $contact->work_end,
@@ -136,7 +132,6 @@ class ContactsController extends Controller
                 ->map
                 ->only('id', 'name'),
             'funkcjas' => Funkcja::all(),
-//            'jezyks' => Jezyk::where('contact_id', $contact->id)->get(),
             'jezyks' => Jezyk::with('jezykTyp')
                 ->where('contact_id', $contact->id)
                 ->orderByName()
@@ -147,9 +142,7 @@ class ContactsController extends Controller
                     'poziom' => $jezyk->poziom,
                     'jezyk' => $jezyk->jezykTyp ? $jezyk->jezykTyp : null,
                 ]),
-//             'bhp' => BHP::where('contact_id', $contact->id)
-//                 ->orderBy('end', 'desc')
-//                 ->first(),
+
             'bhp' => Bhp::select('start', 'end')->where('contact_id', $contact->id)->where('end', '>=', Carbon::now())->where('start', '<=', Carbon::now())->get()->map->only('end'),
             'lekarskie' => Badania::select('start', 'end')->where('contact_id', $contact->id)->where('end', '>=', Carbon::now())->where('start', '<=', Carbon::now())->get()->map->only('end'),
             'a1' => A1::select('start', 'end')->where('contact_id', $contact->id)->where('end', '>=', Carbon::now())->where('start', '<=', Carbon::now())->get()->map->only('end'),
@@ -215,7 +208,6 @@ class ContactsController extends Controller
             $data = new ContactWorkDate;
             $data->contact_id = $item;
             $data->organization_id = $organization->id;
-//            $data->start = $request->start;
             $data->save();
         }
 
