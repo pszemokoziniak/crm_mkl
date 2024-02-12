@@ -1019,7 +1019,7 @@ Route::post('building/{build}/time-sheet/delete', [BuildingTimeSheet::class, 'de
     ->name('workTimeSheet.delete')
     ->middleware('auth');
 
-Route::post('building/{build}/time-sheet/{build}', [BuildingTimeSheet::class, 'excelExport'])
+Route::get('building/{build}/time-sheet/export', [BuildingTimeSheet::class, 'excelExport'])
     ->name('workTimeSheet.excelExport')
     ->middleware('auth');
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -29,10 +30,10 @@ class BuildTimeShiftsExcelExporter
 
     public function export(?string $filename = ''): string
     {
-        $path = storage_path('export/excel');
+        $path = storage_path('app/export/') . 'kcp.xlsx';
 
         $writer = new Xlsx($this->spreadsheet);
-        $writer->save($path . 'kcp.xlsx');
+        $writer->save($path);
 
         return $path;
     }

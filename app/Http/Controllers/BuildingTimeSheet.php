@@ -92,17 +92,17 @@ class BuildingTimeSheet extends Controller
         return Redirect::back()->with('success', 'Godziny pracy usunięte.');
     }
 
-    private function getShiftStatuses(): Collection
-    {
-        return DB::table('shift_status', 's')->get();
-    }
-
-    private function excelExport(int $build, Request $request): BinaryFileResponse
+    public function excelExport(int $build, Request $request): BinaryFileResponse
     {
         $timeShifts = BuildTimeShiftFactory::create($build, $request->query->get('date'));
 
         return response()->file(
             (new BuildTimeShiftsExcelExporter())->build($timeShifts)->export()
         );
+    }
+
+    private function getShiftStatuses(): Collection
+    {
+        return DB::table('shift_status', 's')->get();
     }
 }
