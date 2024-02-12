@@ -5,7 +5,7 @@ require '../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-$example_time_sheets = json_decode(file_get_contents('times_sheets.json'), JSON_THROW_ON_ERROR);
+$workersMonthTimeShifts = json_decode(file_get_contents('times_sheets.json'), JSON_THROW_ON_ERROR);
 
 $testTimeAsInt = new \DateTime('2023-02-08 11:30:00'); // 11,5
 
@@ -17,20 +17,14 @@ $testTimeAsInt = new \DateTime('2023-02-08 11:30:00'); // 11,5
  */
 function dateToInteger(\DateTime $dateTime): string
 {
-    $minutesAsInt = ((int) $dateTime->format('i')) <= 30 ? .5 : 1;
-    $hoursAsInt = (int) $dateTime->format('g');
+    $minutesAsInt = ((int) $dateTime->format('i') <= 30 && (int) $dateTime->format('i') > 0) ? .5 : 0;
+    $hoursAsInt = (int) $dateTime->format('H');
     return (string) ($hoursAsInt + $minutesAsInt);
 }
 
-var_dump(dateToInteger($testTimeAsInt));
-
-exit();
-
 $spreadsheet = new Spreadsheet();
 $activeWorksheet = $spreadsheet->getActiveSheet();
-
-
-$monthForWorker = $example_time_sheets[14]; // ID 14 - full month
+$monthForWorker = $workersMonthTimeShifts[14]; // ID 14 - full month
 
 function cellCoordinatesGenerator(int $startsFrom = 65): Generator
 {
@@ -54,6 +48,21 @@ function cellCoordinatesGenerator(int $startsFrom = 65): Generator
         if (2 === count($indicators) && $indicators[1] > 90) {
             $indicators = [66, 65];
         }
+    }
+}
+
+function workerRowsGenerator(int $startRow = 1): Generator
+{
+    $cursor = $startRow;
+
+    while (true) {
+        yield [
+            'work_hours' => $cursor,
+            'work_time' => $cursor + 1,
+            'work_paid' => $cursor + 2,
+        ];
+
+        $cursor += 3;
     }
 }
 
@@ -85,38 +94,54 @@ foreach (range(1, count($monthForWorker)) as $key => $day) {
     $activeWorksheet->mergeCells($firstCellCoords . ':' . $secondCellCoords);
 }
 
-/**
- * Probably each worker needs few rows for all results:
- * - czas pracy od do
- * - czas pracy
- * - placone za
- */
-$rowNumber = 8; // czas pracy od do
-$workingHoursRow = 9;
-$paidFor = 10;
-$cellIndicatorGenerator = cellCoordinatesGenerator(68);
+$workersDataCursor = workerRowsGenerator(8);
 
-$activeWorksheet->setCellValue('A'. $rowNumber, '1');
-$activeWorksheet->setCellValue('B'. $rowNumber, 'Janusz Kowalski');
-$activeWorksheet->setCellValue('C'. $rowNumber, 'czas pracy od/do');
+var_dump(count($workersMonthTimeShifts));
 
-$activeWorksheet->setCellValue('C'. $workingHoursRow, 'czas pracy');
-$activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
+foreach ($workersMonthTimeShifts as $workerId => $workerShifts) {
+    /**
+     * Probably each worker needs few rows for all results:
+     * - czas pracy od do
+     * - czas pracy
+     * - placone za
+     */
+    $rows = $workersDataCursor->current();
 
-foreach ($monthForWorker as $key => $shift) {
+    $rowNumber = $rows['work_hours']; // czas pracy od do
+    $workingHoursRow = $rows['work_time'];
+    $paidFor = $rows['work_paid'];
+    $cellIndicatorGenerator = cellCoordinatesGenerator(68);
 
-    $cellCoordsFrom = $cellIndicatorGenerator->current();
+    $activeWorksheet->setCellValue('A'. $rowNumber, $workerId);
+    $activeWorksheet->setCellValue('B'. $rowNumber, reset($workerShifts)['name']);
+    $activeWorksheet->setCellValue('C'. $rowNumber, 'czas pracy od/do');
 
-    $cellIndicatorGenerator->next();
-    $cellCoordsTo = $cellIndicatorGenerator->current();
-    $cellIndicatorGenerator->next();
+    $activeWorksheet->setCellValue('C'. $workingHoursRow, 'czas pracy');
+    $activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
 
-    $activeWorksheet->setCellValue($cellCoordsFrom . $rowNumber, (new \DateTime($shift['from']))->format('G:i')); // format to hours
-    $activeWorksheet->setCellValue($cellCoordsTo . $rowNumber, (new \DateTime($shift['to']))->format('G:i')); // format to hours only
 
-    // placone za
 
+    foreach ($workerShifts as $key => $shift) {
+
+        $cellCoordsFrom = $cellIndicatorGenerator->current();
+        $cellIndicatorGenerator->next();
+        $cellCoordsTo = $cellIndicatorGenerator->current();
+        $cellIndicatorGenerator->next();
+
+        $activeWorksheet->setCellValue($cellCoordsFrom . $rowNumber, (new \DateTime($shift['from']))->format('G:i')); // format to hours
+        $activeWorksheet->setCellValue($cellCoordsTo . $rowNumber, (new \DateTime($shift['to']))->format('G:i')); // format to hours only
+
+        // placone za
+        // czas pracy
+
+        // sobota na zólto
+        // niedziela na czerwono
+    }
+    $workersDataCursor->next();
 }
+
+$activeWorksheet->freezePane('D1');
+
 foreach (range('A','D') as $col) {
     $activeWorksheet->getColumnDimension($col)->setAutoSize(true);
 }
