@@ -1019,6 +1019,9 @@ Route::post('building/{build}/time-sheet/delete', [BuildingTimeSheet::class, 'de
     ->name('workTimeSheet.delete')
     ->middleware('auth');
 
+Route::post('building/{build}/time-sheet/{build}', [BuildingTimeSheet::class, 'excelExport'])
+    ->name('workTimeSheet.excelExport')
+    ->middleware('auth');
 
 /** Country Feasts */
 Route::get('country/{country}/feasts', [FeastsController::class, 'index'])
