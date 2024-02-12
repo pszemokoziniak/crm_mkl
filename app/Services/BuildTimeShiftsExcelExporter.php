@@ -27,7 +27,8 @@ class BuildTimeShiftsExcelExporter
         $this
             ->addMainHeaders($shifts)
             ->addDaysHeaders($shifts)
-            ->addWorkersShifts($shifts);
+            ->addWorkersShifts($shifts)
+            ->addGeneralFormatting();
 
         return $this;
     }
@@ -147,6 +148,17 @@ class BuildTimeShiftsExcelExporter
                 // niedziela na czerwono
             }
             $workersDataCursor->next();
+        }
+
+        return $this;
+    }
+
+    private function addGeneralFormatting(): static
+    {
+        $this->activeWorksheet->freezePane('D1');
+
+        foreach (range('A','D') as $col) {
+            $this->activeWorksheet->getColumnDimension($col)->setAutoSize(true);
         }
 
         return $this;
