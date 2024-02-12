@@ -11,7 +11,7 @@ class Excel
     /**
      * Returns cells coordinates from A to BZ
      *
-     * @param int $startsFrom
+     * @param int $startsFrom Represent ASCII decimal code
      * @return Generator
      */
     public function cellCoordinatesGenerator(int $startsFrom = 65): Generator
