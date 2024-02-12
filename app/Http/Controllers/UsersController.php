@@ -101,7 +101,8 @@ class UsersController extends Controller
             'contacts' => Contact::query()
                 ->where('funkcja_id', 1)
                 ->where('user_id', null)
-                ->get()->map->only('id', 'first_name', 'last_name'),
+                ->get()->map->only('id', 'first_name', 'last_name', 'user_id'),
+            'contact' => Contact::where('user_id', $user->id)->get()->map->only('id', 'first_name', 'last_name'),
 
         ]);
     }

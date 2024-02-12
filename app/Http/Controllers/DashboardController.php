@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Models\ContactWorkDate;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
@@ -12,6 +13,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $contact_id = Contact::where('user_id', Auth::id())->pluck('id');
+
+        $buildings = ContactWorkDate::with('organization')
+            ->with('contact')
+            ->where('contact_work_dates.contact_id', $contact_id[0])
+            ->get();
+        dd($buildings);
 
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed'),

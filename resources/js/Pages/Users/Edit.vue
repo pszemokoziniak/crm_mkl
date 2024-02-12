@@ -22,7 +22,7 @@
             <option value="2">Biuro</option>
             <option value="3">Kierownik budowy</option>
           </select-input>
-          <select-input v-if="userLoged === 1" v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
+          <select-input v-if="userLoged === 1" v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" :label="`Kierownik Budowy => ${contact[0].last_name} ${contact[0].first_name}`">
             <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.first_name}} {{item.last_name}}</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
@@ -66,6 +66,7 @@ export default {
   props: {
     user: Object,
     contacts: Array,
+    contact: Array,
     userLoged: Number,
   },
   remember: 'form',
@@ -81,7 +82,7 @@ export default {
         password: '',
         owner: this.user.owner,
         photo: null,
-        user_id: this.user_id,
+        user_id: this.contact[0],
         // contact_id: this.user.contact_id,
       }),
     }

@@ -62,12 +62,8 @@ class KlientController extends Controller
     public function destroy(Klient $klient)
     {
         $klient->delete();
-//        return Redirect::route('position')->with('success', 'Usunięto.');
         return Redirect::route('klient.index', $klient->organization_id)->with('success', 'Usunięto.');
-
-
     }
-
     public function restore(Account $account)
     {
         $account->restore();
@@ -89,30 +85,15 @@ class KlientController extends Controller
                 'email' => ['nullable', 'max:200', 'email'],
             ])
         );
-//        $data = Klient::find($klient->id);
-//        $data->organization_id = $klient->organization_id;
-//        $data->nameFirma = $klient->nameFirma;
-//        $data->adres = $klient->adres;
-//        $data->city = $klient->city;
-//        $data->country_id = $klient->country_id;
-//        $data->nameKontakt = $klient->nameKontakt;
-//        $data->phone = $klient->phone;
-//        $data->email = $klient->email;
-//        $data->save();
 
-
-        // return Redirect::back()->with('success', 'Poprawiono.');
         return Redirect::route('klient.index', $klient->organization_id)->with('success', 'Poprawiono.');
-
     }
-
     public function create(Organization $organization)
     {
         $budId = $organization->id;
         $krajTyps = KrajTyp::all();
         return Inertia('Klients/Create', compact('krajTyps', 'budId'));
     }
-
     public function store(StoreKlientRequest $req)
     {
         Klient::create($req->validated());

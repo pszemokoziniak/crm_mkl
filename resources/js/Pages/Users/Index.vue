@@ -46,9 +46,9 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/users/${user.id}/edit`" tabindex="-1">
-              <span v-if="user.owner === 1">Kierownik budowy</span>
+              <span v-if="user.owner === 1">Administrator</span>
               <span v-if="user.owner === 2">Biuro</span>
-              <span v-if="user.owner === 3">Zarząd</span>
+              <span v-if="user.owner === 3">Kierownik budowy</span>
             </Link>
           </td>
           <td class="border-t">
