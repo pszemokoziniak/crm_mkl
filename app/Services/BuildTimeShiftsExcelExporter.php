@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\DTO\Shift;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -99,6 +101,7 @@ class BuildTimeShiftsExcelExporter
         $workersDataCursor = $this->rowsGenerator->workerRowsGenerator(8);
 
         foreach ($shifts as $workerId => $workerShifts) {
+
             /**
              * Probably each worker needs few rows for all results:
              * - czas pracy od do
@@ -129,23 +132,41 @@ class BuildTimeShiftsExcelExporter
                 $cellCoordsTo = $cellIndicatorGenerator->current();
                 $cellIndicatorGenerator->next();
 
+                $cellFrom = $cellCoordsFrom . $rowNumber;
+                $cellTo = $cellCoordsTo . $rowNumber;
+
                 if ($shift->workFrom) {
                     $this->activeWorksheet->setCellValue(
-                        $cellCoordsFrom . $rowNumber, (new \DateTime($shift->workFrom))->format('G:i')
+                        $cellFrom, (new \DateTime($shift->workFrom))->format('G:i')
                     ); // format to hours
                 }
 
                 if ($shift->workTo) {
                     $this->activeWorksheet->setCellValue(
-                        $cellCoordsTo . $rowNumber, (new \DateTime($shift->workTo))->format('G:i')
+                        $cellTo, (new \DateTime($shift->workTo))->format('G:i')
                     ); // format to hours only
                 }
                 // @TODO
                 // placone za
                 // czas pracy
 
-                // sobota na zólto
-                // niedziela na czerwono
+                if ($shift->isSaturday()) {
+                    $this->activeWorksheet
+                        ->getStyle($cellFrom . ':' . $cellTo)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_YELLOW);
+                }
+
+                if ($shift->isSunday()) {
+                    $this->activeWorksheet
+                        ->getStyle($cellFrom . ':' . $cellTo)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_RED);
+                }
             }
             $workersDataCursor->next();
         }
