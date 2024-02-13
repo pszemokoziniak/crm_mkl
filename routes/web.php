@@ -78,39 +78,39 @@ Route::get('/', [DashboardController::class, 'index'])
 
 Route::get('users', [UsersController::class, 'index'])
     ->name('users')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::get('users/create', [UsersController::class, 'create'])
     ->name('users.create')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::post('users', [UsersController::class, 'store'])
     ->name('users.store')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::get('users/{user}/edit', [UsersController::class, 'edit'])
     ->name('users.edit')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::put('users/{user}', [UsersController::class, 'update'])
     ->name('users.update')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::delete('users/{user}', [UsersController::class, 'destroy'])
     ->name('users.destroy')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::put('users/{user}/restore', [UsersController::class, 'restore'])
     ->name('users.restore')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::post('users/{user}/block', [UsersController::class, 'block'])
     ->name('users.block')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 Route::post('users/{user}/unblock', [UsersController::class, 'unblock'])
     ->name('users.unblock')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 // Organizations
 
