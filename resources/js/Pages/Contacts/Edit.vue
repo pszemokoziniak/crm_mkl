@@ -173,7 +173,7 @@ export default {
       contactId: this.contact.id,
       disabled: 1,
       form: this.$inertia.form({
-        _method: 'put',
+        // _method: 'put',
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,
         organization_id: this.contact.organization_id,
