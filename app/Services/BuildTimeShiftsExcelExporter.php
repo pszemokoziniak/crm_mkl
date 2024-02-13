@@ -87,6 +87,9 @@ class BuildTimeShiftsExcelExporter
             $daysHeadersGenerator->next();
         }
 
+        $sumCell =  $daysHeadersGenerator->current();
+        $this->activeWorksheet->setCellValue($sumCell . $daysRow, 'SUMA');
+
         return $this;
     }
 
@@ -110,14 +113,14 @@ class BuildTimeShiftsExcelExporter
              */
             $rows = $workersDataCursor->current();
 
-            $rowNumber = $rows['work_hours']; // czas pracy od do
+            $workHoursRow = $rows['work_hours']; // czas pracy od do
             $workingHoursRow = $rows['work_time'];
             $paidFor = $rows['work_paid'];
             $cellIndicatorGenerator = $this->rowsGenerator->cellCoordinatesGenerator(68);
 
-            $this->activeWorksheet->setCellValue('A'. $rowNumber, $workerId);
-            $this->activeWorksheet->setCellValue('B'. $rowNumber, reset($workerShifts)->name);
-            $this->activeWorksheet->setCellValue('C'. $rowNumber, 'czas pracy od/do');
+            $this->activeWorksheet->setCellValue('A'. $workHoursRow, $workerId);
+            $this->activeWorksheet->setCellValue('B'. $workHoursRow, reset($workerShifts)->name);
+            $this->activeWorksheet->setCellValue('C'. $workHoursRow, 'czas pracy od/do');
 
             $this->activeWorksheet->setCellValue('C'. $workingHoursRow, 'czas pracy');
             $this->activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
@@ -132,13 +135,13 @@ class BuildTimeShiftsExcelExporter
                 $cellCoordsTo = $cellIndicatorGenerator->current();
                 $cellIndicatorGenerator->next();
 
-                $cellFrom = $cellCoordsFrom . $rowNumber;
-                $cellTo = $cellCoordsTo . $rowNumber;
+                $cellFrom = $cellCoordsFrom . $workHoursRow;
+                $cellTo = $cellCoordsTo . $workHoursRow;
 
                 if ($shift->workFrom) {
                     $this->activeWorksheet->setCellValue(
                         $cellFrom, (new \DateTime($shift->workFrom))->format('G:i')
-                    ); // format to hours
+                    ); // format to hours only
                 }
 
                 if ($shift->workTo) {
@@ -146,9 +149,12 @@ class BuildTimeShiftsExcelExporter
                         $cellTo, (new \DateTime($shift->workTo))->format('G:i')
                     ); // format to hours only
                 }
-                // @TODO
-                // placone za
-                // czas pracy
+
+                if ($shift->work) {
+                    $this->activeWorksheet->setCellValue(
+                        $cellCoordsFrom . $workingHoursRow, $shift->work
+                    );
+                }
 
                 if ($shift->isSaturday()) {
                     $this->activeWorksheet
