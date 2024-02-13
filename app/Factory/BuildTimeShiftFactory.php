@@ -10,9 +10,9 @@ use Carbon\CarbonPeriod;
 
 class BuildTimeShiftFactory
 {
-    public static function create(int $build, ?string $date)
+    public static function create(int $build, ?string $date): iterable
     {
-        $date = $date ? Carbon::createFromTimeString($date . 1) : Carbon::now();
+        $date = self::getBuildDate($date);
 
         return  (new BuildTimeShiftCreator())->create(
             $build,
@@ -21,5 +21,10 @@ class BuildTimeShiftFactory
                 $date->clone()->toImmutable()->lastOfMonth()
             )
         );
+    }
+
+    public static function getBuildDate(?string $date): Carbon
+    {
+        return $date ? Carbon::createFromTimeString($date . 1) : Carbon::now();
     }
 }

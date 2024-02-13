@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\DTO\Shift;
 use Carbon\Carbon;
-use GuzzleHttp\Promise\Create;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -26,10 +25,10 @@ class BuildTimeShiftsExcelExporter
         $this->rowsGenerator = new Excel();
     }
 
-    public function build(iterable $shifts): static
+    public function generate(iterable $shifts, Carbon $date): static
     {
         $this
-            ->addMainHeaders($shifts)
+            ->addMainHeaders($date)
             ->addDaysHeaders($shifts)
             ->addWorkersShifts($shifts)
             ->addGeneralFormatting();
@@ -46,9 +45,10 @@ class BuildTimeShiftsExcelExporter
         return $path;
     }
 
-    private function addMainHeaders(): self
+    private function addMainHeaders(Carbon $date): self
     {
         // main headers
+        $this->activeWorksheet->setCellValue('L3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN ' . $date->format('Y/m'));
         $this->activeWorksheet->setCellValue('A'. 7, 'LP');
         $this->activeWorksheet->setCellValue('B'. 7, 'Imię i nazwisko');
         // add supervisor title and project name
@@ -58,6 +58,8 @@ class BuildTimeShiftsExcelExporter
     public function createSpreadSheet(): void
     {
         $this->spreadsheet = new Spreadsheet();
+        $this->spreadsheet->getDefaultStyle()->getFont()->setBold(true);
+
         $this->activeWorksheet = $this->spreadsheet->getActiveSheet();
     }
 
@@ -120,6 +122,7 @@ class BuildTimeShiftsExcelExporter
             $paidFor = $rows['work_paid'];
             $cellIndicatorGenerator = $this->rowsGenerator->cellCoordinatesGenerator(68);
 
+
             $this->activeWorksheet->setCellValue('A'. $workHoursRow, $workerId);
             $this->activeWorksheet->setCellValue('B'. $workHoursRow, reset($workerShifts)->name);
             $this->activeWorksheet->setCellValue('C'. $workHoursRow, 'czas pracy od/do');
@@ -128,6 +131,8 @@ class BuildTimeShiftsExcelExporter
             $this->activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
 
             $workPaidSum = 0;
+
+            ksort($workerShifts); // some days are not in order
 
             /**
              * @var int $key
@@ -142,23 +147,6 @@ class BuildTimeShiftsExcelExporter
                 $cellFrom = $cellCoordsFrom . $workHoursRow;
                 $cellTo = $cellCoordsTo . $workHoursRow;
 
-                if ($shift->workFrom) {
-                    $this->activeWorksheet->setCellValue(
-                        $cellFrom, (new \DateTime($shift->workFrom))->format('G:i')
-                    ); // format to hours only
-                }
-
-                if ($shift->workTo) {
-                    $this->activeWorksheet->setCellValue(
-                        $cellTo, (new \DateTime($shift->workTo))->format('G:i')
-                    ); // format to hours only
-                }
-
-                if ($shift->work) {
-                    $this->activeWorksheet->setCellValue(
-                        $cellCoordsFrom . $workingHoursRow, $shift->work
-                    );
-                }
 
                 if ($shift->isSaturday()) {
                     $this->activeWorksheet
@@ -176,6 +164,33 @@ class BuildTimeShiftsExcelExporter
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
                         ->setARGB(Color::COLOR_RED);
+                }
+
+                if ($shift->status) {
+                    $this->activeWorksheet
+                        ->getStyle($cellFrom . ':' . $cellTo)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_GREEN);
+                }
+
+                if ($shift->workFrom) {
+                    $this->activeWorksheet->setCellValue(
+                        $cellFrom, (new \DateTime($shift->workFrom))->format('G:i')
+                    ); // format to hours only
+                }
+
+                if ($shift->workTo) {
+                    $this->activeWorksheet->setCellValue(
+                        $cellTo, (new \DateTime($shift->workTo))->format('G:i')
+                    ); // format to hours only
+                }
+
+                if ($shift->work) {
+                    $this->activeWorksheet->setCellValue(
+                        $cellCoordsFrom . $workingHoursRow, $shift->work
+                    );
                 }
 
                 if ($shift->work) {

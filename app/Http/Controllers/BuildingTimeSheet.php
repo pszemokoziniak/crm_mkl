@@ -94,10 +94,13 @@ class BuildingTimeSheet extends Controller
 
     public function excelExport(int $build, Request $request): BinaryFileResponse
     {
-        $timeShifts = BuildTimeShiftFactory::create($build, $request->query->get('date'));
+        $date = $request->query->get('date');
+
+        $timeShifts = BuildTimeShiftFactory::create($build, $date);
+        $buildForDate = BuildTimeShiftFactory::getBuildDate($date);
 
         return response()->file(
-            (new BuildTimeShiftsExcelExporter())->build($timeShifts)->export()
+            (new BuildTimeShiftsExcelExporter())->generate($timeShifts, $buildForDate)->export()
         );
     }
 
