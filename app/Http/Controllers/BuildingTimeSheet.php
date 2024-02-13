@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Factory\BuildTimeShiftFactory;
 use App\Http\Requests\BuildTimeShiftRequest;
 use App\Services\BuildTimeShiftCreator;
+use App\Services\BuildTimeShiftsExcelExporter;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redirect;
@@ -17,6 +20,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\BuildingTimeSheet as BuildingTimeSheetModel;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class BuildingTimeSheet extends Controller
@@ -77,7 +81,7 @@ class BuildingTimeSheet extends Controller
         return new JsonResponse(['status' => 'ok']);
     }
 
-    public function delete(BuildTimeShiftRequest $request)
+    public function delete(BuildTimeShiftRequest $request): RedirectResponse
     {
         $work_day = new DateTimeImmutable($request->get('day'));
         echo $work_day->format('Y-m-d H:i:s');
@@ -86,6 +90,18 @@ class BuildingTimeSheet extends Controller
             ->where('work_day', $work_day->format('Y-m-d H:i:s'))->delete();
 
         return Redirect::back()->with('success', 'Godziny pracy usunięte.');
+    }
+
+    public function excelExport(int $build, Request $request): BinaryFileResponse
+    {
+        $date = $request->query->get('date');
+
+        $timeShifts = BuildTimeShiftFactory::create($build, $date);
+        $buildForDate = BuildTimeShiftFactory::getBuildDate($date);
+
+        return response()->file(
+            (new BuildTimeShiftsExcelExporter())->generate($timeShifts, $buildForDate)->export()
+        );
     }
 
     private function getShiftStatuses(): Collection

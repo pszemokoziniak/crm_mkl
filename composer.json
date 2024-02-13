@@ -8,6 +8,7 @@
         "php": "^8.0",
         "ext-exif": "*",
         "ext-gd": "*",
+        "ext-json": "*",
         "doctrine/dbal": "^3.3",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -16,7 +17,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "league/glide-laravel": "^1.0",
-      "ext-json": "*"
+        "phpoffice/phpspreadsheet": "^2.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",

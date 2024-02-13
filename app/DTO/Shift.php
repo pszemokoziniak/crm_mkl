@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO;
 
+use Carbon\Carbon;
 use JsonSerializable;
 use phpDocumentor\Reflection\Utils;
 
@@ -64,5 +65,15 @@ class Shift implements JsonSerializable
             isBlocked: $isBlocked,
             blockedType: $blockedType,
         );
+    }
+
+    public function isSunday(): bool
+    {
+        return Carbon::create($this->day)->isSunday();
+    }
+
+    public function isSaturday(): bool
+    {
+        return Carbon::create($this->day)->isSaturday();
     }
 }
