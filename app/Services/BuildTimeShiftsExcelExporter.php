@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTO\Shift;
+use Carbon\Carbon;
+use GuzzleHttp\Promise\Create;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -125,6 +127,8 @@ class BuildTimeShiftsExcelExporter
             $this->activeWorksheet->setCellValue('C'. $workingHoursRow, 'czas pracy');
             $this->activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
 
+            $workPaidSum = 0;
+
             /**
              * @var int $key
              * @var Shift $shift */
@@ -173,7 +177,16 @@ class BuildTimeShiftsExcelExporter
                         ->getStartColor()
                         ->setARGB(Color::COLOR_RED);
                 }
+
+                if ($shift->work) {
+                    $shiftInMinutes = Carbon::createFromFormat('H:i', $shift->work)->diffInMinutes(Carbon::now()->startOfDay());
+                    $workPaidSum += $shiftInMinutes;
+                }
             }
+
+            // set hours sum
+            $this->activeWorksheet->setCellValue($cellIndicatorGenerator->current(). $workHoursRow, ((int) $workPaidSum / 60));
+
             $workersDataCursor->next();
         }
 
