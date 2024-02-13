@@ -13,8 +13,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $contact_id = Contact::where('user_id', Auth::id())->pluck('id');
-        $contact_id = (!empty($contact_id))?$contact_id:null;
+        $contact_id = Contact::where('user_id', Auth::id())->first();
+        if (empty($contact_id)) {
+            $contact_id = null;
+        } else {
+            $contact_id = $contact_id->id;
+        }
+
         $buildings = ContactWorkDate::with('organization')
             ->with('contact')
             ->where('contact_work_dates.contact_id', $contact_id)
