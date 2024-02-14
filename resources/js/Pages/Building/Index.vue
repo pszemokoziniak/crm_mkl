@@ -87,7 +87,15 @@
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
                             <Datepicker v-model="form.from" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
                             <Datepicker v-model="form.to" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
-                            <Datepicker v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+
+                            <div class="grid grid-cols-2">
+                              <Datepicker v-model="form.workTime" time-picker minutes-increment="30"
+                                          class="pb-8 pr-6 w-full"/>
+                              <div>
+                                <input type="checkbox" :value="false" />
+                              </div>
+                            </div>
+
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
                             </select-input>
