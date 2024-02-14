@@ -3,7 +3,10 @@
   <BudMenu :budId="build" />
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
-    <button class="btn-indigo" @click="printData">Drukuj</button>
+    <a target="_self" :href="`/building/${this.build}/time-sheet/export`" class="btn-indigo py-2 px-4 rounded inline-flex items-center">
+      <DocumentDownloadIcon class="h-5 w-5 text-blue-500" />
+      <span>Pobierz</span>
+    </a>
   </div>
   <div ref="printTable" class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div class="flex items-center py-2">
@@ -130,6 +133,7 @@ import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import BudMenu from '@/Shared/BudMenu.vue'
 import {Head} from '@inertiajs/inertia-vue3'
+import {DocumentDownloadIcon} from "@heroicons/vue/solid";
 
 
 const DEFAULT_RANGES = {
@@ -140,6 +144,7 @@ const DEFAULT_RANGES = {
 
 export default {
   components: {
+    DocumentDownloadIcon,
     BudMenu,
     SelectInput,
     Dialog,
@@ -342,8 +347,6 @@ export default {
       if (shift.isBlocked && shift.blockedType !== 'feast') {
         return
       }
-
-      console.log(shift.work)
 
       this.open = true
       this.form = this.$inertia.form = ({
