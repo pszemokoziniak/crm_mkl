@@ -7,6 +7,7 @@ namespace App\Services;
 use App\DTO\Shift;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -17,6 +18,15 @@ class BuildTimeShiftsExcelExporter
     private Worksheet $activeWorksheet;
     private Spreadsheet $spreadsheet;
     private Excel $rowsGenerator;
+
+    private $bodersStyle = [
+        'borders' => [
+            'outline' => [
+                'borderStyle' => Border::BORDER_THIN,
+                'color' => ['argb' => Color::COLOR_BLACK],
+            ],
+        ]
+    ];
 
     public function __construct()
     {
@@ -49,8 +59,8 @@ class BuildTimeShiftsExcelExporter
     {
         // main headers
         $this->activeWorksheet->setCellValue('L3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN ' . $date->format('Y/m'));
-        $this->activeWorksheet->setCellValue('A'. 7, 'LP');
-        $this->activeWorksheet->setCellValue('B'. 7, 'Imię i nazwisko');
+        $this->activeWorksheet->setCellValue('A' . 7, 'LP');
+        $this->activeWorksheet->setCellValue('B' . 7, 'Imię i nazwisko');
         // add supervisor title and project name
         return $this;
     }
@@ -67,12 +77,12 @@ class BuildTimeShiftsExcelExporter
     {
         $daysHeadersGenerator = $this->rowsGenerator->cellCoordinatesGenerator(68);
 
-        $shifts = (array) $shifts;
+        $shifts = (array)$shifts;
         $monthForWorker = reset($shifts);
-        
+
         $daysRow = 7;
         foreach (range(1, count($monthForWorker)) as $key => $day) {
-            $firstCell =  $daysHeadersGenerator->current();
+            $firstCell = $daysHeadersGenerator->current();
             $daysHeadersGenerator->next();
             $secondCell = $daysHeadersGenerator->current();
 
@@ -84,14 +94,17 @@ class BuildTimeShiftsExcelExporter
             $this->activeWorksheet->setCellValue($secondCellCoords, $value);
             $this->activeWorksheet->mergeCells($firstCellCoords . ':' . $secondCellCoords);
 
-            $this->activeWorksheet->getStyle($firstCellCoords . ':' . $secondCellCoords)
+            $this->activeWorksheet
+                ->getStyle($firstCellCoords . ':' . $secondCellCoords)
+                ->applyFromArray($this->bodersStyle)
                 ->getAlignment()
                 ->setHorizontal('center');
+
 
             $daysHeadersGenerator->next();
         }
 
-        $sumCell =  $daysHeadersGenerator->current();
+        $sumCell = $daysHeadersGenerator->current();
         $this->activeWorksheet->setCellValue($sumCell . $daysRow, 'SUMA');
 
         return $this;
@@ -117,18 +130,20 @@ class BuildTimeShiftsExcelExporter
              */
             $rows = $workersDataCursor->current();
 
-            $workHoursRow = $rows['work_hours']; // czas pracy od do
+            $workHoursRow = $rows['work_hours'];
             $workingHoursRow = $rows['work_time'];
             $paidFor = $rows['work_paid'];
             $cellIndicatorGenerator = $this->rowsGenerator->cellCoordinatesGenerator(68);
 
 
-            $this->activeWorksheet->setCellValue('A'. $workHoursRow, $workerId);
-            $this->activeWorksheet->setCellValue('B'. $workHoursRow, reset($workerShifts)->name);
-            $this->activeWorksheet->setCellValue('C'. $workHoursRow, 'czas pracy od/do');
+            $this->activeWorksheet->setCellValue('A' . $workHoursRow, $workerId);
+            $this->activeWorksheet->setCellValue('B' . $workHoursRow, reset($workerShifts)->name);
+            $this->activeWorksheet->setCellValue('C' . $workHoursRow, 'czas pracy od/do');
 
-            $this->activeWorksheet->setCellValue('C'. $workingHoursRow, 'czas pracy');
-            $this->activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
+            $this->activeWorksheet->setCellValue('C' . $workingHoursRow, 'czas pracy');
+            $this->activeWorksheet->setCellValue('C' . $paidFor, 'płacone za');
+
+            $this->activeWorksheet->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)->applyFromArray($this->bodersStyle);
 
             $workPaidSum = 0;
 
@@ -136,7 +151,8 @@ class BuildTimeShiftsExcelExporter
 
             /**
              * @var int $key
-             * @var Shift $shift */
+             * @var Shift $shift
+             */
             foreach ($workerShifts as $key => $shift) {
 
                 $cellCoordsFrom = $cellIndicatorGenerator->current();
@@ -155,11 +171,38 @@ class BuildTimeShiftsExcelExporter
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
                         ->setARGB(Color::COLOR_YELLOW);
+                    $this->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_YELLOW);
+
+                    $this->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_YELLOW);
                 }
 
                 if ($shift->isSunday()) {
                     $this->activeWorksheet
                         ->getStyle($cellFrom . ':' . $cellTo)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_RED);
+
+                    $this->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_RED);
+
+                    $this->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
@@ -200,7 +243,7 @@ class BuildTimeShiftsExcelExporter
             }
 
             // set hours sum
-            $this->activeWorksheet->setCellValue($cellIndicatorGenerator->current(). $workHoursRow, ((int) $workPaidSum / 60));
+            $this->activeWorksheet->setCellValue($cellIndicatorGenerator->current() . $workHoursRow, ((int)$workPaidSum / 60));
 
             $workersDataCursor->next();
         }
@@ -212,9 +255,13 @@ class BuildTimeShiftsExcelExporter
     {
         $this->activeWorksheet->freezePane('D1');
 
-        foreach (range('A','D') as $col) {
+        foreach (range('A', 'D') as $col) {
             $this->activeWorksheet->getColumnDimension($col)->setAutoSize(true);
         }
+
+        $this->activeWorksheet->getStyle('A:Z')
+            ->getAlignment()
+            ->setHorizontal('center');
 
         return $this;
     }
