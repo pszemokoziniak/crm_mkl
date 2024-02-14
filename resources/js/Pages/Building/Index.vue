@@ -92,7 +92,8 @@
                               <Datepicker v-model="form.workTime" time-picker minutes-increment="30"
                                           class="pb-8 pr-6 w-full"/>
                               <div>
-                                <input type="checkbox" :value="false" />
+                                <label for="time-reduce">Skróć czas pracy</label>
+                                <input id="time-reduce" type="checkbox" :value="false" />
                               </div>
                             </div>
 
