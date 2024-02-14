@@ -251,6 +251,22 @@ export default {
     getYear() {
       return new Date(this.date).getFullYear()
     },
+    /**
+     *
+     * @param time HH:mm e.g. 09:30 -> object
+     * @returns {{hours: *, minutes: *}}
+     */
+    formatTimeToObject(time) {
+
+      if (!time) {
+        return null
+      }
+
+      return {
+        hours: time.split(':').at(0),
+        minutes: time.split(':').at(1),
+      }
+    },
     formatRangeToDisplay(range) {
       return String(range.hours).padStart(2, '0') + ':' + String(range.minutes).padStart(2, '0')
     },
@@ -327,6 +343,8 @@ export default {
         return
       }
 
+      console.log(shift.work)
+
       this.open = true
       this.form = this.$inertia.form = ({
         name: shift.name,
@@ -335,11 +353,13 @@ export default {
         day: shift.day,
         from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : DEFAULT_RANGES.from,
         to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
-        workTime: shift.work,
+        workTime: this.formatTimeToObject(shift.work),
         status: shift.status ?? null,
       })
 
-      this.calculateEffectiveTime()
+      if (!shift.work) {
+        this.calculateEffectiveTime()
+      }
 
       this.isStatus = this.isSetStatus(shift.status)
     },
