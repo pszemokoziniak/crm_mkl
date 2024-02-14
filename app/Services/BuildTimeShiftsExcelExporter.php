@@ -19,7 +19,8 @@ class BuildTimeShiftsExcelExporter
     private Spreadsheet $spreadsheet;
     private Excel $rowsGenerator;
 
-    private $bodersStyle = [
+    private array $shiftStatuses;
+    private array $borderStyleThin = [
         'borders' => [
             'outline' => [
                 'borderStyle' => Border::BORDER_THIN,
@@ -28,11 +29,11 @@ class BuildTimeShiftsExcelExporter
         ]
     ];
 
-    public function __construct()
+    public function __construct(array $shiftStatuses)
     {
         $this->createSpreadSheet();
-
         $this->rowsGenerator = new Excel();
+        $this->shiftStatuses = $shiftStatuses;
     }
 
     public function generate(iterable $shifts, Carbon $date): static
@@ -96,7 +97,7 @@ class BuildTimeShiftsExcelExporter
 
             $this->activeWorksheet
                 ->getStyle($firstCellCoords . ':' . $secondCellCoords)
-                ->applyFromArray($this->bodersStyle)
+                ->applyFromArray($this->borderStyleThin)
                 ->getAlignment()
                 ->setHorizontal('center');
 
@@ -143,7 +144,9 @@ class BuildTimeShiftsExcelExporter
             $this->activeWorksheet->setCellValue('C' . $workingHoursRow, 'czas pracy');
             $this->activeWorksheet->setCellValue('C' . $paidFor, 'płacone za');
 
-            $this->activeWorksheet->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)->applyFromArray($this->bodersStyle);
+            $this->activeWorksheet
+                ->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)
+                ->applyFromArray($this->borderStyleThin);
 
             $workPaidSum = 0;
 
@@ -163,16 +166,49 @@ class BuildTimeShiftsExcelExporter
                 $cellFrom = $cellCoordsFrom . $workHoursRow;
                 $cellTo = $cellCoordsTo . $workHoursRow;
 
-
-                if ($shift->isSaturday()) {
+                if ($shift->status) {
                     $this->activeWorksheet
                         ->getStyle($cellFrom . ':' . $cellTo)
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
-                        ->setARGB(Color::COLOR_YELLOW);
+                        ->setARGB(Color::COLOR_DARKGREEN);
+
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_DARKGREEN);
+
+                    $this->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_DARKGREEN);
+
+                    // set shift status code e.g. UW,OG
+                    $foundShifts = array_filter($this->shiftStatuses, static fn($shiftStatus) => $shiftStatus->id === $shift->status);
+                    $code = reset($foundShifts)->code;
+                    $this->activeWorksheet->setCellValue($cellCoordsFrom . $paidFor, $code);
+
+                    continue;
+                }
+
+
+                if ($shift->isSaturday()) {
+                    $this->activeWorksheet
+                        ->getStyle($cellFrom . ':' . $cellTo)
+                        ->applyFromArray($this->borderStyleThin)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB(Color::COLOR_YELLOW);
+
+                    $this->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                        ->applyFromArray($this->borderStyleThin)
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
@@ -180,6 +216,7 @@ class BuildTimeShiftsExcelExporter
 
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
+                        ->applyFromArray($this->borderStyleThin)
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
@@ -189,6 +226,7 @@ class BuildTimeShiftsExcelExporter
                 if ($shift->isSunday()) {
                     $this->activeWorksheet
                         ->getStyle($cellFrom . ':' . $cellTo)
+                        ->applyFromArray($this->borderStyleThin)
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
@@ -196,6 +234,7 @@ class BuildTimeShiftsExcelExporter
 
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                        ->applyFromArray($this->borderStyleThin)
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
@@ -203,19 +242,11 @@ class BuildTimeShiftsExcelExporter
 
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
+                        ->applyFromArray($this->borderStyleThin)
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
                         ->setARGB(Color::COLOR_RED);
-                }
-
-                if ($shift->status) {
-                    $this->activeWorksheet
-                        ->getStyle($cellFrom . ':' . $cellTo)
-                        ->getFill()
-                        ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()
-                        ->setARGB(Color::COLOR_GREEN);
                 }
 
                 if ($shift->workFrom) {

@@ -27,22 +27,13 @@ class BuildingTimeSheet extends Controller
 {
     public function view(int $build, Request $request): Response
     {
-        $date = $request->query->get('date')
-            ? Carbon::createFromTimeString($request->query->get('date') . 1)
-            : Carbon::now();
-
-        $timeShifts = (new BuildTimeShiftCreator())->create(
-            $build,
-            CarbonPeriod::create(
-                $date->clone()->toImmutable()->firstOfMonth(),
-                $date->clone()->toImmutable()->lastOfMonth()
-            )
-        );
+        $date = $request->query->get('date');
+        $timeShifts = BuildTimeShiftFactory::create($build, $date);
 
         return Inertia::render('Building/Index.vue',
             [
                 'date' => $date,
-                'month' => $date->monthName,
+                'month' => BuildTimeShiftFactory::getBuildDate($date)->monthName,
                 'timeSheets' => $timeShifts,
                 'build' => $build,
                 'shiftStatuses' => $this->getShiftStatuses()->all(),
@@ -98,9 +89,10 @@ class BuildingTimeSheet extends Controller
 
         $timeShifts = BuildTimeShiftFactory::create($build, $date);
         $buildForDate = BuildTimeShiftFactory::getBuildDate($date);
+        $shiftStatuses = $this->getShiftStatuses()->all();
 
         return response()->file(
-            (new BuildTimeShiftsExcelExporter())->generate($timeShifts, $buildForDate)->export()
+            (new BuildTimeShiftsExcelExporter($shiftStatuses))->generate($timeShifts, $buildForDate)->export()
         );
     }
 
