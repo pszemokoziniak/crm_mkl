@@ -3,7 +3,10 @@
   <BudMenu :budId="build" />
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
-    <button class="btn-indigo" @click="printData">Drukuj</button>
+    <a target="_self" :href="`/building/${this.build}/time-sheet/export`" class="btn-indigo py-2 px-4 rounded inline-flex items-center">
+      <DocumentDownloadIcon class="h-5 w-5 text-blue-500" />
+      <span>Pobierz</span>
+    </a>
   </div>
   <div ref="printTable" class="bg-white rounded-lg shadow overflow-auto grid flex py-2 px-6">
     <div class="flex items-center py-2">
@@ -87,7 +90,16 @@
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
                             <Datepicker v-model="form.from" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
                             <Datepicker v-model="form.to" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
-                            <Datepicker v-model="form.workTime" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" />
+
+                            <div class="grid grid-cols-2">
+                              <Datepicker v-model="form.workTime" time-picker minutes-increment="30"
+                                          class="pb-8 pr-6 w-full" />
+                              <div>
+                                <input ref="timeReduce" class="mr-2" id="time-reduce" type="checkbox" @change="wortTimeReduce()" />
+                                <label for="time-reduce">Skróć czas o 30 min</label>
+                              </div>
+                            </div>
+
                             <select-input v-model="form.status" class="pb-8 pr-6 w-full lg:w-1/1" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
                             </select-input>
@@ -121,6 +133,7 @@ import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import BudMenu from '@/Shared/BudMenu.vue'
 import {Head} from '@inertiajs/inertia-vue3'
+import {DocumentDownloadIcon} from "@heroicons/vue/solid";
 
 
 const DEFAULT_RANGES = {
@@ -131,6 +144,7 @@ const DEFAULT_RANGES = {
 
 export default {
   components: {
+    DocumentDownloadIcon,
     BudMenu,
     SelectInput,
     Dialog,
@@ -242,6 +256,22 @@ export default {
     getYear() {
       return new Date(this.date).getFullYear()
     },
+    /**
+     *
+     * @param time HH:mm e.g. 09:30 -> object
+     * @returns {{hours: *, minutes: *}}
+     */
+    formatTimeToObject(time) {
+
+      if (!time) {
+        return null
+      }
+
+      return {
+        hours: time.split(':').at(0),
+        minutes: time.split(':').at(1),
+      }
+    },
     formatRangeToDisplay(range) {
       return String(range.hours).padStart(2, '0') + ':' + String(range.minutes).padStart(2, '0')
     },
@@ -317,9 +347,6 @@ export default {
       if (shift.isBlocked && shift.blockedType !== 'feast') {
         return
       }
-      // workbrake -30min
-      if (shift.work)
-      {var d = moment().hours(shift.work.split(':')[0]).minutes(shift.work.split(':')[1]).add(-30, 'minutes').format('hh:mm')}
 
       this.open = true
       this.form = this.$inertia.form = ({
@@ -329,9 +356,14 @@ export default {
         day: shift.day,
         from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : DEFAULT_RANGES.from,
         to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
-        workTime: shift.work ? { hours: d.split(':')[0], minutes: d.split(':')[1] } : DEFAULT_RANGES.shift,
+        workTime: this.formatTimeToObject(shift.work),
         status: shift.status ?? null,
       })
+
+      if (!shift.work) {
+        this.calculateEffectiveTime()
+      }
+
       this.isStatus = this.isSetStatus(shift.status)
     },
     /**
@@ -345,13 +377,13 @@ export default {
     },
 
     calculateEffectiveTime() {
-      const calculated = moment.utc(moment.duration(
-        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').add(-30, 'minutes').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
+      const workHours = moment.utc(moment.duration(
+        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
       ).asMilliseconds()).format('HH:mm')
 
       this.form.workTime = {
-        hours: calculated.split(':').at(0),
-        minutes: calculated.split(':').at(1),
+        hours: workHours.split(':').at(0),
+        minutes: workHours.split(':').at(1),
       }
     },
     destroy() {
@@ -374,6 +406,20 @@ export default {
         // display notification
         this.open = false
       }
+    },
+    wortTimeReduce() {
+      const checked = this.$refs.timeReduce.checked
+      if (checked) {
+        const workHours = moment(this.form.workTime.hours + ':' + this.form.workTime.minutes, 'HH:mm').subtract('30', 'minutes').format('hh:mm')
+
+        this.form.workTime = {
+          hours: workHours.split(':').at(0),
+          minutes: workHours.split(':').at(1),
+        }
+
+        return
+      }
+      this.calculateEffectiveTime()
     },
     saveHours() {
       try {
