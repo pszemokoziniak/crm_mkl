@@ -90,10 +90,10 @@
 
                             <div class="grid grid-cols-2">
                               <Datepicker v-model="form.workTime" time-picker minutes-increment="30"
-                                          class="pb-8 pr-6 w-full"/>
+                                          class="pb-8 pr-6 w-full" />
                               <div>
-                                <label for="time-reduce">Skróć czas pracy</label>
-                                <input id="time-reduce" type="checkbox" :value="false" />
+                                <input ref="timeReduce" class="mr-2" id="time-reduce" type="checkbox" @change="wortTimeReduce()" />
+                                <label for="time-reduce">Skróć czas o 30 min</label>
                               </div>
                             </div>
 
@@ -326,9 +326,6 @@ export default {
       if (shift.isBlocked && shift.blockedType !== 'feast') {
         return
       }
-      // workbrake -30min
-      if (shift.work)
-      {var d = moment().hours(shift.work.split(':')[0]).minutes(shift.work.split(':')[1]).add(-30, 'minutes').format('hh:mm')}
 
       this.open = true
       this.form = this.$inertia.form = ({
@@ -338,9 +335,12 @@ export default {
         day: shift.day,
         from: this.formatTimeObject(shift.from) ?  this.formatTimeObject(shift.from) : DEFAULT_RANGES.from,
         to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
-        workTime: shift.work ? { hours: d.split(':')[0], minutes: d.split(':')[1] } : DEFAULT_RANGES.shift,
+        workTime: shift.work,
         status: shift.status ?? null,
       })
+
+      this.calculateEffectiveTime()
+
       this.isStatus = this.isSetStatus(shift.status)
     },
     /**
@@ -354,13 +354,13 @@ export default {
     },
 
     calculateEffectiveTime() {
-      const calculated = moment.utc(moment.duration(
-        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').add(-30, 'minutes').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
+      const workHours = moment.utc(moment.duration(
+        moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm')),
       ).asMilliseconds()).format('HH:mm')
 
       this.form.workTime = {
-        hours: calculated.split(':').at(0),
-        minutes: calculated.split(':').at(1),
+        hours: workHours.split(':').at(0),
+        minutes: workHours.split(':').at(1),
       }
     },
     destroy() {
@@ -383,6 +383,20 @@ export default {
         // display notification
         this.open = false
       }
+    },
+    wortTimeReduce() {
+      const checked = this.$refs.timeReduce.checked
+      if (checked) {
+        const workHours = moment(this.form.workTime.hours + ':' + this.form.workTime.minutes, 'HH:mm').subtract('30', 'minutes').format('hh:mm')
+
+        this.form.workTime = {
+          hours: workHours.split(':').at(0),
+          minutes: workHours.split(':').at(1),
+        }
+
+        return
+      }
+      this.calculateEffectiveTime()
     },
     saveHours() {
       try {
