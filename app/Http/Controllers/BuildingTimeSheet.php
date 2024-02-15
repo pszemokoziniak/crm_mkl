@@ -29,11 +29,12 @@ class BuildingTimeSheet extends Controller
     {
         $date = $request->query->get('date');
         $timeShifts = BuildTimeShiftFactory::create($build, $date);
+        $date = BuildTimeShiftFactory::getBuildDate($date);
 
         return Inertia::render('Building/Index.vue',
             [
                 'date' => $date,
-                'month' => BuildTimeShiftFactory::getBuildDate($date)->monthName,
+                'month' => $date->monthName,
                 'timeSheets' => $timeShifts,
                 'build' => $build,
                 'shiftStatuses' => $this->getShiftStatuses()->all(),
