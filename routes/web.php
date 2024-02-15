@@ -13,6 +13,7 @@ use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumentyTypController;
 use App\Http\Controllers\FeastsController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\JezykController;
 use App\Http\Controllers\JezykTypController;
@@ -252,6 +253,41 @@ Route::put('narzedzia/{narzedzia}/restore', [NarzedziaController::class, 'restor
     ->name('narzedzia.restore')
         ->middleware('auth', 'biuro-permission');
 
+// Holidays
+
+Route::get('contacts/{contact}/holiday', [HolidayController::class, 'index'])
+    ->name('holiday.index')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::get('contacts/{contact}/holiday/create', [HolidayController::class, 'create'])
+    ->name('holiday.create')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::post('holiday/{contact_id}', [HolidayController::class, 'store'])
+    ->name('holiday.store')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::get('contacts/{contact}/holiday/{holiday}/edit', [HolidayController::class, 'edit'])
+    ->name('holiday.edit')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::put('contacts/{contact}/holiday/{holiday}', [HolidayController::class, 'update'])
+    ->name('holiday.update')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::delete('holiday/{holiday}', [HolidayController::class, 'destroy'])
+    ->name('holiday.destroy')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::put('holiday/{holiday}/restore', [HolidayController::class, 'restore'])
+    ->name('holiday.restore')
+    ->middleware('auth', 'admin-permission');
 
 //  Budowa Narzedzia
 

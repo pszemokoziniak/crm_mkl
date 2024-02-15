@@ -36,6 +36,9 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/a1/`">
             <div :class="'text-indigo-300 group-hover:text-gray-900'">A1</div>
           </Link>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/holiday/`">
+            <div :class="'text-indigo-300 group-hover:text-gray-900'">Urlopy</div>
+          </Link>
         </div>
       </div>
     </nav>
@@ -47,11 +50,11 @@ import { Link } from '@inertiajs/inertia-vue3'
 
 export default {
   name: 'WorkerMenu',
-  props: {
-    contactId:Number,
-  },
   components: {
     Link,
+  },
+  props: {
+    contactId:Number,
   },
   methods: {
     isUrl(...urls) {

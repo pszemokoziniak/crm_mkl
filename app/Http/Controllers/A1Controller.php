@@ -14,15 +14,7 @@ class A1Controller extends Controller
 {
     public function index(Contact $contact)
     {
-//        $a1s = A1::where('contact_id', $contact->id)
-//            ->orderByName()
-//            ->paginate(10)
-//            ->withQueryString()
-//            ->through(fn ($a1) => [
-//                'id' => $a1->id,
-//                'start' => $a1->start,
-//                'end' => $a1->end,
-//            ]);
+
         return Inertia::render('A1/Index', [
             'a1s' => A1::where('contact_id', $contact->id)->get(),
             'contact' => $contact,
@@ -78,11 +70,4 @@ class A1Controller extends Controller
 
         return Redirect::route('a1.index', $contact_id)->with('success', 'Element usunięty.');
     }
-
-//    public function restore(Jezyk $jezyk)
-//    {
-//        $jezyk->restore();
-//
-//        return Redirect::back()->with('success', 'Pracownik przywrócony.');
-//    }
 }
