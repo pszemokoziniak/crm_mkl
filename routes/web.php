@@ -180,7 +180,7 @@ Route::put('budowy/{klient}/restore', [KlientController::class, 'restore'])
         ->middleware('auth', 'biuro-permission');
 
 
-// Contacts
+/// Contacts
 
 Route::get('contacts', [ContactsController::class, 'index'])
     ->name('contacts')
