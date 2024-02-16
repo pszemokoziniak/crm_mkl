@@ -129,7 +129,7 @@ Route::post('budowy', [OrganizationsController::class, 'store'])
 
 Route::get('budowy/{organization}/edit', [OrganizationsController::class, 'edit'])
     ->name('organizations.edit')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::put('budowy/{organization}', [OrganizationsController::class, 'update'])
     ->name('organizations.update')
@@ -372,32 +372,32 @@ Route::put('dokumentyTyp/{account}/restore', [DokumentyTypController::class, 're
 
 Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'index'])
     ->name('pracownicy.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('pracownicy/{contactWorkDate}', [BudowaPracownicyController::class, 'update'])
     ->name('pracownicy.update')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('pracownicy/{organization}/create', [BudowaPracownicyController::class, 'find'])
     ->name('pracownicy.create.post')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('pracownicy/{organization}/create', [BudowaPracownicyController::class, 'create'])
     ->name('pracownicy.create')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('pracownicy/{organization}/edit/{contactWorkDate}', [BudowaPracownicyController::class, 'edit'])
     ->name('pracownicy.edit')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('pracownicy/{organization}', [BudowaPracownicyController::class, 'store'])
     ->name('pracownicy.store')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('pracownicy/{contactWorkDate}', [BudowaPracownicyController::class, 'destroy'])
