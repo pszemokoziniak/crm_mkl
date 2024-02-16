@@ -202,7 +202,7 @@ Route::get('contacts/{contact}/edit', [ContactsController::class, 'edit'])
         ->middleware('auth', 'biuro-permission');
 
 
-Route::put('contacts/{contact}', [ContactsController::class, 'update'])
+Route::post('contacts/{contact}', [ContactsController::class, 'update'])
     ->name('contacts.update')
         ->middleware('auth', 'biuro-permission');
 
