@@ -121,6 +121,7 @@ class BuildTimeShiftsExcelExporter
     {
         $workersDataCursor = $this->rowsGenerator->workerRowsGenerator(8);
 
+
         foreach ($shifts as $workerId => $workerShifts) {
 
             /**
@@ -136,6 +137,7 @@ class BuildTimeShiftsExcelExporter
             $paidFor = $rows['work_paid'];
             $cellIndicatorGenerator = $this->rowsGenerator->cellCoordinatesGenerator(68);
 
+            $first = $cellIndicatorGenerator->current();
 
             $this->activeWorksheet->setCellValue('A' . $workHoursRow, $workerId);
             $this->activeWorksheet->setCellValue('B' . $workHoursRow, reset($workerShifts)->name);
@@ -143,6 +145,8 @@ class BuildTimeShiftsExcelExporter
 
             $this->activeWorksheet->setCellValue('C' . $workingHoursRow, 'czas pracy');
             $this->activeWorksheet->setCellValue('C' . $paidFor, 'płacone za');
+
+            $this->activeWorksheet->mergeCells('B'. $workHoursRow . ':' . 'B' . $paidFor);
 
             $this->activeWorksheet
                 ->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)
@@ -265,6 +269,8 @@ class BuildTimeShiftsExcelExporter
                     $this->activeWorksheet->setCellValue(
                         $cellCoordsFrom . $workingHoursRow, $shift->work
                     );
+
+                    $this->activeWorksheet->mergeCells($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow);
                 }
 
                 if ($shift->work) {
@@ -275,6 +281,9 @@ class BuildTimeShiftsExcelExporter
 
             // set hours sum
             $this->activeWorksheet->setCellValue($cellIndicatorGenerator->current() . $workHoursRow, ((int)$workPaidSum / 60));
+
+            // border for worker rows
+            $this->activeWorksheet->getStyle($first . $workHoursRow  . ':' . $cellIndicatorGenerator->current() . $paidFor)->applyFromArray($this->borderStyleThin);
 
             $workersDataCursor->next();
         }
