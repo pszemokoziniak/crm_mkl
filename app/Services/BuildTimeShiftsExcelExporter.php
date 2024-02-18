@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTO\Shift;
+use App\Services\Date\ExcelTimeFormatter;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -22,7 +24,10 @@ class BuildTimeShiftsExcelExporter
     private array $shiftStatuses;
     private array $borderStyleThin = [
         'borders' => [
-            'outline' => [
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+            'allBorders' => [
                 'borderStyle' => Border::BORDER_THIN,
                 'color' => ['argb' => Color::COLOR_BLACK],
             ],
@@ -36,10 +41,10 @@ class BuildTimeShiftsExcelExporter
         $this->shiftStatuses = $shiftStatuses;
     }
 
-    public function generate(iterable $shifts, Carbon $date): static
+    public function generate(iterable $shifts, Carbon $date, string $buildName): static
     {
         $this
-            ->addMainHeaders($date)
+            ->addMainHeaders($date, $buildName)
             ->addDaysHeaders($shifts)
             ->addWorkersShifts($shifts)
             ->addGeneralFormatting();
@@ -56,12 +61,44 @@ class BuildTimeShiftsExcelExporter
         return $path;
     }
 
-    private function addMainHeaders(Carbon $date): self
+    private function addMainHeaders(Carbon $date, string $buildName): self
     {
+        $titlesRow = 7;
+
+        // build name
+        $this
+            ->activeWorksheet
+            ->setCellValue('B5', 'Projekt: ' . $buildName);
+        // created by
+        $this
+            ->activeWorksheet
+            ->setCellValue('D5', 'Sporządził: ');
+
+        $this
+            ->activeWorksheet
+            ->mergeCells('D5' . ':' . 'I5');
+
         // main headers
-        $this->activeWorksheet->setCellValue('L3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN ' . $date->format('Y/m'));
-        $this->activeWorksheet->setCellValue('A' . 7, 'LP');
-        $this->activeWorksheet->setCellValue('B' . 7, 'Imię i nazwisko');
+        $this
+            ->activeWorksheet
+            ->setCellValue('L3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN ' . $date->format('Y/m'));
+
+        $this
+            ->activeWorksheet
+            ->mergeCells('L3' . ':' . 'V3');
+
+        $this
+            ->activeWorksheet
+            ->setCellValue('A' . $titlesRow, 'LP');
+
+        $this
+            ->activeWorksheet
+            ->setCellValue('B' . $titlesRow, 'Imię i nazwisko');
+
+        $this
+            ->activeWorksheet
+            ->getStyle('A' . $titlesRow . ':' . 'C' . $titlesRow)
+            ->applyFromArray($this->borderStyleThin);
         // add supervisor title and project name
         return $this;
     }
@@ -106,7 +143,17 @@ class BuildTimeShiftsExcelExporter
         }
 
         $sumCell = $daysHeadersGenerator->current();
-        $this->activeWorksheet->setCellValue($sumCell . $daysRow, 'SUMA');
+
+        $this
+            ->activeWorksheet
+            ->setCellValue($sumCell . $daysRow, 'SUMA');
+
+        $this
+            ->activeWorksheet
+            ->getStyle($sumCell . $daysRow)
+            ->applyFromArray($this->borderStyleThin)
+            ->getAlignment()
+            ->setHorizontal('center');
 
         return $this;
     }
@@ -121,7 +168,7 @@ class BuildTimeShiftsExcelExporter
     {
         $workersDataCursor = $this->rowsGenerator->workerRowsGenerator(8);
 
-
+        $workerIterator = 1;
         foreach ($shifts as $workerId => $workerShifts) {
 
             /**
@@ -139,20 +186,47 @@ class BuildTimeShiftsExcelExporter
 
             $first = $cellIndicatorGenerator->current();
 
-            $this->activeWorksheet->setCellValue('A' . $workHoursRow, $workerId);
+            $this->activeWorksheet->setCellValue('A' . $workHoursRow, $workerIterator);
             $this->activeWorksheet->setCellValue('B' . $workHoursRow, reset($workerShifts)->name);
             $this->activeWorksheet->setCellValue('C' . $workHoursRow, 'czas pracy od/do');
 
             $this->activeWorksheet->setCellValue('C' . $workingHoursRow, 'czas pracy');
             $this->activeWorksheet->setCellValue('C' . $paidFor, 'płacone za');
 
+            // merge LP, name rows
             $this->activeWorksheet->mergeCells('B'. $workHoursRow . ':' . 'B' . $paidFor);
+            $this->activeWorksheet->mergeCells('A'. $workHoursRow . ':' . 'A' . $paidFor);
+
+            $this
+                ->activeWorksheet
+                ->getStyle('B'. $workHoursRow . ':' . 'B' . $paidFor)
+                ->getAlignment()
+                ->setVertical('center');
+
+            $this
+                ->activeWorksheet
+                ->getStyle('C'. $workHoursRow . ':' . 'C' . $paidFor)
+                ->applyFromArray($this->borderStyleThin)
+                ->getAlignment()
+                ->setVertical('center');
+
+            $this
+                ->activeWorksheet
+                ->getStyle('A'. $workHoursRow . ':' . 'A' . $paidFor)
+                ->getAlignment()
+                ->setVertical('center');
 
             $this->activeWorksheet
-                ->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)
+                ->getStyle('A' . $workHoursRow . ':' . 'A' . $paidFor)
+                ->applyFromArray($this->borderStyleThin);
+
+            $this->activeWorksheet
+                ->getStyle('B' . $workHoursRow . ':' . 'B' . $paidFor)
                 ->applyFromArray($this->borderStyleThin);
 
             $workPaidSum = 0;
+
+            $workerIterator++;
 
             ksort($workerShifts); // some days are not in order
 
@@ -169,6 +243,53 @@ class BuildTimeShiftsExcelExporter
 
                 $cellFrom = $cellCoordsFrom . $workHoursRow;
                 $cellTo = $cellCoordsTo . $workHoursRow;
+
+                $this
+                    ->activeWorksheet
+                    ->getStyle($cellFrom)
+                    ->applyFromArray($this->borderStyleThin);
+
+                $this
+                    ->activeWorksheet
+                    ->getStyle($cellFrom)
+                    ->applyFromArray($this->borderStyleThin);
+
+                // no work hours and status - set zeroes
+                if (!$shift->workFrom && !$shift->workTo) {
+                    $this
+                        ->activeWorksheet
+                        ->setCellValue($cellCoordsFrom . $paidFor, '0,0');
+
+                    $this
+                        ->activeWorksheet
+                        ->setCellValue($cellCoordsFrom . $workingHoursRow, '0,0');
+
+                    $this
+                        ->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $paidFor)
+                        ->getAlignment()
+                        ->setHorizontal('center');
+
+                    $this
+                        ->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $workingHoursRow)
+                        ->getAlignment()
+                        ->setHorizontal('center');
+                }
+
+                // merge paid for cells
+                $this
+                    ->activeWorksheet
+                    ->mergeCells($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor);
+
+                $this
+                    ->activeWorksheet
+                    ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                    ->applyFromArray($this->borderStyleThin);
+
+                $this
+                    ->activeWorksheet
+                    ->mergeCells($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow);
 
                 if ($shift->status) {
                     $this->activeWorksheet
@@ -197,9 +318,18 @@ class BuildTimeShiftsExcelExporter
                     $code = reset($foundShifts)->code;
                     $this->activeWorksheet->setCellValue($cellCoordsFrom . $paidFor, $code);
 
+                    // only merge to align view with original
+                    $this
+                        ->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                        ->applyFromArray($this->borderStyleThin);
+
+                    $this
+                        ->activeWorksheet
+                        ->mergeCells($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow);
+
                     continue;
                 }
-
 
                 if ($shift->isSaturday()) {
                     $this->activeWorksheet
@@ -255,22 +385,20 @@ class BuildTimeShiftsExcelExporter
 
                 if ($shift->workFrom) {
                     $this->activeWorksheet->setCellValue(
-                        $cellFrom, (new \DateTime($shift->workFrom))->format('G:i')
-                    ); // format to hours only
+                        $cellFrom, ExcelTimeFormatter::dateToInteger($shift->workFrom)
+                    );
                 }
 
                 if ($shift->workTo) {
                     $this->activeWorksheet->setCellValue(
-                        $cellTo, (new \DateTime($shift->workTo))->format('G:i')
-                    ); // format to hours only
+                        $cellTo, ExcelTimeFormatter::dateToInteger($shift->workTo)
+                    );
                 }
 
                 if ($shift->work) {
                     $this->activeWorksheet->setCellValue(
-                        $cellCoordsFrom . $workingHoursRow, $shift->work
+                        $cellCoordsFrom . $workingHoursRow, ExcelTimeFormatter::dateToInteger($shift->work)
                     );
-
-                    $this->activeWorksheet->mergeCells($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow);
                 }
 
                 if ($shift->work) {
@@ -279,11 +407,72 @@ class BuildTimeShiftsExcelExporter
                 }
             }
 
-            // set hours sum
-            $this->activeWorksheet->setCellValue($cellIndicatorGenerator->current() . $workHoursRow, ((int)$workPaidSum / 60));
+            // set hours sum - last column
+            $this
+                ->activeWorksheet
+                ->setCellValue($cellIndicatorGenerator->current() . $workHoursRow, ((int)$workPaidSum / 60));
+
+            $this
+                ->activeWorksheet
+                ->getStyle($cellIndicatorGenerator->current() . $workHoursRow)
+                ->applyFromArray($this->borderStyleThin)
+                ->getAlignment()
+                ->setHorizontal('center');
+
+            $this
+                ->activeWorksheet
+                ->getStyle($cellIndicatorGenerator->current() . $workHoursRow)
+                ->applyFromArray($this->borderStyleThin)
+                ->getAlignment()
+                ->setHorizontal('center');
+
+            $this
+                ->activeWorksheet
+                ->getStyle($cellIndicatorGenerator->current() . $paidFor)
+                ->applyFromArray($this->borderStyleThin)
+                ->getAlignment()
+                ->setHorizontal('center');
 
             // border for worker rows
-            $this->activeWorksheet->getStyle($first . $workHoursRow  . ':' . $cellIndicatorGenerator->current() . $paidFor)->applyFromArray($this->borderStyleThin);
+            $this
+                ->activeWorksheet
+                ->getStyle($first . $workHoursRow  . ':' . $cellIndicatorGenerator->current() . $paidFor)
+                ->applyFromArray([
+                    'borders' => [
+                        'bottom' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'top' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'right' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                    ]
+                ]);
+
+            $this
+                ->activeWorksheet
+                ->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)
+                ->applyFromArray([
+                    'borders' => [
+                        'bottom' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'top' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'left' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                    ]
+                ]);
 
             $workersDataCursor->next();
         }
