@@ -493,17 +493,4 @@ class BuildTimeShiftsExcelExporter
 
         return $this;
     }
-
-    /**
-     * Formatting 09:30 -> 9,5
-     *
-     * @param \DateTime $dateTime
-     * @return string
-     */
-    private function dateToInteger(\DateTime $dateTime): string
-    {
-        $minutesAsInt = ((int) $dateTime->format('i') <= 30 && (int) $dateTime->format('i') > 0) ? .5 : 0;
-        $hoursAsInt = (int) $dateTime->format('H');
-        return (string) ($hoursAsInt + $minutesAsInt);
-    }
 }
