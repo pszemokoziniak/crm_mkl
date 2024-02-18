@@ -63,10 +63,36 @@ class BuildTimeShiftsExcelExporter
     private function addMainHeaders(Carbon $date): self
     {
         $titlesRow = 7;
+
+        // build name
+        $this
+            ->activeWorksheet
+            ->setCellValue('B5', 'Projekt 365 Valmet');
+        // created by
+        $this
+            ->activeWorksheet
+            ->setCellValue('D5', 'Sporządził: Miłosz Pacak');
+
+        $this
+            ->activeWorksheet
+            ->mergeCells('D5' . ':' . 'I5');
+
         // main headers
-        $this->activeWorksheet->setCellValue('L3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN ' . $date->format('Y/m'));
-        $this->activeWorksheet->setCellValue('A' . $titlesRow, 'LP');
-        $this->activeWorksheet->setCellValue('B' . $titlesRow, 'Imię i nazwisko');
+        $this
+            ->activeWorksheet
+            ->setCellValue('L3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN ' . $date->format('Y/m'));
+
+        $this
+            ->activeWorksheet
+            ->mergeCells('L3' . ':' . 'V3');
+
+        $this
+            ->activeWorksheet
+            ->setCellValue('A' . $titlesRow, 'LP');
+
+        $this
+            ->activeWorksheet
+            ->setCellValue('B' . $titlesRow, 'Imię i nazwisko');
 
         $this
             ->activeWorksheet
