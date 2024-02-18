@@ -40,10 +40,10 @@ class BuildTimeShiftsExcelExporter
         $this->shiftStatuses = $shiftStatuses;
     }
 
-    public function generate(iterable $shifts, Carbon $date): static
+    public function generate(iterable $shifts, Carbon $date, string $buildName): static
     {
         $this
-            ->addMainHeaders($date)
+            ->addMainHeaders($date, $buildName)
             ->addDaysHeaders($shifts)
             ->addWorkersShifts($shifts)
             ->addGeneralFormatting();
@@ -60,18 +60,18 @@ class BuildTimeShiftsExcelExporter
         return $path;
     }
 
-    private function addMainHeaders(Carbon $date): self
+    private function addMainHeaders(Carbon $date, string $buildName): self
     {
         $titlesRow = 7;
 
         // build name
         $this
             ->activeWorksheet
-            ->setCellValue('B5', 'Projekt 365 Valmet');
+            ->setCellValue('B5', 'Projekt: ' . $buildName);
         // created by
         $this
             ->activeWorksheet
-            ->setCellValue('D5', 'Sporządził: Miłosz Pacak');
+            ->setCellValue('D5', 'Sporządził: ');
 
         $this
             ->activeWorksheet

@@ -92,13 +92,27 @@ class BuildingTimeSheet extends Controller
         $buildForDate = BuildTimeShiftFactory::getBuildDate($date);
         $shiftStatuses = $this->getShiftStatuses()->all();
 
+        // get build mame and creator
+        $buildName = $this->getBuildHeaders($build)->nazwaBud;
+
+
         return response()->file(
-            (new BuildTimeShiftsExcelExporter($shiftStatuses))->generate($timeShifts, $buildForDate)->export()
+            (new BuildTimeShiftsExcelExporter($shiftStatuses))
+                ->generate($timeShifts, $buildForDate, $buildName)
+                ->export()
         );
     }
 
     private function getShiftStatuses(): Collection
     {
         return DB::table('shift_status', 's')->get();
+    }
+
+    private function getBuildHeaders(int $buildId): mixed
+    {
+        return DB::table('organizations', 'o')
+            ->select('o.nazwaBud')
+            ->where('o.id', $buildId)
+            ->first();
     }
 }
