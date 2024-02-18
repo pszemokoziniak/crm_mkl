@@ -7,6 +7,7 @@ namespace App\Services;
 use App\DTO\Shift;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -22,7 +23,10 @@ class BuildTimeShiftsExcelExporter
     private array $shiftStatuses;
     private array $borderStyleThin = [
         'borders' => [
-            'outline' => [
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+            'allBorders' => [
                 'borderStyle' => Border::BORDER_THIN,
                 'color' => ['argb' => Color::COLOR_BLACK],
             ],
@@ -179,7 +183,11 @@ class BuildTimeShiftsExcelExporter
                 ->setVertical('center');
 
             $this->activeWorksheet
-                ->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)
+                ->getStyle('A' . $workHoursRow . ':' . 'A' . $paidFor)
+                ->applyFromArray($this->borderStyleThin);
+
+            $this->activeWorksheet
+                ->getStyle('B' . $workHoursRow . ':' . 'B' . $paidFor)
                 ->applyFromArray($this->borderStyleThin);
 
             $workPaidSum = 0;
@@ -221,19 +229,19 @@ class BuildTimeShiftsExcelExporter
                     $this
                         ->activeWorksheet
                         ->setCellValue($cellCoordsFrom . $workingHoursRow, '0,0');
+
+                    $this
+                        ->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $paidFor)
+                        ->getAlignment()
+                        ->setHorizontal('center');
+
+                    $this
+                        ->activeWorksheet
+                        ->getStyle($cellCoordsFrom . $workingHoursRow)
+                        ->getAlignment()
+                        ->setHorizontal('center');
                 }
-
-                $this
-                    ->activeWorksheet
-                    ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
-                    ->getAlignment()
-                    ->setHorizontal('center');
-
-                $this
-                    ->activeWorksheet
-                    ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
-                    ->getAlignment()
-                    ->setHorizontal('center');
 
                 // merge paid for cells
                 $this
@@ -381,13 +389,19 @@ class BuildTimeShiftsExcelExporter
 
             $this
                 ->activeWorksheet
-                ->getStyle($cellIndicatorGenerator->current() . $workingHoursRow)
-                ->applyFromArray($this->borderStyleThin);
+                ->getStyle($cellIndicatorGenerator->current() . $workHoursRow)
+                ->applyFromArray($this->borderStyleThin)
+                ->getAlignment()
+                ->setHorizontal('center');
 
             $this
                 ->activeWorksheet
                 ->getStyle($cellIndicatorGenerator->current() . $paidFor)
-                ->applyFromArray($this->borderStyleThin);
+                ->applyFromArray($this->borderStyleThin)
+                ->getAlignment()
+                ->setHorizontal('center');
+
+
 
             // border for worker rows
             $this
