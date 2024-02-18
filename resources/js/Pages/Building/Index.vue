@@ -88,14 +88,25 @@
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <Datepicker v-model="form.from" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
-                            <Datepicker v-model="form.to" :disabled="isStatus" time-picker minutes-increment="30" class="pb-8 pr-6 w-full lg:w-1/2" @update:modelValue="calculateEffectiveTime" />
+                            <div class="grid grid-cols-2">
+                              <div>
+                                <label for="workFrom">Czas pracy od:</label>
+                                <Datepicker id="workFrom" v-model="form.from" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
+                              </div>
+                              <div>
+                                <label for="workTo">Czas pracy do:</label>
+                                <Datepicker id="workTo" v-model="form.to" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
+                              </div>
+                            </div>
 
                             <div class="grid grid-cols-2">
-                              <Datepicker v-model="form.workTime" time-picker minutes-increment="30"
-                                          class="pb-8 pr-6 w-full" />
                               <div>
-                                <input ref="timeReduce" class="mr-2" id="time-reduce" type="checkbox" @change="wortTimeReduce()" />
+                                <label for="workTime">Czas pracy:</label>
+                                <Datepicker id="workTime" v-model="form.workTime" :clearable="false" time-picker minutes-increment="30"
+                                            class="pb-8 pr-6 w-full" />
+                              </div>
+                              <div>
+                                <input ref="timeReduce" class="mr-2 mt-7" id="time-reduce" type="checkbox" @change="wortTimeReduce()" />
                                 <label for="time-reduce">Skróć czas o 30 min</label>
                               </div>
                             </div>
