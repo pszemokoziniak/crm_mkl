@@ -178,6 +178,13 @@ class BuildTimeShiftsExcelExporter
 
             $this
                 ->activeWorksheet
+                ->getStyle('C'. $workHoursRow . ':' . 'C' . $paidFor)
+                ->applyFromArray($this->borderStyleThin)
+                ->getAlignment()
+                ->setVertical('center');
+
+            $this
+                ->activeWorksheet
                 ->getStyle('A'. $workHoursRow . ':' . 'A' . $paidFor)
                 ->getAlignment()
                 ->setVertical('center');
@@ -371,8 +378,6 @@ class BuildTimeShiftsExcelExporter
                     $shiftInMinutes = Carbon::createFromFormat('H:i', $shift->work)->diffInMinutes(Carbon::now()->startOfDay());
                     $workPaidSum += $shiftInMinutes;
                 }
-
-
             }
 
             // set hours sum - last column
@@ -401,13 +406,46 @@ class BuildTimeShiftsExcelExporter
                 ->getAlignment()
                 ->setHorizontal('center');
 
-
-
             // border for worker rows
             $this
                 ->activeWorksheet
                 ->getStyle($first . $workHoursRow  . ':' . $cellIndicatorGenerator->current() . $paidFor)
-                ->applyFromArray($this->borderStyleThin);
+                ->applyFromArray([
+                    'borders' => [
+                        'bottom' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'top' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'right' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                    ]
+                ]);
+
+            $this
+                ->activeWorksheet
+                ->getStyle('A' . $workHoursRow . ':' . 'C' . $paidFor)
+                ->applyFromArray([
+                    'borders' => [
+                        'bottom' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'top' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                        'left' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                    ]
+                ]);
 
             $workersDataCursor->next();
         }
