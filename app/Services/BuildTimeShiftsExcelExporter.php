@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTO\Shift;
+use App\Services\Date\ExcelTimeFormatter;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -384,19 +385,19 @@ class BuildTimeShiftsExcelExporter
 
                 if ($shift->workFrom) {
                     $this->activeWorksheet->setCellValue(
-                        $cellFrom, (new \DateTime($shift->workFrom))->format('G:i')
+                        $cellFrom, ExcelTimeFormatter::dateToInteger($shift->workFrom)
                     );
                 }
 
                 if ($shift->workTo) {
                     $this->activeWorksheet->setCellValue(
-                        $cellTo, (new \DateTime($shift->workTo))->format('G:i')
+                        $cellTo, ExcelTimeFormatter::dateToInteger($shift->workTo)
                     );
                 }
 
                 if ($shift->work) {
                     $this->activeWorksheet->setCellValue(
-                        $cellCoordsFrom . $workingHoursRow, $shift->work
+                        $cellCoordsFrom . $workingHoursRow, ExcelTimeFormatter::dateToInteger($shift->work)
                     );
                 }
 
