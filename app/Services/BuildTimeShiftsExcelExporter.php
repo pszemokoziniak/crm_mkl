@@ -199,7 +199,18 @@ class BuildTimeShiftsExcelExporter
                 }
 
                 // merge paid for cells
-                $this->activeWorksheet->mergeCells($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor);
+                $this
+                    ->activeWorksheet
+                    ->mergeCells($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor);
+
+                $this
+                    ->activeWorksheet
+                    ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
+                    ->applyFromArray($this->borderStyleThin);
+
+                $this
+                    ->activeWorksheet
+                    ->mergeCells($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow);
 
                 if ($shift->status) {
                     $this->activeWorksheet
@@ -309,8 +320,6 @@ class BuildTimeShiftsExcelExporter
                     $this->activeWorksheet->setCellValue(
                         $cellCoordsFrom . $workingHoursRow, $shift->work
                     );
-
-                    $this->activeWorksheet->mergeCells($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow);
                 }
 
                 if ($shift->work) {
