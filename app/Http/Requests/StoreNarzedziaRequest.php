@@ -25,7 +25,11 @@ class StoreNarzedziaRequest extends FormRequest
     {
         return [
             'name' =>'required|min:5|unique:narzedzias,name',
-            'ilosc' =>'required|numeric',
+            'numer_seryjny' =>'required',
+            'waznosc_badan' =>'required|date',
+            'ilosc_all' =>'required|numeric',
+            'photo_path' => 'nullable',
+            'filname' =>'nullable',
         ];
     }
 

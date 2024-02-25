@@ -25,7 +25,7 @@
             <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane klienta</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/narzedzia/`">
-            <div :class="isUrl('narzedzia') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Narzędzia</div>
+            <div :class="isUrl('narzedzia') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Sprzęt</div>
           </Link>
         </div>
       </div>

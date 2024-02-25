@@ -12,8 +12,8 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Ilość Całkowita</th>
-<!--          <th class="pb-4 pt-6 px-6">Ilość Budowa</th>-->
-<!--          <th class="pb-4 pt-6 px-6">Ilość Magazyn</th>-->
+          <th class="pb-4 pt-6 px-6">Ilość Budowa</th>
+          <th class="pb-4 pt-6 px-6">Ilość Magazyn</th>
         </tr>
         <tr v-for="item in narzedzia" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -24,22 +24,22 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
-              {{ item.ilosc }}
+              {{ item.ilosc_all }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">-->
-<!--              {{ item.iloscBudowa }}-->
-<!--              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">-->
-<!--              {{ item.iloscMagazyn }}-->
-<!--              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />-->
-<!--            </Link>-->
-<!--          </td>-->
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
+              {{ item.ilosc_budowa }}
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
+              {{ item.ilosc_magazyn }}
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
           <td class="w-px border-t">
             <Link class="flex items-center px-4" :href="`/narzedzia/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />

@@ -15,7 +15,7 @@
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/narzedzia">
         <icon name="sprzet2" class="mr-2 w-4 h-4" :class="isUrl('narzedzia') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('narzedzia') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Narzędzia</div>
+        <div :class="isUrl('narzedzia') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Sprzęt</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">

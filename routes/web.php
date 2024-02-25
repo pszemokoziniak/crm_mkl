@@ -20,6 +20,7 @@ use App\Http\Controllers\JezykTypController;
 use App\Http\Controllers\KlientController;
 use App\Http\Controllers\KrajTypController;
 use App\Http\Controllers\NarzedziaController;
+use App\Http\Controllers\NarzedziaTypController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PbiozController;
 use App\Http\Controllers\ReportsController;
@@ -600,6 +601,41 @@ Route::put('uprawnienia/{uprawnienia}/restore', [UprawnieniaController::class, '
     ->name('uprawnienia.restore')
         ->middleware('auth', 'admin-permission');
 
+// Typ sprzętu
+
+Route::get('narzedziaTyp', [NarzedziaTypController::class, 'index'])
+    ->name('narzedziaTyp')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::get('narzedziaTyp/create', [NarzedziaTypController::class, 'create'])
+    ->name('narzedziaTyp.create')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::post('narzedziaTyp', [NarzedziaTypController::class, 'store'])
+    ->name('narzedziaTyp.store')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::get('narzedziaTyp/{narzedziaTyp}/edit', [NarzedziaTypController::class, 'edit'])
+    ->name('narzedziaTyp.edit')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::put('narzedziaTyp/{narzedziaTyp}', [NarzedziaTypController::class, 'update'])
+    ->name('narzedziaTyp.update')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::delete('narzedziaTyp/{narzedziaTyp}', [NarzedziaTypController::class, 'destroy'])
+    ->name('narzedziaTyp.destroy')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::put('narzedziaTyp/{narzedziaTyp}/restore', [NarzedziaTypController::class, 'restore'])
+    ->name('narzedziaTyp.restore')
+    ->middleware('auth', 'admin-permission');
 
 // Języki
 

@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreNarzedziaRequest;
 use App\Models\Narzedzia;
 use App\Models\Organization;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -37,7 +38,7 @@ class NarzedziaController extends Controller
         $data->ilosc = $req->ilosc;
         $data->save();
 
-        return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
+        return Redirect::phproute('narzedzia')->with('success', 'Element poprawiony.');
     }
 
     public function destroy(Narzedzia $narzedzia)
@@ -60,7 +61,15 @@ class NarzedziaController extends Controller
 
     public function store(StoreNarzedziaRequest $req)
     {
-        Narzedzia::create($req->validated());
+        Narzedzia::create([
+            'numer_seryjny' => Request::get('numer_seryjny'),
+            'waznosc_badan' => Request::get('waznosc_badan'),
+            'name' => Request::get('name'),
+            'ilosc_all' => Request::get('ilosc_all'),
+            'photo_path' => Request::file('photo') ? Request::file('photo')->store('narzedzias') : null,
+            'filename' => Request::file('document') ? Request::file('document')->store('narzedzias') : null,
+        ]);
+
         return Redirect::route('narzedzia')->with('success', 'Zapisano.');
     }
 
