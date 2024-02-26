@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Collection;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -23,7 +24,7 @@ class BuildsExcelExporter
         $this
             ->addMainHeaders($date)
             ->addDaysHeader($date)
-            ->addData($shifts);
+            ->addData($shifts, $date);
 
         return $this;
     }
@@ -64,7 +65,7 @@ class BuildsExcelExporter
 
     public function addDaysHeader(CarbonPeriod $period): self
     {
-        $days = array_map(static fn (Carbon $carbon) => $carbon->day, $period->toArray());
+        $days = array_map(static fn(Carbon $carbon) => $carbon->day, $period->toArray());
 
         $arrayData = [
             $days
@@ -79,9 +80,29 @@ class BuildsExcelExporter
         return $this;
     }
 
-    private function addData(iterable $shifts): self
+    private function addData(iterable $shifts, CarbonPeriod $period): self
     {
-        dd($shifts);
+        $period->count();
+        /** @var Collection $worker */
+        $worker = $shifts[14];
+
+        /** @var [ 2 => 386 ] $dayToCode */
+        $rowForWorker = $worker->reduce(function ($carry, $item) {
+            $carry[Carbon::create($item->work_day)->day] = $item->code ?? $item->numerBud;
+            return $carry;
+        }, array_fill(3, $period->count(), ''));
+
+        ksort($rowForWorker);
+
+        $firstName = $worker->first()->first_name;
+        $lastName = $worker->first()->last_name;
+
+        $this->spreadsheet->getActiveSheet()
+            ->fromArray(
+                [$rowForWorker],
+                NULL,
+                'D3'
+            );
 
         return $this;
     }
