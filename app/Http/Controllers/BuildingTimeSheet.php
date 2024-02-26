@@ -102,6 +102,11 @@ class BuildingTimeSheet extends Controller
         );
     }
 
+    public function reportIndex(): Response
+    {
+        return Inertia::render('Reports/MonthReport.vue');
+    }
+
     public function buildsReport(): BinaryFileResponse
     {
         $date = BuildTimeShiftFactory::getBuildDate(null);

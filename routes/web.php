@@ -1027,6 +1027,10 @@ Route::get('building/time-sheet/general-report', [BuildingTimeSheet::class, 'bui
     ->name('workTimeSheet.buildsReport')
     ->middleware('auth');
 
+Route::get('building/time-sheet/month-report', [BuildingTimeSheet::class, 'reportIndex'])
+    ->name('workTimeSheet.reportIndex')
+    ->middleware('auth');
+
 /** Country Feasts */
 Route::get('country/{country}/feasts', [FeastsController::class, 'index'])
     ->name('country_feasts.index')

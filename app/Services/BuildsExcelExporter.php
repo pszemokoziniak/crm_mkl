@@ -6,6 +6,9 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Collection;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -24,7 +27,8 @@ class BuildsExcelExporter
         $this
             ->addMainHeaders($date)
             ->addDaysHeader($date)
-            ->addData($shifts, $date);
+            ->addData($shifts, $date)
+            ->addGeneralFormatting();
 
         return $this;
     }
@@ -70,39 +74,93 @@ class BuildsExcelExporter
         $arrayData = [
             $days
         ];
-        $this->spreadsheet->getActiveSheet()
+        $this->activeWorksheet
             ->fromArray(
                 $arrayData,
                 NULL,
                 'D2'
             );
 
+        // #b59bd5
+
+        $this
+            ->activeWorksheet
+            ->getStyle('A2:AK2')
+            ->applyFromArray([
+                'borders' => [
+                    'outline' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => Color::COLOR_BLACK],
+                    ],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => '5b9bd5']
+                ]
+            ]);
+
         return $this;
     }
 
     private function addData(iterable $shifts, CarbonPeriod $period): self
     {
+        $startingRowId = 3;
+
         $period->count();
-        /** @var Collection $worker */
-        $worker = $shifts[14];
+        /** @var Collection $shift */
+        foreach ($shifts as $shift) {
+            /** @var [ 2 => 386 ] $dayToCode */
+            $rowForWorker = $shift->reduce(function ($carry, $item) {
+                $carry[Carbon::create($item->work_day)->day] = $item->code ?? $item->numerBud;
+                return $carry;
+            }, array_fill(3, $period->count(), ''));
 
-        /** @var [ 2 => 386 ] $dayToCode */
-        $rowForWorker = $worker->reduce(function ($carry, $item) {
-            $carry[Carbon::create($item->work_day)->day] = $item->code ?? $item->numerBud;
-            return $carry;
-        }, array_fill(3, $period->count(), ''));
+            ksort($rowForWorker);
 
-        ksort($rowForWorker);
+            $firstName = $shift->first()->first_name;
+            $lastName = $shift->first()->last_name;
 
-        $firstName = $worker->first()->first_name;
-        $lastName = $worker->first()->last_name;
+            $this->activeWorksheet
+                ->fromArray(
+                    [
+                        $rowForWorker
+                    ],
+                    NULL,
+                    'D' . $startingRowId
+                );
+            $this->activeWorksheet->setCellValue('B' . $startingRowId, $lastName);
+            $this->activeWorksheet->setCellValue('C' . $startingRowId, $firstName);
 
-        $this->spreadsheet->getActiveSheet()
-            ->fromArray(
-                [$rowForWorker],
-                NULL,
-                'D3'
-            );
+
+            $this
+                ->activeWorksheet
+                ->getStyle('A' . $startingRowId . ':' . 'AK' . $startingRowId)
+                ->applyFromArray([
+                    'borders' => [
+                        'outline' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['argb' => Color::COLOR_BLACK],
+                        ],
+                    ],
+                ]);
+
+            $startingRowId++;
+        }
+
+        return $this;
+    }
+
+    private function addGeneralFormatting(): self
+    {
+        foreach (range('A', 'AK') as $col) {
+            $this->activeWorksheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $this
+            ->activeWorksheet
+            ->getStyle('A:AK')
+            ->getAlignment()
+            ->setHorizontal('center');
 
         return $this;
     }
