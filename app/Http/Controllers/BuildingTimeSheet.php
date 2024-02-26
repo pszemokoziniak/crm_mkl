@@ -92,15 +92,32 @@ class BuildingTimeSheet extends Controller
         $buildForDate = BuildTimeShiftFactory::getBuildDate($date);
         $shiftStatuses = $this->getShiftStatuses()->all();
 
-        // get build mame and creator
         $buildName = $this->getBuildHeaders($build)->nazwaBud;
-
 
         return response()->file(
             (new BuildTimeShiftsExcelExporter($shiftStatuses))
                 ->generate($timeShifts, $buildForDate, $buildName)
                 ->export()
         );
+    }
+
+    public function buildsReport(): BinaryFileResponse
+    {
+        $date = BuildTimeShiftFactory::getBuildDate(null);
+
+        $period = CarbonPeriod::create(
+            $date->clone()->toImmutable()->firstOfMonth(),
+            $date->clone()->toImmutable()->lastOfMonth()
+        );
+
+        $result = $this
+            ->getWorkersOnBuildForPeriod($period)
+            ->groupBy('contact_id');
+
+
+
+
+        dd($result);
     }
 
     private function getShiftStatuses(): Collection
@@ -114,5 +131,22 @@ class BuildingTimeSheet extends Controller
             ->select('o.nazwaBud')
             ->where('o.id', $buildId)
             ->first();
+    }
+
+    /**
+     * @param CarbonPeriod $period
+     * @return Collection
+     */
+    public function getWorkersOnBuildForPeriod(CarbonPeriod $period): Collection
+    {
+        return DB::table('building_time_sheets', 'b')
+            ->join('organizations', 'organizations.id', '=', 'b.organization_id')
+            ->join('contacts', 'contacts.id', '=', 'b.contact_id')
+            ->leftJoin('shift_status', 'shift_status.id', '=', 'b.shift_status_id')
+            ->whereBetween('work_day', [$period->first()->format('Y-m-d'), $period->last()->format('Y-m-d')])
+            ->select('contact_id', 'work_day', 'numerBud', 'title')
+            ->orderBy('b.contact_id')
+            ->orderBy('b.work_day')
+            ->get();
     }
 }
