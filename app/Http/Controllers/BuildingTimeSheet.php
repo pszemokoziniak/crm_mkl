@@ -146,7 +146,7 @@ class BuildingTimeSheet extends Controller
             ->join('contacts', 'contacts.id', '=', 'b.contact_id')
             ->leftJoin('shift_status', 'shift_status.id', '=', 'b.shift_status_id')
             ->whereBetween('work_day', [$period->first()->format('Y-m-d'), $period->last()->format('Y-m-d')])
-            ->select('contact_id', 'work_day', 'numerBud', 'title')
+            ->select('contact_id', 'work_day', 'numerBud', 'code')
             ->orderBy('b.contact_id')
             ->orderBy('b.work_day')
             ->get();

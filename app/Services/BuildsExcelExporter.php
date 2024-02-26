@@ -22,7 +22,8 @@ class BuildsExcelExporter
     {
         $this
             ->addMainHeaders($date)
-            ->addDaysHeader($date);
+            ->addDaysHeader($date)
+            ->addData($shifts);
 
         return $this;
     }
@@ -74,6 +75,13 @@ class BuildsExcelExporter
                 NULL,
                 'D2'
             );
+
+        return $this;
+    }
+
+    private function addData(iterable $shifts): self
+    {
+        dd($shifts);
 
         return $this;
     }
