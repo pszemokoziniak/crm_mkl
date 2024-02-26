@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\BuildTimeShiftFactory;
 use App\Http\Requests\BuildTimeShiftRequest;
+use App\Services\BuildsExcelExporter;
 use App\Services\BuildTimeShiftCreator;
 use App\Services\BuildTimeShiftsExcelExporter;
 use Carbon\Carbon;
@@ -114,10 +115,11 @@ class BuildingTimeSheet extends Controller
             ->getWorkersOnBuildForPeriod($period)
             ->groupBy('contact_id');
 
-
-
-
-        dd($result);
+        return response()->file(
+            (new BuildsExcelExporter())
+                ->generate($result, $period)
+                ->export()
+        );
     }
 
     private function getShiftStatuses(): Collection
