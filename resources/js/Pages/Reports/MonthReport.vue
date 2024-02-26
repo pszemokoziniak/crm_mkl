@@ -19,7 +19,30 @@
 import { Head } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import {DocumentDownloadIcon} from '@heroicons/vue/solid'
-import SelectInput from "@/Shared/SelectInput.vue";
+import SelectInput from '@/Shared/SelectInput.vue'
+import moment from 'moment'
+
+const months = moment.months()
+const formatted = months.map((month) => moment().month(month).format('M'))
+
+const generateFromYear = 2023
+let comparable = moment()
+const forYears = new Set()
+
+while (comparable.year() >= generateFromYear) {
+  forYears.add(comparable.year())
+  comparable = comparable.subtract(1, 'y')
+}
+
+let select_dates = []
+
+forYears.forEach(function (year) {
+  let generated_year_month = formatted
+    .filter((month) => !(year === moment().year() && Number.parseInt(month) >= moment().month() + 2))
+    .map((month) => `${year}-${month}`)
+
+  select_dates = [...generated_year_month, ...select_dates]
+})
 
 export default {
   components: {
@@ -33,10 +56,8 @@ export default {
   },
   data() {
     return {
-      months: [
-        '2024-01'
-      ]
+      months: select_dates
     }
-  }
+  },
 }
 </script>
