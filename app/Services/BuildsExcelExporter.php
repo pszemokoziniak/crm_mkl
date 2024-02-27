@@ -62,7 +62,6 @@ class BuildsExcelExporter
     public function createSpreadSheet(): void
     {
         $this->spreadsheet = new Spreadsheet();
-        $this->spreadsheet->getDefaultStyle()->getFont()->setBold(true);
 
         $this->activeWorksheet = $this->spreadsheet->getActiveSheet();
     }
@@ -81,17 +80,12 @@ class BuildsExcelExporter
                 'D2'
             );
 
-        // #b59bd5
-
         $this
             ->activeWorksheet
             ->getStyle('A2:AK2')
             ->applyFromArray([
-                'borders' => [
-                    'outline' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['argb' => Color::COLOR_BLACK],
-                    ],
+                'font' => [
+                    "color" => ["argb" => Color::COLOR_WHITE],
                 ],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
@@ -131,17 +125,14 @@ class BuildsExcelExporter
             $this->activeWorksheet->setCellValue('B' . $startingRowId, $lastName);
             $this->activeWorksheet->setCellValue('C' . $startingRowId, $firstName);
 
-
             $this
                 ->activeWorksheet
                 ->getStyle('A' . $startingRowId . ':' . 'AK' . $startingRowId)
                 ->applyFromArray([
-                    'borders' => [
-                        'outline' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                            'color' => ['argb' => Color::COLOR_BLACK],
-                        ],
-                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => $startingRowId % 2 !== 0 ? 'bdd6ee' : 'deeaf6']
+                    ]
                 ]);
 
             $startingRowId++;
