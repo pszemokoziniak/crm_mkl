@@ -107,9 +107,11 @@ class BuildingTimeSheet extends Controller
         return Inertia::render('Reports/MonthReport.vue');
     }
 
-    public function buildsReport(): BinaryFileResponse
+    public function buildsReport(Request $request): BinaryFileResponse
     {
-        $date = BuildTimeShiftFactory::getBuildDate(null);
+        $date = BuildTimeShiftFactory::getBuildDate(
+            $request->query->get('date')
+        );
 
         $period = CarbonPeriod::create(
             $date->clone()->toImmutable()->firstOfMonth(),
