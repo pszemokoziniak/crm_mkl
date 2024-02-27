@@ -33,8 +33,18 @@ class BuildsExcelExporter
         return $this;
     }
 
-    private function addMainHeaders(): self
+    private function addMainHeaders(CarbonPeriod $period): self
     {
+        $this
+            ->activeWorksheet
+            ->setCellValue('A1', strtoupper(
+                $period->first()?->locale('pl_PL')->monthName
+            ));
+
+        $this
+            ->activeWorksheet
+            ->mergeCells('A1:AK1');
+
         $this
             ->activeWorksheet
             ->setCellValue('A2', 'Kolumna 1');
