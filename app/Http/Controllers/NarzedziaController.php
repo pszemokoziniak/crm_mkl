@@ -25,6 +25,7 @@ class NarzedziaController extends Controller
             'narzedzia' => [
                 'id' => $narzedzia->id,
                 'name' => $narzedzia->name,
+                'numer_seryjny' => $narzedzia->numer_seryjny,
                 'ilosc' => $narzedzia->ilosc,
                 'deleted_at' => $narzedzia->deleted_at,
             ],
