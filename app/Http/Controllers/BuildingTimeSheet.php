@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\BuildTimeShiftFactory;
 use App\Http\Requests\BuildTimeShiftRequest;
+use App\Services\BuildsExcelExporter;
 use App\Services\BuildTimeShiftCreator;
 use App\Services\BuildTimeShiftsExcelExporter;
 use Carbon\Carbon;
@@ -92,13 +93,38 @@ class BuildingTimeSheet extends Controller
         $buildForDate = BuildTimeShiftFactory::getBuildDate($date);
         $shiftStatuses = $this->getShiftStatuses()->all();
 
-        // get build mame and creator
         $buildName = $this->getBuildHeaders($build)->nazwaBud;
-
 
         return response()->file(
             (new BuildTimeShiftsExcelExporter($shiftStatuses))
                 ->generate($timeShifts, $buildForDate, $buildName)
+                ->export()
+        );
+    }
+
+    public function reportIndex(): Response
+    {
+        return Inertia::render('Reports/MonthReport.vue');
+    }
+
+    public function buildsReport(Request $request): BinaryFileResponse
+    {
+        $date = BuildTimeShiftFactory::getBuildDate(
+            $request->query->get('date')
+        );
+
+        $period = CarbonPeriod::create(
+            $date->clone()->toImmutable()->firstOfMonth(),
+            $date->clone()->toImmutable()->lastOfMonth()
+        );
+
+        $result = $this
+            ->getWorkersOnBuildForPeriod($period)
+            ->groupBy('contact_id');
+
+        return response()->file(
+            (new BuildsExcelExporter())
+                ->generate($result, $period)
                 ->export()
         );
     }
@@ -114,5 +140,22 @@ class BuildingTimeSheet extends Controller
             ->select('o.nazwaBud')
             ->where('o.id', $buildId)
             ->first();
+    }
+
+    /**
+     * @param CarbonPeriod $period
+     * @return Collection
+     */
+    public function getWorkersOnBuildForPeriod(CarbonPeriod $period): Collection
+    {
+        return DB::table('building_time_sheets', 'b')
+            ->join('organizations', 'organizations.id', '=', 'b.organization_id')
+            ->join('contacts', 'contacts.id', '=', 'b.contact_id')
+            ->leftJoin('shift_status', 'shift_status.id', '=', 'b.shift_status_id')
+            ->whereBetween('work_day', [$period->first()->format('Y-m-d'), $period->last()->format('Y-m-d')])
+            ->select('contact_id', 'work_day', 'numerBud', 'code', 'first_name', 'last_name')
+            ->orderBy('b.contact_id')
+            ->orderBy('b.work_day')
+            ->get();
     }
 }

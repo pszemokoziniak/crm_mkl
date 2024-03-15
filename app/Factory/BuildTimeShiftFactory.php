@@ -25,6 +25,6 @@ class BuildTimeShiftFactory
 
     public static function getBuildDate(?string $date): Carbon
     {
-        return $date ? Carbon::createFromTimeString($date . 1) : Carbon::now();
+        return $date ? Carbon::createFromFormat('Y-m-d',$date . '-1') : Carbon::now();
     }
 }

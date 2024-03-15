@@ -1,21 +1,14 @@
 <template>
   <div>
+    <RaportMenu/>
     <Head title="Termin Uprawnień" />
     <h1 class="mb-8 text-3xl font-bold">Termin uprawnień</h1>
-    <RaportMenu/>
     <div class="flex items-center justify-between mb-6">
-      <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-<!--        <label class="block text-gray-700">Trashed:</label>-->
-<!--        <select v-model="form.trashed" class="form-select mt-1 w-full">-->
-<!--          <option :value="null" />-->
-<!--          <option value="with">test1</option>-->
-<!--          <option value="only">test2</option>-->
-<!--        </select>-->
-      </search-filter-no-filtr>
-<!--      <Link class="btn-indigo" href="/contacts/create">-->
-<!--        <span>Dodaj</span>-->
-<!--        <span class="hidden md:inline">&nbsp;Pracownika</span>-->
-<!--      </Link>-->
+      <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset"></search-filter-no-filtr>
+      <Link class="btn-indigo" href="/contacts/create">
+        <span>Dodaj</span>
+        <span class="hidden md:inline">&nbsp;Pracownika</span>
+      </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
@@ -23,8 +16,7 @@
           <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
           <th class="pb-4 pt-6 px-6">Nazwa Uprawnień</th>
           <th class="pb-4 pt-6 px-6">Początek</th>
-          <th class="pb-4 pt-6 px-6"  colspan="2">Koniec</th>
-<!--          <th class="pb-4 pt-6 px-6" colspan="2">Data Ważności A1</th>-->
+          <th class="pb-4 pt-6 px-6" colspan="2">Koniec</th>
         </tr>
         <tr v-for="item in data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td :class="[checkDays(item.end) ? 'text-red-500' : '', 'border-t']">
