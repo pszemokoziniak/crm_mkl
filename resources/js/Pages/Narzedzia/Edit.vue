@@ -6,7 +6,12 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.name }}
     </h1>
-     <trashed-message v-if="narzedzia.deleted_at" class="mb-6" @restore="restore">Usuniąć?</trashed-message>
+    <trashed-message v-if="narzedzia.deleted_at" class="mb-6" @restore="restore">Usuniąć?</trashed-message>
+
+    <div class="grid col-span-1">
+      <img v-if="narzedzia.photo_path" class="" :src="narzedzia.photo_path"/>
+      <img v-if="narzedzia.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill"/>
+    </div>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
 
@@ -66,7 +71,7 @@ export default {
   },
   methods: {
     update() {
-      this.form.put(`/narzedzia/${this.narzedzia.id}`)
+      this.form.post(`/narzedzia/${this.narzedzia.id}`)
     },
     destroy() {
       if (confirm('Chcesz usunąć?')) {

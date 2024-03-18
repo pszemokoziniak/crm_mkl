@@ -5,6 +5,7 @@
       <Link class="text-indigo-400 hover:text-indigo-600" href="/narzedzia">Sprzęt</Link>
       <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
+    {{this.form.ilosc_all}}
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -41,10 +42,9 @@ export default {
     TextInput,
   },
   layout: Layout,
-  // props: {
-  //   organizations: Array,
-  //   accounts: Array,
-  // },
+  props: {
+    organizations: Array,
+  },
   remember: 'form',
   data() {
     return {
@@ -52,11 +52,16 @@ export default {
         numer_seryjny: '',
         waznosc_badan: '',
         name: '',
-        ilosc_all: '',
+        ilosc_all: 0,
+        ilosc_budowa: 0,
+        ilosc_magazyn: 0,
         photo: null,
         document: null,
       }),
     }
+  },
+  created() {
+    this.form.ilosc_magazyn = this.form.ilosc_all || 0
   },
   methods: {
     store() {

@@ -98,8 +98,6 @@ class ContactsController extends Controller
 
     public function edit(Contact $contact)
     {
-//        dd(Bhp::select('start', 'end')->latest()->get());
-
         $obecna_budowa = (ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first())?ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first():'Nie pracuje';
 
         return Inertia::render('Contacts/Edit', [
@@ -156,7 +154,6 @@ class ContactsController extends Controller
 
     public function update(Contact $contact, Request $request)
     {
-//        dd($request);
             Request::validate([
                 'first_name' => ['required', 'max:150'],
                 'last_name' => ['required', 'max:150'],

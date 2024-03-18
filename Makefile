@@ -4,6 +4,9 @@ dev:
 app-bash:
 	docker-compose exec -u myuser app /bin/bash
 
+bash:
+	docker exec -it ${CONTAINER_NAME_APP} /bin/bash
+
 stop:
 	docker-compose stop
 

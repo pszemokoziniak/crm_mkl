@@ -240,7 +240,7 @@ Route::get('narzedzia/{narzedzia}/edit', [NarzedziaController::class, 'edit'])
         ->middleware('auth', 'biuro-permission');
 
 
-Route::put('narzedzia/{narzedzia}', [NarzedziaController::class, 'update'])
+Route::post('narzedzia/{narzedzia}', [NarzedziaController::class, 'update'])
     ->name('narzedzia.update')
         ->middleware('auth', 'biuro-permission');
 

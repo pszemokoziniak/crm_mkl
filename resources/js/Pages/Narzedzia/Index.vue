@@ -11,6 +11,7 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
+          <th class="pb-4 pt-6 px-6">Numer Seryjny</th>
           <th class="pb-4 pt-6 px-6">Ilość Całkowita</th>
           <th class="pb-4 pt-6 px-6">Ilość Budowa</th>
           <th class="pb-4 pt-6 px-6">Ilość Magazyn</th>
@@ -19,6 +20,12 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
               {{ item.name }}
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
+              {{ item.numer_seryjny }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
