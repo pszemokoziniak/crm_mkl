@@ -3,7 +3,7 @@
   <BudMenu :budId="build" />
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
-    <a target="_self" :href="`/building/${this.build}/time-sheet/export`" class="btn-indigo py-2 px-4 rounded inline-flex items-center">
+    <a target="_self" :href="excelUrl()" class="btn-indigo py-2 px-4 rounded inline-flex items-center">
       <DocumentDownloadIcon class="h-5 w-5 text-blue-500" />
       <span>Pobierz</span>
     </a>
@@ -144,7 +144,7 @@ import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import BudMenu from '@/Shared/BudMenu.vue'
 import {Head} from '@inertiajs/inertia-vue3'
-import {DocumentDownloadIcon} from "@heroicons/vue/solid";
+import {DocumentDownloadIcon} from '@heroicons/vue/solid'
 
 
 const DEFAULT_RANGES = {
@@ -260,6 +260,9 @@ export default {
     },
     dateUrl(build, year, month) {
       return `/building/${this.build}/time-sheet?date=${year}-${month.toString().padStart(2, '0')}`
+    },
+    excelUrl() {
+      return `/building/${this.build}/time-sheet/export?date=${this.getYear()}-${(this.getMonthNumber() + 1).toString().padStart(2, '0')}`
     },
     getMonthNumber() {
       return new Date(this.date).getMonth()
