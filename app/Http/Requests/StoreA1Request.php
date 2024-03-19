@@ -24,7 +24,7 @@ class StoreA1Request extends FormRequest
     public function rules()
     {
         return [
-            'start' =>'required | date',
+            'start' => 'required|date|before_or_equal:end',
             'end' =>'required | date',
         ];
     }
@@ -32,6 +32,7 @@ class StoreA1Request extends FormRequest
     public function messages() {
         return [
             'required'  => 'Pole :attribute jest wymagane.',
+            'before_or_equal' => 'Pole :attribute musi być mniejsze niż koniec.'
         ];
     }
 }

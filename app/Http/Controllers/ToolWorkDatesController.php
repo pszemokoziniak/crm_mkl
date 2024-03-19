@@ -51,10 +51,11 @@ class ToolWorkDatesController extends Controller
     }
     public function create(Organization $organization) {
 
-        $workers = $this->organizationWorkers($organization->id);
+        $toolsFree = Narzedzia::where('ilosc_all', '>', 0)->get()->map->only('id', 'name', 'ilosc');
+
 
         return Inertia::render('NarzedziaBudowa/Create', [
-//            'contacts' => $workers,
+            'toolsFree' => $toolsFree,
             'organization' => $organization,
             'toolsOnBuild' => ToolWorkDate::with('narzedzia')
                 ->where('organization_id', $organization->id)
@@ -147,11 +148,11 @@ class ToolWorkDatesController extends Controller
     public function find(Request $request, Organization $organization)
     {
         $toolsFree = array();
-        $toolsAll = Narzedzia::get()->map->only('id', 'name', 'ilosc');
+        $toolsAll = Narzedzia::where('ilosc_all', '>', 0)->get()->map->only('id', 'name', 'ilosc');
 
-        foreach ($toolsAll as $item) {
-            array_push($toolsFree, ['id' => $item['id'], 'name' => $item['name'], 'toll' => ((integer) $item['ilosc'] - (integer) $this->toolsBusy($request, $item['id'])) ]);
-        }
+//        foreach ($toolsAll as $item) {
+//            array_push($toolsFree, ['id' => $item['id'], 'name' => $item['name'], 'toll' => ((integer) $item['ilosc'] - (integer) $this->toolsBusy($request, $item['id'])) ]);
+//        }
 
         return Inertia::render('NarzedziaBudowa/Create', [
             'toolsFree' => $toolsFree,

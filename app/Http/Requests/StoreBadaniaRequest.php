@@ -25,7 +25,7 @@ class StoreBadaniaRequest extends FormRequest
     {
         return [
 //            'badaniaTyp_id' =>'required',
-            'start' =>'required',
+            'start' => 'required|date|before_or_equal:end',
             'end' =>'required',
         ];
     }
@@ -34,6 +34,7 @@ class StoreBadaniaRequest extends FormRequest
         return [
             'required'  => 'Pole :attribute jest wymagane.',
             'unique' => 'Nazwa użyta',
+            'before_or_equal' => 'Pole :attribute musi być mniejsze niż koniec'
         ];
     }
 }

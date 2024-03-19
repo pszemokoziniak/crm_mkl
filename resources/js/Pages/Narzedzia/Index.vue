@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head title="Kraje" />
-    <h1 class="mb-8 text-3xl font-bold">Narzędzia</h1>
+    <h1 class="mb-8 text-3xl font-bold">Sprzęt</h1>
     <div class="flex items-center justify-between mb-6">
       <Link class="btn-indigo" href="/narzedzia/create">
         <span>Dodaj</span>

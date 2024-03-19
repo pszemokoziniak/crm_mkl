@@ -25,7 +25,7 @@ class StoreBudowaPracownicyRequest extends FormRequest
     {
         return [
             'checkedValues' => ['required'],
-            'start' => ['required', 'date'],
+            'start' => 'required|date|before_or_equal:end',
             'end' => ['required', 'date'],
 
         ];
@@ -33,6 +33,7 @@ class StoreBudowaPracownicyRequest extends FormRequest
     public function messages() {
         return [
             'required'  => 'Pole :attribute jest wymagane.',
+            'before_or_equal' => 'Pole :attribute musi być mniejsze niż koniec.'
         ];
     }
     public function attributes()
