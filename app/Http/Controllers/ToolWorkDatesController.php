@@ -16,7 +16,6 @@ use Inertia\Inertia;
 
 class ToolWorkDatesController extends Controller
 {
-
     public function organizationWorkers($id) {
         $workers = DB::table('contact_work_dates', 'cwd')
             ->select('contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name', 'funkcjas.id')
@@ -44,8 +43,6 @@ class ToolWorkDatesController extends Controller
                     'organization_id' => $item->organization_id,
                     'narzedzia_nb' => $item->narzedzia_nb,
                     'narzedzia' => $item->narzedzia,
-                    'start' => $item->start,
-                    'end' => $item->end,
                 ]),
         ]);
     }
@@ -66,8 +63,6 @@ class ToolWorkDatesController extends Controller
                     'organization_id' => $item->organization_id,
                     'narzedzia_nb' => $item->narzedzia_nb,
                     'narzedzia' => $item->narzedzia,
-                    'start' => $item->start,
-                    'end' => $item->end,
                 ]),
         ]);
     }
@@ -91,83 +86,15 @@ class ToolWorkDatesController extends Controller
         }
         return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Sprzęt dodany');
     }
-
-    public function edit(Organization $organization, ContactWorkDate $contactWorkDate)
-    {
-        return Inertia::render('Pracownicy/Edit', [
-            'contactWorkDate' => [
-                'id' => $contactWorkDate->id,
-                'start' => $contactWorkDate->start,
-                'end' => $contactWorkDate->end,
-            ],
-            'contact' => Contact::where('id', $contactWorkDate->contact_id)->first(),
-            'organization' => Organization::where('id', $contactWorkDate->organization_id)->first(),
-        ]);
-    }
-
-    public function update(ContactWorkDate $contactWorkDate)
-    {
-        $contactWorkDate->update(
-            \Illuminate\Support\Facades\Request::validate([
-                'start' => ['required', 'date'],
-                'end' => ['required', 'date'],
-            ])
-        );
-        return Redirect::route('pracownicy.index', $contactWorkDate->organization_id)->with('success', 'Poprawiono.');
-    }
-
     public function destroy(Organization $organization, ToolWorkDate $toolWorkDate)
     {
+        $data = Narzedzia::find($toolWorkDate->narzedzia_id);
+        $data->ilosc_magazyn = (integer) $data->ilosc_magazyn + (integer) $toolWorkDate->narzedzia_nb;
+        $data->ilosc_budowa = (integer) $data->ilosc_budowa - (integer) $toolWorkDate->narzedzia_nb;
+        $data->save();
+
         $toolWorkDate->delete();
 
         return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Usunięto.');
-    }
-
-    public function toolsBusy($request, $id) {
-
-        $data = DB::table('tool_work_dates')
-
-            ->select('narzedzia_id', DB::raw('SUM(narzedzia_nb) as total_narzedzia_nb'))
-            ->where(function ($query) use ($request){
-                $query->where('start', '>=', $request->start)
-                    ->where('end', '<=', $request->end);
-            })
-            ->orWhere(function ($query) use ($request){
-                $query->where('start', '<=', $request->start)
-                    ->where('end', '>=', $request->start);
-            })
-            ->orWhere(function ($query) use ($request){
-                $query->where('start', '<=', $request->end)
-                    ->where('end', '>=', $request->end);
-            })
-
-            ->groupBy('narzedzia_id')
-            ->get()->where('narzedzia_id', $id)->first();
-
-        if ($data === null)  {return 0;} else {return (integer) $data->total_narzedzia_nb;}
-
-        return (integer) $data->total_narzedzia_nb;
-    }
-    public function find(Request $request, Organization $organization)
-    {
-        $toolsFree = array();
-        $toolsAll = Narzedzia::where('ilosc_all', '>', 0)->get()->map->only('id', 'name', 'ilosc');
-
-        return Inertia::render('NarzedziaBudowa/Create', [
-            'toolsFree' => $toolsFree,
-            'organization' => $organization,
-            'toolsOnBuild' => ToolWorkDate::with('narzedzia')
-                ->where('organization_id', $organization->id)
-                ->paginate(100)
-                ->withQueryString()
-                ->through(fn ($item) => [
-                    'id' => $item->id,
-                    'organization_id' => $item->organization_id,
-                    'narzedzia_nb' => $item->narzedzia_nb,
-                    'narzedzia' => $item->narzedzia,
-                    'start' => $item->start,
-                    'end' => $item->end,
-                ]),
-        ]);
     }
 }
