@@ -51,7 +51,7 @@ class ToolWorkDatesController extends Controller
     }
     public function create(Organization $organization) {
 
-        $toolsFree = Narzedzia::where('ilosc_all', '>', 0)->get()->map->only('id', 'name', 'ilosc');
+        $toolsFree = Narzedzia::where('ilosc_all', '>', 0)->get()->map->only('id', 'name', 'ilosc_all', 'ilosc_magazyn');
 
 
         return Inertia::render('NarzedziaBudowa/Create', [
@@ -74,19 +74,22 @@ class ToolWorkDatesController extends Controller
     public function store(Request $request, Organization $organization)
     {
         foreach ($request->checkedValues as $item) {
-
             if ((integer)$request->ilosc[(integer) $item] !== null || (integer)$request->ilosc[(integer) $item] !== 0) {
-
                 $data = new ToolWorkDate;
                 $data->narzedzia_id = (integer)$item;
                 $data->organization_id = $organization->id;
-                $data->start = $request->start;
-                $data->end = $request->end;
                 $data->narzedzia_nb = (integer) $request->ilosc[(integer) $item];
                 $data->save();
+
+                $data = Narzedzia::find((integer)$item);
+                $data->ilosc_magazyn = (integer) $data->ilosc_magazyn - (integer) $request->ilosc[(integer) $item];
+                $data->ilosc_budowa = (integer) $data->ilosc_budowa + (integer) $request->ilosc[(integer) $item];
+                $data->save();
+
             }
+
         }
-        return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Narzędzia dodane');
+        return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Sprzęt dodany');
     }
 
     public function edit(Organization $organization, ContactWorkDate $contactWorkDate)
@@ -149,10 +152,6 @@ class ToolWorkDatesController extends Controller
     {
         $toolsFree = array();
         $toolsAll = Narzedzia::where('ilosc_all', '>', 0)->get()->map->only('id', 'name', 'ilosc');
-
-//        foreach ($toolsAll as $item) {
-//            array_push($toolsFree, ['id' => $item['id'], 'name' => $item['name'], 'toll' => ((integer) $item['ilosc'] - (integer) $this->toolsBusy($request, $item['id'])) ]);
-//        }
 
         return Inertia::render('NarzedziaBudowa/Create', [
             'toolsFree' => $toolsFree,

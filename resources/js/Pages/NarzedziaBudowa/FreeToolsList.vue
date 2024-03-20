@@ -8,27 +8,28 @@
           <th class="pb-4 pt-6 px-6">Ilość w magazynie</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Ilość</th>
         </tr>
-        <tr v-for="free in toolsFree" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td v-if="free.toll >0" class="border-t">
+        <tr v-for="item in toolsFree" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <td v-if="item.ilosc_magazyn >0" class="border-t">
             <input
+              v-model="form.checkedValues"
               class="ml-2 mr-2"
               type="checkbox"
-              :value="free.id"
-              v-model="form.checkedValues"
+              :value="item.id"
+
             />
-            {{ free.name }}
-            <icon v-if="free.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            {{ item.name }}
+            <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
           </td>
-          <td v-if="free.toll > 0" class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
-              {{ free.toll }}
+          <td v-if="item.ilosc_magazyn > 0" class="border-t">
+            <Link class="flex items-center px-6 py-4" :href="`/narzedzia/${item.id}/edit`" tabindex="-1">
+              {{ item.ilosc_magazyn }}
             </Link>
           </td>
-          <td v-if="free.toll > 0" class="border-t">
-            <text-input v-model="form.ilosc[free.id]" :error="form.errors.ilosc" type="number" class="px-6 py-4 lg:w-1/2" label="" />
+          <td v-if="item.ilosc_magazyn > 0" class="border-t">
+            <text-input v-model="form.ilosc[item.id]" :error="form.errors.ilosc" type="number" class="px-6 py-4 lg:w-1/2" label="" />
           </td>
-          <td v-if="free.toll > 0" class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
+          <td v-if="item.ilosc_magazyn > 0" class="w-px border-t">
+            <Link class="flex items-center px-4" :href="`/narzedzia/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -51,7 +52,7 @@ import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import LoadingButton from '@/Shared/LoadingButton'
 import TextInput from '@/Shared/TextInput.vue'
-// import mapValues from 'lodash/mapValues'
+
 
 export default {
   components: {
@@ -62,19 +63,14 @@ export default {
   },
   layout: Layout,
   props: {
-    data: Object,
     toolsFree: Object,
     organization: Object,
-    start: String,
-    end: String,
   },
   remember: 'form',
   data() {
     return {
       form: this.$inertia.form({
         checkedValues: [],
-        start: this.start,
-        end: this.end,
         ilosc: [],
       }),
     }
@@ -83,9 +79,6 @@ export default {
     store() {
       this.form.post(`/budowy/${this.organization.id}/narzedzia`)
     },
-  },
-  mounted: function() {
-    // console.log(this.start)
   },
 }
 </script>

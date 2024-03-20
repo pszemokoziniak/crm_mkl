@@ -12,7 +12,6 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Daty</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Ilość</th>
         </tr>
         <tr v-for="item in toolsOnBuild.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
@@ -20,11 +19,6 @@
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" href="#">
               {{ item.narzedzia.name }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              od: {{ item.start }}  do: {{ item.end }}
             </Link>
           </td>
           <td class="border-t">
