@@ -12,7 +12,11 @@
           <select-input v-model="form.typ" :error="form.errors.typ" class="pb-8 pr-6 w-full lg:w-1/2" label="Typ dokumentu">
             <option v-for="item in dokumentyTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
-          <file-input v-model="form.document" :errors="form.errors.document" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Dokument" />
+<!--          <file-input v-model="form.document" :errors="form.errors.document" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Dokument" />-->
+          <div class="pb-8 pr-6 w-full">
+            <div class="form-label">Dokumenty</div>
+            <dropzone v-model="form.documents"></dropzone>
+          </div>
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj dokument</loading-button>
@@ -27,8 +31,9 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
-import FileInput from "@/Shared/FileInput";
+import FileInput from '@/Shared/FileInput'
 import SelectInput from '@/Shared/SelectInput'
+import Dropzone from '@/Shared/Dropzone.vue'
 
 export default {
   components: {
@@ -38,6 +43,7 @@ export default {
     TextInput,
     FileInput,
     SelectInput,
+    Dropzone,
   },
   layout: Layout,
   props: {
@@ -49,9 +55,9 @@ export default {
   data() {
     return {
       form: this.$inertia.form({
-        name: "",
-        typ: "",
-        document: null,
+        name: '',
+        typ: '',
+        documents: null,
       }),
     }
   },

@@ -42,14 +42,15 @@ class CtnDocumentsController extends Controller
     {
         $redirect = Redirect::route('documents.index', ['contact_id' => $contactId]);
 
-//        dd($request);
         try {
-            $documentService->store(
-                Request::file('document'),
-                $contactId,
-                Request::get('name'),
-                Request::get('typ'),
-            );
+            foreach (Request::file('documents') as $file) {
+                $documentService->store(
+                    $file,
+                    $contactId,
+                    Request::get('name'),
+                    Request::get('typ'),
+                );
+            }
         } catch (\Exception $e) {
             Log::info('Error while storing document: ' . $e->getMessage());
             return $redirect->with('error', 'Nie udało się dodać dokumentu');
