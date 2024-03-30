@@ -5,7 +5,6 @@
         <span>{{ file.name }}</span>
       </div>
     </div>
-
     <div class="dropzone" v-bind="getRootProps()">
       <input v-bind="getInputProps()" />
       <p v-if="isDragActive">Drop the files here ...</p>
@@ -27,6 +26,8 @@ export default {
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
+
+
     function onDrop(acceptFiles) {
       state.value.files = acceptFiles
       emit('update:modelValue', acceptFiles)
@@ -42,11 +43,15 @@ export default {
     }
   },
   watch: {
-    state() {
-      console.log('normal watch!') // only on start component
+    modelValue(value) {
+      if (!value) {
+        state.value.files = []
+      }
     },
   },
-  methods: {},
+  mounted() {
+    state.value.files = []
+  },
 }
 </script>
 
