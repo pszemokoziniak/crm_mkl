@@ -22,12 +22,12 @@ class StoreDocumentRequest extends FormRequest
         ];
     }
 
-//    public function messages(): array
-//    {
-//        return [
-//            'name.min' => 'Tytuł musi mieć od 4 do 50 znaków',
-//            'name.max' => 'Tytuł musi mieć od 4 do 50 znaków',
-//            'documents.mimes' => 'Tylko dokumenty pdf o wielkości do 10 MB'
-//        ];
-//    }
+    public function messages(): array
+    {
+        return [
+            'name.min' => 'Tytuł musi mieć od 4 do 50 znaków',
+            'name.max' => 'Tytuł musi mieć od 4 do 50 znaków',
+            'documents.mimes' => 'Tylko dokumenty pdf o wielkości do 10 MB'
+        ];
+    }
 }
