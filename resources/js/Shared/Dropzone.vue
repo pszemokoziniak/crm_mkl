@@ -1,8 +1,10 @@
 <template>
   <div>
-    <div class="files">
-      <div v-for="(file) in state.files" :key="file.id" v-bind="state" class="file-item">
+    <div v-if="state.files.length > 0" class="files">
+      <div v-for="(file, index) in state.files" :key="file.id" v-bind="state" class="file-item">
         <span>{{ file.name }}</span>
+        <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span
+        >
       </div>
     </div>
     <div class="dropzone" v-bind="getRootProps()">
@@ -26,7 +28,6 @@ export default {
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
-
 
     function onDrop(acceptFiles) {
       state.value.files = acceptFiles
@@ -52,6 +53,11 @@ export default {
   mounted() {
     state.value.files = []
   },
+  methods: {
+    handleClickDeleteFile(index) {
+      state.value.files.splice(index, 1)
+    },
+  },
 }
 </script>
 
@@ -59,7 +65,6 @@ export default {
 .dropzone,
 .files {
   width: 100%;
-  max-width: 300px;
   margin: 0 auto;
   padding: 10px;
   border-radius: 8px;
