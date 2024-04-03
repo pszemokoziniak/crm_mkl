@@ -3,8 +3,7 @@
     <div v-if="state.files.length > 0" class="files">
       <div v-for="(file, index) in state.files" :key="file.id" v-bind="state" class="file-item">
         <span>{{ file.name }}</span>
-        <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span
-        >
+        <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
       </div>
     </div>
     <div class="dropzone" v-bind="getRootProps()">
@@ -19,8 +18,6 @@
 import { useDropzone } from 'vue3-dropzone'
 import {ref} from 'vue'
 
-const state = ref({ files: [] })
-
 export default {
   name: 'UseDropzoneDemo',
   props: {
@@ -29,9 +26,15 @@ export default {
   emits: ['update:modelValue'],
   setup(props, { emit }) {
 
+    const state = ref({ files: [] })
+
     function onDrop(acceptFiles) {
       state.value.files = acceptFiles
       emit('update:modelValue', acceptFiles)
+    }
+
+    function handleClickDeleteFile(index) {
+      state.value.files.splice(index, 1)
     }
 
     const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
@@ -41,21 +44,14 @@ export default {
       getInputProps,
       ...rest,
       state,
+      handleClickDeleteFile,
     }
   },
   watch: {
     modelValue(value) {
       if (!value) {
-        state.value.files = []
+        this.state.value.files = []
       }
-    },
-  },
-  mounted() {
-    state.value.files = []
-  },
-  methods: {
-    handleClickDeleteFile(index) {
-      state.value.files.splice(index, 1)
     },
   },
 }
