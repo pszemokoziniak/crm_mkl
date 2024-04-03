@@ -21,9 +21,11 @@
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
           <text-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcia" />
-          <file-input v-model="form.document" :errors="form.errors.document" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Dokument" />
+          <div class="pb-8 pr-6 w-full">
+            <div class="form-label">Dokumenty</div>
+            <dropzone v-model="form.documents"></dropzone>
+          </div>
         </div>
-
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!narzedzia.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
@@ -41,6 +43,7 @@ import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import FileInput from '@/Shared/FileInput.vue'
 import DateInput from '@/Shared/DateInput.vue'
+import Dropzone from '@/Shared/Dropzone.vue'
 
 export default {
   components: {
@@ -50,6 +53,7 @@ export default {
     LoadingButton,
     TextInput,
     TrashedMessage,
+    Dropzone,
   },
   layout: Layout,
   props: {
