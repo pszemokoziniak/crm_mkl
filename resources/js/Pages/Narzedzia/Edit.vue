@@ -20,7 +20,10 @@
           <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważność badań" />
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
           <text-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
-          <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcia" />
+          <div class="pb-8 pr-6 w-full">
+            <div class="form-label">Zdjęcia</div>
+            <dropzone v-model="form.photos"></dropzone>
+          </div>
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Dokumenty</div>
             <dropzone v-model="form.documents"></dropzone>

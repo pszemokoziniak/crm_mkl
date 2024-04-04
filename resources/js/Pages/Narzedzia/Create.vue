@@ -36,14 +36,12 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
-import FileInput from '@/Shared/FileInput.vue'
 import DateInput from '@/Shared/DateInput.vue'
 import Dropzone from '@/Shared/Dropzone.vue'
 
 export default {
   components: {
     DateInput,
-    FileInput,
     Head,
     Link,
     LoadingButton,
@@ -62,13 +60,20 @@ export default {
         waznosc_badan: '',
         name: '',
         ilosc_all: 0,
-        photo: null,
-        document: null,
+        photos: null,
+        documents: null,
       }),
     }
   },
   computed() {
     this.form.ilosc_magazyn = this.form.ilosc_all ? this.form.ilosc_all : 0
+  },
+  watch: {
+    form: {
+      handler() {
+        console.log(this.form)
+      }
+    },
   },
   methods: {
     store() {

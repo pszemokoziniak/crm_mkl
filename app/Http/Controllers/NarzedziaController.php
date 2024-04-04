@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
 use App\Models\Narzedzia;
-use App\Models\Organization;
+use App\Services\DocumentService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
@@ -38,7 +41,6 @@ class NarzedziaController extends Controller
 
     public function update(Request $req, Narzedzia $narzedzia)
     {
-dd($req);
         $narzedzia->update(
             Request::validate([
                 'name' => ['required', 'max:50'],
@@ -70,20 +72,35 @@ dd($req);
         return Inertia('Narzedzia/Create');
     }
 
-    public function store(StoreNarzedziaRequest $req)
+    public function store(
+        StoreNarzedziaRequest $request,
+        DocumentService $documentService
+    ): RedirectResponse
     {
-        Narzedzia::create([
-            'numer_seryjny' => Request::get('numer_seryjny'),
-            'waznosc_badan' => Request::get('waznosc_badan'),
-            'name' => Request::get('name'),
-            'ilosc_all' => Request::get('ilosc_all'),
-            'ilosc_budowa' => 0,
-            'ilosc_magazyn' => Request::get('ilosc_all'),
-            'photo_path' => Request::file('photo') ? Request::file('photo')->store('narzedzias') : null,
-            'filename' => Request::file('document') ? Request::file('document')->store('narzedzias') : null,
-        ]);
+        try {
+            /** @var Narzedzia $tool */
+            $tool = Narzedzia::create([
+                'numer_seryjny' => Request::get('numer_seryjny'),
+                'waznosc_badan' => Request::get('waznosc_badan'),
+                'name' => Request::get('name'),
+                'ilosc_all' => Request::get('ilosc_all'),
+                'ilosc_budowa' => 0,
+                'ilosc_magazyn' => Request::get('ilosc_all'),
+            ]);
+
+            foreach (Request::file('photos') as $file) {
+                $documentService->storeToolDocument($file, $tool->id, 'photo');
+            }
+
+            foreach (Request::file('documents') as $file) {
+                $documentService->storeToolDocument($file, $tool->id, 'document');
+            }
+        } catch (\Exception $exception) {
+            Log::info('Error while storing tool document: ' . $exception->getMessage());
+
+            return Redirect::route('narzedzia')->with('error', 'Nie udało się dodać plików');
+        }
 
         return Redirect::route('narzedzia')->with('success', 'Zapisano.');
     }
-
 }
