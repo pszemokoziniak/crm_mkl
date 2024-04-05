@@ -44,13 +44,12 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
-import FileInput from '@/Shared/FileInput.vue'
 import DateInput from '@/Shared/DateInput.vue'
 import Dropzone from '@/Shared/Dropzone.vue'
 
 export default {
   components: {
-    DateInput, FileInput,
+    DateInput,
     Head,
     Link,
     LoadingButton,
@@ -61,6 +60,10 @@ export default {
   layout: Layout,
   props: {
     narzedzia: Object,
+    files: Array,
+  },
+  mounted() {
+
   },
   remember: 'form',
   data() {
@@ -71,7 +74,7 @@ export default {
         waznosc_badan: this.narzedzia.waznosc_badan,
         name: this.narzedzia.name,
         ilosc_all: this.narzedzia.ilosc_all,
-        photo: this.narzedzia.photo,
+        photos: this.files,
         document: this.narzedzia.document,
       }),
     }

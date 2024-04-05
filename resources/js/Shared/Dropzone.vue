@@ -16,7 +16,7 @@
 
 <script>
 import { useDropzone } from 'vue3-dropzone'
-import {ref} from 'vue'
+import {ref, toRefs} from 'vue'
 
 export default {
   name: 'UseDropzoneDemo',
@@ -25,8 +25,12 @@ export default {
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
-
     const state = ref({ files: [] })
+    const { modelValue } = toRefs(props)
+
+    if (modelValue.value) {
+      state.value.files = modelValue.value
+    }
 
     function onDrop(acceptFiles) {
       state.value.files = acceptFiles

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
 use App\Models\Narzedzia;
+use App\Models\ToolFile;
 use App\Services\DocumentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -13,17 +14,18 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class NarzedziaController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
         return Inertia::render('Narzedzia/Index', [
             'narzedzia' => Narzedzia::all()
         ]);
     }
 
-    public function edit(Narzedzia $narzedzia)
+    public function edit(Narzedzia $narzedzia): Response
     {
         return Inertia::render('Narzedzia/Edit', [
             'narzedzia' => [
@@ -32,14 +34,21 @@ class NarzedziaController extends Controller
                 'numer_seryjny' => $narzedzia->numer_seryjny,
                 'waznosc_badan' => $narzedzia->waznosc_badan,
                 'ilosc_all' => $narzedzia->ilosc_all,
-                'photo_path' => $narzedzia->photo_path ? URL::route('image', ['path' => $narzedzia->photo_path, 'w' => 260, 'h' => 260, 'fit' => 'crop']) : null,
-//                'photo_path' => $narzedzia->ilosc,
                 'deleted_at' => $narzedzia->deleted_at,
+                'files' => $narzedzia->files
             ],
+            'files' => ToolFile::query()
+                ->where('tool_id', $narzedzia->id)
+                ->get()
+                ->map(fn ($toolFile) => [
+                    'id' => $toolFile->id,
+                    'name' => $toolFile->filename,
+                    'type' => $toolFile->type
+                ])
         ]);
     }
 
-    public function update(Request $req, Narzedzia $narzedzia)
+    public function update(Request $req, Narzedzia $narzedzia): RedirectResponse
     {
         $narzedzia->update(
             Request::validate([
@@ -54,20 +63,20 @@ class NarzedziaController extends Controller
         return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
     }
 
-    public function destroy(Narzedzia $narzedzia)
+    public function destroy(Narzedzia $narzedzia): RedirectResponse
     {
         $narzedzia->delete();
 
         return Redirect::route('narzedzia')->with('success', 'Usunięto.');
     }
 
-    public function restore(Narzedzia $narzedzia)
+    public function restore(Narzedzia $narzedzia): RedirectResponse
     {
         $narzedzia->restore();
 
         return Redirect::back()->with('success', 'Objekt przywrócony.');
     }
-    public function create()
+    public function create(): Response
     {
         return Inertia('Narzedzia/Create');
     }
@@ -95,6 +104,7 @@ class NarzedziaController extends Controller
             foreach (Request::file('documents') as $file) {
                 $documentService->storeToolDocument($file, $tool->id, 'document');
             }
+
         } catch (\Exception $exception) {
             Log::info('Error while storing tool document: ' . $exception->getMessage());
 
