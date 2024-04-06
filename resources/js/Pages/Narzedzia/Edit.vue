@@ -46,6 +46,7 @@ import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import DateInput from '@/Shared/DateInput.vue'
 import Dropzone from '@/Shared/Dropzone.vue'
+import axios from 'axios'
 
 export default {
   components: {
@@ -60,10 +61,8 @@ export default {
   layout: Layout,
   props: {
     narzedzia: Object,
-    files: Array,
-  },
-  mounted() {
-
+    photos: Array,
+    documents: Array,
   },
   remember: 'form',
   data() {
@@ -74,14 +73,37 @@ export default {
         waznosc_badan: this.narzedzia.waznosc_badan,
         name: this.narzedzia.name,
         ilosc_all: this.narzedzia.ilosc_all,
-        photos: this.files,
-        document: this.narzedzia.document,
+        photos: this.photos,
+        document: this.documents,
       }),
     }
   },
   methods: {
     update() {
-      this.form.post(`/narzedzia/${this.narzedzia.id}`)
+      this.form.post(`/narzedzia/${this.narzedzia.id}`, {
+        onBefore: () => {
+          /**
+           * Send files to delete because is impossible to add property `deleted`
+           * to File object. Backend also doesn't get it.
+           */
+          let filesToDelete = this
+            .form
+            .photos
+            .filter(file => file.deleted === true)
+            .map(file => file.name)
+
+          console.log(filesToDelete)
+
+          if (filesToDelete.length > 0) {
+            axios.delete(`/narzedzia/${this.narzedzia.id}/file`, {
+              data: {
+                files: filesToDelete,
+              },
+            })
+          }
+
+        },
+      })
     },
     destroy() {
       if (confirm('Chcesz usunąć?')) {

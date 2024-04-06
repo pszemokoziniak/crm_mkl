@@ -7,7 +7,9 @@ namespace App\Services;
 use App\Models\CtnDocument;
 use App\Models\ToolFile;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentService
 {
@@ -37,7 +39,7 @@ class DocumentService
         Log::info('Stored document: ' . $path);
     }
 
-    public function storeToolDocument(UploadedFile $file, int $toolId, string $type): void
+    public function storeToolFile(UploadedFile $file, int $toolId, string $type): void
     {
         $path = $this->filePathForActor(self::TOOL_PATH, (string) $toolId);
 
@@ -53,6 +55,32 @@ class DocumentService
         );
 
         Log::info('Stored tool file: ' . $path);
+    }
+
+    public function hasToolFile(int $toolId, string $name): bool
+    {
+        $path = $this->filePathForActor(self::TOOL_PATH, (string) $toolId);
+
+        return Storage::disk('local')->exists($path . '/' . $name);
+    }
+
+    public function deleteToolFile(int $toolId, string $name): bool
+    {
+        $path = $this->filePathForActor(self::TOOL_PATH, (string) $toolId);
+
+        if ($this->hasToolFile($toolId, $name)) {
+
+            Storage::disk('local')->delete($path . '/' . $name);
+
+            DB::table('tool_files')
+                ->where('filename', $name)
+                ->where('tool_id', $toolId)
+                ->delete();
+
+            return true;
+        }
+
+        return false;
     }
 
     private function filePathForActor(string $path, string $id): string

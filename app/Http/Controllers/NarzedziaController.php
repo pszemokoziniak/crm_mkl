@@ -12,9 +12,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class NarzedziaController extends Controller
 {
@@ -37,28 +37,70 @@ class NarzedziaController extends Controller
                 'deleted_at' => $narzedzia->deleted_at,
                 'files' => $narzedzia->files
             ],
-            'files' => ToolFile::query()
+            'photos' => ToolFile::query()
                 ->where('tool_id', $narzedzia->id)
+                ->where('type', 'photo')
                 ->get()
                 ->map(fn ($toolFile) => [
                     'id' => $toolFile->id,
                     'name' => $toolFile->filename,
                     'type' => $toolFile->type
-                ])
+                ]),
+            'documents' => ToolFile::query()
+                ->where('tool_id', $narzedzia->id)
+                ->where('type', 'document')
+                ->get()
+                ->map(fn ($toolFile) => [
+                    'id' => $toolFile->id,
+                    'name' => $toolFile->filename,
+                    'type' => $toolFile->type
+                ]),
+
         ]);
     }
 
-    public function update(Request $req, Narzedzia $narzedzia): RedirectResponse
+    public function update(
+        Request $request,
+        Narzedzia $tool,
+        DocumentService $documentService
+    ): RedirectResponse
     {
-        $narzedzia->update(
-            Request::validate([
-                'name' => ['required', 'max:50'],
-                'numer_seryjny' => ['required'],
-                'waznosc_badan' => ['required', 'date'],
-                'ilosc_all' => ['required'],
-                'photo_path' => ['required'],
-            ])
-        );
+        dd(Request::file('photos'));
+
+        try {
+            $tool->update(
+                Request::validate([
+                    'name' => ['required', 'max:50'],
+                    'numer_seryjny' => ['required'],
+                    'waznosc_badan' => ['required', 'date'],
+                    'ilosc_all' => ['required'],
+                ])
+            );
+
+            /** save new photos and documents, remove these removed on dropzone */
+            foreach (Request::file('photos') as $file) {
+
+                // resent with form - exists
+                if ($documentService->hasToolFile($tool->id, $file->getClientOriginalName())) {
+                    continue;
+                }
+                // not exists - add
+                $documentService->storeToolFile($file, $tool->id, 'photo');
+            }
+
+            foreach (Request::file('documents') as $file) {
+
+                if ($documentService->hasToolFile($tool->id, $file->getClientOriginalName())) {
+                    continue;
+                }
+
+                $documentService->storeToolFile($file, $tool->id, 'document');
+            }
+
+        } catch (\Exception $exception) {
+
+        }
+
 
         return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
     }
@@ -89,20 +131,20 @@ class NarzedziaController extends Controller
         try {
             /** @var Narzedzia $tool */
             $tool = Narzedzia::create([
-                'numer_seryjny' => Request::get('numer_seryjny'),
-                'waznosc_badan' => Request::get('waznosc_badan'),
-                'name' => Request::get('name'),
-                'ilosc_all' => Request::get('ilosc_all'),
+                'numer_seryjny' => $request->get('numer_seryjny'),
+                'waznosc_badan' => $request->get('waznosc_badan'),
+                'name' => $request->get('name'),
+                'ilosc_all' => $request->get('ilosc_all'),
                 'ilosc_budowa' => 0,
-                'ilosc_magazyn' => Request::get('ilosc_all'),
+                'ilosc_magazyn' => $request->get('ilosc_all'),
             ]);
 
             foreach (Request::file('photos') as $file) {
-                $documentService->storeToolDocument($file, $tool->id, 'photo');
+                $documentService->storeToolFile($file, $tool->id, 'photo');
             }
 
             foreach (Request::file('documents') as $file) {
-                $documentService->storeToolDocument($file, $tool->id, 'document');
+                $documentService->storeToolFile($file, $tool->id, 'document');
             }
 
         } catch (\Exception $exception) {
@@ -112,5 +154,18 @@ class NarzedziaController extends Controller
         }
 
         return Redirect::route('narzedzia')->with('success', 'Zapisano.');
+    }
+
+    public function deleteToolFile(
+        Narzedzia $narzedzia,
+        DocumentService $documentService,
+        Request $request
+    ): JsonResponse
+    {
+        foreach ($request::all()['files'] as $name) {
+            $documentService->deleteToolFile($narzedzia->id, $name);
+        }
+
+        return new JsonResponse();
     }
 }

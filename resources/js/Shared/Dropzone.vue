@@ -1,13 +1,15 @@
 <template>
   <div>
     <div v-if="state.files.length > 0" class="files">
-      <div v-for="(file, index) in state.files" :key="file.id" v-bind="state" class="file-item">
-        <span>{{ file.name }}</span>
-        <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
+      <div v-for="(file, index) in state.files" v-bind="state">
+        <div :key="file.id" class="file-item">
+          <span>{{ file.name }}</span>
+          <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
+        </div>
       </div>
     </div>
     <div class="dropzone" v-bind="getRootProps()">
-      <input v-bind="getInputProps()" />
+      <input v-bind="getInputProps()"/>
       <p v-if="isDragActive">Drop the files here ...</p>
       <p v-else>Kliknij aby dodać pliki...</p>
     </div>
@@ -15,7 +17,7 @@
 </template>
 
 <script>
-import { useDropzone } from 'vue3-dropzone'
+import {useDropzone} from 'vue3-dropzone'
 import {ref, toRefs} from 'vue'
 
 export default {
@@ -24,24 +26,30 @@ export default {
     modelValue: FileList,
   },
   emits: ['update:modelValue'],
-  setup(props, { emit }) {
-    const state = ref({ files: [] })
-    const { modelValue } = toRefs(props)
+  setup(props, {emit}) {
+    const state = ref({files: []})
+    const toDelete = [];
+    const {modelValue} = toRefs(props)
 
     if (modelValue.value) {
-      state.value.files = modelValue.value
+      state.value.files = modelValue.value.map(file => new File(['*'], file.name))
     }
 
     function onDrop(acceptFiles) {
-      state.value.files = acceptFiles
-      emit('update:modelValue', acceptFiles)
+      state.value.files.push(...acceptFiles)
+      emit('update:modelValue', [...acceptFiles, ...toDelete])
     }
 
     function handleClickDeleteFile(index) {
+      let fileToDelete = state.value.files[index]
+      fileToDelete.deleted = true
+      toDelete.push(fileToDelete)
+
       state.value.files.splice(index, 1)
+      emit('update:modelValue', [...state.value.files, ...toDelete])
     }
 
-    const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
+    const {getRootProps, getInputProps, ...rest} = useDropzone({onDrop});
 
     return {
       getRootProps,

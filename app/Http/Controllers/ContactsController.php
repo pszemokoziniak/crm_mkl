@@ -7,23 +7,18 @@ use App\Models\A1;
 use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
-use App\Models\Account;
 use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
-
 use App\Models\Jezyk;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use Carbon\Carbon;
-use http\Client\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use function PHPUnit\Framework\isEmpty;
 
 class ContactsController extends Controller
 {
