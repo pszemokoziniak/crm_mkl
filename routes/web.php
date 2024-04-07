@@ -252,8 +252,16 @@ Route::delete('narzedzia/{narzedzia}', [NarzedziaController::class, 'destroy'])
 
 Route::put('narzedzia/{narzedzia}/restore', [NarzedziaController::class, 'restore'])
     ->name('narzedzia.restore')
-        ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-permission');
 
+Route::delete('narzedzia/{narzedzia}/file', [NarzedziaController::class, 'deleteToolFile'])
+    ->name('narzedzia.delete.document')
+    ->middleware('auth', 'biuro-permission');
+
+
+Route::get('narzedzia/{narzedzia}/file/{name}', [NarzedziaController::class, 'download'])
+    ->name('narzedzia.download.file')
+    ->middleware('auth', 'biuro-permission');
 // Holidays
 
 Route::get('contacts/{contact}/holiday', [HolidayController::class, 'index'])

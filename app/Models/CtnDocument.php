@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CtnDocument extends Model
 {
@@ -13,7 +14,7 @@ class CtnDocument extends Model
 
     public static function create($name, $typ, $path, $contactId, $filename): self
     {
-        $self =  new self();
+        $self = new self();
         $self->name = $name;
         $self->dokumentytyp_id = $typ;
         $self->path = $path;
@@ -23,7 +24,7 @@ class CtnDocument extends Model
         return $self;
     }
 
-    public function dokumentytyp()
+    public function dokumentytyp(): BelongsTo
     {
         return $this->belongsTo(DokumentyTyp::class);
     }

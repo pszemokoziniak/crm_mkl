@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDocumentRequest;
 use App\Models\CtnDocument;
 use App\Models\DokumentyTyp;
-use App\Services\CtnDocumentService;
+use App\Services\DocumentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -38,13 +38,13 @@ class CtnDocumentsController extends Controller
         ]);
     }
 
-    public function store(CtnDocumentService $documentService, StoreDocumentRequest $request, int $contactId): RedirectResponse
+    public function store(DocumentService $documentService, StoreDocumentRequest $request, int $contactId): RedirectResponse
     {
         $redirect = Redirect::route('documents.index', ['contact_id' => $contactId]);
 
         try {
             foreach (Request::file('documents') as $file) {
-                $documentService->store(
+                $documentService->storeCtnDocument(
                     $file,
                     $contactId,
                     Request::get('name'),
@@ -83,8 +83,12 @@ class CtnDocumentsController extends Controller
             throw new \Exception('Cannot remove file ' . $document->path);
         }
 
-        // @TODO remove file and add logger
-        return Redirect::route('documents.index', ['contact_id' => $id, 'document_id' => $documentId])
+        return Redirect::route(
+            'documents.index',
+            [
+                'contact_id' => $id,
+                'document_id' => $documentId
+            ])
             ->with('success', 'Usunięto dokument');
     }
 
