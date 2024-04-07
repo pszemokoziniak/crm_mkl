@@ -5,8 +5,10 @@
         <div :key="file.id" class="file-item">
           <span>{{ file.name }}</span>
           <img v-if="file.display" :src="file.path" alt="tool_image">
-          <a target="_blank" :href="file.path" class="download-file">Podgląd</a>
-          <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
+          <div>
+            <a v-if="file.path" target="_blank" :href="file.path" class="download-file">Pobierz</a>
+            <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
+          </div>
         </div>
       </div>
     </div>
@@ -125,17 +127,19 @@ export default {
   background: red;
   color: #fff;
   padding: 5px 10px;
+  margin: 0 5px 0 5px;
   border-radius: 8px;
   cursor: pointer;
+  align-self: flex-end;
 }
 
 .file-item .download-file {
   background: grey;
   color: #fff;
   padding: 5px 10px;
+  margin: 0 5px 0 5px;
   border-radius: 8px;
   cursor: pointer;
 }
-
 
 </style>
