@@ -120,4 +120,19 @@ class DocumentService
     {
         return $path . '/' . $file->getClientOriginalName();
     }
+
+    public function deleteFiles(int $toolId): void
+    {
+        $files = DB::table('tool_files')
+            ->where('tool_id', $toolId)
+            ->get();
+
+        foreach ($files as $file) {
+            $this->deleteToolFile($toolId, $file->filename);
+        }
+
+        DB::table('tool_files')
+            ->where('tool_id', $toolId)
+            ->delete();
+    }
 }

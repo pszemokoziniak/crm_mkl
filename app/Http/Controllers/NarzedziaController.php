@@ -122,8 +122,10 @@ class NarzedziaController extends Controller
         return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
     }
 
-    public function destroy(Narzedzia $narzedzia): RedirectResponse
+    public function destroy(Narzedzia $narzedzia, DocumentService $documentService): RedirectResponse
     {
+        $documentService->deleteFiles($narzedzia->id);
+
         $narzedzia->delete();
 
         return Redirect::route('narzedzia')->with('success', 'Usunięto.');
