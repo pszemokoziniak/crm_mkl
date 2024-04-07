@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
+use PHPUnit\Util\Exception;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -96,7 +97,7 @@ class NarzedziaController extends Controller
             );
 
             /** save new photos and documents, remove these removed on dropzone */
-            foreach (Request::file('photos') as $file) {
+            foreach (Request::file('photos') ?? [] as $file) {
 
                 // resent with form - exists
                 if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
@@ -106,7 +107,7 @@ class NarzedziaController extends Controller
                 $documentService->storeToolFile($file, $narzedzia->id, 'photo');
             }
 
-            foreach (Request::file('documents') as $file) {
+            foreach (Request::file('documents') ?? [] as $file) {
 
                 if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
                     continue;
@@ -116,6 +117,7 @@ class NarzedziaController extends Controller
             }
 
         } catch (\Exception $exception) {
+            throw $exception;
             // log
         }
 

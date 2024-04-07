@@ -14,8 +14,8 @@
     </div>
     <div class="dropzone" v-bind="getRootProps()">
       <input v-bind="getInputProps()"/>
-      <p v-if="isDragActive">Drop the files here ...</p>
-      <p v-else>Kliknij aby dodać pliki...</p>
+      <p v-if="isDragActive">Upuśc tutaj ...</p>
+      <p v-else>Kliknij aby dodać pliki...  {{ extensions?.join(', ') }}</p>
     </div>
   </div>
 </template>
@@ -28,6 +28,7 @@ export default {
   name: 'UseDropzoneDemo',
   props: {
     modelValue: FileList,
+    extensions: Array,
   },
   emits: ['update:modelValue'],
   setup(props, {emit}) {
@@ -50,7 +51,6 @@ export default {
         file.preview = false
         return file
       })
-      console.log(acceptFiles)
       state.value.files.push(...acceptFiles)
       emit('update:modelValue', [...acceptFiles, ...toDelete])
     }

@@ -25,11 +25,11 @@
           />
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
-            <dropzone v-model="form.photos" />
+            <dropzone v-model="form.photos" :extensions="['jpg', 'jpeg', 'png', 'tiff']" />
           </div>
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Dokumenty</div>
-            <dropzone v-model="form.documents" />
+            <dropzone v-model="form.documents" :extensions="['pdf', 'xls', 'xlsx', 'doc', 'docx', '']" />
           </div>
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
@@ -73,9 +73,6 @@ export default {
     documents: Array,
   },
   remember: 'form',
-  mounted() {
-    console.log(this.photos)
-  },
   data() {
     return {
       form: this.$inertia.form({
@@ -99,6 +96,7 @@ export default {
         }))
         .post(`/narzedzia/${this.narzedzia.id}`, {
           onBefore: () => {
+
             /**
                * Send files to delete because is impossible to add property `deleted`
                * to File object. Backend also doesn't get it.
