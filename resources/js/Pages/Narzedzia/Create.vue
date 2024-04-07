@@ -12,15 +12,13 @@
           <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważność badań" />
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
           <text-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
-
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
-            <dropzone v-model="form.photos" />
+            <dropzone v-model="form.photos" :extensions="['jpg', 'jpeg', 'png', 'tiff']" />
           </div>
-
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Dokumenty</div>
-            <dropzone v-model="form.documents" />
+            <dropzone v-model="form.documents" :extensions="['pdf', 'xls', 'xlsx', 'doc', 'docx', '']" />
           </div>
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
