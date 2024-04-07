@@ -6,7 +6,7 @@
           <span>{{ file.name }}</span>
           <img v-if="file.display" :src="file.path" alt="tool_image">
           <div>
-            <a v-if="file.path" target="_blank" :href="file.path" class="download-file">Pobierz</a>
+            <a target="_blank" :href="file.path" class="download-file">Pobierz</a>
             <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
           </div>
         </div>

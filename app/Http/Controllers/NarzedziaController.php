@@ -67,7 +67,13 @@ class NarzedziaController extends Controller
                     'name' => $toolFile->filename,
                     'type' => $toolFile->type,
                     'display' => false,
-                    'path' => DocumentService::toolFilePath($narzedzia->id, $toolFile->filename)
+                    'path' => URL::route('narzedzia.download.file',
+                        [
+                            'path' => DocumentService::toolFilePath($narzedzia->id, $toolFile->filename),
+                            'narzedzia' => $narzedzia,
+                            'name' => $toolFile->filename
+                        ]
+                    )
                 ]),
 
         ]);
