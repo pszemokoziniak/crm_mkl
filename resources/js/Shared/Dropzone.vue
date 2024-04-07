@@ -6,7 +6,7 @@
           <span>{{ file.name }}</span>
           <img v-if="file.display" :src="file.path" alt="tool_image">
           <div>
-            <a target="_blank" :href="file.path" class="download-file">Pobierz</a>
+            <a v-if="file.preview !== false" target="_blank" :href="file.path" class="download-file">Pobierz</a>
             <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
           </div>
         </div>
@@ -46,6 +46,11 @@ export default {
     }
 
     function onDrop(acceptFiles) {
+      acceptFiles = acceptFiles.map(file => {
+        file.preview = false
+        return file
+      })
+      console.log(acceptFiles)
       state.value.files.push(...acceptFiles)
       emit('update:modelValue', [...acceptFiles, ...toDelete])
     }
@@ -59,7 +64,10 @@ export default {
       emit('update:modelValue', [...state.value.files, ...toDelete])
     }
 
-    const {getRootProps, getInputProps, ...rest} = useDropzone({onDrop});
+    const {getRootProps, getInputProps, ...rest} = useDropzone({
+      onDrop,
+      maxFiles: 10,
+    });
 
     return {
       getRootProps,
