@@ -4,6 +4,8 @@
       <div v-for="(file, index) in state.files" v-bind="state">
         <div :key="file.id" class="file-item">
           <span>{{ file.name }}</span>
+          <img v-if="file.display" :src="file.path" alt="tool_image">
+          <a target="_blank" :href="file.path" class="download-file">Podgląd</a>
           <span class="delete-file" @click="handleClickDeleteFile(index)">Delete</span>
         </div>
       </div>
@@ -28,11 +30,17 @@ export default {
   emits: ['update:modelValue'],
   setup(props, {emit}) {
     const state = ref({files: []})
-    const toDelete = [];
+    const toDelete = []
     const {modelValue} = toRefs(props)
 
     if (modelValue.value) {
-      state.value.files = modelValue.value.map(file => new File(['*'], file.name))
+      state.value.files = modelValue.value.map(file => {
+        let newFile = new File(['*'], file.name)
+        newFile.path = file.path
+        newFile.display = file.display
+
+        return newFile
+      })
     }
 
     function onDrop(acceptFiles) {
@@ -120,4 +128,14 @@ export default {
   border-radius: 8px;
   cursor: pointer;
 }
+
+.file-item .download-file {
+  background: grey;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
 </style>

@@ -7,10 +7,6 @@
       {{ form.name }}
     </h1>
     <trashed-message v-if="narzedzia.deleted_at" class="mb-6" @restore="restore">Usunąć?</trashed-message>
-
-    <!--    <div class="grid col-span-1">-->
-    <!--      <img v-if="narzedzia.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill"/>-->
-    <!--    </div>-->
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -77,6 +73,9 @@ export default {
     documents: Array,
   },
   remember: 'form',
+  mounted() {
+    console.log(this.photos)
+  },
   data() {
     return {
       form: this.$inertia.form({

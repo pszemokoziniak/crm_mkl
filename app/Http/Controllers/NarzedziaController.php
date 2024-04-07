@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
+use App\Models\CtnDocument;
 use App\Models\Narzedzia;
 use App\Models\ToolFile;
 use App\Services\DocumentService;
@@ -12,9 +13,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+
 
 class NarzedziaController extends Controller
 {
@@ -44,7 +48,15 @@ class NarzedziaController extends Controller
                 ->map(fn ($toolFile) => [
                     'id' => $toolFile->id,
                     'name' => $toolFile->filename,
-                    'type' => $toolFile->type
+                    'type' => $toolFile->type,
+                    'display' => false,
+                    'path' => URL::route(
+                        'image',
+                        [
+                            'path' => DocumentService::toolFilePath($narzedzia->id, $toolFile->filename),
+                            'w' => 260, 'h' => 260, 'fit' => 'crop'
+                        ]
+                    )
                 ]),
             'documents' => ToolFile::query()
                 ->where('tool_id', $narzedzia->id)
@@ -53,7 +65,9 @@ class NarzedziaController extends Controller
                 ->map(fn ($toolFile) => [
                     'id' => $toolFile->id,
                     'name' => $toolFile->filename,
-                    'type' => $toolFile->type
+                    'type' => $toolFile->type,
+                    'display' => false,
+                    'path' => DocumentService::toolFilePath($narzedzia->id, $toolFile->filename)
                 ]),
 
         ]);
@@ -164,5 +178,10 @@ class NarzedziaController extends Controller
         }
 
         return new JsonResponse();
+    }
+
+    public function download(Narzedzia $narzedzia, string $name): BinaryFileResponse
+    {
+        return response()->download(storage_path("app/" . DocumentService::toolFilePath($narzedzia->id, $name)));
     }
 }

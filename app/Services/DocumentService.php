@@ -10,6 +10,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use function Symfony\Component\String\s;
 
 class DocumentService
 {
@@ -81,6 +82,13 @@ class DocumentService
         }
 
         return false;
+    }
+
+    public static function toolFilePath(int $toolId, string $name): string
+    {
+        return sprintf(
+            "%s/%s/%s", self::TOOL_PATH, $toolId, $name
+        );
     }
 
     private function filePathForActor(string $path, string $id): string
