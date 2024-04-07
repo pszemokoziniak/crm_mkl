@@ -61,14 +61,12 @@ class NarzedziaController extends Controller
 
     public function update(
         Request $request,
-        Narzedzia $tool,
+        Narzedzia $narzedzia,
         DocumentService $documentService
     ): RedirectResponse
     {
-        dd(Request::file('photos'));
-
         try {
-            $tool->update(
+            $narzedzia->update(
                 Request::validate([
                     'name' => ['required', 'max:50'],
                     'numer_seryjny' => ['required'],
@@ -81,26 +79,25 @@ class NarzedziaController extends Controller
             foreach (Request::file('photos') as $file) {
 
                 // resent with form - exists
-                if ($documentService->hasToolFile($tool->id, $file->getClientOriginalName())) {
+                if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
                     continue;
                 }
                 // not exists - add
-                $documentService->storeToolFile($file, $tool->id, 'photo');
+                $documentService->storeToolFile($file, $narzedzia->id, 'photo');
             }
 
             foreach (Request::file('documents') as $file) {
 
-                if ($documentService->hasToolFile($tool->id, $file->getClientOriginalName())) {
+                if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
                     continue;
                 }
 
-                $documentService->storeToolFile($file, $tool->id, 'document');
+                $documentService->storeToolFile($file, $narzedzia->id, 'document');
             }
 
         } catch (\Exception $exception) {
-
+            // log
         }
-
 
         return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
     }
