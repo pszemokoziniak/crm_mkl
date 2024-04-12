@@ -24,13 +24,22 @@ class UpdateBhpRequest extends FormRequest
     public function rules()
     {
         return [
-            'start' =>'required',
-            'end' =>'required',
+            'start' => 'required | date | before:end',
+            'end' => 'required | date | after:start',
         ];
     }
     public function messages() {
         return [
             'required'  => 'Pole :attribute jest wymagane.',
+            'start.before' => 'Pole :attribute musi być mniejsze niż pole Koniec',
+            'end.after' => 'Pole :attribute musi być większe niż pola Początek',
+        ];
+    }
+    public function attributes()
+    {
+        return [
+            'start' => 'Start',
+            'end' => 'Koniec',
         ];
     }
 }

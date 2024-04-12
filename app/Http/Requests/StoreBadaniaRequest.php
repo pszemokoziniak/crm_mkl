@@ -25,8 +25,8 @@ class StoreBadaniaRequest extends FormRequest
     {
         return [
 //            'badaniaTyp_id' =>'required',
-            'start' => 'required|date|before_or_equal:end',
-            'end' =>'required',
+            'start' => 'required | date | before:end',
+            'end' => 'required | date | after:start',
         ];
     }
 
@@ -34,7 +34,15 @@ class StoreBadaniaRequest extends FormRequest
         return [
             'required'  => 'Pole :attribute jest wymagane.',
             'unique' => 'Nazwa użyta',
-            'before_or_equal' => 'Pole :attribute musi być mniejsze niż koniec'
+            'start.before' => 'Pole :attribute musi być mniejsze niż pole Koniec',
+            'end.after' => 'Pole :attribute musi być większe niż pola Początek',        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'start' => 'Start',
+            'end' => 'Koniec',
         ];
     }
 }

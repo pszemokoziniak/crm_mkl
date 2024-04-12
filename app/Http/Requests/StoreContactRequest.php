@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Request;
 
-class StoreCustomersRequest extends FormRequest
+class StoreContactRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,30 +27,30 @@ class StoreCustomersRequest extends FormRequest
             'first_name' => ['required', 'max:150'],
             'last_name' => ['required', 'max:150'],
             'birth_date' => ['required'],
-            'pesel' => ['required', 'numeric', 'unique:contacts', 'digits:11'],
+            'pesel' => ['required'],
             'idCard_number' => ['nullable'],
             'idCard_date' => ['nullable'],
-            'funkcja_id' => ['required'],
+            'funkcja_id' => ['nullable'],
             'work_start' => 'required | date | before:work_end',
             'work_end' => 'required | date | after:work_start',
             'ekuz' => ['nullable'],
             'miejsce_urodzenia' => ['nullable'],
             'organization_id' => ['nullable'],
-            'email' => 'nullable | max:150| email | unique:contacts',
-            'phone' => ['required', 'max:50', 'string'],
+            'email' => ['nullable', 'max:150', 'email'],
+            'phone' => ['nullable', 'max:50'],
             'address' => ['nullable'],
+            'photo_path' => ['nullable', 'image'],
         ];
     }
-
     public function messages() {
         return [
             'required'  => 'Pole :attribute jest wymagane.',
             'unique' => 'Nazwa użyta',
+            'date' => 'Pole musi zawierać datę',
+            'work_start.before' => 'Pole :attribute musi być mniejsze niż pola Koniec umowy',
+            'work_end.after' => 'Pole :attribute musi być większe niż pole Początek umowy',
             'numeric' => 'Pole :attribute może zawierać tylko cyfry',
             'digits' => 'PESEL musi mieć 11 cyfr',
-            'date' => 'Pole musi zawierać datę',
-            'work_start.before' => 'Pole :attribute musi być mniejsze niż pole Koniec umowy',
-            'work_end.after' => 'Pole :attribute musi być większe niż pole Początek umowy',
         ];
     }
 

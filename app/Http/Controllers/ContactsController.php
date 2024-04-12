@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\StoreCustomersRequest;
 use App\Models\A1;
 use App\Models\Badania;
@@ -147,26 +148,9 @@ class ContactsController extends Controller
         ]);
     }
 
-    public function update(Contact $contact, Request $request)
+    public function update(Contact $contact, StoreContactRequest $request)
     {
-            Request::validate([
-                'first_name' => ['required', 'max:150'],
-                'last_name' => ['required', 'max:150'],
-                'birth_date' => ['required'],
-                'pesel' => ['required'],
-                'idCard_number' => ['nullable'],
-                'idCard_date' => ['nullable'],
-                'funkcja_id' => ['nullable'],
-                'work_start' => ['required'],
-                'work_end' => ['required'],
-                'ekuz' => ['nullable'],
-                'miejsce_urodzenia' => ['nullable'],
-                'organization_id' => ['nullable'],
-                'email' => ['nullable', 'max:150', 'email'],
-                'phone' => ['nullable', 'max:50'],
-                'address' => ['nullable'],
-                'photo_path' => ['nullable', 'image'],
-            ]);
+
         $contact->update(Request::only('first_name', 'last_name', 'birth_date', 'pesel', 'idCard_number', 'idCard_date', 'funkcja_id', 'work_start',
             'work_end', 'ekuz', 'miejsce_urodzenia', 'organization_id', 'email', 'phone', 'address'));
 

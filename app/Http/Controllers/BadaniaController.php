@@ -65,8 +65,8 @@ class BadaniaController extends Controller
         $badania->update(
             Request::validate([
                 'badaniaTyp_id' => ['required', 'max:50'],
-                'start' => ['required', 'date'],
-                'end' => ['required', 'date'],
+                'start' => 'required | date | before:end',
+                'end' => 'required | date | after:start',
             ])
         );
 
