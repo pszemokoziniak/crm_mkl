@@ -3,6 +3,14 @@
     <Head title="Kraje" />
     <h1 class="mb-8 text-3xl font-bold">Sprzęt</h1>
     <div class="flex items-center justify-between mb-6">
+      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+        <label class="block text-gray-700">Trashed:</label>
+        <select v-model="form.trashed" class="form-select mt-1 w-full">
+          <!--          <option :value="null" />-->
+          <option value="with">Wszystko</option>
+          <option value="only">Usunięte</option>
+        </select>
+      </search-filter>
       <Link class="btn-indigo" href="/narzedzia/create">
         <span>Dodaj</span>
       </Link>
@@ -69,23 +77,26 @@ import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
+import SearchFilter from '@/Shared/SearchFilter.vue'
 
 
 export default {
   components: {
+    SearchFilter,
     Head,
     Icon,
     Link,
   },
   layout: Layout,
   props: {
+    filters: Object,
     narzedzia: Object,
   },
   data() {
     return {
       form: {
-        // search: this.filters.search,
-        // trashed: this.filters.trashed,
+        search: this.filters.search,
+        trashed: this.filters.trashed,
       },
     }
   },

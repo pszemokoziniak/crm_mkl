@@ -38,11 +38,6 @@
               </div>
             </Link>
           </td>
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              <icon name="dot" class="block w-6 h-6 fill-green-400" />-->
-<!--            </Link>-->
-<!--          </td>-->
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
               <div v-if="contact.pracuje">
@@ -50,13 +45,6 @@
               </div>
             </Link>
           </td>
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              <div v-if="contact.a1">-->
-<!--                {{ contact.a1.end }}-->
-<!--              </div>-->
-<!--            </Link>-->
-<!--          </td>-->
           <td class="w-px border-t">
             <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />

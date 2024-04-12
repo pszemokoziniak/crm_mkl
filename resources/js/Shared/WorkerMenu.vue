@@ -12,32 +12,32 @@
       </div>
       <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div class="text-md lg:flex-grow">
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/edit/`">
-            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane osobowe</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/edit`">
+            <div :class="isUrl('edit') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Dane osobowe</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/badania/`">
-            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Badania lekarskie</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/badania`">
+            <div :class="isUrl('badania') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Badania lekarskie</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/bhp/`">
-            <div :class="isUrl('bhp') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Szkolenia BHP</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/bhp`">
+            <div :class="isUrl('bhp') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Szkolenia BHP</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/pbioz/`">
-            <div :class="isUrl('pbioz') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">PBiOZ</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/pbioz`">
+            <div :class="isUrl('pbioz') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">PBiOZ</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/uprawnienia/`">
-            <div :class="isUrl('uprawnienia') ? 'text-gray-500' : 'text-indigo-300 group-hover:text-gray-900'">Uprawnienia</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/uprawnienia`">
+            <div :class="isUrl('uprawnienia') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Uprawnienia</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/documents`">
-            <div :class="'text-indigo-300 group-hover:text-gray-900'">Dokumenty</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/documents`">
+            <div :class="isUrl('documents') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Dokumenty</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/jezyk/`">
-            <div :class="'text-indigo-300 group-hover:text-gray-900'">Języki</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/jezyk`">
+            <div :class="isUrl('jezyk') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Języki</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/a1/`">
-            <div :class="'text-indigo-300 group-hover:text-gray-900'">A1</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/a1`">
+            <div :class="isUrl('a1') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">A1</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/contacts/${contactId}/holiday/`">
-            <div :class="'text-indigo-300 group-hover:text-gray-900'">Urlopy</div>
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/holiday`">
+            <div :class="isUrl('holiday') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Urlopy</div>
           </Link>
         </div>
       </div>

@@ -26,7 +26,8 @@ class NarzedziaController extends Controller
     public function index(): Response
     {
         return Inertia::render('Narzedzia/Index', [
-            'narzedzia' => Narzedzia::all()
+            'filters' => Request::all('search', 'trashed'),
+            'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed'))->get()
         ]);
     }
 
