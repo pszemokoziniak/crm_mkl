@@ -2,7 +2,7 @@
   <div>
     <Head title="Dodaj Urlop" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/holiday">Urlop</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" :href="`/contacts/${contact_id}/holiday`">Urlop</Link>
       <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">

@@ -5,10 +5,11 @@
       <WorkerMenu :contactId="contactId" />
     </div>
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">A1</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
+    <h1 class="mb-8 text-2xl font-bold">Dodaj urlop</h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">

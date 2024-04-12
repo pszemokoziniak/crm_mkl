@@ -44,7 +44,7 @@ class HolidayController extends Controller
             'contact' => $contact
         ]);
     }
-    public function update(Request $req)
+    public function update(StoreHolidayRequest $req)
     {
             $data = Holiday::find($req->id);
             $data->start = $req->start;

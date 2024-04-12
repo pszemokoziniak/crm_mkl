@@ -5,10 +5,11 @@
       <WorkerMenu :contactId="contactId" />
     </div>
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Urlopy</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Procownik</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
+    <h1 class="mb-8 text-2xl font-bold">Urlopy</h1>
     <div class="flex items-center justify-between mb-6">
       <Link class="btn-indigo" :href="`/contacts/${contact.id}/holiday/create`">
         <span>Dodaj</span>

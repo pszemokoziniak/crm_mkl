@@ -24,15 +24,23 @@ class StoreHolidayRequest extends FormRequest
     public function rules()
     {
         return [
-            'start' =>'required | date',
-            'end' =>'required | date',
-            'contact_id' =>'required',
+            'start' => 'required | date | before:end',
+            'end' => 'required | date | after:start',
         ];
     }
 
     public function messages() {
         return [
             'required'  => 'Pole jest wymagane.',
+            'start.before' => 'Pole :attribute musi być mniejsze niż pole Koniec',
+            'end.after' => 'Pole :attribute musi być większe niż pola Początek',
+        ];
+    }
+    public function attributes()
+    {
+        return [
+            'start' => 'Start',
+            'end' => 'Koniec',
         ];
     }
 }
