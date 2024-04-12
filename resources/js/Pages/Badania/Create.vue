@@ -2,7 +2,7 @@
   <div>
     <Head title="Dodaj badanie lekarskie" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/badania">Badania</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" :href="`/contacts/${contact_id}/badania`">Badania lekarskie</Link>
       <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">

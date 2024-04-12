@@ -36,7 +36,7 @@ class A1Controller extends Controller
         ]);
     }
 
-    public function update(Request $req)
+    public function update(StoreA1Request $req)
     {
         $data = A1::find($req->id);
         $data->start = $req->start;

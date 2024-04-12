@@ -24,15 +24,23 @@ class StoreA1Request extends FormRequest
     public function rules()
     {
         return [
-            'start' => 'required|date|before_or_equal:end',
-            'end' =>'required | date',
+            'start' => 'required | date | before:end',
+            'end' => 'required | date | after:start',
         ];
     }
 
     public function messages() {
         return [
             'required'  => 'Pole :attribute jest wymagane.',
-            'before_or_equal' => 'Pole :attribute musi być mniejsze niż koniec.'
+            'start.before' => 'Pole :attribute musi być mniejsze niż pole Koniec',
+            'end.after' => 'Pole :attribute musi być większe niż pola Początek',
+        ];
+    }
+    public function attributes()
+    {
+        return [
+            'start' => 'Start',
+            'end' => 'Koniec',
         ];
     }
 }

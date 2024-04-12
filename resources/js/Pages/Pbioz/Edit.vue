@@ -10,6 +10,7 @@
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
     <trashed-message v-if="pbioz.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
+    <h1 class="mb-8 text-2xl font-bold">PBIOZ</h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
