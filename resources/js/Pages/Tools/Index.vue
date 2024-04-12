@@ -30,6 +30,9 @@
       <Link class="btn-indigo mr-5" :href="`/narzedziaTyp`">
         <span>Narzędzia Typ</span>
       </Link>
+      <Link class="btn-indigo mr-5" :href="`/uprawnieniaTyp`">
+        <span>Uprawnienia Typ</span>
+      </Link>
     </div>
   </div>
 

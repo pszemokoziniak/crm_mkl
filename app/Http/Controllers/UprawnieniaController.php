@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBadaniaRequest;
+use App\Http\Requests\StoreUprawnieniaRequest;
 use App\Http\Requests\UpdateBhpRequest;
 //use App\Models\Bhp;
 //use App\Models\BhpTyp;
@@ -55,7 +56,7 @@ class UprawnieniaController extends Controller
         ]);
     }
 
-    public function update(UpdateBhpRequest $req, Contact $contact, Uprawnienia $uprawnienia)
+    public function update(StoreUprawnieniaRequest $req, Contact $contact, Uprawnienia $uprawnienia)
     {
         $data = Uprawnienia::find($uprawnienia->id);
         $data->uprawnieniaTyp_id = $req->uprawnieniaTyp_id;
@@ -73,7 +74,7 @@ class UprawnieniaController extends Controller
         return Inertia('Uprawnienia/Create', compact('contact_id', 'uprawnieniaTyps'));
     }
 
-    public function store(StoreBadaniaRequest $req, $contact_id)
+    public function store(StoreUprawnieniaRequest $req, $contact_id)
     {
         $data = new Uprawnienia;
         $data->uprawnieniaTyp_id=$req->uprawnieniaTyp_id;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePbiozRequest;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use App\Models\Pbioz;
@@ -48,7 +49,7 @@ class PbiozController extends Controller
         ]);
     }
 
-    public function update(Request $req, Contact $contact, Pbioz $pbioz)
+    public function update(StorePbiozRequest $req, Contact $contact, Pbioz $pbioz)
     {
         $data = Pbioz::find($pbioz->id);
         $data->name = $req->name;
@@ -65,7 +66,7 @@ class PbiozController extends Controller
         return Inertia('Pbioz/Create', compact('contact_id'));
     }
 
-    public function store(Request $req, $contact_id)
+    public function store(StorePbiozRequest $req, $contact_id)
     {
         $data = new Pbioz;
         $data->name=$req->name;

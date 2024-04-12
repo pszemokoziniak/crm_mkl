@@ -2,7 +2,7 @@
   <div>
     <Head title="Dodaj PBiOZ" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/pbioz">PBiOZ</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" :href="`/contacts/${contact_id}/pbioz`">PBiOZ</Link>
       <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
