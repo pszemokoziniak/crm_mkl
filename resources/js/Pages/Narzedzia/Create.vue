@@ -11,7 +11,7 @@
           <text-input v-model="form.numer_seryjny" :error="form.errors.numer_seryjny" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer seryjny" />
           <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważność badań" />
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
-          <text-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
+          <text-input v-model="form.ilosc_all" type="number" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
             <dropzone v-model="form.photos" :extensions="['jpg', 'jpeg', 'png', 'tiff']" />
@@ -56,7 +56,7 @@ export default {
     return {
       form: this.$inertia.form({
         numer_seryjny: '',
-        waznosc_badan: '',
+        waznosc_badan: new Date().toISOString().substr(0, 10),
         name: '',
         ilosc_all: 0,
         photos: null,

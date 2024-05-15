@@ -429,185 +429,185 @@ Route::get('contacts/{contact}/budowa/destroy', [ContactsController::class, 'des
 
 Route::get('contacts/{contact}/badania', [BadaniaController::class, 'index'])
     ->name('badania.index')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/badania/create', [BadaniaController::class, 'create'])
     ->name('badania.create')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('badania/{contact_id}', [BadaniaController::class, 'store'])
     ->name('badania.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/badania/{badania}/edit', [BadaniaController::class, 'edit'])
     ->name('badania.edit')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('contacts/{contact}/badania/{badania}', [BadaniaController::class, 'update'])
     ->name('badania.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('badania/{badania}', [BadaniaController::class, 'destroy'])
     ->name('badania.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('badania/{badania}/restore', [BadaniaController::class, 'restore'])
     ->name('badania.restore')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // BHP
 
 Route::get('contacts/{contact}/bhp', [BhpController::class, 'index'])
     ->name('bhp.index')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/bhp/create', [BhpController::class, 'create'])
     ->name('bhp.create')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('bhp/{contact_id}', [BhpController::class, 'store'])
     ->name('bhp.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/bhp/{bhp}/edit', [BhpController::class, 'edit'])
     ->name('bhp.edit')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('contacts/{contact}/bhp/{bhp}', [BhpController::class, 'update'])
     ->name('bhp.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('bhp/{bhp}', [BhpController::class, 'destroy'])
     ->name('bhp.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
     ->name('bhp.restore')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Pbioz
 
 Route::get('contacts/{contact}/pbioz', [PbiozController::class, 'index'])
     ->name('pbioz.index')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/pbioz/create', [PbiozController::class, 'create'])
     ->name('pbioz.create')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('pbioz/{contact_id}', [PbiozController::class, 'store'])
     ->name('pbioz.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/pbioz/{pbioz}/edit', [PbiozController::class, 'edit'])
     ->name('pbioz.edit')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('contacts/{contact}/pbioz/{pbioz}', [PbiozController::class, 'update'])
     ->name('pbioz.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('pbioz/{pbioz}', [PbiozController::class, 'destroy'])
     ->name('pbioz.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('pbioz/{pbioz}/restore', [PbiozController::class, 'restore'])
     ->name('pbioz.restore')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // A1
 
 Route::get('contacts/{contact}/a1', [A1Controller::class, 'index'])
     ->name('a1.index')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/a1/create', [A1Controller::class, 'create'])
     ->name('a1.create')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('a1/{contact_id}', [A1Controller::class, 'store'])
     ->name('a1.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/a1/{a1}/edit', [A1Controller::class, 'edit'])
     ->name('a1.edit')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('contacts/{contact}/a1/{a1}', [A1Controller::class, 'update'])
     ->name('a1.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('a1/{a1}', [A1Controller::class, 'destroy'])
     ->name('a1.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('a1/{a1}/restore', [A1Controller::class, 'restore'])
     ->name('a1.restore')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Uprawnienia
 
 Route::get('contacts/{contact}/uprawnienia', [UprawnieniaController::class, 'index'])
     ->name('uprawnienia.index')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/uprawnienia/create', [UprawnieniaController::class, 'create'])
     ->name('uprawnienia.create')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('uprawnienia/{contact_id}', [UprawnieniaController::class, 'store'])
     ->name('uprawnienia.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/uprawnienia/{uprawnienia}/edit', [UprawnieniaController::class, 'edit'])
     ->name('uprawnienia.edit')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('contacts/{contact}/uprawnienia/{uprawnienia}', [UprawnieniaController::class, 'update'])
     ->name('uprawnienia.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('uprawnienia/{uprawnienia}', [UprawnieniaController::class, 'destroy'])
     ->name('uprawnienia.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('uprawnienia/{uprawnienia}/restore', [UprawnieniaController::class, 'restore'])
     ->name('uprawnienia.restore')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 // Typ sprzętu
 
@@ -649,37 +649,37 @@ Route::put('narzedziaTyp/{narzedziaTyp}/restore', [NarzedziaTypController::class
 
 Route::get('contacts/{contact}/jezyk', [JezykController::class, 'index'])
     ->name('jezyk.index')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/jezyk/create', [JezykController::class, 'create'])
     ->name('jezyk.create')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('jezyk/{contact_id}', [JezykController::class, 'store'])
     ->name('jezyk.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/jezyk/{jezyk}/edit', [JezykController::class, 'edit'])
     ->name('jezyk.edit')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('contacts/{contact}/jezyk/{jezyk}', [JezykController::class, 'update'])
     ->name('jezyk.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('jezyk/{jezyk}', [JezykController::class, 'destroy'])
     ->name('jezyk.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('jezyk/{jezyk}/restore', [JezykController::class, 'restore'])
     ->name('jezyk.restore')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Accounts
@@ -1043,47 +1043,47 @@ Route::get('/img/{path}', [ImagesController::class, 'show'])
 
 Route::get('contacts/{contact_id}/documents/', [CtnDocumentsController::class, 'index'])
     ->name('documents.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact_id}/documents/create', [CtnDocumentsController::class, 'create'])
     ->name('documents.create')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('contacts/{contact_id}/documents/store', [CtnDocumentsController::class, 'store'])
     ->name('documents.store')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'view'])
     ->name('documents.view')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'delete'])
     ->name('documents.delete')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('contacts/{contact_id}/documents/{document_id}/lekarskie', [CtnDocumentsController::class, 'deleteLek'])
     ->name('documentsLek.delete')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('contacts/{contact_id}/documents/{document_id}/bhp', [CtnDocumentsController::class, 'deleteBhp'])
     ->name('documentsBhp.delete')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('contacts/{contact_id}/documents/{document_id}/uprawnienia', [CtnDocumentsController::class, 'deleteUpr'])
     ->name('documentsUpr.delete')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('contacts/{contact_id}/documents/{document_id}/a1', [CtnDocumentsController::class, 'deleteA1'])
     ->name('documentsA1.delete')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 /** Building time sheets */
