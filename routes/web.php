@@ -200,7 +200,7 @@ Route::post('contacts', [ContactsController::class, 'store'])
 
 Route::get('contacts/{contact}/edit', [ContactsController::class, 'edit'])
     ->name('contacts.edit')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('contacts/{contact}', [ContactsController::class, 'update'])
