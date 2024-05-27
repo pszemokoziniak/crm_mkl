@@ -95,6 +95,10 @@ class ContactsController extends Controller
     public function edit(Contact $contact)
     {
         $obecna_budowa = (ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first())?ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first():'Nie pracuje';
+        $flag = false;
+        if (Auth::user()->owner === 3) {
+            $flag = true;
+        }
 
         return Inertia::render('Contacts/Edit', [
             'contact' => [
@@ -144,7 +148,7 @@ class ContactsController extends Controller
             'uprawnienia' => Uprawnienia::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'pbioz' => Pbioz::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'obecna_budowa' => $obecna_budowa,
-
+            'flag' => $flag,
         ]);
     }
 
