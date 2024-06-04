@@ -23,6 +23,7 @@ use App\Http\Controllers\NarzedziaController;
 use App\Http\Controllers\NarzedziaTypController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PbiozController;
+use App\Http\Controllers\PrognozaController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
@@ -180,6 +181,41 @@ Route::put('budowy/{klient}/restore', [KlientController::class, 'restore'])
     ->name('klient.restore')
         ->middleware('auth', 'biuro-permission');
 
+//Prognoza pracowników na budowach
+
+Route::get('prognoza', [PrognozaController::class, 'index'])
+    ->name('prognoza')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::get('prognoza/create', [PrognozaController::class, 'create'])
+    ->name('prognoza.create')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::post('prognoza', [PrognozaController::class, 'store'])
+    ->name('prognoza.store')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::get('prognoza/{prognoza}/edit', [PrognozaController::class, 'edit'])
+    ->name('prognoza.edit')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::put('prognoza/{prognoza}', [PrognozaController::class, 'update'])
+    ->name('prognoza.update')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::delete('prognoza/{prognoza}', [PrognozaController::class, 'destroy'])
+    ->name('prognoza.destroy')
+    ->middleware('auth', 'admin-permission');
+
+
+Route::put('prognoza/{account}/restore', [PrognozaController::class, 'restore'])
+    ->name('prognoza.restore')
+    ->middleware('auth', 'admin-permission');
 
 /// Contacts
 
