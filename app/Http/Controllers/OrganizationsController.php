@@ -10,6 +10,7 @@ use App\Models\ContactWorkDate;
 use App\Models\JezykTyp;
 use App\Models\KrajTyp;
 use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
@@ -84,7 +85,7 @@ class OrganizationsController extends Controller
 //                'contacts' => $organization->contacts()->funkcja()->orderByName()->get()->map->only('id', 'last_name', 'position', 'phone', 'name'),
             ],
             'krajTyps' => KrajTyp::all(),
-            'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
+            'kierownikBud' => User::where('owner', 3)->get(),
 //            'contacts' => Contact::where('organization_id', $organization->id)->get(),
             'contactsFree' => Contact::where('organization_id', null)->where('funkcja_id', '!=', 1)->get()->map->only('id','first_name','last_name'),
             'contacts' => Contact::with('funkcja')
