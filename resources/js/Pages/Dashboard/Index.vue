@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head title="Budowa" />
-    <h1 class="mb-8 text-3xl font-bold">Twoje Budowy KCP</h1>
+    <h1 class="mb-8 text-3xl font-bold">Aktywne Budowy KCP</h1>
     <div class="flex items-center justify-between mb-6">
 <!--      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">-->
 <!--        <label class="block text-gray-700">Wybierz:</label>-->

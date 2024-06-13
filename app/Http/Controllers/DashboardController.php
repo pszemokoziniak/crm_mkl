@@ -24,7 +24,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Organization::join('contacts', 'organizations.kierownikBud_id', '=', 'contacts.id')
-                ->where('contacts.user_id', Auth::id())
+//                ->where('contacts.user_id', Auth::id())
 //                ->where('organizations.deleted_at', null)
                 ->get(['organizations.id','organizations.nazwaBud','organizations.kierownikBud_id', 'contacts.user_id']),
             'buildings' => $buildings,
