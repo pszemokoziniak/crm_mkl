@@ -28,8 +28,8 @@ class StoreNarzedziaRequest extends FormRequest
             'numer_seryjny' =>'required',
             'waznosc_badan' =>'required|date',
             'ilosc_all' =>'required|numeric',
-            'photo_path' => 'nullable',
-            'filname' =>'nullable',
+            'photos' => 'nullable',
+            'documents' =>'nullable',
         ];
     }
 

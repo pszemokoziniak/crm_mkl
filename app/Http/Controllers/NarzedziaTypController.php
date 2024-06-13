@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreNarzedziaRequest;
 use App\Http\Requests\StorePosRequest;
 use App\Models\NarzedziaTyp;
 use Illuminate\Http\Request;
@@ -53,7 +54,7 @@ class NarzedziaTypController extends Controller
     {
         return Inertia('NarzedziaTyp/Create');
     }
-    public function store(StorePosRequest $req)
+    public function store(StoreNarzedziaRequest $req)
     {
         NarzedziaTyp::create($req->validated());
         return Redirect::route('narzedziaTyp')->with('success', 'Zapisano.');
