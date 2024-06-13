@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Prognoza;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -15,57 +15,60 @@ class PrognozaController extends Controller
         $years = array();
         $currentYear = Carbon::now();
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 7; $i++) {
             $years[] = $currentYear->copy()->addYears($i)->year;
         }
 
+        (!isset($_GET['year'])) ? $year = $currentYear->year : $year = $_GET['year'];
 
-//        $data = Prognoza::where('week', $week)->where('year', $year)->get();
-        return Inertia('Prognoza/Index', compact('years'));
+        $data = Prognoza::where('year', $year)->get();
+
+        return Inertia('Prognoza/Index', compact('years', 'data'));
     }
 
-    public function edit(BhpTyp $bhpTyp)
+    public function edit(Prognoza $prognoza)
     {
-        return Inertia::render('BhpTyp/Edit', [
-            'bhp' => [
-                'id' => $bhpTyp->id,
-                'name' => $bhpTyp->name,
-                'deleted_at' => $bhpTyp->deleted_at,
+        return Inertia::render('Prognoza/Edit', [
+            'prognoza' => [
+                'id' => $prognoza->id,
+                'workers_count' => $prognoza->workers_count,
             ],
         ]);
     }
 
-    public function update(BhpTyp $bhpTyp)
+    public function update(Prognoza $prognoza)
     {
-        $bhpTyp->update(
+        $year = $prognoza->year;
+        $prognoza->update(
             \Illuminate\Support\Facades\Request::validate([
-                'name' => ['required', 'max:100'],
+                'workers_count' => ['required', 'numeric', 'max:500'],
             ])
         );
-        return Redirect::route('bhpTyp')->with('success', 'Poprawiono.');
+        return Redirect::route('prognoza', ['year' => $year])->with('success', 'Poprawiono.');
     }
 
-    public function destroy(BhpTyp $bhpTyp)
-    {
-        $bhpTyp->delete();
+    function displayWeeksInYear() {
+        $years = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
-        return Redirect::route('bhpTyp')->with('success', 'Usunięto.');
-    }
+        foreach ($years as $year) {
+            $startOfYear = Carbon::createFromDate($year, 1, 1)->startOfWeek(Carbon::MONDAY);
+            $endOfYear = Carbon::createFromDate($year, 12, 31)->endOfWeek(Carbon::SUNDAY);
 
-    public function restore(BadaniaTyp $badaniaTyp)
-    {
-        $badaniaTyp->restore();
+            $period = CarbonPeriod::create($startOfYear, '1 week', $endOfYear);
 
-        return Redirect::back()->with('success', 'Objekt przywrócony.');
-    }
-    public function create()
-    {
-        return Inertia('BhpTyp/Create');
-    }
+            foreach ($period as $date) {
+                $monday = $date->copy()->startOfWeek(Carbon::MONDAY);
+                $sunday = $date->copy()->endOfWeek(Carbon::SUNDAY);
+                $currentYear = $monday->year;
 
-    public function store(StorePosRequest $req)
-    {
-        BhpTyp::create($req->validated());
-        return Redirect::route('bhpTyp')->with('success', 'Zapisano.');
+                if ($monday->year == $year) {
+                    Prognoza::create([
+                        'start' => $monday,
+                        'end' => $sunday,
+                        'year' => $currentYear,
+                    ]);
+                }
+            }
+        }
     }
 }

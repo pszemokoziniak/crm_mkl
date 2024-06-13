@@ -217,6 +217,10 @@ Route::put('prognoza/{account}/restore', [PrognozaController::class, 'restore'])
     ->name('prognoza.restore')
     ->middleware('auth', 'admin-permission');
 
+Route::get('prognoza/list', [PrognozaController::class, 'list'])
+    ->name('prognoza.list')
+    ->middleware('auth', 'admin-permission');
+
 /// Contacts
 
 Route::get('contacts', [ContactsController::class, 'index'])
