@@ -54,7 +54,7 @@
               </Link>
             </td>
           </tr>
-          <tr v-if="buildings.length === 0">
+          <tr v-if="organizations.length === 0">
             <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
           </tr>
         </tbody>

@@ -93,11 +93,11 @@ Route::post('users', [UsersController::class, 'store'])
 
 Route::get('users/{user}/edit', [UsersController::class, 'edit'])
     ->name('users.edit')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::put('users/{user}', [UsersController::class, 'update'])
     ->name('users.update')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::delete('users/{user}', [UsersController::class, 'destroy'])
     ->name('users.destroy')
