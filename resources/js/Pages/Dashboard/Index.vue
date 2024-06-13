@@ -3,14 +3,15 @@
     <Head title="Budowa" />
     <h1 class="mb-8 text-3xl font-bold">Aktywne Budowy KCP</h1>
     <div class="flex items-center justify-between mb-6">
-<!--      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">-->
-<!--        <label class="block text-gray-700">Wybierz:</label>-->
-<!--        <select v-model="form.trashed" class="form-select mt-1 w-full">-->
-<!--          <option :value="null" />-->
-<!--          <option value="with">Wszystkie</option>-->
-<!--          <option value="only">Usunięte</option>-->
-<!--        </select>-->
-<!--      </search-filter>-->
+      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+        <label class="block text-gray-700">Wybierz:</label>
+        <select v-model="form.trashed" class="form-select mt-1 w-full">
+          <option :value="null" />
+          <option value="my">Moje budowy</option>
+          <option value="with">Wszystkie budowy</option>
+          <option value="only">Usunięte budowy</option>
+        </select>
+      </search-filter>
 <!--      <Link class="btn-indigo" href="/budowy/create">-->
 <!--        <span>Utwórz</span>-->
 <!--        <span class="hidden md:inline">&nbsp;Budowę</span>-->
@@ -22,7 +23,8 @@
           <tr class="text-left font-bold">
             <th class="pb-4 pt-6 px-6">Nazwa</th>
             <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-            <th class="pb-4 pt-6 px-6" colspan="2">Miasto</th>
+            <th class="pb-4 pt-6 px-6">Kierownik budowy</th>
+            <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
           </tr>
         </thead>
         <tbody>
@@ -35,14 +37,20 @@
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.organization">
+                {{ item.workers_count }}
+              </Link>
+            </td>
+            <td class="border-t">
+              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                <div v-if="item.kierownik">
+                  {{ item.kierownik[0].first_name }} {{ item.kierownik[0].last_name }}
                 </div>
               </Link>
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.organization">
-                  {{ item.city}}
+                <div v-if="item.country">
+                  {{ item.country.name }}
                 </div>
               </Link>
             </td>
@@ -70,7 +78,7 @@ import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 // import Pagination from '@/Shared/Pagination'
-// import SearchFilter from '@/Shared/SearchFilter'
+import SearchFilter from '@/Shared/SearchFilter'
 
 export default {
   components: {
@@ -78,7 +86,7 @@ export default {
     Icon,
     Link,
     // Pagination,
-    // SearchFilter,
+    SearchFilter,
   },
   layout: Layout,
   props: {
@@ -98,7 +106,7 @@ export default {
     form: {
       deep: true,
       handler: throttle(function () {
-        this.$inertia.get('/budowy', pickBy(this.form), { preserveState: true })
+        this.$inertia.get('/', pickBy(this.form), { preserveState: true })
       }, 150),
     },
   },

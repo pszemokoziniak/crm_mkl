@@ -7,8 +7,8 @@
         <label class="block text-gray-700">Trashed:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
           <option :value="null" />
-          <option value="with">test1</option>
-          <option value="only">test2</option>
+          <option value="with">Wszystkie</option>
+          <option value="only">Usunięte</option>
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/budowy/create">

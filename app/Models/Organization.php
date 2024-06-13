@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Organization extends Model
 {
@@ -19,6 +20,11 @@ class Organization extends Model
     public function contacts()
     {
         return $this->hasMany(Contact::class);
+    }
+
+    public function kierownik()
+    {
+        return $this->hasMany(Contact::class, 'id', 'kierownikBud_id');
     }
 
     public function contactworkdate()
@@ -38,12 +44,17 @@ class Organization extends Model
         $query->when($filters['search'] ?? null, function ($query, $search) {
             $query->where('nazwaBud', 'like', '%'.$search.'%')
                 ->orWhere('numerBud', 'like', '%'.$search.'%')
-                ->orWhere('country', 'like', '%'.$search.'%');
+                ->orWhereHas('krajTyp', function ($query) use ($search) {
+                    $query->where('name', 'like', '%'.$search.'%');
+                });
+//                ->orWhere('country', 'like', '%'.$search.'%');
         })->when($filters['trashed'] ?? null, function ($query, $trashed) {
             if ($trashed === 'with') {
                 $query->withTrashed();
             } elseif ($trashed === 'only') {
                 $query->onlyTrashed();
+            } elseif ($trashed === 'my') {
+                $query->where('kierownikBud_id', Auth::id());
             }
         });
     }

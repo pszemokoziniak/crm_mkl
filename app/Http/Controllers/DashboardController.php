@@ -21,12 +21,44 @@ class DashboardController extends Controller
             ->where('contact_work_dates.contact_id', $contact_id)
             ->get();
 
+        $workers_count = ContactWorkDate::with('organization')
+//            ->with('contact')
+            ->where('contact_work_dates.contact_id', $contact_id)
+            ->get();
+
+//        $test = Organization::get();
+
+//        dd($test);
+//        $test = Organization::paginate(10)->getCollection()->transform(function ($organization) {
+//            return [
+//                'id' => $organization->id,
+//                'nazwaBud' => $organization->nazwaBud,
+//                'city' => $organization->city,
+//                'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->count(),
+//                'deleted_at' => $organization->deleted_at,
+//            ];
+//        });
+//        dd($test);
+
         return Inertia::render('Dashboard/Index', [
-            'filters' => Request::all('search', 'trashed'),
-            'organizations' => Organization::join('contacts', 'organizations.kierownikBud_id', '=', 'contacts.id')
-//                ->where('contacts.user_id', Auth::id())
-//                ->where('organizations.deleted_at', null)
-                ->get(['organizations.id','organizations.nazwaBud','organizations.kierownikBud_id', 'contacts.user_id']),
+            'filters' => Request::all('search', 'trashed', 'my'),
+            'organizations' => Organization::with('kierownik')
+                ->with('krajTyp')
+                ->filter(Request::only('search', 'trashed', 'my'))
+                ->paginate(10)
+                ->getCollection()
+                ->transform(function ($organization) {
+                return [
+                    'id' => $organization->id,
+                    'nazwaBud' => $organization->nazwaBud,
+                    'numerBud' => $organization->numerBud,
+                    'city' => $organization->city,
+                    'country' => $organization->krajTyp ? $organization->krajTyp : null,
+                    'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->count(),
+                    'kierownik' => $organization->kierownik ? $organization->kierownik : null,
+                    'deleted_at' => $organization->deleted_at,
+                ];
+            }),
             'buildings' => $buildings,
         ]);
     }
