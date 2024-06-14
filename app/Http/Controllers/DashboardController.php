@@ -45,7 +45,7 @@ class DashboardController extends Controller
             'organizations' => Organization::with('kierownik')
                 ->with('krajTyp')
                 ->filter(Request::only('search', 'trashed', 'my'))
-                ->paginate(10)
+                ->paginate(100)
                 ->getCollection()
                 ->transform(function ($organization) {
                 return [
