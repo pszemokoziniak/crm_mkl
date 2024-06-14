@@ -187,17 +187,6 @@ Route::get('prognoza', [PrognozaController::class, 'index'])
     ->name('prognoza')
     ->middleware('auth', 'biuro-permission');
 
-
-//Route::get('prognoza/create', [PrognozaController::class, 'create'])
-//    ->name('prognoza.create')
-//    ->middleware('auth', 'biuro-permission');
-//
-//
-//Route::post('prognoza', [PrognozaController::class, 'store'])
-//    ->name('prognoza.store')
-//    ->middleware('auth', 'biuro-permission');
-
-
 Route::get('prognoza/{prognoza}/edit', [PrognozaController::class, 'edit'])
     ->name('prognoza.edit')
     ->middleware('auth', 'biuro-permission');
@@ -207,19 +196,10 @@ Route::put('prognoza/{prognoza}', [PrognozaController::class, 'update'])
     ->name('prognoza.update')
     ->middleware('auth', 'biuro-permission');
 
-
-//Route::delete('prognoza/{prognoza}', [PrognozaController::class, 'destroy'])
-//    ->name('prognoza.destroy')
-//    ->middleware('auth', 'biuro-permission');
-//
-//
-//Route::put('prognoza/{account}/restore', [PrognozaController::class, 'restore'])
-//    ->name('prognoza.restore')
+//Route::get('prognoza/list', [PrognozaController::class, 'displayWeeksInYear'])
+//    ->name('prognoza.list')
 //    ->middleware('auth', 'biuro-permission');
 
-Route::get('prognoza/list', [PrognozaController::class, 'displayWeeksInYear'])
-    ->name('prognoza.list')
-    ->middleware('auth', 'biuro-permission');
 
 /// Contacts
 
