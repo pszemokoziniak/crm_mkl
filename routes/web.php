@@ -217,7 +217,7 @@ Route::put('prognoza/{prognoza}', [PrognozaController::class, 'update'])
 //    ->name('prognoza.restore')
 //    ->middleware('auth', 'biuro-permission');
 
-Route::get('prognoza/list', [PrognozaController::class, 'list'])
+Route::get('prognoza/list', [PrognozaController::class, 'displayWeeksInYear'])
     ->name('prognoza.list')
     ->middleware('auth', 'biuro-permission');
 
