@@ -7,7 +7,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.nameFirma }}
     </h1>
-    <trashed-message v-if="klient.deleted_at" class="mb-6" @restore="restore">Ta budowa będzie usunięta</trashed-message>
+    <trashed-message v-if="klient.deleted_at" class="mb-6" @restore="restore">Ta budowa jest usunięta</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">

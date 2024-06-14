@@ -102,6 +102,7 @@ class OrganizationsController extends Controller
                     'deleted_at' => $contact->deleted_at,
                     'funkcja' => $contact->funkcja,
                 ]),
+            'user_owner' => Auth::user()->owner,
         ]);
     }
 

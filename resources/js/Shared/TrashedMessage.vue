@@ -6,7 +6,7 @@
         <slot />
       </div>
     </div>
-    <button class="text-yellow-800 hover:underline text-sm" tabindex="-1" type="button" @click="$emit('restore')">Przywróć</button>
+    <button v-if="user_owner === 1" class="text-yellow-800 hover:underline text-sm" tabindex="-1" type="button" @click="$emit('restore')">Przywróć</button>
   </div>
 </template>
 
@@ -16,6 +16,9 @@ import Icon from '@/Shared/Icon'
 export default {
   components: {
     Icon,
+  },
+  props: {
+    user_owner: null,
   },
   emits: ['restore'],
 }

@@ -7,7 +7,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.nazwaBud }}
     </h1>
-    <trashed-message v-if="organization.deleted_at" class="mb-6" @restore="restore">Ta budowa będzie usunięta</trashed-message>
+    <trashed-message v-if="organization.deleted_at" :user_owner="user_owner" class="mb-6" @restore="restore">Ta budowa jest usunięta</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -30,70 +30,10 @@
 
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!organization.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
-          <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
+          <loading-button v-if="!organization.deleted_at" :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>
     </div>
-<!--    <h2 class="mt-12 text-2xl font-bold">Pracownik</h2>-->
-<!--    <loading-button :loading="form.processing" class="btn-indigo ml-auto" @click='toggleSeen'>{{button.text}}</loading-button>-->
-
-<!--    <div class="mt-6 bg-white rounded shadow overflow-x-auto">-->
-<!--      <div v-show="toggle" class="m-5">-->
-<!--        <tr v-if="contactsFree.length === 0">-->
-<!--          <td class="px-6 py-4 border-t" colspan="4">Brak wolnych pracowników</td>-->
-<!--        </tr>-->
-<!--        <label-->
-<!--          v-for="(item, index) in contactsFree"-->
-<!--          :key="index"-->
-<!--          class="m-3"-->
-<!--        >-->
-<!--          {{ item.first_name }} {{ item.last_name }}-->
-<!--          <input-->
-<!--            type="checkbox"-->
-<!--            :value="item.id"-->
-<!--            v-model="checkedValues"-->
-<!--          />-->
-<!--        </label>-->
-<!--        <div v-if="contactsFree.length !== 0">-->
-<!--          <loading-button :loading="form.processing" class="btn-indigo ml-auto" @click='created'>Dodaj</loading-button>-->
-<!--        </div>-->
-<!--      </div>-->
-
-<!--      <table class="w-full whitespace-nowrap">-->
-<!--        <tr class="text-left font-bold">-->
-<!--          <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>-->
-<!--          <th class="pb-4 pt-6 px-6">Pozycja</th>-->
-<!--          <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>-->
-<!--        </tr>-->
-<!--&lt;!&ndash;        {{organization.contacts}}&ndash;&gt;-->
-<!--        <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">-->
-<!--              {{ contact.first_name }} {{ contact.last_name }}-->
-<!--              <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              {{ contact.funkcja.name }}-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="border-t">-->
-<!--            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">-->
-<!--              {{ contact.phone }}-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--          <td class="w-px border-t">-->
-<!--            <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/budowa/destroy`" tabindex="-1">-->
-<!--              <icon name="destroy" class="block w-6 h-6 fill-gray-400" />-->
-<!--            </Link>-->
-<!--          </td>-->
-<!--        </tr>-->
-<!--        <tr v-if="contacts.data.length === 0">-->
-<!--          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>-->
-<!--        </tr>-->
-<!--      </table>-->
-<!--    </div>-->
   </div>
 </template>
 
@@ -123,6 +63,7 @@ export default {
     kierownikBud: Object,
     contacts: Object,
     contactsFree: Object,
+    user_owner: Number,
   },
   remember: 'form',
   data() {
