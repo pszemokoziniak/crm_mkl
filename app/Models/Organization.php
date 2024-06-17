@@ -24,7 +24,7 @@ class Organization extends Model
 
     public function kierownik()
     {
-        return $this->hasMany(Contact::class, 'id', 'kierownikBud_id');
+        return $this->hasMany(User::class, 'id', 'kierownikBud_id');
     }
 
     public function contactworkdate()
@@ -54,7 +54,7 @@ class Organization extends Model
             } elseif ($trashed === 'only') {
                 $query->onlyTrashed();
             } elseif ($trashed === 'my') {
-                $query->where('kierownikBud_id', Auth::id());
+                $query->where('kierownikBud_id', Auth::id())->withTrashed();
             }
         });
     }
