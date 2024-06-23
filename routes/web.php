@@ -187,10 +187,21 @@ Route::get('prognoza', [PrognozaController::class, 'index'])
     ->name('prognoza')
     ->middleware('auth', 'biuro-permission');
 
+Route::get('prognoza/create', [PrognozaController::class, 'create'])
+    ->name('prognoza.create')
+    ->middleware('auth', 'biuro-permission');
+
+Route::post('prognoza', [PrognozaController::class, 'store'])
+    ->name('prognoza.store')
+    ->middleware('auth', 'biuro-permission');
+
 Route::get('prognoza/{prognoza}/edit', [PrognozaController::class, 'edit'])
     ->name('prognoza.edit')
     ->middleware('auth', 'biuro-permission');
 
+Route::get('prognoza/building', [PrognozaController::class, 'building'])
+    ->name('prognoza.building')
+    ->middleware('auth', 'biuro-permission');
 
 Route::put('prognoza/{prognoza}', [PrognozaController::class, 'update'])
     ->name('prognoza.update')

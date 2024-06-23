@@ -15,11 +15,13 @@ class CreatePrognozasTable extends Migration
     {
         Schema::create('prognozas', function (Blueprint $table) {
             $table->id();
-            $table->date('start');
-            $table->date('end');
-            $table->integer('year');
+            $table->integer('organization_id')->unsigned()->index()->nullable(false);
+            $table->unsignedBigInteger('prognoza_dates_id')->index();
             $table->integer('workers_count');
             $table->timestamps();
+
+            $table->foreign('organization_id')->references('id')->on('organizations');
+            $table->foreign('prognoza_dates_id')->references('id')->on('prognoza_dates');
         });
     }
 

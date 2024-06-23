@@ -2,9 +2,18 @@
   <div>
     <Head title="Prognoza" />
     <h1 class="mb-8 text-3xl font-bold">Prognoza pracowników na budowach</h1>
-
-    <Years :data="years" />
-
+{{data.prognoza_dates}}
+    <div class="m-2">
+      <Buildings :buildings="buildings" :selectedBuild="selectedBuild" />
+      <Years :data="years" />
+      <Months :data="months" />
+    </div>
+    <div v-if="edit" class="m-5">
+      <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
+        <span>Dodaj</span>
+        <span class="hidden md:inline">&nbsp;Godziny</span>
+      </Link>
+    </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -13,17 +22,26 @@
         </tr>
         <tr v-for="item in data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
-              {{ item.start }} - {{ item.end }}
+            <Link v-if="edit" class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
+              {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
+            </Link>
+            <Link v-if="!edit" class="flex items-center px-4" href="" tabindex="-1">
+              {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
+            <Link v-if="edit" class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
+              {{ item.workers_count }}
+            </Link>
+            <Link v-if="!edit" class="flex items-center px-4" href="" tabindex="-1">
               {{ item.workers_count }}
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
+            <Link v-if="edit" class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
+              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+            </Link>
+            <Link v-if="!edit" class="flex items-center px-4" href="" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -38,9 +56,13 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import Years from '@/Pages/Prognoza/Years'
+import Buildings from '@/Pages/Prognoza/Buildings.vue'
+import Months from '@/Pages/Prognoza/Months.vue'
 
 export default {
   components: {
+    Months,
+    Buildings,
     Head,
     Years,
     Icon,
@@ -49,7 +71,26 @@ export default {
   layout: Layout,
   props: {
     years: Array,
-    data: Array,
+    months: Array,
+    data: Object,
+    buildings: Array,
+    selectedBuild: Object,
+  },
+  data() {
+    return {
+      edit: false,
+      year: null,
+      month: null,
+    }
+  },
+  mounted() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const year = urlParams.get('year');
+    const month = urlParams.get('month');
+    const building = urlParams.get('building');
+    this.edit = year && month && building ? true : false;
+    this.year = year;
+    this.month = month;
   },
 }
 </script>
