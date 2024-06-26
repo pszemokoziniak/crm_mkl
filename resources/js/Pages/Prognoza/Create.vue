@@ -49,7 +49,7 @@ export default {
     return {
       form: this.$inertia.form({
         dates: '',
-        building: this.building[0].name,
+        building: this.building[0].nazwaBud,
         workers_count: '',
         building_id: this.building[0].id,
       }),

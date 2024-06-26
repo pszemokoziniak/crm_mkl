@@ -26,7 +26,7 @@ class PrognozaController extends Controller
 
         $years = $this->getCalendarYears($currentYear);
         $months = $this->getCalendarMonths($currentYear);
-        $buildings = Organization::get()->map->only(['id', 'name']);
+        $buildings = Organization::get()->map->only(['id', 'nazwaBud']);
         $selectedBuild = isset($_GET['building']) ? $this->getUrlBuildParams($_GET['building']) : [0, 'wybierz'];
 //        $data = $this->getSelectDates($currentYear);
 
@@ -48,7 +48,7 @@ class PrognozaController extends Controller
 
     public function create()
     {
-        $building = Organization::where('id', $_GET['building'])->get()->map->only(['id', 'name']);
+        $building = Organization::where('id', $_GET['building'])->get()->map->only(['id', 'nazwaBud']);
         $currentYear = Carbon::now();
         $dates = $this->getSelectDates($currentYear);
 
@@ -113,7 +113,7 @@ class PrognozaController extends Controller
 
     function getUrlBuildParams($id)
     {
-        return Organization::where('id', $id)->get()->map->only(['id', 'name'])->first();
+        return Organization::where('id', $id)->get()->map->only(['id', 'nazwaBud'])->first();
     }
 
     function getSelectDates($currentYear)

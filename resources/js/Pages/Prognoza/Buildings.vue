@@ -2,7 +2,7 @@
   <div class="bg-white rounded-md shadow flex flex-col p-3">
     <select-input v-model="selected" class="pb-8 pr-6 w-full lg:w-1/1" label="Wybierz budowę" @change="handleSelect()">
       <option value="0" disabled>wybierz</option>
-      <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.name }}</option>
+      <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.nazwaBud }}</option>
     </select-input>
   </div>
 
