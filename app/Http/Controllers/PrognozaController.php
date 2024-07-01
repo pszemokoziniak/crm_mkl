@@ -50,7 +50,7 @@ class PrognozaController extends Controller
     {
         $building = Organization::where('id', $_GET['building'])->get()->map->only(['id', 'nazwaBud']);
         $currentYear = Carbon::now();
-        $dates = $this->getSelectDates($currentYear);
+        $dates = $this->getSelectDates($currentYear, $_GET['building']);
 
         return Inertia('Prognoza/Create', compact('dates', 'building'));
     }
@@ -63,6 +63,7 @@ class PrognozaController extends Controller
             'workers_count' => $request->workers_count,
         ]);
 
+        return Redirect::route('prognoza', ['building'=>$request->building_id, 'year'=>$request->year_id, 'month'=>$request->month_id])->with('success', 'Godziny dodane.');
     }
 
     public function edit(Prognoza $prognoza)
@@ -71,62 +72,80 @@ class PrognozaController extends Controller
             'prognoza' => [
                 'id' => $prognoza->id,
                 'workers_count' => $prognoza->workers_count,
+                'prognoza_dates_id' => PrognozaDates::where('id', $prognoza->prognoza_dates_id)->get()->map->only(['id', 'start', 'end']),
             ],
         ]);
     }
 
     public function update(Prognoza $prognoza)
     {
-        $year = $prognoza->year;
+        $date = PrognozaDates::where('id', $prognoza->prognoza_dates_id)->get()->map->only(['start']);
+        $startDate = $date->first()['start'];
+        $carbonDate = Carbon::parse($startDate);
+        $year = $carbonDate->year;
+        $month = $carbonDate->month;
+
         $prognoza->update(
             \Illuminate\Support\Facades\Request::validate([
                 'workers_count' => ['required', 'numeric', 'max:500'],
             ])
         );
-        return Redirect::route('prognoza', ['year' => $year])->with('success', 'Poprawiono.');
+        return Redirect::route('prognoza', ['year' => $year, 'month' => $month, 'building' => $prognoza->organization_id])->with('success', 'Poprawiono.');
     }
 
-    function displayWeeksInYear() {
-        $years = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
-
-        foreach ($years as $year) {
-            $startOfYear = Carbon::createFromDate($year, 1, 1)->startOfWeek(Carbon::MONDAY);
-            $endOfYear = Carbon::createFromDate($year, 12, 31)->endOfWeek(Carbon::SUNDAY);
-
-            $period = CarbonPeriod::create($startOfYear, '1 week', $endOfYear);
-
-            foreach ($period as $date) {
-                $monday = $date->copy()->startOfWeek(Carbon::MONDAY);
-                $sunday = $date->copy()->endOfWeek(Carbon::SUNDAY);
-                $currentYear = $monday->year;
-
-                if ($monday->year == $year) {
-                    PrognozaDates::create([
-                        'start' => $monday,
-                        'end' => $sunday,
-                        'year' => $currentYear,
-                    ]);
-                }
-            }
-        }
-    }
+//    function displayWeeksInYear() {
+//        $years = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
+//
+//        foreach ($years as $year) {
+//            $startOfYear = Carbon::createFromDate($year, 1, 1)->startOfWeek(Carbon::MONDAY);
+//            $endOfYear = Carbon::createFromDate($year, 12, 31)->endOfWeek(Carbon::SUNDAY);
+//
+//            $period = CarbonPeriod::create($startOfYear, '1 week', $endOfYear);
+//
+//            foreach ($period as $date) {
+//                $monday = $date->copy()->startOfWeek(Carbon::MONDAY);
+//                $sunday = $date->copy()->endOfWeek(Carbon::SUNDAY);
+//                $currentYear = $monday->year;
+//
+//                if ($monday->year == $year) {
+//                    PrognozaDates::create([
+//                        'start' => $monday,
+//                        'end' => $sunday,
+//                        'year' => $currentYear,
+//                    ]);
+//                }
+//            }
+//        }
+//    }
 
     function getUrlBuildParams($id)
     {
         return Organization::where('id', $id)->get()->map->only(['id', 'nazwaBud'])->first();
     }
 
-    function getSelectDates($currentYear)
+    function getSelectDates($currentYear, $buildingId)
     {
-        (!isset($_GET['year'])) ? $year = $currentYear->year : $year = $_GET['year'];
-        (!isset($_GET['month'])) ? $month = $currentYear->month : $month = $_GET['month'];
+        !isset($_GET['year']) ? $year = $currentYear->year : $year = $_GET['year'];
+        !isset($_GET['month']) ? $month = $currentYear->month : $month = $_GET['month'];
 
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
 
-        return PrognozaDates::where('year', $year)
+        $prognozaDates = PrognozaDates::where('year', $year)
             ->whereBetween('start', [$startDate, $endDate])
             ->get();
+        $arrayPrognozaDates = $prognozaDates->map(function ($prognozaDate) {
+            return $prognozaDate->id;
+        })->toArray();
+
+        $prognozas = Prognoza::where('organization_id', $buildingId)->get();
+        $arrayPrognoza = $prognozas->map(function ($prognoza) {
+            return $prognoza->prognoza_dates_id;
+        })->toArray();
+
+        $freeDates = array_diff($arrayPrognozaDates, $arrayPrognoza);
+        return PrognozaDates::whereIn('id', $freeDates)->get();
+
     }
 
     function getCalendarYears($currentYear)

@@ -2,8 +2,6 @@
   <div>
     <Head title="Prognoza" />
     <h1 class="mb-8 text-3xl font-bold">Prognoza pracowników na budowach</h1>
-{{data.prognoza_dates}}
-    {{buildings}}
     <div class="m-2">
       <Buildings :buildings="buildings" :selectedBuild="selectedBuild" />
       <Years :data="years" />

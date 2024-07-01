@@ -2,14 +2,16 @@
   <div>
     <Head title="Prognoza" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/prognoza">Dodaj liczbę pracowników</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" :href="`/prognoza?building=${buildingId}&month=${monthId}&year=${yearId}`">Prognoza</Link>
       <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.building" :error="form.errors.building" :value="building[0].id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa budowa" disabled/>
-          <text-input v-show="false" v-model="form.building_id" :error="form.errors.building_id" class="pb-8 pr-6 w-full lg:w-3/4" hidden/>
+          <text-input v-show="false" v-model="form.building_id" :error="form.errors.building_id"/>
+          <text-input v-show="false" v-model="form.month_id" :error="form.errors.building_id"/>
+          <text-input v-show="false" v-model="form.year_id" :error="form.errors.building_id"/>
           <select-input v-model="form.dates" :error="form.errors.dates" class="pb-8 pr-6 w-full lg:w-3/4" label="Wybierz daty">
             <option value="0" disabled>wybierz</option>
             <option v-for="item in dates" :key="item.id" :value="item.id">{{ item.start }} - {{ item.end }}</option>
@@ -47,13 +49,27 @@ export default {
   remember: 'form',
   data() {
     return {
+      buildingId: null,
+      monthId: null,
+      yearId: null,
       form: this.$inertia.form({
         dates: '',
-        building: this.building[0].nazwaBud,
+        building: this.building[0]?.nazwaBud || '',
         workers_count: '',
-        building_id: this.building[0].id,
+        building_id: this.building[0]?.id || '',
+        month_id: null,
+        year_id: null,
       }),
     }
+  },
+  mounted() {
+    const urlParams = new URLSearchParams(window.location.search)
+    this.buildingId = urlParams.get('building')
+    this.monthId = urlParams.get('month')
+    this.yearId = urlParams.get('year')
+    this.form.month_id = this.monthId
+    this.form.year_id = this.yearId
+    this.form.building_id = this.buildingId
   },
   methods: {
     store() {

@@ -4,11 +4,12 @@
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/prognoza">Prognoza</Link>
       <span class="text-indigo-400 font-medium">/</span>
-      Dodaj pracowników
+      Popraw godziny
     </h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
+          <p class="py-2 font-bold">{{ prognoza.prognoza_dates_id[0].start }} - {{ prognoza.prognoza_dates_id[0].end }}</p>
           <text-input v-model="form.workers_count" :error="form.errors.workers_count" class="pb-8 pr-6 w-full lg:w-1/1" label="Ilość pracowników" />
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
