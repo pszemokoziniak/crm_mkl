@@ -24,11 +24,11 @@
               Termin Uprawnień
             </div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/time-sheet/month-report`">
-            <div :class="isUrl('buildsReport') ? 'text-indigo-800' : 'text-indigo-300 group-hover:text-gray-900'">Raport
-              miesięczny
-            </div>
-          </Link>
+<!--          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/time-sheet/month-report`">-->
+<!--            <div :class="isUrl('buildsReport') ? 'text-indigo-800' : 'text-indigo-300 group-hover:text-gray-900'">Raport-->
+<!--              miesięczny-->
+<!--            </div>-->
+<!--          </Link>-->
         </div>
       </div>
     </nav>

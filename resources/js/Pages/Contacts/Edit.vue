@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head :title="`${form.first_name} ${form.last_name}`" />
-{{flag}}
+
     <div class="grid grid-cols-3 bg-white rounded-md shadow overflow-hidden">
       <div class="grid col-span-1">
         <img v-if="contact.photo_path" class="" :src="contact.photo_path"/>
