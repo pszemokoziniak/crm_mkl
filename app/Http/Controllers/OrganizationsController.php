@@ -45,6 +45,7 @@ class OrganizationsController extends Controller
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
+//            'inzynierBud' => Contact::where('funkcja_id', '=', 6)->get(),
         ]);
     }
 
@@ -68,7 +69,10 @@ class OrganizationsController extends Controller
 
     public function edit(Organization $organization)
     {
-
+        $flag = false;
+        if (Auth::user()->owner === 3) {
+            $flag = true;
+        }
         return Inertia::render('Organizations/Edit', [
             'organization' => [
                 'id' => $organization->id,
@@ -103,6 +107,7 @@ class OrganizationsController extends Controller
                     'funkcja' => $contact->funkcja,
                 ]),
             'user_owner' => Auth::user()->owner,
+            'flag' => $flag,
         ]);
     }
 

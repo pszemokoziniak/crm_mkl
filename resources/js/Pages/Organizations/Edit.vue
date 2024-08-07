@@ -11,21 +11,25 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.nazwaBud" :error="form.errors.nazwaBud" class="pb-8 pr-6 w-full lg:w-1/1" label="Pełna Nazwa Budowy" />
-          <text-input v-model="form.numerBud" :error="form.errors.numerBud" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Budowy" />
-          <text-input v-model="form.city" :error="form.errors.city" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
-          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa Klienta" />
+          <text-input v-model="form.nazwaBud" :error="form.errors.nazwaBud" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/1" label="Pełna Nazwa Budowy" />
+          <text-input v-model="form.numerBud" :error="form.errors.numerBud" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Budowy" />
+          <text-input v-model="form.city" :error="form.errors.city" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
+          <text-input v-model="form.name" :error="form.errors.name" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa Klienta" />
 
-          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
+          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
             <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
           </select-input>
 
-          <text-input v-model="form.zaklad" :error="form.errors.zaklad" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
-          <select-input v-model="form.country_id" :error="form.errors.country_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
+<!--          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Inżynier Budowy">-->
+<!--            <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>-->
+<!--          </select-input>-->
+
+          <text-input v-model="form.zaklad" :error="form.errors.zaklad" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
+          <select-input v-model="form.country_id" :error="form.errors.country_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
-          <text-input v-model="form.addressBud" :error="form.errors.addressBud" class="pb-8 pr-6 w-full lg:w-1/1" label="Adres Budowy" />
-          <text-input v-model="form.addressKwat" :error="form.errors.addressKwat" class="pb-8 pr-6 w-full lg:w-1/1" label="Adres Kwatery" />
+          <text-input v-model="form.addressBud" :error="form.errors.addressBud" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/1" label="Adres Budowy" />
+          <text-input v-model="form.addressKwat" :error="form.errors.addressKwat" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/1" label="Adres Kwatery" />
         </div>
 
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
@@ -64,6 +68,7 @@ export default {
     contacts: Object,
     contactsFree: Object,
     user_owner: Number,
+    flag: Boolean,
   },
   remember: 'form',
   data() {
@@ -106,7 +111,6 @@ export default {
       this.button.text = this.toggle ? 'Zamknij' : 'Dodaj pracownika';
     },
     created() {
-      console.log(this.checkedValues)
       this.$inertia.post(`/contacts/${this.organization.id}/addPracownik`, this.checkedValues)
     },
   },

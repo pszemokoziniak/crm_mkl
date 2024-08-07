@@ -39,6 +39,7 @@ class BadaniaController extends Controller
             'filters' => Request::all('search', 'trashed'),
             'contact' => $contact,
             'bads' => $bads,
+            'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '1')
