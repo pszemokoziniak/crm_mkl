@@ -23,7 +23,7 @@
             <option value="2">Biuro</option>
             <option value="3">Kierownik budowy</option>
           </select-input>
-          <select-input v-if="userLoged === 1" v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
+          <select-input v-if="userLoged === 1" v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Połącz User z Pracownikiem">
             <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.first_name}} {{item.last_name}}</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />

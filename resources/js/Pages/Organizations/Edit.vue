@@ -19,11 +19,9 @@
           <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
             <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
           </select-input>
-
-<!--          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Inżynier Budowy">-->
-<!--            <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>-->
-<!--          </select-input>-->
-
+          <select-input v-model="form.inzynier_id" :error="form.errors.inzynier_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Inżynier Budowy">
+            <option v-for="item in inzyniers" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
+          </select-input>
           <text-input v-model="form.zaklad" :error="form.errors.zaklad" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
           <select-input v-model="form.country_id" :error="form.errors.country_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
@@ -69,6 +67,7 @@ export default {
     contactsFree: Object,
     user_owner: Number,
     flag: Boolean,
+    inzyniers: Object,
   },
   remember: 'form',
   data() {
@@ -89,6 +88,7 @@ export default {
         country_id: this.organization.country_id,
         addressBud: this.organization.addressBud,
         addressKwat: this.organization.addressKwat,
+        inzynier_id: this.organization.inzynier_id,
       }),
     }
   },

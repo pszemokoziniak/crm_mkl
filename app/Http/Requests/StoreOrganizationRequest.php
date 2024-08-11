@@ -29,6 +29,7 @@ class StoreOrganizationRequest extends FormRequest
             'numerBud' => 'nullable |  max:500',
             'city' => 'nullable | max:2000',
             'kierownikBud_id' => 'nullable | max:50',
+            'inzynier_id' => 'nullable | max:50',
             'zaklad' => 'nullable | max:500',
             'country_id' => 'required',
             'addressBud' => 'nullable | max:2500',

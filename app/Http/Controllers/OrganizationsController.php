@@ -20,10 +20,10 @@ class OrganizationsController extends Controller
 {
     public function index()
     {
-
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Organization::with('krajTyp')
+                ->with('inzynier')
                 ->orderBy('name')
                 ->filter(Request::only('search', 'trashed'))
                 ->paginate(100)
@@ -34,6 +34,7 @@ class OrganizationsController extends Controller
                     'numerBud' => $organization->numerBud,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
                     'kierownikBud_id' => $organization->contactTypName ? $organization->contactTypName : null,
+                    'inzynier' => $organization->inzynier ? $organization->inzynier : null,
                     'deleted_at' => $organization->deleted_at,
                 ]),
         ]);
@@ -45,7 +46,7 @@ class OrganizationsController extends Controller
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
             'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
-//            'inzynierBud' => Contact::where('funkcja_id', '=', 6)->get(),
+            'inzyniers' => Contact::where('funkcja_id', '=', 6)->get(),
         ]);
     }
 
@@ -62,6 +63,7 @@ class OrganizationsController extends Controller
         $data->country_id=$req->country_id;
         $data->addressBud=$req->addressBud;
         $data->addressKwat=$req->addressKwat;
+        $data->inzynier_id=$req->inzynier_id;
         $data->save();
 
         return Redirect::route('organizations')->with('success', 'Budowa stworzona.');
@@ -81,6 +83,7 @@ class OrganizationsController extends Controller
                 'numerBud' => $organization->numerBud,
                 'city' => $organization->city,
                 'kierownikBud_id' => $organization->kierownikBud_id,
+                'inzynier_id' => $organization->inzynier_id,
                 'zaklad' => $organization->zaklad,
                 'country_id' => $organization->country_id,
                 'addressBud' => $organization->addressBud,
@@ -89,8 +92,14 @@ class OrganizationsController extends Controller
 //                'contacts' => $organization->contacts()->funkcja()->orderByName()->get()->map->only('id', 'last_name', 'position', 'phone', 'name'),
             ],
             'krajTyps' => KrajTyp::all(),
-            'kierownikBud' => User::where('owner', 3)->get(),
-//            'contacts' => Contact::where('organization_id', $organization->id)->get(),
+            'kierownikBud' => Contact::with('user')
+                ->with('funkcja')
+                ->where('funkcja_id', 1)
+                ->get(),
+            'inzyniers' => Contact::with('user')
+                ->with('funkcja')
+                ->where('funkcja_id', 6)
+                ->get(),
             'contactsFree' => Contact::where('organization_id', null)->where('funkcja_id', '!=', 1)->get()->map->only('id','first_name','last_name'),
             'contacts' => Contact::with('funkcja')
                 ->where('organization_id', $organization->id)
@@ -120,6 +129,7 @@ class OrganizationsController extends Controller
                 'numerBud' => ['nullable', 'max:550'],
                 'city' => ['nullable', 'max:150'],
                 'kierownikBud_id' => ['nullable', 'max:25'],
+                'inzynier_id' => ['nullable', 'max:25'],
                 'zaklad' => ['nullable', 'max:2000'],
                 'country_id' => ['nullable', 'max:25'],
                 'addressBud' => ['nullable', 'max:2000'],
