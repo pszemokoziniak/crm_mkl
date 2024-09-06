@@ -41,7 +41,7 @@ class DashboardController extends Controller
                     'deleted_at' => $organization->deleted_at,
                 ];
             }),
-            'user_owner' => [Auth::id(), Auth::user()->owner],
+            'user_owner' => [Auth::id(), Auth::user()->owner, Contact::where('user_id', Auth::id())->pluck('id')->first()],
 
 //            'buildings' => $buildings,
         ]);
