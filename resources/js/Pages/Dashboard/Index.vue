@@ -27,6 +27,7 @@
             <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
           </tr>
         </thead>
+        {{organizations}}
         <tbody>
           <tr v-for="item in organizations" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <td class="border-t">
