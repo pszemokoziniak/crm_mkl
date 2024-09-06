@@ -61,6 +61,24 @@ class DashboardController extends Controller
                         'deleted_at' => $organization->deleted_at,
                     ];
                 }),
+            'organizations_biuro' => Organization::with('kierownik')
+                ->with('krajTyp')
+                ->filter(Request::only('search', 'trashed', 'my'))
+                ->paginate(100)
+                ->getCollection()
+                ->transform(function ($organization) {
+                    return [
+                        'id' => $organization->id,
+                        'nazwaBud' => $organization->nazwaBud,
+                        'numerBud' => $organization->numerBud,
+                        'kierownikBud_id' => $organization->kierownikBud_id,
+                        'city' => $organization->city,
+                        'country' => $organization->krajTyp ? $organization->krajTyp : null,
+                        'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->count(),
+                        'kierownik' => $organization->kierownik ? $organization->kierownik : null,
+                        'deleted_at' => $organization->deleted_at,
+                    ];
+                }),
             'user_owner' => [Auth::id(), Auth::user()->owner, Contact::where('user_id', Auth::id())->pluck('id')->first()],
 
 //            'buildings' => $buildings,
