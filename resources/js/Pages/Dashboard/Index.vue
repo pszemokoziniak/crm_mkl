@@ -17,7 +17,6 @@
 <!--        <span class="hidden md:inline">&nbsp;Budowę</span>-->
 <!--      </Link>-->
     </div>
-    {{organizations_user}}
     <div class="my-3 font-bold mb-3">Twoje budowy</div>
     <div class="bg-white rounded-md shadow overflow-x-auto my-3">
       <table class="w-full whitespace-nowrap">
