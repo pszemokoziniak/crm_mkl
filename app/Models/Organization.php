@@ -24,7 +24,7 @@ class Organization extends Model
 
     public function kierownik()
     {
-        return $this->hasMany(User::class, 'id', 'kierownikBud_id');
+        return $this->hasMany(Contact::class, 'id', 'kierownikBud_id');
     }
 
     public function contactworkdate()

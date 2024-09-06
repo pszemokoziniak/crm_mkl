@@ -17,7 +17,8 @@
 <!--        <span class="hidden md:inline">&nbsp;Budowę</span>-->
 <!--      </Link>-->
     </div>
-    <div class="my-3 font-bold">Twoje budowy</div>
+    {{organizations_user}}
+    <div class="my-3 font-bold mb-3">Twoje budowy</div>
     <div class="bg-white rounded-md shadow overflow-x-auto my-3">
       <table class="w-full whitespace-nowrap">
         <thead>
