@@ -17,8 +17,8 @@
 <!--        <span class="hidden md:inline">&nbsp;Budowę</span>-->
 <!--      </Link>-->
     </div>
-    <div class="my-3 font-bold mb-3">Twoje budowy</div>
-    <div class="bg-white rounded-md shadow overflow-x-auto my-3">
+    <div v-if="user_owner[1]===3" class="my-3 font-bold mb-3">Twoje budowy</div>
+    <div v-if="user_owner[1]===3" class="bg-white rounded-md shadow overflow-x-auto my-3">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="text-left font-bold">
@@ -68,8 +68,8 @@
       </table>
     </div>
 
-    <div class="py-3 font-bold">Inne budowy</div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div v-if="user_owner[1]===3" class="py-3 font-bold">Inne budowy</div>
+    <div v-if="user_owner[1]===3" class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
         <tr class="text-left font-bold">
@@ -118,7 +118,7 @@
         </tbody>
       </table>
     </div>
-    <div v-if="user_owner[1]===1 || user_owner[1]===2" class="py-3 font-bold">Inne budowy</div>
+    <div v-if="user_owner[1]===1 || user_owner[1]===2" class="py-3 font-bold">Wszystkie budowy</div>
     <div v-if="user_owner[1]===1 || user_owner[1]===2" class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
