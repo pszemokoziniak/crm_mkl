@@ -30,6 +30,36 @@ class PrognozaController extends Controller
         $selectedBuild = isset($_GET['building']) ? $this->getUrlBuildParams($_GET['building']) : [0, 'wybierz'];
 //        $data = $this->getSelectDates($currentYear);
 
+        $chartLabels = Prognoza::with('prognozadates')->get()->map(function ($prognoza) {
+            $prognozadate = $prognoza->prognozadates;
+            return [
+                'id' => $prognoza->id,
+                'start' => Carbon::parse($prognozadate->start)->format('Y-m-d'),
+                'end' => Carbon::parse($prognozadate->end)->format('Y-m-d'),
+                'workers_count' => $prognoza->workers_count,
+            ];
+
+        });
+        $labels = $chartLabels->map(function ($label) {
+            return $label['start'] . ' ' . $label['end'];
+        })->toArray();
+
+        $dataChart = $chartLabels->map(function ($label) {
+            return $label['workers_count'];
+        })->toArray();
+
+        $chartData = [
+
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Liczba pracowników',
+                    'backgroundColor' => '#42A5F5',
+                    'data' => $dataChart,
+                ]
+            ]
+        ];
+
         $data = Prognoza::with(['organization', 'prognozadates'])
             ->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('start', [$startDate, $endDate]);
@@ -43,7 +73,7 @@ class PrognozaController extends Controller
             ];
         });
 
-        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'buildings', 'selectedBuild'));
+        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'buildings', 'selectedBuild', 'chartData'));
     }
 
     public function create()
@@ -76,7 +106,6 @@ class PrognozaController extends Controller
             ],
         ]);
     }
-
     public function update(Prognoza $prognoza)
     {
         $date = PrognozaDates::where('id', $prognoza->prognoza_dates_id)->get()->map->only(['start']);
@@ -179,4 +208,20 @@ class PrognozaController extends Controller
 //            'buildings' => $buildings,
 //        ]);
 //    }
+
+    function getBuildings(): array
+    {
+        return Organization::get()->map->only(['id', 'nazwaBud']);
+    }
+
+    function prepareTable()
+    {
+        $years = $this->getCalendarYears(Carbon::now()->startOfYear());
+        $buildings = $this->getBuildings();
+
+
+
+
+
+    }
 }

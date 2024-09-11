@@ -48,6 +48,10 @@
       </table>
     </div>
   </div>
+  <div class="my-6 font-bold text-2xl">
+    <h1>Zestwienie liczby pracowników</h1>
+    <ChartComponent :chartData="chartData" />
+  </div>
 </template>
 
 <script>
@@ -57,9 +61,11 @@ import Layout from '@/Shared/Layout'
 import Years from '@/Pages/Prognoza/Years'
 import Buildings from '@/Pages/Prognoza/Buildings.vue'
 import Months from '@/Pages/Prognoza/Months.vue'
+import ChartComponent from '@/Pages/Prognoza/ChartComponent.vue'
 
 export default {
   components: {
+    ChartComponent,
     Months,
     Buildings,
     Head,
@@ -74,6 +80,7 @@ export default {
     data: Object,
     buildings: Array,
     selectedBuild: Object,
+    chartData: Object,
   },
   data() {
     return {
