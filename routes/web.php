@@ -297,7 +297,7 @@ Route::get('narzedzia/{narzedzia}/file/{name}', [NarzedziaController::class, 'do
 
 Route::get('contacts/{contact}/holiday', [HolidayController::class, 'index'])
     ->name('holiday.index')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth');
 
 
 Route::get('contacts/{contact}/holiday/create', [HolidayController::class, 'create'])
