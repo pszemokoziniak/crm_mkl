@@ -1,6 +1,7 @@
 <template>
   <div>
     <Head title="Prognoza" />
+    <h1 class="mb-8 text-4xl font-bold text-red">Prace techniczne, strona nie działa poprawnie</h1>
     <h1 class="mb-8 text-3xl font-bold">Prognoza pracowników na budowach</h1>
     <div class="m-2">
       <Buildings :buildings="buildings" :selectedBuild="selectedBuild" />
