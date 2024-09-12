@@ -9,6 +9,7 @@ use App\Models\CtnDocument;
 use App\Models\DokumentyTyp;
 use App\Services\DocumentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
@@ -24,6 +25,7 @@ class CtnDocumentsController extends Controller
         return Inertia::render('CtnDocuments/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contactId' => (int) Request::route('contact_id'),
+            'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', Request::route('contact_id'))
                 ->paginate(10)

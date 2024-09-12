@@ -6,6 +6,7 @@ use App\Http\Requests\StoreHolidayRequest;
 use App\Models\Contact;
 use App\Models\Holiday;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -16,6 +17,7 @@ class HolidayController extends Controller
 
         return Inertia::render('Holiday/Index', [
             'holiday' => Holiday::where('contact_id', $contact->id)->get(),
+            'userOwner' => Auth::user()->owner,
             'contact' => $contact,
         ]);
     }

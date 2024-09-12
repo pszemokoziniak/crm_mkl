@@ -41,7 +41,7 @@ export default {
 
       this.$inertia.visit(`${window.location.pathname}?${params.toString()}`, {
         method: 'get',
-        preserveState: true,
+        preserveState: false,
         replace: true,
       })
     },

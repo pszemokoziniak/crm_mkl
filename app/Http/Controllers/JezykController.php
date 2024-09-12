@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\Jezyk;
 use App\Models\JezykTyp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -28,6 +29,7 @@ class JezykController extends Controller
         return Inertia::render('Jezyk/Index', [
 //            'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
+            'userOwner' => Auth::user()->owner,
             'jezyks' => $jezyks
         ]);
     }

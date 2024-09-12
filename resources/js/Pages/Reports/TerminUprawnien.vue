@@ -5,7 +5,7 @@
     <h1 class="mb-8 text-3xl font-bold">Termin uprawnień</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset"></search-filter-no-filtr>
-      <Link class="btn-indigo" href="/contacts/create">
+      <Link v-if="userOwner !== 3" class="btn-indigo" href="/contacts/create">
         <span>Dodaj</span>
         <span class="hidden md:inline">&nbsp;Pracownika</span>
       </Link>
@@ -80,6 +80,7 @@ export default {
     bhps: Object,
     data: Object,
     filters: Object,
+    userOwner: Number,
   },
   data() {
     return {

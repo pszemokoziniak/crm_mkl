@@ -28,18 +28,47 @@ class PrognozaController extends Controller
         $months = $this->getCalendarMonths($currentYear);
         $buildings = Organization::get()->map->only(['id', 'nazwaBud']);
         $selectedBuild = isset($_GET['building']) ? $this->getUrlBuildParams($_GET['building']) : [0, 'wybierz'];
+
 //        $data = $this->getSelectDates($currentYear);
 
-        $chartLabels = Prognoza::with('prognozadates')->get()->map(function ($prognoza) {
+        $building = request()->query('building');
+        $year = request()->query('year');
+        $chartLabels = Prognoza::with('prognozadates')
+            ->when(isset($building), function ($query) use ($building) {
+                $query->where('organization_id', $building);
+            })
+            ->when($year, function ($query, $year) {
+                $query->whereHas('prognozadates', function ($query) use ($year) {
+                    $query->where('year', $year);
+                });
+            })
+//            ->when($month, function ($query, $startDate, $endDate) {
+//                $query->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
+//                    $query->whereBetween('start', [$startDate, $endDate]);
+//                });
+//            })
+            ->when(isset($month), function ($query) use ($startDate, $endDate) {
+                $query->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('start', [$startDate, $endDate]);
+                });
+            })
+//            ->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
+//                $query->whereBetween('start', [$startDate, $endDate]);
+//            })
+            ->get()->map(function ($prognoza) {
             $prognozadate = $prognoza->prognozadates;
             return [
                 'id' => $prognoza->id,
+                'organization_id' => $prognoza->organization_id,
                 'start' => Carbon::parse($prognozadate->start)->format('Y-m-d'),
                 'end' => Carbon::parse($prognozadate->end)->format('Y-m-d'),
                 'workers_count' => $prognoza->workers_count,
             ];
 
         });
+
+
+
         $labels = $chartLabels->map(function ($label) {
             return $label['start'] . ' ' . $label['end'];
         })->toArray();
@@ -73,7 +102,7 @@ class PrognozaController extends Controller
             ];
         });
 
-        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'buildings', 'selectedBuild', 'chartData'));
+        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'buildings', 'selectedBuild', 'chartData', 'startDate', 'endDate'));
     }
 
     public function create()

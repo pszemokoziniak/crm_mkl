@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\CtnDocument;
 use App\Models\Pbioz;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -29,6 +30,7 @@ class PbiozController extends Controller
             'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
             'pbioz' => $pbioz,
+            'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '5')

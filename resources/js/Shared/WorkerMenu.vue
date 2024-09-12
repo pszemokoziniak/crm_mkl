@@ -27,7 +27,7 @@
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/uprawnienia`">
             <div :class="isUrl('uprawnienia') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Uprawnienia</div>
           </Link>
-          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/documents`">
+          <Link v-if="userOwner !== 3" class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/documents`">
             <div :class="isUrl('documents') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Dokumenty</div>
           </Link>
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/jezyk`">
@@ -39,7 +39,7 @@
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/holiday`">
             <div :class="isUrl('holiday') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Urlopy</div>
           </Link>
-          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/time-sheet/month-report`">
+          <Link v-if="userOwner !== 3" class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/time-sheet/month-report`">
             <div :class="isUrl('buildsReport') ? 'text-indigo-800' : 'text-indigo-300 group-hover:text-gray-900'">Raport
               miesięczny
             </div>
@@ -60,6 +60,8 @@ export default {
   },
   props: {
     contactId:Number,
+    uprawnienia: Object,
+    userOwner:Number,
   },
   methods: {
     isUrl(...urls) {

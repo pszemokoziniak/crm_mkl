@@ -2,7 +2,7 @@
   <div>
     <Head title="Contacts" />
     <div>
-      <WorkerMenu :contactId="contactId" />
+      <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
     </div>
     <h1 class="mb-8 text-3xl font-bold">Dokumenty</h1>
     <div class="flex items-center justify-between mb-6">
@@ -14,7 +14,7 @@
 <!--          <option value="only">Only Trashed</option>-->
 <!--        </select>-->
 <!--      </search-filter>-->
-      <Link class="btn-indigo" :href="`/contacts/${contactId}/documents/create`">
+      <Link v-if="userOwner !== 3" class="btn-indigo" :href="`/contacts/${contactId}/documents/create`">
         <span>Dodaj</span>
         <span class="hidden md:inline">&nbsp;dokument</span>
       </Link>
@@ -87,6 +87,7 @@ export default {
     filters: Object,
     contact: Object,
     documents: Object,
+    userOwner: Number,
   },
   data() {
     return {

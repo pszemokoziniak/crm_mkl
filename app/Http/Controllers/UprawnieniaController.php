@@ -12,6 +12,7 @@ use App\Models\CtnDocument;
 use App\Models\Uprawnienia;
 use App\Models\UprawnieniaTyp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -35,6 +36,7 @@ class UprawnieniaController extends Controller
 //            'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
             'uprawnienias' => $uprawnienias,
+            'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '3')

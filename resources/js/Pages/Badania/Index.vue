@@ -2,7 +2,7 @@
   <div>
     <Head title="Badania" />
     <div>
-      <WorkerMenu :contactId="contactId" />
+      <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
     </div>
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>

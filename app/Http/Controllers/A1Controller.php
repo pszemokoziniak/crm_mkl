@@ -7,6 +7,7 @@ use App\Models\A1;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -18,6 +19,7 @@ class A1Controller extends Controller
         return Inertia::render('A1/Index', [
             'a1s' => A1::where('contact_id', $contact->id)->get(),
             'contact' => $contact,
+            'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '4')

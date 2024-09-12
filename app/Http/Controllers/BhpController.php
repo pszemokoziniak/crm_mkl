@@ -9,6 +9,7 @@ use App\Models\BhpTyp;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -32,6 +33,7 @@ class BhpController extends Controller
             'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
             'bhps' => $bhps,
+            'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '2')
