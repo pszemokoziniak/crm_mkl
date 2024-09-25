@@ -117,7 +117,7 @@ foreach ($workersMonthTimeShifts as $workerId => $workerShifts) {
     $activeWorksheet->setCellValue('C'. $rowNumber, 'czas pracy od/do');
 
     $activeWorksheet->setCellValue('C'. $workingHoursRow, 'czas pracy');
-    $activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
+//    $activeWorksheet->setCellValue('C'. $paidFor, 'płacone za');
 
 
 

@@ -11,7 +11,7 @@
     </h1>
     <h1 class="mb-8 text-2xl font-bold">Urlopy</h1>
     <div class="flex items-center justify-between mb-6">
-      <Link v-if="userOwner !== 3" class="btn-indigo" :href="`/contacts/${contact.id}/holiday/create`">
+      <Link class="btn-indigo" :href="`/contacts/${contact.id}/holiday/create`">
         <span>Dodaj</span>
       </Link>
     </div>

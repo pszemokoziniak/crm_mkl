@@ -149,37 +149,37 @@ Route::put('budowy/{organization}/restore', [OrganizationsController::class, 're
 
 Route::get('budowy/{organization}/klient', [KlientController::class, 'index'])
     ->name('klient.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('budowy/{organization}/klient/create', [KlientController::class, 'create'])
     ->name('klient.create')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('klient/', [KlientController::class, 'store'])
     ->name('klient.store')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('budowy/{organization}/klient/{klient}/edit', [KlientController::class, 'edit'])
     ->name('klient.edit')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('klient/{klient}', [KlientController::class, 'update'])
     ->name('klient.update')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('klient/{klient}/delete', [KlientController::class, 'destroy'])
     ->name('klient.destroy')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('budowy/{klient}/restore', [KlientController::class, 'restore'])
     ->name('klient.restore')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 //Prognoza pracowników na budowach
 
@@ -292,83 +292,83 @@ Route::delete('narzedzia/{narzedzia}/file', [NarzedziaController::class, 'delete
 
 Route::get('narzedzia/{narzedzia}/file/{name}', [NarzedziaController::class, 'download'])
     ->name('narzedzia.download.file')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 // Holidays
 
 Route::get('contacts/{contact}/holiday', [HolidayController::class, 'index'])
     ->name('holiday.index')
-    ->middleware('auth');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/holiday/create', [HolidayController::class, 'create'])
     ->name('holiday.create')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('holiday/{contact_id}', [HolidayController::class, 'store'])
     ->name('holiday.store')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/holiday/{holiday}/edit', [HolidayController::class, 'edit'])
     ->name('holiday.edit')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('contacts/{contact}/holiday/{holiday}', [HolidayController::class, 'update'])
     ->name('holiday.update')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('holiday/{holiday}', [HolidayController::class, 'destroy'])
     ->name('holiday.destroy')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('holiday/{holiday}/restore', [HolidayController::class, 'restore'])
     ->name('holiday.restore')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 //  Budowa Narzedzia
 
 Route::get('budowy/{organization}/narzedzia', [ToolWorkDatesController::class, 'index'])
     ->name('budowy.narzedzia')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('budowy/{organization}/narzedzia/create', [ToolWorkDatesController::class, 'create'])
     ->name('budowy.narzedzia.create')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('budowy/{organization}/narzedzia/create', [ToolWorkDatesController::class, 'find'])
     ->name('budowy.narzedzia.post')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('budowy/{organization}/narzedzia', [ToolWorkDatesController::class, 'store'])
     ->name('budowy.narzedzia.store')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('budowy/{organization}/narzedzia/{narzedzia}/edit', [ToolWorkDatesController::class, 'edit'])
     ->name('budowy.narzedzia.edit')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('budowy/{organization}/narzedzia/{narzedzia}', [ToolWorkDatesController::class, 'update'])
     ->name('budowy.narzedzia.update')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('budowy/{organization}/narzedzia/{toolWorkDate}/destroy', [ToolWorkDatesController::class, 'destroy'])
     ->name('budowy.narzedzia.destroy')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('budowy/{organization}/narzedzia/{narzedzia}/restore', [ToolWorkDatesController::class, 'restore'])
     ->name('budowy.narzedzia.restore')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Dokumenty Typ
@@ -497,7 +497,7 @@ Route::put('badania/{badania}/restore', [BadaniaController::class, 'restore'])
 
 Route::get('contacts/{contact}/bhp', [BhpController::class, 'index'])
     ->name('bhp.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/bhp/create', [BhpController::class, 'create'])
@@ -1062,7 +1062,7 @@ Route::get('reports/koniecUprawinien', [ReportsController::class, 'koniecUprawin
 
 Route::get('tools', [ToolsController::class, 'index'])
     ->name('tools')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Images

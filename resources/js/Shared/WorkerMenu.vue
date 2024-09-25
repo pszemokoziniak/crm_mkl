@@ -39,11 +39,6 @@
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/holiday`">
             <div :class="isUrl('holiday') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Urlopy</div>
           </Link>
-          <Link v-if="userOwner !== 3" class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/time-sheet/month-report`">
-            <div :class="isUrl('buildsReport') ? 'text-indigo-800' : 'text-indigo-300 group-hover:text-gray-900'">Raport
-              miesięczny
-            </div>
-          </Link>
         </div>
       </div>
     </nav>

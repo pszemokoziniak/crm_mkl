@@ -81,7 +81,7 @@
                   <span>Pobierz</span>
                 </a>
               </div>
-              <div class="text-center px-4 py-2 m-2">
+              <div v-if="userOwner !== 3" class="text-center px-4 py-2 m-2">
                 <a class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center cursor-pointer" target="_blank" @click="removeDocument(document.id)" >
                   <TrashIcon class="h-5 w-5 text-blue-500" />
                   <span>Usuń</span>

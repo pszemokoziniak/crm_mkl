@@ -9,10 +9,6 @@ class ContactWorkDate extends Model
 {
     use HasFactory;
 
-    public function scopeOrderByName($query)
-    {
-        $query->orderBy('start');
-    }
     public function organization()
     {
         return $this->belongsTo(Organization::class);
@@ -23,6 +19,10 @@ class ContactWorkDate extends Model
         return $this->belongsTo(Contact::class);
     }
 
+    public function scopeOrderByName($query)
+    {
+        $query->orderBy('last_name')->orderBy('first_name');
+    }
 
     public function scopeFilter($query, array $filters)
     {

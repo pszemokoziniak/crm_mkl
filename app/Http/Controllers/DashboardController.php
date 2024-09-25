@@ -38,7 +38,7 @@ class DashboardController extends Controller
                     'kierownikBud_id' => $organization->kierownikBud_id,
                     'city' => $organization->city,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
-                    'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->count(),
+                    'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->whereRaw('CURDATE() BETWEEN start AND end')->count(),
                     'kierownik' => $organization->kierownik ? $organization->kierownik : null,
                     'deleted_at' => $organization->deleted_at,
                 ];
@@ -58,7 +58,7 @@ class DashboardController extends Controller
                         'kierownikBud_id' => $organization->kierownikBud_id,
                         'city' => $organization->city,
                         'country' => $organization->krajTyp ? $organization->krajTyp : null,
-                        'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->count(),
+                        'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->whereRaw('CURDATE() BETWEEN start AND end')->count(),
                         'kierownik' => $organization->kierownik ? $organization->kierownik : null,
                         'deleted_at' => $organization->deleted_at,
                     ];
@@ -76,7 +76,7 @@ class DashboardController extends Controller
                         'kierownikBud_id' => $organization->kierownikBud_id,
                         'city' => $organization->city,
                         'country' => $organization->krajTyp ? $organization->krajTyp : null,
-                        'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->count(),
+                        'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->whereRaw('CURDATE() BETWEEN start AND end')->count(),
                         'kierownik' => $organization->kierownik ? $organization->kierownik : null,
                         'deleted_at' => $organization->deleted_at,
                     ];

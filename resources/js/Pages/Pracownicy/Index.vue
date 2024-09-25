@@ -49,7 +49,7 @@
 <!--              <icon name="destroy" class="block w-6 h-6 fill-gray-400" />-->
                 Popraw daty
             </Link>
-            <Link class="flex items-center px-4 underline text-indigo-600" tabindex="-1" @click="destroy(item.id)">
+            <Link v-if="user_owner !== 3" class="flex items-center px-4 underline text-indigo-600" tabindex="-1" @click="destroy(item.id)">
 <!--              <icon name="destroy" class="block w-6 h-6 fill-gray-400" />-->
                 Usuń
             </Link>
@@ -90,6 +90,7 @@ export default {
     contactworkdates: Object,
     organization_id: Number,
     filters: Object,
+    user_owner: Number,
     // contact_work_dates: Object,
   },
   data() {

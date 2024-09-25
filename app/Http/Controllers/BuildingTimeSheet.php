@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,8 @@ class BuildingTimeSheet extends Controller
                 'timeSheets' => $timeShifts,
                 'build' => $build,
                 'shiftStatuses' => $this->getShiftStatuses()->all(),
+                'user_owner' => Auth::user()->owner,
+                'diffDays' => (int) Carbon::today()->diffInDays($date)
             ]
         );
     }
@@ -131,7 +134,7 @@ class BuildingTimeSheet extends Controller
 
     private function getShiftStatuses(): Collection
     {
-        return DB::table('shift_status', 's')->get();
+        return DB::table('shift_status', 's')->where('deleted_at', null)->get();
     }
 
     private function getBuildHeaders(int $buildId): mixed

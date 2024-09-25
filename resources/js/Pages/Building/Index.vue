@@ -121,7 +121,7 @@
                   </div>
                 </div>
               </div>
-              <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div v-if="calculateDiffDays() < 3 && user_owner === 3 || user_owner !== 3" class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
                 <button ref="cancelButtonRef" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
                 <button class="text-red-600 hover:underline mr-auto" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -173,6 +173,8 @@ export default {
     date: Date,
     month: String,
     shiftStatuses: Array,
+    diffDays: Number,
+    user_owner: Number,
   },
   data() {
     return {
@@ -210,6 +212,13 @@ export default {
       newWin.document.write(divToPrint.outerHTML)
       newWin.print()
       newWin.close()
+    },
+    calculateDiffDays() {
+      const today = new Date()
+      const day = new Date(this.form.day) // Convert this.form.day to a Date object
+      const diffTime = Math.abs(today.getTime() - day.getTime())
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) // Use Math.floor instead of Math.ceil
+      return diffDays
     },
     dayOfWeek(date) {
       return new Intl.DateTimeFormat('pl-PL', { weekday: 'long' }).format(date).slice(0, 3)

@@ -43,7 +43,10 @@ class BudowaPracownicyController extends Controller
             'contactworkdates' => ContactWorkDate::with('organization')
                 ->with('contact')
                 ->with('contact.funkcja')
-                ->where('organization_id', $organization->id)
+                ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
+                ->where('contact_work_dates.organization_id', $organization->id)
+                ->orderBy('contacts.last_name')
+                ->select('contact_work_dates.*') // Select only columns from contact_work_dates table
                 ->filter(Request::only('search', 'trashed'))
                 ->paginate(100)
                 ->withQueryString()
@@ -54,6 +57,7 @@ class BudowaPracownicyController extends Controller
                     'start' => $contactworkdate->start,
                     'end' => $contactworkdate->end,
                 ]),
+            'user_owner' => Auth::user()->owner,
         ]);
     }
     public function create(Organization $organization) {
