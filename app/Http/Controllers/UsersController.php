@@ -86,29 +86,30 @@ class UsersController extends Controller
     {
 
         return Inertia::render('Users/Edit', [
-            'userLoged' => Auth::user()->owner,
+            'user_owner' => Auth::user()->owner,
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
                 'owner' => $user->owner,
-                'contact_id' => $user->contact_id,
+                'contact_id' => Contact::where('user_id', $user->id)->value('id') ?? null,
                 'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
                 'deleted_at' => $user->deleted_at,
                 'active' => $user->active,
             ],
             'contacts' => Contact::query()
-                ->where('funkcja_id', 1)
+                ->whereIn('funkcja_id', [1,6])
                 ->where('user_id', null)
                 ->get()->map->only('id', 'first_name', 'last_name', 'user_id'),
-            'contact' => Contact::where('user_id', $user->id)->get()->map->only('id', 'first_name', 'last_name'),
+            'contact' => Contact::where('user_id', $user->id)->get()->map->only('id', 'first_name', 'last_name') ?? null,
 
         ]);
     }
 
     public function update(User $user, Request $request)
     {
+//        dd($user);
         if (App::environment('demo') && $user->isDemoUser()) {
             return Redirect::back()->with('error', 'Updating the Super Admin user is not allowed.');
         }
@@ -123,7 +124,7 @@ class UsersController extends Controller
                 'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
             ],
 //            'owner' => ['nullable'],
-//            'user_id' => 'nullable | unique:contacts',
+            'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
         ],
         [
@@ -145,16 +146,13 @@ class UsersController extends Controller
             $user->update(['password' => Request::get('password')]);
         }
 
-        if (Request::get('user_id')) {
-
-            $data = Contact::where('user_id', $user->id)->first();
-            if ($data !== null) {
-                $data->update(['user_id' => null]);
-            }
-            $data = Contact::find(Request::get('user_id'));
-            $data->user_id = $user->id;
-            $data->save();
+        $data = Contact::where('user_id', $user->id)->first();
+        if ($data !== null) {
+            $data->update(['user_id' => null]);
         }
+        $data = Contact::where('id', Request::get('contact_id'))->first();
+        $data->user_id = $user->id;
+        $data->save();
 
         return Redirect::back()->with('success', 'Użytkownik poprawiony.');
     }

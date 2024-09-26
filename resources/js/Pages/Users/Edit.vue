@@ -6,7 +6,7 @@
         <Link class="text-indigo-400 hover:text-indigo-600" href="/users">Użytkownicy</Link>
         <span class="text-indigo-400 font-medium">/</span>
         {{ form.first_name }} {{ form.last_name }}
-        <p v-if="contact.length>0"> Połączono {{contact[0].first_name}} {{contact[0].last_name}}</p>
+        <p v-if="contact"> Połączono {{contact[0].first_name}} {{contact[0].last_name}}</p>
       </h1>
       <img v-if="user.photo" class="block ml-4 w-8 h-8 rounded-full" :src="user.photo" />
     </div>
@@ -18,22 +18,22 @@
           <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
           <text-input v-model="form.password" :error="form.errors.password" class="pb-8 pr-6 w-full lg:w-1/2" type="password" autocomplete="new-password" label="Hasło" />
-          <select-input v-show="userLoged === 1" v-model="form.owner" :error="form.errors.owner" class="pb-8 pr-6 w-full lg:w-1/2" label="Uprawnienia">
+          <select-input v-show="user_owner === 1" v-model="form.owner" :error="form.errors.owner" class="pb-8 pr-6 w-full lg:w-1/2" label="Uprawnienia">
             <option value="1">Administrator</option>
             <option value="2">Biuro</option>
             <option value="3">Kierownik budowy</option>
           </select-input>
-          <select-input v-if="userLoged === 1" v-model="form.user_id" :error="form.errors.user_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Połącz User z Pracownikiem">
+          <select-input v-if="user_owner === 1" v-model="form.contact_id" :error="form.errors.contact_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Połącz User z Pracownikiem">
             <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.first_name}} {{item.last_name}}</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
         </div>
-        <div v-if="userLoged === 1" class="px-8 py-4 bg-gray-50 border-t border-gray-100">
+        <div v-if="user_owner === 1" class="px-8 py-4 bg-gray-50 border-t border-gray-100">
           <icon name="zablokuj" class="mr-2 w-4 h-4 inline"/>
           <button v-if="user.active===1" class="text-indigo-600 hover:underline ml-auto" tabindex="-1" type="button" @click="blockActive">Zablokuj konto </button>
           <button v-if="user.active===0" class="text-indigo-600 hover:underline ml-auto" tabindex="-1" type="button" @click="unblockActive">Odblokuj konto</button>
         </div>
-        <div v-if="userLoged === 1" class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
+        <div v-if="user_owner === 1" class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!user.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zapisz</loading-button>
         </div>
@@ -68,13 +68,11 @@ export default {
     user: Object,
     contacts: Array,
     contact: Array,
-    userLoged: Number,
+    user_owner: Number,
   },
   remember: 'form',
   data() {
     return {
-      // user_id: this.user_id,
-
       form: this.$inertia.form({
         _method: 'put',
         first_name: this.user.first_name,
@@ -83,9 +81,7 @@ export default {
         password: '',
         owner: this.user.owner,
         photo: null,
-        user_id: this.user.user_id,
-
-        // contact_id: this.user.contact_id,
+        contact_id: this.user.contact_id,
       }),
     }
   },
