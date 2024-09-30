@@ -115,6 +115,10 @@ Route::post('users/{user}/unblock', [UsersController::class, 'unblock'])
     ->name('users.unblock')
     ->middleware('auth', 'biuro-permission');
 
+Route::post('users/{user}/disconnect', [UsersController::class, 'disconnect'])
+    ->name('users.disconnect')
+    ->middleware('auth', 'biuro-permission');
+
 // Organizations
 
 Route::get('budowy', [OrganizationsController::class, 'index'])

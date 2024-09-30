@@ -84,7 +84,6 @@ class UsersController extends Controller
 
     public function edit(User $user)
     {
-
         return Inertia::render('Users/Edit', [
             'user_owner' => Auth::user()->owner,
             'user' => [
@@ -102,8 +101,8 @@ class UsersController extends Controller
                 ->whereIn('funkcja_id', [1,6])
                 ->where('user_id', null)
                 ->get()->map->only('id', 'first_name', 'last_name', 'user_id'),
-            'contact' => Contact::where('user_id', $user->id)->get()->map->only('id', 'first_name', 'last_name') ?? null,
 
+            'contact' => Contact::where('user_id', $user->id)->get()->map->only('id', 'first_name', 'last_name', 'user_id')->first(),
         ]);
     }
 
@@ -187,6 +186,13 @@ class UsersController extends Controller
         $user->active = 1;
         $user->save();
         return Redirect::back()->with('success', 'Użytkownik odblokowany.');
+    }
+
+    public function disconnect(User $user)
+    {
+        Contact::where('user_id', $user->id)->update(['user_id' => null]);
+
+        return Redirect::back()->with('success', 'Użytkownik odłączony.');
     }
 
 }

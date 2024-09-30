@@ -1,15 +1,28 @@
 <template>
   <div>
     <Head :title="`${form.first_name} ${form.last_name}`" />
-    <div class="flex justify-start mb-8 max-w-3xl">
-      <h1 class="text-3xl font-bold">
+
+    <div class="flex justify-start p-2 max-w-3xl">
+      <h1 class="text-3xl font-bold w-full">
         <Link class="text-indigo-400 hover:text-indigo-600" href="/users">Użytkownicy</Link>
         <span class="text-indigo-400 font-medium">/</span>
         {{ form.first_name }} {{ form.last_name }}
-        <p v-if="contact"> Połączono {{contact[0].first_name}} {{contact[0].last_name}}</p>
       </h1>
-      <img v-if="user.photo" class="block ml-4 w-8 h-8 rounded-full" :src="user.photo" />
     </div>
+    <div v-if="contact" class="flex justify-start max-w-3x fill-indigo-600-600 p-2">
+      <p> Połączono {{contact.first_name}} {{contact.last_name}}</p>
+    </div>
+    <div v-if="contact" class="flex justify-start max-w-3xl p-2">
+      <div v-if="user_owner === 1" class="px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center">
+        <icon name="zablokuj" class="mr-2 w-4 h-4 inline" />
+        <button v-if="user" class="text-indigo-600 hover:underline ml-auto" tabindex="-1" type="button" @click="disconnect">
+          Rozłącz
+        </button>
+      </div>
+    </div>
+
+    <img v-if="user.photo" class="block ml-4 w-8 h-8 rounded-full" :src="user.photo" />
+
     <trashed-message v-if="user.deleted_at" class="mb-6" @restore="restore"> Usunięte. </trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
@@ -106,6 +119,9 @@ export default {
     },
     unblockActive() {
       this.$inertia.post(`/users/${this.user.id}/unblock`)
+    },
+    disconnect() {
+      this.$inertia.post(`/users/${this.user.id}/disconnect`)
     },
   },
 }
