@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $login_time = User::where('email', $request->email)->first();
-        $login_time->login_time = now();
+        $login_time->login_time = Carbon::now('Europe/Warsaw');
         $login_time->save();
 
         return redirect()->intended(RouteServiceProvider::HOME);
