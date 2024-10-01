@@ -24,8 +24,8 @@ class StoreHolidayRequest extends FormRequest
     public function rules()
     {
         return [
-            'start' => 'required | date | before:end',
-            'end' => 'required | date | after:start',
+            'start' => 'required | date | before_or_equal:end',
+            'end' => 'required | date | after_or_equal:start',
         ];
     }
 

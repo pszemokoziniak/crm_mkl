@@ -50,9 +50,9 @@
           </Link>
         </td>
         <td class="w-px border-t">
-          <Link class="flex items-center px-4" tabindex="-1" @click="destroy(contact.id)">
-            <icon name="destroy" class="block w-6 h-6 fill-gray-400" />
-          </Link>
+<!--          <Link class="flex items-center px-4" tabindex="-1" @click="destroy(contact.id)">-->
+<!--            <icon name="destroy" class="block w-6 h-6 fill-gray-400" />-->
+<!--          </Link>-->
 <!--          <Link class="flex items-center px-4" :href="`/pracownicy/${organization.id}/edit/${contact.id}`" tabindex="-1">-->
 <!--            <icon name="destroy" class="block w-6 h-6 fill-gray-400" />-->
 <!--          </Link>-->
