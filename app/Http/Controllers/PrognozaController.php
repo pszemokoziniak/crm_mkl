@@ -5,24 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\Prognoza;
 use App\Models\PrognozaDates;
+use App\Services\PrognozaService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
-
+use App\Http\Resources\PrognozaResource;
 class PrognozaController extends Controller
 {
+    public function __construct()
+    {
+    }
+
     public function index()
     {
         $currentYear = Carbon::now();
 
-        (!isset($_GET['year'])) ? $year = $currentYear->year : $year = $_GET['year'];
-        (!isset($_GET['month'])) ? $month = $currentYear->month : $month = $_GET['month'];
+        $year = $_GET['year'] ?? $currentYear->year;
+        $month = $_GET['month'] ?? $currentYear->month;
+
 
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
-        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->addYears(6)->endOfMonth();
+//        $endDate = Carbon::createFromDate($year, $month, 1)->endOfYear()->addYears(6)->endOfMonth()->format('d-m-Y');
 
         $years = $this->getCalendarYears($currentYear);
         $months = $this->getCalendarMonths($currentYear);
@@ -33,48 +40,20 @@ class PrognozaController extends Controller
 
         $building = request()->query('building');
         $year = request()->query('year');
-        $chartLabels = Prognoza::with('prognozadates')
-            ->when(isset($building), function ($query) use ($building) {
-                $query->where('organization_id', $building);
-            })
-            ->when($year, function ($query, $year) {
-                $query->whereHas('prognozadates', function ($query) use ($year) {
-                    $query->where('year', $year);
-                });
-            })
-//            ->when($month, function ($query, $startDate, $endDate) {
-//                $query->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
-//                    $query->whereBetween('start', [$startDate, $endDate]);
-//                });
-//            })
-            ->when(isset($month), function ($query) use ($startDate, $endDate) {
-                $query->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('start', [$startDate, $endDate]);
-                });
-            })
-//            ->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
-//                $query->whereBetween('start', [$startDate, $endDate]);
-//            })
-            ->get()->map(function ($prognoza) {
-            $prognozadate = $prognoza->prognozadates;
-            return [
-                'id' => $prognoza->id,
-                'organization_id' => $prognoza->organization_id,
-                'start' => Carbon::parse($prognozadate->start)->format('Y-m-d'),
-                'end' => Carbon::parse($prognozadate->end)->format('Y-m-d'),
-                'workers_count' => $prognoza->workers_count,
-            ];
 
-        });
+        $chartLabels = $this->getChartLabels($building, $year, $month, $startDate, $endDate);
 
-
-
-        $labels = $chartLabels->map(function ($label) {
-            return $label['start'] . ' ' . $label['end'];
+        $labels = $chartLabels->flatMap(function ($group) {
+            return $group->map(function ($item) {
+//                return $item['start'] . ' - ' . $item['end'];
+                return $item['prognozadates']['start'] . ' - ' . $item['prognozadates']['end'];
+            });
         })->toArray();
 
-        $dataChart = $chartLabels->map(function ($label) {
-            return $label['workers_count'];
+        $dataChart = $chartLabels->flatMap(function ($group) {
+            return $group->map(function ($item) {
+                return $item['workers_count'];
+            });
         })->toArray();
 
         $chartData = [
@@ -151,31 +130,6 @@ class PrognozaController extends Controller
         return Redirect::route('prognoza', ['year' => $year, 'month' => $month, 'building' => $prognoza->organization_id])->with('success', 'Poprawiono.');
     }
 
-//    function displayWeeksInYear() {
-//        $years = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
-//
-//        foreach ($years as $year) {
-//            $startOfYear = Carbon::createFromDate($year, 1, 1)->startOfWeek(Carbon::MONDAY);
-//            $endOfYear = Carbon::createFromDate($year, 12, 31)->endOfWeek(Carbon::SUNDAY);
-//
-//            $period = CarbonPeriod::create($startOfYear, '1 week', $endOfYear);
-//
-//            foreach ($period as $date) {
-//                $monday = $date->copy()->startOfWeek(Carbon::MONDAY);
-//                $sunday = $date->copy()->endOfWeek(Carbon::SUNDAY);
-//                $currentYear = $monday->year;
-//
-//                if ($monday->year == $year) {
-//                    PrognozaDates::create([
-//                        'start' => $monday,
-//                        'end' => $sunday,
-//                        'year' => $currentYear,
-//                    ]);
-//                }
-//            }
-//        }
-//    }
-
     function getUrlBuildParams($id)
     {
         return Organization::where('id', $id)->get()->map->only(['id', 'nazwaBud'])->first();
@@ -183,8 +137,8 @@ class PrognozaController extends Controller
 
     function getSelectDates($currentYear, $buildingId)
     {
-        !isset($_GET['year']) ? $year = $currentYear->year : $year = $_GET['year'];
-        !isset($_GET['month']) ? $month = $currentYear->month : $month = $_GET['month'];
+        $year = $_GET['year'] ?? $currentYear->year;
+        $month = $_GET['month'] ?? $currentYear->month;
 
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
@@ -227,16 +181,6 @@ class PrognozaController extends Controller
         return $months;
     }
 
-//    function building(Request $request)
-//    {
-////        dd($request);
-//        $buildings = Organization::get()->map->only(['id', 'name']);
-//        $selected = $request->query('selected', 3); // Default value
-//        return Inertia::render('Prognoza/Index', [
-//            'initialSelected' => $selected,
-//            'buildings' => $buildings,
-//        ]);
-//    }
 
     function getBuildings(): array
     {
@@ -248,9 +192,15 @@ class PrognozaController extends Controller
         $years = $this->getCalendarYears(Carbon::now()->startOfYear());
         $buildings = $this->getBuildings();
 
+    }
 
-
-
-
+    private function getChartLabels($building = null, $year = null, $month = null, $startDate = null, $endDate = null)
+    {
+        $prognozas = app(PrognozaService::class)->getPrognozas($building, $year, $startDate, $endDate);
+        $groupedPrognozas = $prognozas->groupBy('prognoza_dates_id')
+            ->map(function ($group) {
+                return PrognozaResource::collection($group);
+            });
+        return $groupedPrognozas;
     }
 }
