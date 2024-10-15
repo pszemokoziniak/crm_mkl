@@ -27,14 +27,29 @@ class PrognozaController extends Controller
         $month = $_GET['month'] ?? $currentYear->month;
 
 
-        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
-        $endDate = Carbon::createFromDate($year, $month, 1)->addYears(6)->endOfMonth();
-//        $endDate = Carbon::createFromDate($year, $month, 1)->endOfYear()->addYears(6)->endOfMonth()->format('d-m-Y');
+        if (isset($_GET['month']) && isset($_GET['year'])) {
+            $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+            $endDate= Carbon::createFromDate($year, $month, 1)->endOfMonth();
+        }
+
+        if (!isset($_GET['month']) && isset($_GET['year']))  {
+            $startDate = Carbon::createFromDate($year, $month, 1)->startOfYear();
+            $endDate = Carbon::createFromDate($year, $month, 1)->endOfYear();
+        }
+
+        if (!isset($_GET['month']) && !isset($_GET['year']))  {
+            $startDate = Carbon::createFromDate($year, $month, 1)->startOfYear();
+            $endDate = Carbon::createFromDate($year, $month, 1)->addYears(6)->endOfMonth();
+        }
+
+        $startDateFormat = $startDate->format('Y-m-d');
+        $endDateFormat = $endDate->format('Y-m-d');
 
         $years = $this->getCalendarYears($currentYear);
         $months = $this->getCalendarMonths($currentYear);
+
         $buildings = Organization::get()->map->only(['id', 'nazwaBud']);
-        $selectedBuild = isset($_GET['building']) ? $this->getUrlBuildParams($_GET['building']) : [0, 'wybierz'];
+        $selectedBuild = isset($_GET['building']) ? $this->getUrlBuildParams($_GET['building']) : 'all';
 
 //        $data = $this->getSelectDates($currentYear);
 
@@ -81,7 +96,7 @@ class PrognozaController extends Controller
             ];
         });
 
-        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'buildings', 'selectedBuild', 'chartData', 'startDate', 'endDate'));
+        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'buildings', 'selectedBuild', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
     }
 
     public function create()
@@ -196,7 +211,7 @@ class PrognozaController extends Controller
 
     private function getChartLabels($building = null, $year = null, $month = null, $startDate = null, $endDate = null)
     {
-        $prognozas = app(PrognozaService::class)->getPrognozas($building, $year, $startDate, $endDate);
+        $prognozas = app(PrognozaService::class)->getPrognozas($building, $year, $month, $startDate, $endDate);
         $groupedPrognozas = $prognozas->groupBy('prognoza_dates_id')
             ->map(function ($group) {
                 return PrognozaResource::collection($group);

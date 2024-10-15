@@ -6,7 +6,7 @@ use App\Models\Prognoza;
 
 class PrognozaService
 {
-    public function getPrognozas($building, $year, $startDate, $endDate)
+    public function getPrognozas($building, $year, $month, $startDate, $endDate)
     {
         return Prognoza::with('prognozadates')
             ->when($building, function ($query) use ($building) {

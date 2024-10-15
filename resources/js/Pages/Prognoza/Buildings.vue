@@ -1,12 +1,10 @@
 <template>
   <div class="bg-white rounded-md shadow flex flex-col p-3">
     <select-input v-model="selected" class="pb-8 pr-6 w-full lg:w-1/1" label="Wybierz budowę" @change="handleSelect()">
-      <option value="0" disabled>wybierz</option>
+      <option value="all">Wszystkie</option>
       <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.nazwaBud }}</option>
     </select-input>
   </div>
-
-
 </template>
 
 <script>
@@ -23,7 +21,7 @@ export default {
   },
   data() {
     return {
-      selected: this.selectedBuild.id ?? 0,
+      selected: this.selectedBuild.id ?? 'all',
     }
   },
   watch: {
@@ -37,7 +35,16 @@ export default {
     },
     updateUrl(selectedValue) {
       const params = new URLSearchParams(window.location.search)
-      params.set('building', selectedValue)
+      for (const key of params.keys()) {
+        if (key === 'month') {
+          params.delete(key)
+        }
+        if (params.get(key) === 'all') {
+          params.delete('building')
+        } else {
+          params.set('building', selectedValue)
+        }
+      }
 
       this.$inertia.visit(`${window.location.pathname}?${params.toString()}`, {
         method: 'get',

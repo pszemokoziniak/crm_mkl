@@ -50,7 +50,7 @@
     </div>
   </div>
   <div class="my-6 font-bold text-2xl">
-    <h1>Zestwienie liczby pracowników od {{ startDate }} do {{ endDate }} <span v-if="selectedBuild[0] !== 0">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
+    <h1>Zestwienie liczby pracowników od {{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild !== 'all'">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
     <ChartComponent :chartData="chartData" />
   </div>
 </template>
@@ -84,6 +84,8 @@ export default {
     chartData: Object,
     startDate: Date,
     endDate: Date,
+    startDateFormat: Date,
+    endDateFormat: Date,
   },
   data() {
     return {

@@ -28,6 +28,7 @@ export default {
     buildHref(year) {
       const url = new URL(window.location.href)
       url.searchParams.set('year', year)
+      url.searchParams.delete('month')
       return url.pathname + url.search
     },
   },
