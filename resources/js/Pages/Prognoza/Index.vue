@@ -2,14 +2,16 @@
   <div>
     <Head title="Prognoza" />
     <h1 class="mb-8 text-4xl font-bold text-red">Prace techniczne, strona nie działa poprawnie</h1>
-    <h1 class="mb-8 text-3xl font-bold">Prognoza pracowników na budowach</h1>
-    <ChartComponent :chartData="chartData" />
+    <div class="my-6 font-bold text-2xl">
+      <h1>Zestwienie liczby pracowników od {{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
+      <ChartComponent :chartData="chartData" />
+    </div>
     <div class="m-2">
       <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
       <Years :data="years" />
       <Months :data="months" />
     </div>
-    <div v-if="edit" class="m-5">
+    <div v-if="edit" class="m-10">
       <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
         <span>Dodaj</span>
         <span class="hidden md:inline">&nbsp;Godziny</span>
@@ -19,39 +21,33 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Data</th>
+          <th class="pb-4 pt-6 px-6">Nazwa budowy</th>
           <th class="pb-4 pt-6 px-6 col-2">Ilość pracowników</th>
         </tr>
         <tr v-for="item in data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link v-if="edit" class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
-              {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
-            </Link>
-            <Link v-if="!edit" class="flex items-center px-4" href="" tabindex="-1">
+            <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
             </Link>
           </td>
           <td class="border-t">
-            <Link v-if="edit" class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
-              {{ item.workers_count }}
+            <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
+              {{ item.organization.name }}
             </Link>
-            <Link v-if="!edit" class="flex items-center px-4" href="" tabindex="-1">
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               {{ item.workers_count }}
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link v-if="edit" class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-            <Link v-if="!edit" class="flex items-center px-4" href="" tabindex="-1">
+            <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
         </tr>
       </table>
     </div>
-  </div>
-  <div class="my-6 font-bold text-2xl">
-    <h1>Zestwienie liczby pracowników od {{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
   </div>
 </template>
 
@@ -96,12 +92,12 @@ export default {
   },
   mounted() {
     const urlParams = new URLSearchParams(window.location.search);
-    const year = urlParams.get('year');
-    const month = urlParams.get('month');
-    const building = urlParams.get('building');
-    this.edit = year && month && building ? true : false;
-    this.year = year;
-    this.month = month;
+    const year = urlParams.get('year')
+    const month = urlParams.get('month')
+    const building = urlParams.get('building')
+    this.edit = year && month && building !== 'all' ? true : false;
+    this.year = year
+    this.month = month
   },
 }
 </script>

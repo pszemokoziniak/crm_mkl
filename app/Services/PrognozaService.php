@@ -9,9 +9,6 @@ class PrognozaService
     public function getPrognozas($building, $year, $month, $startDate, $endDate)
     {
         return Prognoza::with('prognozadates')
-//            ->when($building && $building != 'all', function ($query) use ($building) {
-//                $query->where('organization_id', $building);
-//            })
             ->when($building !== 'all', function ($query) use ($building) {
                 $query->where('organization_id', $building);
             })
