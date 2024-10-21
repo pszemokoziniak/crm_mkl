@@ -3,8 +3,9 @@
     <Head title="Prognoza" />
     <h1 class="mb-8 text-4xl font-bold text-red">Prace techniczne, strona nie działa poprawnie</h1>
     <h1 class="mb-8 text-3xl font-bold">Prognoza pracowników na budowach</h1>
+    <ChartComponent :chartData="chartData" />
     <div class="m-2">
-      <Buildings :buildings="buildings" :selectedBuild="selectedBuild" />
+      <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
       <Years :data="years" />
       <Months :data="months" />
     </div>
@@ -50,8 +51,7 @@
     </div>
   </div>
   <div class="my-6 font-bold text-2xl">
-    <h1>Zestwienie liczby pracowników od {{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild !== 'all'">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
-    <ChartComponent :chartData="chartData" />
+    <h1>Zestwienie liczby pracowników od {{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
   </div>
 </template>
 
@@ -82,10 +82,10 @@ export default {
     buildings: Array,
     selectedBuild: Object,
     chartData: Object,
-    startDate: Date,
-    endDate: Date,
-    startDateFormat: Date,
-    endDateFormat: Date,
+    startDate: String,
+    endDate: String,
+    startDateFormat: String,
+    endDateFormat: String,
   },
   data() {
     return {

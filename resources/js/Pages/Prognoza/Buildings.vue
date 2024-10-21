@@ -21,7 +21,7 @@ export default {
   },
   data() {
     return {
-      selected: this.selectedBuild.id ?? 'all',
+      selected: this.selectedBuild.id,
     }
   },
   watch: {
@@ -39,12 +39,14 @@ export default {
         if (key === 'month') {
           params.delete(key)
         }
-        if (params.get(key) === 'all') {
-          params.delete('building')
-        } else {
-          params.set('building', selectedValue)
-        }
+
+        // if (selectedValue === 'all') {
+        //   params.delete('building')
+        // } else {
+        //   params.set('building', selectedValue)
+        // }
       }
+      params.set('building', selectedValue)
 
       this.$inertia.visit(`${window.location.pathname}?${params.toString()}`, {
         method: 'get',

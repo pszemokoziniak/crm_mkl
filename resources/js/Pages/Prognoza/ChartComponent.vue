@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas id="myChart"></canvas>
+    <canvas id="myChart" width="400" height="50" aria-label="Zestwienie praconików" role="img"></canvas>
   </div>
 </template>
 

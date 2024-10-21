@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Http\Resources\PrognozaResource;
+use stdClass;
+
 class PrognozaController extends Controller
 {
     public function __construct()
@@ -49,11 +51,17 @@ class PrognozaController extends Controller
         $months = $this->getCalendarMonths($currentYear);
 
         $buildings = Organization::get()->map->only(['id', 'nazwaBud']);
-        $selectedBuild = isset($_GET['building']) ? $this->getUrlBuildParams($_GET['building']) : 'all';
 
-//        $data = $this->getSelectDates($currentYear);
+        isset($_GET['building']) ? $building = $_GET['building'] : $building = 'all';
+        $selectedBuildParams = $this->getUrlBuildParams($building);
 
-        $building = request()->query('building');
+        if (count($selectedBuildParams) > 1) {
+            $selectedBuild = new stdClass();
+            $selectedBuild->id = 'all';
+        } else {
+            $selectedBuild = (object) $selectedBuildParams[0] ?? null;
+        }
+        $building = request()->query('building') ?? 'all';
         $year = request()->query('year');
 
         $chartLabels = $this->getChartLabels($building, $year, $month, $startDate, $endDate);
@@ -96,7 +104,7 @@ class PrognozaController extends Controller
             ];
         });
 
-        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'buildings', 'selectedBuild', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
+        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'selectedBuild', 'buildings', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
     }
 
     public function create()
@@ -147,7 +155,9 @@ class PrognozaController extends Controller
 
     function getUrlBuildParams($id)
     {
-        return Organization::where('id', $id)->get()->map->only(['id', 'nazwaBud'])->first();
+        return Organization::when($id !== 'all', function ($query) use ($id) {
+            $query->where('id', $id);
+        })->get()->map->only(['id', 'nazwaBud'])->all();
     }
 
     function getSelectDates($currentYear, $buildingId)
