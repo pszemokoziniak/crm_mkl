@@ -9,7 +9,7 @@
     <div class="m-2">
       <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
       <Years :data="years" />
-      <Months :data="months" />
+      <Months v-if="year" :data="months" />
     </div>
     <div v-if="edit" class="m-10">
       <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
@@ -32,7 +32,7 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
-              {{ item.organization.name }}
+              {{ item.organization.nazwaBud }}
             </Link>
           </td>
           <td class="border-t">
@@ -73,6 +73,7 @@ export default {
   layout: Layout,
   props: {
     years: Array,
+    // year: Number,
     months: Array,
     data: Object,
     buildings: Array,
