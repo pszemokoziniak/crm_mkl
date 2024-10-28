@@ -14,7 +14,7 @@ class UpdateColumnInTableOrganizations extends Migration
     public function up()
     {
         Schema::table('organizations', function (Blueprint $table) {
-            $table->integer('kierownikBud_id')->index()->nullable()->change();
+            $table->integer('kierownikBud_id')->nullable()->change(); // Just change the column without adding the index again
         });
     }
 
@@ -26,7 +26,8 @@ class UpdateColumnInTableOrganizations extends Migration
     public function down()
     {
         Schema::table('organizations', function (Blueprint $table) {
-            $table->integer('kierownikBud_id')->index()->change();
+            $table->integer('kierownikBud_id')->nullable(false)->change(); // Revert the nullable change
         });
     }
 }
+
