@@ -25,7 +25,7 @@
           <tr class="text-left font-bold">
             <th class="pb-4 pt-6 px-6">Nazwa</th>
             <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-            <th class="pb-4 pt-6 px-6">Kierownik budowy</th>
+            <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
             <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
           </tr>
         </thead>
@@ -44,8 +44,8 @@
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.kierownik">
-                  {{ item.kierownik[0].first_name }} {{ item.kierownik[0].last_name }}
+                <div v-if="item.inzynier">
+                  {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
                 </div>
               </Link>
             </td>
@@ -76,7 +76,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-          <th class="pb-4 pt-6 px-6">Kierownik budowy</th>
+          <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
         </tr>
         </thead>
@@ -95,8 +95,8 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              <div v-if="item.kierownik">
-                {{ item.kierownik[0].first_name }} {{ item.kierownik[0].last_name }}
+              <div v-if="item.inzynier">
+                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
               </div>
             </Link>
           </td>
@@ -126,7 +126,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-          <th class="pb-4 pt-6 px-6">Kierownik budowy</th>
+          <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
         </tr>
         </thead>
@@ -159,18 +159,18 @@
           </td>
           <td class="border-t">
             <Link v-if="user_owner[1] === 3 && ((user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <div v-if="item.kierownik">
-                {{ item.kierownik[0].first_name }} {{ item.kierownik[0].last_name }}
+              <div v-if="item.inzynier">
+                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
               </div>
             </Link>
             <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <div v-if="item.kierownik">
-                {{ item.kierownik[0].first_name }} {{ item.kierownik[0].last_name }}
+              <div v-if="item.inzynier">
+                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
               </div>
             </Link>
             <Link v-if="user_owner[1] === 3 && (user_owner[0] !== item.kierownikBud_id || user_owner[0] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              <div v-if="item.kierownik">
-                {{ item.kierownik[0].first_name }} {{ item.kierownik[0].last_name }}
+              <div v-if="item.inzynier">
+                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
               </div>
             </Link>
           </td>
@@ -238,6 +238,7 @@ export default {
     organizations_other: Object,
     organizations_biuro: Object,
     buildings: Object,
+    inzynier: Object,
     user_owner: Array,
   },
   data() {

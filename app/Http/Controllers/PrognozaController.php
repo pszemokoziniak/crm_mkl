@@ -9,6 +9,7 @@ use App\Services\PrognozaService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -62,21 +63,19 @@ class PrognozaController extends Controller
             $selectedBuild = (object) $selectedBuildParams[0] ?? null;
         }
         $building = request()->query('building') ?? 'all';
-        $year = request()->query('year');
+
+        (int) $year = request()->query('year');
+        (int) $yearSelected = $year;
 
         $chartLabels = $this->getChartLabels($building, $year, $month, $startDate, $endDate);
 
-        $labels = $chartLabels->flatMap(function ($group) {
-            return $group->map(function ($item) {
-//                return $item['start'] . ' - ' . $item['end'];
-                return $item['prognozadates']['start'] . ' - ' . $item['prognozadates']['end'];
-            });
+        $labels = $chartLabels->flatMap(function ($data) {
+            return [$data['prognoza_dates']['start'] . ' to ' . $data['prognoza_dates']['end']];
         })->toArray();
 
+
         $dataChart = $chartLabels->flatMap(function ($group) {
-            return $group->map(function ($item) {
-                return $item['workers_count'];
-            });
+            return [$group['total_workers']];
         })->toArray();
 
         $chartData = [
@@ -104,7 +103,7 @@ class PrognozaController extends Controller
             ];
         });
 
-        return Inertia('Prognoza/Index', compact('years', 'months', 'data', 'selectedBuild', 'buildings', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
+        return Inertia('Prognoza/Index', compact('years', 'yearSelected', 'months', 'data', 'selectedBuild', 'buildings', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
     }
 
     public function create()
@@ -201,7 +200,7 @@ class PrognozaController extends Controller
         $currentYearStart = Carbon::now()->startOfYear();
 
         for ($i = 0; $i < 12; $i++) {
-            $months[] = $currentYearStart->copy()->addMonths($i)->month;
+            $months[$i+1] = $currentYearStart->copy()->addMonths($i)->locale('pl_PL')->monthName;
         }
         return $months;
     }
@@ -222,10 +221,15 @@ class PrognozaController extends Controller
     private function getChartLabels($building = null, $year = null, $month = null, $startDate = null, $endDate = null)
     {
         $prognozas = app(PrognozaService::class)->getPrognozas($building, $year, $month, $startDate, $endDate);
+
         $groupedPrognozas = $prognozas->groupBy('prognoza_dates_id')
             ->map(function ($group) {
-                return PrognozaResource::collection($group);
+                return [
+                    'total_workers' => $group->sum('workers_count'),
+                    'prognoza_dates' => $group->first()->prognozadates, // Assuming you might want to keep this info
+                ];
             });
+
         return $groupedPrognozas;
     }
 }

@@ -8,10 +8,10 @@
     </div>
     <div class="m-2">
       <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
-      <Years :data="years" />
-      <Months v-if="year" :data="months" />
+      <Years :data="years" :yearSelected="yearSelected" />
+      <Months v-if="year" :data="months" :month="month" />
     </div>
-    <div v-if="edit" class="m-10">
+    <div v-if="month" class="m-10">
       <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
         <span>Dodaj</span>
         <span class="hidden md:inline">&nbsp;Godziny</span>
@@ -73,7 +73,7 @@ export default {
   layout: Layout,
   props: {
     years: Array,
-    // year: Number,
+    yearSelected: Number,
     months: Array,
     data: Object,
     buildings: Array,
@@ -87,7 +87,7 @@ export default {
   data() {
     return {
       edit: false,
-      year: null,
+      year: this.yearSelected,
       month: null,
     }
   },

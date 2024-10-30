@@ -23,7 +23,7 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed', 'my'),
-            'organizations_user' => Organization::with('kierownik')
+            'organizations_user' => Organization::with('inzynier')
                 ->with('krajTyp')
                 ->where('kierownikBud_id', Contact::where('user_id', Auth::id())->pluck('id')->first())
                 ->orWhere('inzynier_id', Contact::where('user_id', Auth::id())->pluck('id')->first())
@@ -39,11 +39,11 @@ class DashboardController extends Controller
                     'city' => $organization->city,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
                     'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->whereRaw('CURDATE() BETWEEN start AND end')->count(),
-                    'kierownik' => $organization->kierownik ? $organization->kierownik : null,
+                    'inzynier' => $organization->inzynier ? $organization->inzynier : null,
                     'deleted_at' => $organization->deleted_at,
                 ];
             }),
-            'organizations_other' => Organization::with('kierownik')
+            'organizations_other' => Organization::with('inzynier')
                 ->with('krajTyp')
                 ->where('kierownikBud_id', '<>', Contact::where('user_id', Auth::id())->pluck('id')->first())
                 ->orWhere('inzynier_id', Contact::where('user_id', '<>', Auth::id())->pluck('id')->first())
@@ -59,11 +59,11 @@ class DashboardController extends Controller
                         'city' => $organization->city,
                         'country' => $organization->krajTyp ? $organization->krajTyp : null,
                         'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->whereRaw('CURDATE() BETWEEN start AND end')->count(),
-                        'kierownik' => $organization->kierownik ? $organization->kierownik : null,
+                        'inzynier' => $organization->inzynier ? $organization->inzynier : null,
                         'deleted_at' => $organization->deleted_at,
                     ];
                 }),
-            'organizations_biuro' => Organization::with('kierownik')
+            'organizations_biuro' => Organization::with('inzynier')
                 ->with('krajTyp')
                 ->filter(Request::only('search', 'trashed', 'my'))
                 ->paginate(100)
@@ -77,7 +77,7 @@ class DashboardController extends Controller
                         'city' => $organization->city,
                         'country' => $organization->krajTyp ? $organization->krajTyp : null,
                         'workers_count' => ContactWorkDate::where('organization_id', $organization->id)->whereRaw('CURDATE() BETWEEN start AND end')->count(),
-                        'kierownik' => $organization->kierownik ? $organization->kierownik : null,
+                        'inzynier' => $organization->inzynier ? $organization->inzynier : null,
                         'deleted_at' => $organization->deleted_at,
                     ];
                 }),
