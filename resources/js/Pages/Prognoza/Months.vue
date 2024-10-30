@@ -49,11 +49,11 @@ export default {
   },
   props: {
     data: Array,
-    month: Number,
+    monthSelected: Number,
   },
   data() {
     return {
-      selected: this.month ?? null,
+      selected: this.monthSelected ?? null,
     }
   },
   watch: {

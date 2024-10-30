@@ -40,7 +40,7 @@ export default {
   },
   props: {
     data: Array,
-    yearSelected: Number,
+    yearSelected: Number ?? null,
   },
   data() {
     return {

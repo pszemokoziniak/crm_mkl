@@ -65,7 +65,9 @@ class PrognozaController extends Controller
         $building = request()->query('building') ?? 'all';
 
         (int) $year = request()->query('year');
+        (int) $month = request()->query('month');
         (int) $yearSelected = $year;
+        (int) $monthSelected = $month;
 
         $chartLabels = $this->getChartLabels($building, $year, $month, $startDate, $endDate);
 
@@ -103,7 +105,7 @@ class PrognozaController extends Controller
             ];
         });
 
-        return Inertia('Prognoza/Index', compact('years', 'yearSelected', 'months', 'data', 'selectedBuild', 'buildings', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
+        return Inertia('Prognoza/Index', compact('years', 'yearSelected', 'months', 'monthSelected', 'data', 'selectedBuild', 'buildings', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
     }
 
     public function create()

@@ -1,9 +1,19 @@
 <template>
-  <div class="bg-white rounded-md shadow flex flex-col p-3">
-    <select-input v-model="selected" class="pr-6 w-full lg:w-1/1 font-bold" label="Wybierz budowę" @change="handleSelect()">
-      <option value="all">Wszystkie</option>
-      <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.nazwaBud }}</option>
-    </select-input>
+<!--  <div class="bg-white rounded-md shadow flex flex-col p-3">-->
+<!--    <select-input v-model="selected" class="pr-6 w-full lg:w-1/1 font-bold" label="Wybierz budowę" @change="handleSelect()">-->
+<!--      <option value="all">Wszystkie</option>-->
+<!--      <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.nazwaBud }}</option>-->
+<!--    </select-input>-->
+<!--  </div>-->
+  <div class="bg-white rounded-md shadow p-2 my-0">
+    <div class="flex items-center justify-between w-full">
+      <div class="bg-white rounded-md shadow flex flex-col p-3 w-full">
+        <select-input v-model="selected" class="pr-6 w-full font-bold" label="Wybierz budowę" @change="handleSelect()">
+          <option value="all">Wszystkie</option>
+          <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.nazwaBud }}</option>
+        </select-input>
+      </div>
+    </div>
   </div>
 </template>
 

@@ -7,9 +7,17 @@
       <ChartComponent :chartData="chartData" />
     </div>
     <div class="m-2">
-      <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
-      <Years :data="years" :yearSelected="yearSelected" />
-      <Months v-if="year" :data="months" :month="month" />
+      <div class="m-2 d-flex">
+        <div class="flex-component">
+          <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
+        </div>
+        <div class="flex-component">
+          <Years :data="years" :yearSelected="yearSelected" />
+        </div>
+        <div class="flex-component" v-if="yearSelected">
+          <Months :data="months" :monthSelected="monthSelected" />
+        </div>
+      </div>
     </div>
     <div v-if="month" class="m-10">
       <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
@@ -75,6 +83,7 @@ export default {
     years: Array,
     yearSelected: Number,
     months: Array,
+    monthSelected: Number,
     data: Object,
     buildings: Array,
     selectedBuild: Object,
@@ -102,3 +111,13 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.d-flex {
+  display: flex;
+}
+
+.flex-component {
+  flex: 1;
+}
+</style>
