@@ -1,33 +1,16 @@
 <template>
-  <div>
-<!--    <div class="bg-white rounded-md shadow flex items-center justify-between p-2 mt-3">-->
-<!--      <label class="block font-bold">Wybierz rok</label>-->
-<!--    </div>-->
-    <div class="bg-white rounded-md shadow p-2 my-0">
+  <div class="mr-2">
+    <div class="bg-white rounded-md shadow p-0 m-0">
       <div class="flex items-center justify-between w-full">
         <div class="bg-white rounded-md shadow flex flex-col p-3 w-full">
           <select-input v-model="selectedYear" class="pr-6 w-full font-bold" label="Wybierz rok">
-            <option :value="null">Wszystko</option>
+<!--            <option :value="null">Wszystko</option>-->
             <option v-for="item in data" :key="item" :value="item">{{ item }}</option>
           </select-input>
         </div>
+        <button class="p-3 text-gray-500 hover:text-gray-700 focus:text-indigo-500 text-sm" type="button" @click="reset">Wyczyść</button>
       </div>
     </div>
-<!--    <div class="bg-white rounded-md shadow flex items-center justify-between p-3">-->
-<!--      <Link-->
-<!--        class="focus:text-indigo-500"-->
-<!--      >-->
-<!--        <button class="btn btn-indigo" @click="handleSelect()"> Wszystkie lata </button>-->
-<!--      </Link>-->
-<!--      <Link-->
-<!--        v-for="item in data"-->
-<!--        :key="item"-->
-<!--        class="focus:text-indigo-500"-->
-<!--        :href="buildHref(item)"-->
-<!--      >-->
-<!--        <button class="btn btn-indigo"> {{ item }} </button>-->
-<!--      </Link>-->
-<!--    </div>-->
   </div>
 </template>
 
@@ -50,12 +33,8 @@ export default {
   },
   watch: {
     selectedYear(newValue) {
-      console.log('Selected Year changed:', newValue + ' - ' + this.year)
       this.updateUrl(newValue)
     },
-  },
-  mounted() {
-    console.log(this.year)
   },
   methods: {
     // buildHref(year) {
@@ -73,6 +52,16 @@ export default {
     updateUrl(selectedValue) {
       const params = new URLSearchParams(window.location.search)
       params.set('year', selectedValue)
+
+      this.$inertia.visit(`${window.location.pathname}?${params.toString()}`, {
+        method: 'get',
+        preserveState: false,
+        replace: true,
+      })
+    },
+    reset() {
+      const params = new URLSearchParams(window.location.search)
+      params.delete('year')
 
       this.$inertia.visit(`${window.location.pathname}?${params.toString()}`, {
         method: 'get',

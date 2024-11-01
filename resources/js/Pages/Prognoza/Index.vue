@@ -1,7 +1,6 @@
 <template>
   <div>
     <Head title="Prognoza" />
-    <h1 class="mb-8 text-4xl font-bold text-red">Prace techniczne, strona nie działa poprawnie</h1>
     <div class="my-6 font-bold text-2xl">
       <h1>Zestwienie liczby pracowników od {{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
       <ChartComponent :chartData="chartData" />
