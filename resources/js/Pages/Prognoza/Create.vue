@@ -12,8 +12,8 @@
           <text-input v-show="false" v-model="form.building_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.month_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.year_id" :error="form.errors.building_id"/>
-          <select-input v-model="form.dates" :error="form.errors.dates" class="pb-8 pr-6 w-full lg:w-3/4" label="Wybierz daty">
-            <option value="0" disabled>wybierz</option>
+          <select-input v-model="form.prognoza_dates_id" :error="form.errors.prognoza_dates_id" class="pb-8 pr-6 w-full lg:w-3/4" label="Wybierz daty">
+<!--            <option value="0" disabled>wybierz</option>-->
             <option v-for="item in dates" :key="item.id" :value="item.id">{{ item.start }} - {{ item.end }}</option>
           </select-input>
           <text-input v-model="form.workers_count" :error="form.errors.workers_count" class="pb-8 pr-6 w-full lg:w-3/4" label="Ilość pracowników"/>
@@ -53,7 +53,7 @@ export default {
       monthId: null,
       yearId: null,
       form: this.$inertia.form({
-        dates: '',
+        prognoza_dates_id: '',
         building: this.building[0]?.nazwaBud || '',
         workers_count: '',
         building_id: this.building[0]?.id || '',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePrognozaRequest;
 use App\Models\Organization;
 use App\Models\Prognoza;
 use App\Models\PrognozaDates;
@@ -117,11 +118,11 @@ class PrognozaController extends Controller
         return Inertia('Prognoza/Create', compact('dates', 'building'));
     }
 
-    public function store(Request $request)
+    public function store(StorePrognozaRequest $request)
     {
         Prognoza::create([
             'organization_id' => $request->building_id,
-            'prognoza_dates_id' => $request->dates,
+            'prognoza_dates_id' => $request->prognoza_dates_id,
             'workers_count' => $request->workers_count,
         ]);
 

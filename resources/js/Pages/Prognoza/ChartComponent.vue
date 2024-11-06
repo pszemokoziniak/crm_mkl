@@ -24,10 +24,18 @@ export default {
     new Chart(document.getElementById('myChart'), {
       type: 'bar', // You can use different chart types like 'line', 'pie', etc.
       data: this.chartData,
-      options: this.chartOptions,
-    });
+      options: {
+        ...this.chartOptions,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 200,
+          },
+        },
+      },
+    })
   },
-};
+}
 </script>
 
 <style scoped>
