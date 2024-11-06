@@ -119,7 +119,7 @@
         </tbody>
       </table>
     </div>
-    <div v-if="user_owner[1]===1 || user_owner[1]===2" class="py-3 font-bold">Wszystkie budowy</div>
+    <div v-if="user_owner[1]===1 || user_owner[1]===2" class="py-3 font-bold">Wszystkie aktywne budowy</div>
     <div v-if="user_owner[1]===1 || user_owner[1]===2" class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>

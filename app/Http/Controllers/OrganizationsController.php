@@ -24,7 +24,7 @@ class OrganizationsController extends Controller
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Organization::with('krajTyp')
                 ->with('inzynier')
-                ->orderBy('name')
+                ->orderBy('numerBud', 'asc')
                 ->filter(Request::only('search', 'trashed'))
                 ->paginate(100)
                 ->withQueryString()
