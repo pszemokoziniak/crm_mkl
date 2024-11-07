@@ -24,7 +24,7 @@ class BadaniaController extends Controller
     {
         $bads = Badania::with('badaniaTyp')
                 ->where('contact_id', $contact->id)
-                ->orderByName()
+                ->orderByName1()
                 ->paginate(10)
                 ->withQueryString()
                 ->through(fn ($badania) => [

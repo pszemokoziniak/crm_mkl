@@ -19,7 +19,7 @@ class FunkcjaController extends Controller
     public function index()
     {
 
-        $funkcjas = Funkcja::all();
+        $funkcjas = Funkcja::orderBy('name')->get();
 
         return Inertia('Funkcja/Index', compact('funkcjas'));
 

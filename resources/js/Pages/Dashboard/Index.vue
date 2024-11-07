@@ -6,7 +6,7 @@
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Wybierz:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <option :value="null" />
+          <option :value="null">Aktywne budowy</option>
           <option value="my">Moje budowy</option>
           <option value="with">Wszystkie budowy</option>
           <option value="only">Usunięte budowy</option>

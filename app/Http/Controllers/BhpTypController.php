@@ -13,7 +13,7 @@ class BhpTypController extends Controller
 {
     public function index()
     {
-        $bhpTypes = BhpTyp::all();
+        $bhpTypes = BhpTyp::orderBy('name')->get();
         return Inertia('BhpTyp/Index', compact('bhpTypes'));
     }
 

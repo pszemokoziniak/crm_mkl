@@ -19,4 +19,9 @@ class Badania extends Model
     {
         $query->orderBy('end')->orderBy('start');
     }
+
+    public function scopeOrderByName1($query)
+    {
+        $query->orderBy('name');
+    }
 }
