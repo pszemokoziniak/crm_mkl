@@ -7,7 +7,6 @@
       <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Trashed:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <!--          <option :value="null" />-->
           <option value="with">Wszystko</option>
           <option value="only">Usunięte</option>
         </select>
@@ -24,19 +23,19 @@
           <th class="pb-4 pt-6 px-6">Stanowisko</th>
         </tr>
         <tr v-for="item in contactworkdates.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
+          <td class="border-t" v-if="item.contact">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
               {{ item.contact.last_name }} {{ item.contact.first_name }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t">
+          <td class="border-t" v-if="item.contact">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
               od: {{ item.start }}  do: {{ item.end }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t">
+          <td class="border-t" v-if="item.contact">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
               <div v-if="item.contact.funkcja">
                 {{ item.contact.funkcja.name }}
@@ -46,16 +45,11 @@
           </td>
           <td class="w-px border-t p-2">
             <Link class="flex items-center px-4 mb-4 underline text-indigo-600" tabindex="-1" :href="`/pracownicy/${organization_id}/edit/${item.id}`">
-<!--              <icon name="destroy" class="block w-6 h-6 fill-gray-400" />-->
-                Popraw daty
+              Popraw daty
             </Link>
             <Link v-if="user_owner !== 3" class="flex items-center px-4 underline text-indigo-600" tabindex="-1" @click="destroy(item.id)">
-<!--              <icon name="destroy" class="block w-6 h-6 fill-gray-400" />-->
-                Usuń
+              Usuń
             </Link>
-<!--            <Link class="flex items-center px-4" :href="`/pracownicy/${item.id}/edit/${item.id}`" tabindex="-1">-->
-<!--              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />-->
-<!--            </Link>-->
           </td>
         </tr>
         <tr v-if="contactworkdates === null">
