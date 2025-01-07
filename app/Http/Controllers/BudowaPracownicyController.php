@@ -41,7 +41,9 @@ class BudowaPracownicyController extends Controller
             'organization_id' => $organization->id,
             'filters' => Request::all('search', 'trashed'),
             'contactworkdates' => ContactWorkDate::with('organization')
-                ->with('contact')
+                ->with(['contact' => function ($query) {
+                    $query->withTrashed();
+                }])
                 ->with('contact.funkcja')
                 ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
                 ->where('contact_work_dates.organization_id', $organization->id)

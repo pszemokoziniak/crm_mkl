@@ -23,19 +23,19 @@
           <th class="pb-4 pt-6 px-6">Stanowisko</th>
         </tr>
         <tr v-for="item in contactworkdates.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t" v-if="item.contact">
+          <td v-if="item.contact" class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
-              {{ item.contact.id }} {{ item.contact.last_name }} {{ item.contact.first_name }}
+              {{ item.contact.last_name }} {{ item.contact.first_name }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t" v-if="item.contact">
+          <td v-if="item.contact" class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
               od: {{ item.start }}  do: {{ item.end }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t" v-if="item.contact">
+          <td v-if="item.contact" class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
               <div v-if="item.contact.funkcja">
                 {{ item.contact.funkcja.name }}
@@ -43,7 +43,7 @@
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="w-px border-t p-2">
+          <td v-if="item.contact" class="w-px border-t p-2">
             <Link class="flex items-center px-4 mb-4 underline text-indigo-600" tabindex="-1" :href="`/pracownicy/${organization_id}/edit/${item.id}`">
               Popraw daty
             </Link>
