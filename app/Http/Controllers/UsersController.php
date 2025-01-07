@@ -108,7 +108,6 @@ class UsersController extends Controller
 
     public function update(User $user, Request $request)
     {
-//        dd($user);
         if (App::environment('demo') && $user->isDemoUser()) {
             return Redirect::back()->with('error', 'Updating the Super Admin user is not allowed.');
         }
@@ -145,13 +144,11 @@ class UsersController extends Controller
             $user->update(['password' => Request::get('password')]);
         }
 
-        $data = Contact::where('user_id', $user->id)->first();
-        if ($data !== null) {
-            $data->update(['user_id' => null]);
+        if (Request::get('contact_id') !== null) {
+            $data = Contact::where('id', (int) Request::get('contact_id'))->first();
+            $data->user_id = $user->id;
+            $data->save();
         }
-        $data = Contact::where('id', Request::get('contact_id'))->first();
-        $data->user_id = $user->id;
-        $data->save();
 
         return Redirect::back()->with('success', 'Użytkownik poprawiony.');
     }
