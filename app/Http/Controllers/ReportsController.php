@@ -77,7 +77,9 @@ class ReportsController extends Controller
         }
 
         if ($data) {
-            $all = collect($data)->sortBy('end')->values();
+            $all = collect($data)->sortBy(function($item) {
+                return $item['end'];
+            })->values();
         } else {
             $all = array();
         }
