@@ -32,6 +32,7 @@ class BuildingTimeSheet extends Controller
         $date = $request->query->get('date');
         $timeShifts = BuildTimeShiftFactory::create($build, $date);
         $date = BuildTimeShiftFactory::getBuildDate($date);
+        $buildDetails = $this->getBuildHeaders($build);
 
         return Inertia::render('Building/Index.vue',
             [
@@ -41,7 +42,8 @@ class BuildingTimeSheet extends Controller
                 'build' => $build,
                 'shiftStatuses' => $this->getShiftStatuses()->all(),
                 'user_owner' => Auth::user()->owner,
-                'diffDays' => (int) Carbon::today()->diffInDays($date)
+                'diffDays' => (int) Carbon::today()->diffInDays($date),
+                'buildDetails' => $buildDetails
             ]
         );
     }
@@ -140,7 +142,7 @@ class BuildingTimeSheet extends Controller
     private function getBuildHeaders(int $buildId): mixed
     {
         return DB::table('organizations', 'o')
-            ->select('o.nazwaBud')
+            ->select('o.nazwaBud', 'o.numerBud')
             ->where('o.id', $buildId)
             ->first();
     }
