@@ -4,7 +4,7 @@
   <h1 class="mb-8 text-3xl font-bold">
     <Link class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
     <span class="text-indigo-400 font-medium">/</span>
-    {{ buildDetails.numerBud }} {{ buildDetails.nazwaBud }}
+    {{ buildDetails.nazwaBud }}
   </h1>
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
