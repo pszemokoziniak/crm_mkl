@@ -83,12 +83,23 @@ class ReportsController extends Controller
         } else {
             $all = array();
         }
-        if (Request::all()) {
-            $search = strtolower(collect(Request::only('search'))->first());
+//        if (Request::all()) {
+//            $search = strtolower(collect(Request::only('search'))->first());
+//            $collectionWhereLike = function ($collection, $key, $search) {
+//                $filtered = $collection->filter(fn ($item) => Str::contains(strtolower($item['last_name']), $search) || Str::contains(strtolower($item['name']), $search));
+//                $reIndexed = array_values($filtered->toArray());
+//                return collect($reIndexed);
+//            };
+//
+//            $data = $collectionWhereLike($all, 'last_name', $search);
+//        }
+
+        if (Request::has('search')) {
+            $search = strtolower(Request::input('search'));
             $collectionWhereLike = function ($collection, $key, $search) {
-                $filtered = $collection->filter(fn ($item) => Str::contains(strtolower($item['last_name']), $search) || Str::contains(strtolower($item['name']), $search));
-                $reIndexed = array_values($filtered->toArray());
-                return collect($reIndexed);
+                return $collection->filter(function ($item) use ($search) {
+                    return Str::contains(strtolower($item['last_name']), $search) || Str::contains(strtolower($item['name']), $search);
+                })->values();
             };
 
             $data = $collectionWhereLike($all, 'last_name', $search);
