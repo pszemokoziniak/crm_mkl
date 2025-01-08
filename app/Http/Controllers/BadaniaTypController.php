@@ -12,7 +12,7 @@ class BadaniaTypController extends Controller
 {
     public function index()
     {
-        $badaniaTypes = BadaniaTyp::all();
+        $badaniaTypes = BadaniaTyp::orderBy('name')->all();
         return Inertia('BadaniaTyp/Index', compact('badaniaTypes'));
     }
 

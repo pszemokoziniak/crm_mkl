@@ -16,7 +16,7 @@ class ShiftStatusController extends Controller
     {
         return Inertia('ShiftStatusTyp/Index', [
             'filters' => Request::all('search', 'trashed'),
-            'ShiftStatusTypes' => ShiftStatus::filter(Request::only('search', 'trashed'))
+            'ShiftStatusTypes' => ShiftStatus::orderBy('title')->filter(Request::only('search', 'trashed'))
                 ->get()
         ]);
     }

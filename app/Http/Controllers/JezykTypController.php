@@ -12,7 +12,7 @@ class JezykTypController extends Controller
 {
     public function index()
     {
-        $jezykTypes = JezykTyp::all();
+        $jezykTypes = JezykTyp::orderBy('name')->all();
         return Inertia('JezykTyp/Index', compact('jezykTypes'));
     }
 

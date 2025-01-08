@@ -13,7 +13,7 @@ class KrajTypController extends Controller
 {
     public function index(): Response
     {
-        return Inertia('KrajTyp/Index', ['krajTypes' => KrajTyp::all()]);
+        return Inertia('KrajTyp/Index', ['krajTypes' => KrajTyp::orderBy('name')->all()]);
     }
 
     public function edit(KrajTyp $krajTyp): Response
