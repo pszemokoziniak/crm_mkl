@@ -13,7 +13,7 @@ class NarzedziaTypController extends Controller
 {
     public function index()
     {
-        $narzedziaTyp = NarzedziaTyp::orderBy('name')->all();
+        $narzedziaTyp = NarzedziaTyp::orderBy('name')->get();
         return Inertia('NarzedziaTyp/Index', [
             'narzedziaTyp' => $narzedziaTyp,
         ]);

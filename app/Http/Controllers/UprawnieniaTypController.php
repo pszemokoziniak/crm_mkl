@@ -14,7 +14,7 @@ class UprawnieniaTypController extends Controller
 {
     public function index()
     {
-        $uprawnieniaTypes = UprawnieniaTyp::orderBy('name')->all();
+        $uprawnieniaTypes = UprawnieniaTyp::orderBy('name')->get();
         return Inertia('UprawnieniaTyp/Index', compact('uprawnieniaTypes'));
     }
 
