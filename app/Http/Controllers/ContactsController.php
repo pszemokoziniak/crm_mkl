@@ -149,6 +149,7 @@ class ContactsController extends Controller
             'pbioz' => Pbioz::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'obecna_budowa' => $obecna_budowa,
             'flag' => $flag,
+            'user_owner' => Auth::user()->owner,
         ]);
     }
 

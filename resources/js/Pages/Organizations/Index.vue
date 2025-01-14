@@ -7,8 +7,8 @@
         <label class="block text-gray-700">Wybierz:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
           <option :value="null">Budowy aktywne</option>
-          <option value="with">Wszystkie</option>
-          <option value="only">Usunięte</option>
+<!--          <option value="with">Wszystkie</option>-->
+          <option value="only">Zakończona</option>
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/budowy/create">

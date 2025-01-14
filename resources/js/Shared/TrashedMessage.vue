@@ -18,7 +18,7 @@ export default {
     Icon,
   },
   props: {
-    user_owner: null,
+    user_owner: Number,
   },
   emits: ['restore'],
 }

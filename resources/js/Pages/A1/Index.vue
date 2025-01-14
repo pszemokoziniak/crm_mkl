@@ -20,6 +20,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Początek A1</th>
           <th class="pb-4 pt-6 px-6">Koniec A1</th>
+          <th class="pb-4 pt-6 px-6">Kraj</th>
         </tr>
         <tr v-for="item in a1s" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -31,6 +32,12 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/a1/${item.id}/edit`">
               {{ item.end }}
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/a1/${item.id}/edit`">
+              {{ item.kraj.name }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>

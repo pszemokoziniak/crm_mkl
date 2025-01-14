@@ -18,4 +18,9 @@ class A1 extends Model
     {
         return $this->hasMany(Contact::class);
     }
+
+    public function kraj()
+    {
+        return $this->belongsTo(KrajTyp::class, 'kraj_typs_id', 'id');
+    }
 }

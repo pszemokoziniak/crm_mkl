@@ -78,7 +78,7 @@
 <!--    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">-->
 <!--      <span>Edytuj</span>-->
 <!--    </div>-->
-    <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
+    <trashed-message v-if="contact.deleted_at" :user_owner="user_owner" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
       <fieldset :disabled="disabled == 0">
         <form @submit.prevent="update">
@@ -167,6 +167,7 @@ export default {
       default: null,
     },
     flag: Boolean,
+    user_owner: Number,
   },
   remember: 'form',
   data() {
