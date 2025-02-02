@@ -22,7 +22,9 @@ class BuildTimeShiftCreator
         $buildWorkersSavedShifts = $this->transform($shifts);
 
         $feasts = $this->getFeasts($build);
+        // enrich workers which are assigned to build with another date period (inconsistent data)
         $workersOnBuildData = $this->workersData($build, $period);
+
 
         $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
 
@@ -32,14 +34,16 @@ class BuildTimeShiftCreator
             foreach ($period as $day) {
                 $constraints = new Collection();
                 $constraints->add(new FeastDaysConstraint($feasts, $day));
+
                 $constraints->add(new ShiftOutWorkDatesConstraint(
                     $day,
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start'])->startOfDay(),
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])->startOfDay()
                 ));
 
+
                 $constraintResult = $this->checkConstraints($constraints);
-                $isBlocked = (bool) $constraintResult;
+                $isBlocked = (bool)$constraintResult;
 
                 $dayIndex = $day->day;
 
@@ -59,7 +63,7 @@ class BuildTimeShiftCreator
                 $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createDraft(
                     id: $workerId,
                     build: $build,
-                    fullName: $workersOnBuildData[$workerId]['last_name']  . ' '  . $workersOnBuildData[$workerId]['first_name'],
+                    fullName: $workersOnBuildData[$workerId]['last_name'] . ' ' . $workersOnBuildData[$workerId]['first_name'],
                     day: $day->toString(),
                     isBlocked: $isBlocked,
                     blockedType: $constraintResult?->getType()
@@ -129,20 +133,14 @@ class BuildTimeShiftCreator
 
     private function getAllWorkersOnBuild(int $build, CarbonPeriod $date): Collection
     {
-
         $query = DB::table('contact_work_dates', 'cwd')
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->where('cwd.organization_id', $build)
-            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
-            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'))
+//             @TODO to review data - workers on build
+//            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
+//            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'))
             ->orderBy('contacts.last_name', 'ASC')
             ->get();
-
-//        $query = DB::table('contacts', 'c')
-//            ->join('contact_work_dates', 'c.id', '=', 'contact_work_dates.contact_id')
-//            ->where('contact_work_dates.organization_id', $build)
-//            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
-//            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'));
 
         return $query;
     }
