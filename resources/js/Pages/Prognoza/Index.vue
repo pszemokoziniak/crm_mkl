@@ -34,7 +34,7 @@
         <tr v-for="item in data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
-              {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
+              {{ item.prognozadates.id }} / {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
             </Link>
           </td>
           <td class="border-t">
