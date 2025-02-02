@@ -1,6 +1,14 @@
 dev:
 	docker-compose up -d && npm run watch
 
+build:
+	npm install
+	docker-compose run --rm app composer install
+	docker-compose run --rm app php artisan key:generate
+	sudo chmod -R 777 ./storage/
+	make migrate
+	make seed-dev
+
 app-bash:
 	docker-compose exec -u myuser app /bin/bash
 
