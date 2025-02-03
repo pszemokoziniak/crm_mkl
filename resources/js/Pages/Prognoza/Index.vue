@@ -32,22 +32,22 @@
           <th class="pb-4 pt-6 px-6 col-2">Ilość pracowników</th>
         </tr>
         <tr v-for="item in data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
+          <td v-if="item.organization.id" class="border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               {{ item.organization.id }} / {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
             </Link>
           </td>
-          <td class="border-t">
+          <td v-if="item.organization.id" class="border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               {{ item.organization.nazwaBud }}
             </Link>
           </td>
-          <td class="border-t">
+          <td v-if="item.organization.id" class="border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               {{ item.workers_count }}
             </Link>
           </td>
-          <td class="w-px border-t">
+          <td v-if="item.organization.id" class="w-px border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
