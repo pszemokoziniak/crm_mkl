@@ -72,7 +72,7 @@
               <div class="pb-4 pt-5 px-4 bg-white sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                   <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                    <DialogTitle as="h3" class="text-gray-900 text-lg font-medium leading-6"> Wprowadź dane dla dnia: </DialogTitle>
+                    <DialogTitle as="h3" class="text-gray-900 text-lg font-medium leading-6"> Wprowadź dane dla dnia: {{ new Date(form.day).toLocaleDateString('pl-PL', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) }}</DialogTitle>
                     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
                       <fieldset :disabled="disabled == 0">
                         <form @submit.prevent="update">
