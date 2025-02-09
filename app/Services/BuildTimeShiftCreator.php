@@ -25,7 +25,6 @@ class BuildTimeShiftCreator
         // enrich workers which are assigned to build with another date period (inconsistent data)
         $workersOnBuildData = $this->workersData($build, $period);
 
-
         $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
 
         $buildWorkersSavedShifts = collect($buildWorkersSavedShifts)->sortBy('last_name')->toArray();
@@ -40,7 +39,6 @@ class BuildTimeShiftCreator
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start'])->startOfDay(),
                     Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])->startOfDay()
                 ));
-
 
                 $constraintResult = $this->checkConstraints($constraints);
                 $isBlocked = (bool)$constraintResult;

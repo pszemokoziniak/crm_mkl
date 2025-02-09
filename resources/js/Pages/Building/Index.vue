@@ -1,6 +1,6 @@
 <template>
   <Head title="KCP" />
-  <BudMenu :budId="build" />
+  <BudMenu :bud-id="build" />
   <h1 class="mb-8 text-3xl font-bold">
     <Link class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
     <span class="text-indigo-400 font-medium">/</span>
@@ -29,7 +29,7 @@
       <span class="text-gray-800 text-lg font-bold">{{ month.toUpperCase() }}</span>
       <span class="ml-1 text-gray-600 text-lg font-normal">{{ date.getFullYear() }}</span>
     </div>
-    <div v-for="timeSheet in timeSheets" :key="timeSheet.id" class="flex border-l border-t" :class="Object.keys(timeSheets).length === 1 ? 'border-b' : ''">
+    <div v-for="timeSheet in sortedByOrder" :key="timeSheet.id" class="flex border-l border-t" :class="Object.keys(timeSheets).length === 1 ? 'border-b' : ''">
       <div class="border-1 relative sticky z-10 left-0 pt-2 px-4 text-gray-500 bg-gray-100 border-r cursor-pointer" style="width: 127px; height: 68px">
         <div class="text-center text-sm">{{ timeSheet[1].name }}</div>
         <div class="text-center text-sm">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
@@ -94,7 +94,7 @@
                                 <Datepicker id="workTime" v-model="form.workTime" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6 w-full" />
                               </div>
                               <div>
-                                <input ref="timeReduce" class="mr-2 mt-7" id="time-reduce" type="checkbox" @change="wortTimeReduce()" />
+                                <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" @change="wortTimeReduce()" />
                                 <label for="time-reduce">Skróć czas o 30 min</label>
                               </div>
                             </div>
@@ -157,7 +157,11 @@ export default {
   layout: Layout,
   props: {
     build: Number,
-    timeSheets: Array,
+    timeSheets: {
+      type: Object,
+      required: true,
+    },
+    timeSheetsOrder: Array,
     date: Date,
     month: String,
     shiftStatuses: Array,
@@ -182,6 +186,11 @@ export default {
         name: null,
       }),
     }
+  },
+  computed: {
+    sortedByOrder() {
+      return this.timeSheetsOrder.map((id) => this.timeSheets[id])
+    },
   },
   /**
    *  Calculate worker hour in month

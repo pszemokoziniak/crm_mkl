@@ -14,7 +14,7 @@ class BuildTimeShiftFactory
     {
         $date = self::getBuildDate($date);
 
-        return  (new BuildTimeShiftCreator())->create(
+        return (new BuildTimeShiftCreator())->create(
             $build,
             CarbonPeriod::create(
                 $date->clone()->toImmutable()->firstOfMonth(),
@@ -25,6 +25,6 @@ class BuildTimeShiftFactory
 
     public static function getBuildDate(?string $date): Carbon
     {
-        return $date ? Carbon::createFromFormat('Y-m-d',$date . '-1') : Carbon::now();
+        return $date ? Carbon::createFromFormat('Y-m-d', $date . '-1') : Carbon::now();
     }
 }

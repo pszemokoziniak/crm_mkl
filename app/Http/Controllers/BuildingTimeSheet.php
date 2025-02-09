@@ -32,18 +32,18 @@ class BuildingTimeSheet extends Controller
         $date = $request->query->get('date');
         $timeShifts = BuildTimeShiftFactory::create($build, $date);
         $date = BuildTimeShiftFactory::getBuildDate($date);
-        $buildDetails = $this->getBuildHeaders($build);
 
         return Inertia::render('Building/Index.vue',
             [
                 'date' => $date,
                 'month' => $date->monthName,
                 'timeSheets' => $timeShifts,
+                'timeSheetsOrder' => array_keys((array)$timeShifts),
                 'build' => $build,
                 'shiftStatuses' => $this->getShiftStatuses()->all(),
                 'user_owner' => Auth::user()->owner,
-                'diffDays' => (int) Carbon::today()->diffInDays($date),
-                'buildDetails' => $buildDetails
+                'diffDays' => Carbon::today()->diffInDays($date),
+                'buildDetails' => $this->getBuildHeaders($build)
             ]
         );
     }
