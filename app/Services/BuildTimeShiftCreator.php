@@ -27,7 +27,15 @@ class BuildTimeShiftCreator
 
         $buildWorkersSavedShifts = $buildWorkersSavedShifts + $workersOnBuildData;
 
-        $buildWorkersSavedShifts = collect($buildWorkersSavedShifts)->sortBy('last_name')->toArray();
+        $buildWorkersSavedShifts = collect($buildWorkersSavedShifts)->sortBy(static function ($item, $key) {
+            // property based on worker data (no shift)
+            if (array_key_exists('last_name', $item)) {
+                return $item['last_name'];
+            }
+            // last_name based on shift data - first element
+            return ((array) $item[array_key_first($item)])['last_name'];
+        }, SORT_NATURAL)
+        ->toArray();
 
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
             foreach ($period as $day) {
