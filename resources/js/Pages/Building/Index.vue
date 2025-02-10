@@ -94,7 +94,7 @@
                                 <Datepicker id="workTime" v-model="form.workTime" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6 w-full" />
                               </div>
                               <div>
-                                <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" @change="wortTimeReduce()" />
+                                <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" v-model="form.reducedWorkingHours" @change="wortTimeReduce()" />
                                 <label for="time-reduce">Skróć czas o 30 min</label>
                               </div>
                             </div>
@@ -184,6 +184,7 @@ export default {
         isBlocked: null,
         blockedType: null,
         name: null,
+        reducedWorkingHours: false,
       }),
     }
   },
@@ -374,6 +375,7 @@ export default {
         to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
         workTime: this.formatTimeToObject(shift.work),
         status: shift.status ?? null,
+        reducedWorkingHours: shift.reducedWorkingHours ?? false,
       }
 
       if (!shift.work) {
@@ -460,6 +462,7 @@ export default {
           to: this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
           work: this.form.workTime.hours + ':' + this.form.workTime.minutes,
           status: this.form.status,
+          reducedWorkingHours: this.form.reducedWorkingHours,
         }
       } catch (e) {
         console.error('Something happen while saving data.')

@@ -6,7 +6,6 @@ namespace App\DTO;
 
 use Carbon\Carbon;
 use JsonSerializable;
-use phpDocumentor\Reflection\Utils;
 
 class Shift implements JsonSerializable
 {
@@ -21,6 +20,7 @@ class Shift implements JsonSerializable
         public ?int $status = null,
         public ?bool $isBlocked = null,
         public ?string $blockedType = null,
+        public bool $reducedWorkingHours = false,
     ) {}
 
     public function jsonSerialize(): array
@@ -36,6 +36,7 @@ class Shift implements JsonSerializable
             'status' => $this->status,
             'isBlocked' => $this->isBlocked,
             'blockedType' => $this->blockedType,
+            'reducedWorkingHours' => $this->reducedWorkingHours,
         ];
     }
 
@@ -52,6 +53,7 @@ class Shift implements JsonSerializable
             status: $shift->shift_status_id ?? null,
             isBlocked: $isBlocked,
             blockedType: $blockedType,
+            reducedWorkingHours: (bool) $shift->reduced_working_hours,
         );
     }
 

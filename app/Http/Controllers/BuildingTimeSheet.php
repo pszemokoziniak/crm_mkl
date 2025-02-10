@@ -67,6 +67,7 @@ class BuildingTimeSheet extends Controller
                     ),
                     'shift_status_id' => $request->get('status') ?? null,
                     'effective_work_time' => $request->get('workTime')['hours'] . ':' . $request->get('workTime')['minutes'],
+                    'reduced_working_hours' => $request->get('reducedWorkingHours') ?? false
                 ]
             );
         } catch (\Exception $e) {
