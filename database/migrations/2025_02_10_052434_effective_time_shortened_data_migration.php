@@ -19,7 +19,7 @@ class EffectiveTimeShortenedDataMigration extends Migration
      */
     public function up(): void
     {
-        DB::table('building_time_sheets')->sql("
+        DB::statement("
             UPDATE building_time_sheets
             SET reduced_working_hours = 1
             WHERE TIME(TIMEDIFF(work_to, work_from)) > TIME(effective_work_time);
@@ -28,7 +28,7 @@ class EffectiveTimeShortenedDataMigration extends Migration
 
     public function down(): void
     {
-        DB::table('building_time_sheets')->sql("
+        DB::statement("
             UPDATE building_time_sheets
             SET reduced_working_hours = 0
         ");
