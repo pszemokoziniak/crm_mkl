@@ -1,14 +1,12 @@
 <template>
-  <div class="mr-2">
-    <div class="bg-white rounded-md shadow p-0 m-0">
-      <div class="flex items-center justify-between w-full">
-        <div class="bg-white rounded-md shadow flex flex-col p-3 w-full">
-          <select-input v-model="selected" class="pr-6 w-full font-bold" label="Wybierz budowę" @change="handleSelect()">
-            <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.nazwaBud }}</option>
-          </select-input>
-        </div>
-        <button class="p-3 text-gray-500 hover:text-gray-700 focus:text-indigo-500 text-sm" type="button" @click="reset">Wyczyść</button>
+  <div class="bg-white rounded-md shadow p-0 m-0">
+    <div class="flex items-center justify-between w-full">
+      <div class="bg-white rounded-md shadow flex flex-col p-3 w-full">
+        <select-input v-model="selected" class="pr-6 w-full font-bold" label="Wybierz budowę" @change="handleSelect()">
+          <option v-for="item in buildings" :key="item.id" :value="item.id">{{ item.nazwaBud }}</option>
+        </select-input>
       </div>
+      <button class="p-3 text-gray-500 hover:text-gray-700 focus:text-indigo-500 text-sm" type="button" @click="reset">Wyczyść</button>
     </div>
   </div>
 </template>

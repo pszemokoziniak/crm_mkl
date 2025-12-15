@@ -2,19 +2,23 @@
   <div>
     <Head title="Prognoza" />
     <div class="my-6 font-bold text-2xl">
-      <h1>Zestwienie liczby pracowników od {{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{selectedBuild.nazwaBud}}</span> <span v-if="year">w roku {{year}}</span></h1>
+      <h1>Zestawienie liczby pracowników</h1>
+      <h2>{{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{ selectedBuild.nazwaBud }}</span> <span v-if="year">w roku {{ year }}</span></h2>
       <ChartComponent :chartData="chartData" />
     </div>
     <div class="m-2">
-      <div class="m-2 d-flex">
-        <div class="flex-component">
+      <div class="m-2 space-y-3">
+        <div class="w-full">
           <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
         </div>
-        <div class="flex-component">
-          <Years :data="years" :yearSelected="yearSelected" />
-        </div>
-        <div class="flex-component" v-if="yearSelected">
-          <Months :data="months" :monthSelected="monthSelected" />
+        <div class="flex gap-3">
+          <div class="w-1/2">
+            <Years :data="years" :yearSelected="yearSelected" />
+          </div>
+          <div class="w-1/2" v-if="yearSelected">
+            <Months :data="months" :monthSelected="monthSelected" />
+          </div>
+          <div class="w-1/2" v-else></div>
         </div>
       </div>
     </div>
@@ -81,9 +85,9 @@ export default {
   props: {
     years: Array,
     yearSelected: Number,
-    months: Array,
+    months: { type: Array, required: true },
     monthSelected: Number,
-    data: Object,
+    data: { type: Array, required: true },
     buildings: Array,
     selectedBuild: Object,
     chartData: Object,
@@ -100,11 +104,11 @@ export default {
     }
   },
   mounted() {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window.location.search)
     const year = urlParams.get('year')
     const month = urlParams.get('month')
     const building = urlParams.get('building')
-    this.edit = year && month && building !== 'all' ? true : false;
+    this.edit = !!(year && month && building !== 'all')
     this.year = year
     this.month = month
   },

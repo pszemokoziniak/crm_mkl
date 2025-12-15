@@ -16,11 +16,6 @@ class DashboardController extends Controller
         $contact_id = Contact::where('user_id', Auth::id())->first();
         (empty($contact_id)) ? $contact_id = null : $contact_id = $contact_id->id;
 
-//        $buildings = ContactWorkDate::with('organization')
-//            ->with('contact')
-//            ->where('contact_work_dates.contact_id', $contact_id)
-//            ->get();
-
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed', 'my'),
             'organizations_user' => Organization::with('inzynier')

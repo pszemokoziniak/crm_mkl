@@ -8,13 +8,9 @@ use App\Models\Prognoza;
 use App\Models\PrognozaDates;
 use App\Services\PrognozaService;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Inertia\Response;
-use App\Http\Resources\PrognozaResource;
+
 use stdClass;
 
 class PrognozaController extends Controller
@@ -27,23 +23,22 @@ class PrognozaController extends Controller
     {
         $currentYear = Carbon::now();
 
-        $year = $_GET['year'] ?? $currentYear->year;
-        $month = $_GET['month'] ?? $currentYear->month;
+        $hasYear = request()->has('year');
+        $hasMonth = request()->has('month');
 
+        $building = request()->query('building') ?? 'all';
+        $year = (int) request()->query('year', $currentYear->year);
+        $month = (int) request()->query('month', $currentYear->month);
 
-        if (isset($_GET['month']) && isset($_GET['year'])) {
+        if ($hasYear && $hasMonth) {
             $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
-            $endDate= Carbon::createFromDate($year, $month, 1)->endOfMonth();
-        }
-
-        if (!isset($_GET['month']) && isset($_GET['year']))  {
-            $startDate = Carbon::createFromDate($year, $month, 1)->startOfYear();
-            $endDate = Carbon::createFromDate($year, $month, 1)->endOfYear();
-        }
-
-        if (!isset($_GET['month']) && !isset($_GET['year']))  {
-            $startDate = Carbon::createFromDate($year, $month, 1)->startOfYear();
-            $endDate = Carbon::createFromDate($year, $month, 1)->addYears(6)->endOfMonth();
+            $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+        } elseif ($hasYear && !$hasMonth) {
+            $startDate = Carbon::createFromDate($year, 1, 1)->startOfYear();
+            $endDate = Carbon::createFromDate($year, 1, 1)->endOfYear();
+        } else {
+            $startDate = $currentYear->copy()->startOfYear();
+            $endDate = $currentYear->copy()->addYears(6)->endOfMonth();
         }
 
         $startDateFormat = $startDate->format('Y-m-d');
@@ -54,21 +49,22 @@ class PrognozaController extends Controller
 
         $buildings = Organization::get()->map->only(['id', 'nazwaBud']);
 
-        isset($_GET['building']) ? $building = $_GET['building'] : $building = 'all';
+        // isset($_GET['building']) ? $building = $_GET['building'] : $building = 'all';
+
         $selectedBuildParams = $this->getUrlBuildParams($building);
 
-        if (count($selectedBuildParams) > 1) {
-            $selectedBuild = new stdClass();
-            $selectedBuild->id = 'all';
+        if ($building === 'all' || empty($selectedBuildParams)) {
+            $selectedBuild = (object) ['id' => 'all', 'nazwaBud' => 'Wszystkie'];
         } else {
-            $selectedBuild = (object) $selectedBuildParams[0] ?? null;
+            $selectedBuild = (object) $selectedBuildParams[0];
         }
         $building = request()->query('building') ?? 'all';
 
-        (int) $year = request()->query('year');
-        (int) $month = request()->query('month');
-        (int) $yearSelected = $year;
-        (int) $monthSelected = $month;
+//        $year = (int) request()->query('year', $currentYear->year);
+//        $month = (int) request()->query('month', $currentYear->month);
+
+        $yearSelected = $hasYear ? $year : null;
+        $monthSelected = ($hasYear && $hasMonth) ? $month : null;
 
         $chartLabels = $this->getChartLabels($building, $year, $month, $startDate, $endDate);
 
@@ -164,8 +160,12 @@ class PrognozaController extends Controller
 
     function getSelectDates($currentYear, $buildingId)
     {
-        $year = $_GET['year'] ?? $currentYear->year;
-        $month = $_GET['month'] ?? $currentYear->month;
+//        $year = $_GET['year'] ?? $currentYear->year;
+//        $month = $_GET['month'] ?? $currentYear->month;
+
+//        $building = request()->query('building', 'all');
+        $year = (int) request()->query('year', $currentYear->year);
+        $month = (int) request()->query('month', $currentYear->month);
 
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
@@ -203,8 +203,13 @@ class PrognozaController extends Controller
         $currentYearStart = Carbon::now()->startOfYear();
 
         for ($i = 0; $i < 12; $i++) {
-            $months[$i+1] = $currentYearStart->copy()->addMonths($i)->locale('pl_PL')->monthName;
+            $monthNumber = $i + 1;
+            $months[] = [
+                'value' => $monthNumber,
+                'label' => $currentYearStart->copy()->addMonths($i)->locale('pl_PL')->monthName,
+            ];
         }
+
         return $months;
     }
 

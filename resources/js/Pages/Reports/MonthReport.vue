@@ -54,13 +54,10 @@ export default {
     Head,
   },
   layout: Layout,
-  props: {
-    months: Array,
-  },
   data() {
     return {
       date: select_dates.at(-1),
-      months: select_dates
+      months: select_dates,
     }
   },
 }
