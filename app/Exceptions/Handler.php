@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,8 +35,13 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->reportable(function (TokenMismatchException $e) {
+            logger()->warning('CSRF token mismatch', [
+                'url' => request()->fullUrl(),
+                'method' => request()->method(),
+                'user_id' => optional(request()->user())->id,
+                'session_id' => request()->session()->getId(),
+            ]);
         });
     }
 }

@@ -33,13 +33,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
-        $checkActiveStatus = User::where('email', $request->email)->get()->map->only('active')->pluck('active');
-        if ( !isset($checkActiveStatus[0]) )
-        {
+        $user = User::where('email', $request->email)->select(['id','active'])->first();
+
+        if (! $user) {
             return Redirect::route('login')->with('error', 'Nie ma takiego użytkownika.');
         }
-        if ($checkActiveStatus[0]===0)
-        {
+        if (! $user->active) {
             return Redirect::route('login')->with('error', 'Konto zablokowane.');
         }
         $request->authenticate();
