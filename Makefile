@@ -12,6 +12,9 @@ build:
 app-bash:
 	docker-compose exec -u myuser app /bin/bash
 
+db:
+	docker exec -it crm-mkl-db mysql -u root -p'password'
+
 bash:
 	docker exec -it ${CONTAINER_NAME_APP} /bin/bash
 

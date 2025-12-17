@@ -22,24 +22,22 @@ class Organization extends Model
         return $this->hasMany(Contact::class);
     }
 
-    public function kierownik()
-    {
-        return $this->hasMany(Contact::class, 'id', 'kierownikBud_id');
-    }
-
     public function contactworkdate()
     {
         return $this->hasMany(ContactWorkDate::class, 'organization_id', 'id');
     }
 
-    public function inzynier() {
+    public function inzynier()
+    {
         return $this->belongsTo(Contact::class, 'inzynier_id','id');
     }
 
-    public function krajTyp() {
+    public function krajTyp()
+    {
         return $this->belongsTo(KrajTyp::class, 'country_id','id');
     }
-    public function contactTypName() {
+    public function kierownik()
+    {
         return $this->belongsTo(Contact::class, 'kierownikBud_id','id');
     }
 

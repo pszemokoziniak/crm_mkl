@@ -33,7 +33,7 @@ class OrganizationsController extends Controller
                     'nazwaBud' => $organization->nazwaBud,
                     'numerBud' => $organization->numerBud,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
-                    'kierownikBud_id' => $organization->contactTypName ? $organization->contactTypName : null,
+                    'kierownikBud_id' => $organization->kierownik ? $organization->kierownik : null,
                     'inzynier' => $organization->inzynier ? $organization->inzynier : null,
                     'deleted_at' => $organization->deleted_at,
                 ]),
