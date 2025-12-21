@@ -22,10 +22,15 @@ class Organization extends Model
         return $this->hasMany(Contact::class);
     }
 
-    public function contactworkdate()
+    public function contactWorkDates()
     {
         return $this->hasMany(ContactWorkDate::class, 'organization_id', 'id');
     }
+
+//    public function contactWorkDates()
+//    {
+//        return $this->hasMany(\App\Models\ContactWorkDate::class);
+//    }
 
     public function inzynier()
     {

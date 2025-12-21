@@ -34,6 +34,12 @@ class StoreOrganizationRequest extends FormRequest
             'country_id' => 'required',
             'addressBud' => 'nullable | max:2500',
             'addressKwat' => 'nullable | max:2500',
+
+            'kierownikBud_ids' => ['nullable', 'array'],
+            'kierownikBud_ids.*' => ['integer', 'exists:contacts,id'],
+
+            'inzynier_ids' => ['nullable', 'array'],
+            'inzynier_ids.*' => ['integer', 'exists:contacts,id'],
         ];
     }
     public function messages() {

@@ -1,20 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class ContactWorkDate extends Model
 {
     use HasFactory;
 
-    public function organization()
+    protected $table = 'contact_work_dates';
+
+    protected $fillable = [
+        'contact_id',
+        'organization_id',
+        'start',
+        'end',
+    ];
+
+    public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
     }
 
-    public function contact()
+    public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
     }
@@ -47,4 +60,12 @@ class ContactWorkDate extends Model
         });
     }
 
+    public function scopeActiveOn(Builder $query, string $date): Builder
+    {
+        return $query
+            ->whereDate('start', '<=', $date)
+            ->where(function ($q) use ($date) {
+                $q->whereNull('end')->orWhereDate('end', '>=', $date);
+            });
+    }
 }

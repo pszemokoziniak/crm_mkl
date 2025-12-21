@@ -15,15 +15,40 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class OrganizationsController extends Controller
 {
     public function index()
     {
+        $today = Carbon::today()->toDateString();
+
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed'),
             'organizations' => Organization::with('krajTyp')
-                ->with('inzynier')
+                ->addSelect([
+                    'has_active_workers' => ContactWorkDate::query()
+                        ->selectRaw('1')
+                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                        ->activeOn($today)
+                        ->limit(1),
+
+                    // Kierownicy (funkcja_id = 1)
+                    'kierownicy_names' => ContactWorkDate::query()
+                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
+                        ->selectRaw("GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name) ORDER BY contacts.last_name SEPARATOR ', ')")
+                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                        ////->activeOn($today)
+                        ->where('contacts.funkcja_id', 1),
+
+                    // Inżynierowie (funkcja_id = 6)
+                    'inzynierowie_names' => ContactWorkDate::query()
+                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
+                        ->selectRaw("GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name) ORDER BY contacts.last_name SEPARATOR ', ')")
+                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                        ////s->activeOn($today)
+                        ->where('contacts.funkcja_id', 6),
+                ])
                 ->orderBy('numerBud', 'asc')
                 ->filter(Request::only('search', 'trashed'))
                 ->paginate(100)
@@ -33,8 +58,9 @@ class OrganizationsController extends Controller
                     'nazwaBud' => $organization->nazwaBud,
                     'numerBud' => $organization->numerBud,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
-                    'kierownikBud_id' => $organization->kierownik ? $organization->kierownik : null,
-                    'inzynier' => $organization->inzynier ? $organization->inzynier : null,
+                    'kierownicy' => $organization->kierownicy_names ?: null,
+                    'inzynierowie' => $organization->inzynierowie_names ?: null,
+                    'has_active_workers' => (bool) ($organization->has_active_workers ?? false),
                     'deleted_at' => $organization->deleted_at,
                 ]),
         ]);
@@ -42,29 +68,59 @@ class OrganizationsController extends Controller
 
     public function create()
     {
-
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::all(),
-            'kierownikBud' => Contact::where('funkcja_id', '=', 1)->get(),
-            'inzyniers' => Contact::where('funkcja_id', '=', 6)->get(),
+            'kierownikBud' => Contact::where('funkcja_id', 1)->orderBy('last_name')->get(['id','first_name','last_name']),
+            'inzyniers' => Contact::where('funkcja_id', 6)->orderBy('last_name')->get(['id','first_name','last_name']),
         ]);
     }
 
     public function store(StoreOrganizationRequest $req)
     {
-        $data = new Organization;
-        $data->name=$req->name;
-        $data->account_id=0;
-        $data->nazwaBud=$req->nazwaBud;
-        $data->numerBud=$req->numerBud;
-        $data->city=$req->city;
-        $data->kierownikBud_id=$req->kierownikBud_id;
-        $data->zaklad=$req->zaklad;
-        $data->country_id=$req->country_id;
-        $data->addressBud=$req->addressBud;
-        $data->addressKwat=$req->addressKwat;
-        $data->inzynier_id=$req->inzynier_id;
-        $data->save();
+        $today = Carbon::today()->toDateString();
+
+        $org = new Organization();
+        $org->name = $req->name;
+        $org->account_id = 0;
+        $org->nazwaBud = $req->nazwaBud;
+        $org->numerBud = $req->numerBud;
+        $org->city = $req->city;
+        $org->zaklad = $req->zaklad;
+        $org->country_id = $req->country_id;
+        $org->addressBud = $req->addressBud;
+        $org->addressKwat = $req->addressKwat;
+        $org->save();
+
+        $kierownicyIds = array_values(array_filter((array) $req->input('kierownikBud_ids', [])));
+        $inzynierIds   = array_values(array_filter((array) $req->input('inzynier_ids', [])));
+
+        $rows = [];
+        foreach (array_merge($kierownicyIds, $inzynierIds) as $contactId) {
+            $rows[] = [
+                'organization_id' => (int) $org->id,
+                'contact_id'      => (int) $contactId,
+                'start'           => $today,
+                'end'             => null,
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ];
+        }
+
+        if ($rows !== []) {
+            foreach ($rows as $row) {
+                ContactWorkDate::query()->updateOrCreate(
+                    [
+                        'organization_id' => $row['organization_id'],
+                        'contact_id'      => $row['contact_id'],
+                        'start'           => $row['start'],
+                    ],
+                    [
+                        'end'        => $row['end'],
+                        'updated_at' => $row['updated_at'],
+                    ]
+                );
+            }
+        }
 
         return Redirect::route('organizations')->with('success', 'Budowa stworzona.');
     }
