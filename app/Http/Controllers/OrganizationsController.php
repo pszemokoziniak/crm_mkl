@@ -23,33 +23,65 @@ class OrganizationsController extends Controller
     {
         $today = Carbon::today()->toDateString();
 
+        $sort = request('sort', 'numerBud');
+        $direction = request('direction') === 'desc' ? 'desc' : 'asc';
+
+        // Mapowanie "publicznych" nazw sortów -> realne kolumny/aliasy SQL
+        $allowedSorts = [
+            'nazwaBud'           => 'organizations.nazwaBud',
+            'numerBud'           => 'organizations.numerBud',
+            'city'               => 'organizations.city',
+            'has_active_workers' => 'has_active_workers',   // alias z addSelect
+            'country'            => 'kt.name',              // join tylko przy tym sorcie
+        ];
+
+        if (!array_key_exists($sort, $allowedSorts)) {
+            $sort = 'numerBud';
+        }
+
+        $query = Organization::query()
+            ->with('krajTyp')
+            ->addSelect([
+                'has_active_workers' => ContactWorkDate::query()
+                    ->selectRaw('1')
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->activeOn($today)
+                    ->limit(1),
+
+                'kierownicy_names' => ContactWorkDate::query()
+                    ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
+                    ->selectRaw(
+                        "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name)
+                     ORDER BY contacts.last_name SEPARATOR ', ')"
+                    )
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->where('contacts.funkcja_id', 1),
+
+                'inzynierowie_names' => ContactWorkDate::query()
+                    ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
+                    ->selectRaw(
+                        "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name)
+                     ORDER BY contacts.last_name SEPARATOR ', ')"
+                    )
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->where('contacts.funkcja_id', 6),
+            ])
+            ->filter(Request::only('search', 'trashed'));
+
+        if ($sort === 'country') {
+            $query->leftJoin('kraj_typs as kt', 'kt.id', '=', 'organizations.country_id')
+                ->addSelect('organizations.*')
+                ->orderBy('kt.name', $direction);
+        }
+        $query->orderBy($allowedSorts[$sort], $direction);
+
+        if ($sort !== 'numerBud') {
+            $query->orderBy('organizations.numerBud', 'asc');
+        }
+
         return Inertia::render('Organizations/Index', [
-            'filters' => Request::all('search', 'trashed'),
-            'organizations' => Organization::with('krajTyp')
-                ->addSelect([
-                    'has_active_workers' => ContactWorkDate::query()
-                        ->selectRaw('1')
-                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                        ->activeOn($today)
-                        ->limit(1),
-
-                    // Kierownicy (funkcja_id = 1)
-                    'kierownicy_names' => ContactWorkDate::query()
-                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
-                        ->selectRaw("GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name) ORDER BY contacts.last_name SEPARATOR ', ')")
-                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                        ->where('contacts.funkcja_id', 1),
-
-                    // Inżynierowie (funkcja_id = 6)
-                    'inzynierowie_names' => ContactWorkDate::query()
-                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
-                        ->selectRaw(
-                            "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name) ORDER BY contacts.last_name SEPARATOR ', ')")
-                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                        ->where('contacts.funkcja_id', 6),
-                ])
-                ->orderBy('numerBud', 'asc')
-                ->filter(Request::only('search', 'trashed'))
+            'filters' => Request::all('search', 'trashed', 'sort', 'direction'),
+            'organizations' => $query
                 ->paginate(100)
                 ->withQueryString()
                 ->through(fn ($organization) => [
@@ -64,6 +96,7 @@ class OrganizationsController extends Controller
                 ]),
         ]);
     }
+
 
     public function create()
     {

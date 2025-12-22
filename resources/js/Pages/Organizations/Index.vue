@@ -20,7 +20,7 @@
 
     <div class="bg-white rounded-md shadow">
       <OrganizationsMobileList :organizations="organizations.data" />
-      <OrganizationsDesktopTable :organizations="organizations.data" />
+      <OrganizationsDesktopTable :organizations="organizations.data" :sort="form.sort" :direction="form.direction" @sort="onSort" />
     </div>
 
     <pagination class="mt-6" :links="organizations.links" />
@@ -58,6 +58,8 @@ export default {
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
+        sort: this.filters.sort ?? 'nazwaBud',
+        direction: this.filters.direction ?? 'asc',
       },
     }
   },
@@ -72,6 +74,14 @@ export default {
   methods: {
     reset() {
       this.form = mapValues(this.form, () => null)
+    },
+    onSort(column) {
+      if (this.form.sort === column) {
+        this.form.direction = this.form.direction === 'asc' ? 'desc' : 'asc'
+      } else {
+        this.form.sort = column
+        this.form.direction = 'asc'
+      }
     },
   },
 }
