@@ -1,6 +1,25 @@
 <template>
-  <div class="max-w bg-white rounded-md shadow overflow-hidden my-5">
-    <h3 class="font-medium text-xl  p-4">Dostępni pracownicy</h3>
+  <div class="max-w my-5 bg-white rounded-md shadow overflow-hidden">
+    <h3 class="p-4 text-xl font-medium">Przypisz kierownika i inżyniera</h3>
+
+    <div class="grid gap-4 grid-cols-1 p-4 md:grid-cols-2">
+      <div>
+        <label class="block mb-1 text-sm font-medium">Kierownik</label>
+        <select v-model="form.manager_id" class="form-select w-full">
+          <option :value="null">— wybierz —</option>
+          <option v-for="p in managers" :key="p.id" :value="p.id">{{ p.last_name }} {{ p.first_name }} ({{ p.fn_name }})</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium">Inżynier</label>
+        <select v-model="form.engineer_id" class="form-select w-full">
+          <option :value="null">— wybierz —</option>
+          <option v-for="p in engineers" :key="p.id" :value="p.id">{{ p.last_name }} {{ p.first_name }} ({{ p.fn_name }})</option>
+        </select>
+      </div>
+    </div>
+    <h3 class="p-4 text-xl font-medium">Dostępni pracownicy</h3>
     <form @submit.prevent="store()">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -10,12 +29,7 @@
         </tr>
         <tr v-for="free in contactsFree" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <input
-              class="ml-2 mr-2"
-              type="checkbox"
-              :value="free.id"
-              v-model="form.checkedValues"
-            />
+            <input class="ml-2 mr-2" type="checkbox" :value="free.id" v-model="form.checkedValues" />
             {{ free.last_name }} {{ free.first_name }}
             <icon v-if="free.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
           </td>
@@ -62,10 +76,9 @@ export default {
   },
   layout: Layout,
   props: {
-    data: Object,
     contacts: Object,
     contactsFree: Object,
-    // dates: Object,
+    specialists: Object,
     organization: Object,
     start: String,
     end: String,
@@ -74,19 +87,26 @@ export default {
   data() {
     return {
       form: this.$inertia.form({
+        manager_id: null,
+        engineer_id: null,
         checkedValues: [],
         start: this.start,
         end: this.end,
       }),
     }
   },
+  computed: {
+    managers() {
+      return (this.specialists || []).filter((x) => x.funkcja_id === 1)
+    },
+    engineers() {
+      return (this.specialists || []).filter((x) => x.funkcja_id === 6)
+    },
+  },
   methods: {
     store() {
       this.form.post(`/pracownicy/${this.organization.id}/`)
     },
-  },
-  mounted: function() {
-    console.log(this.start)
   },
 }
 </script>

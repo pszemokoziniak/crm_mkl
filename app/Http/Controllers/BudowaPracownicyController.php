@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DestroyBudowaPracownicyRequest;
 use App\Http\Requests\FindPracownicyRequest;
 use App\Http\Requests\StoreBudowaPracownicyRequest;
-use App\Http\Requests\StoredestroyStoreRequest;
-use App\Models\A1;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\BuildingTimeSheet;
-use App\Models\Funkcja;
 use App\Models\Organization;
-use Carbon\Carbon;
-//use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -22,6 +16,10 @@ use Inertia\Inertia;
 
 class BudowaPracownicyController extends Controller
 {
+    private const MULTI_SITE_FUNKCJA_IDS = [
+        1, // Kierownik - przykładowe ID
+        6, // Inżynier  - przykładowe ID
+    ];
 
     public function organizationWorkers($id) {
         $workers = DB::table('contact_work_dates', 'cwd')
@@ -73,15 +71,86 @@ class BudowaPracownicyController extends Controller
     }
     public function store(StoreBudowaPracownicyRequest $request, Organization $organization)
     {
-        foreach ($request->checkedValues as $item) {
-            $data = new ContactWorkDate;
-            $data->contact_id = $item;
-            $data->organization_id = $organization->id;
-            $data->start = $request->start;
-            $data->end = $request->end;
-            $data->save();
+        $start = $request->start;
+        $end   = $request->end;
+
+        $toAssign = [];
+
+        if (!empty($request->manager_id)) {
+            $toAssign[] = (int) $request->manager_id;
         }
-        return Redirect::route('pracownicy.create', $organization->id)->with('success', 'Pracownik dodany');
+
+        if (!empty($request->engineer_id)) {
+            $toAssign[] = (int) $request->engineer_id;
+        }
+
+        foreach (($request->checkedValues ?? []) as $id) {
+            $toAssign[] = (int) $id;
+        }
+
+        $toAssign = array_values(array_unique(array_filter($toAssign)));
+
+        if (empty($toAssign)) {
+            return Redirect::back()->with('error', 'Nie wybrano żadnego pracownika.');
+        }
+
+        $multiSiteFunkcjaIds = self::MULTI_SITE_FUNKCJA_IDS;
+
+        $nonSpecialIds = Contact::query()
+            ->whereIn('id', $toAssign)
+            ->whereNotIn('funkcja_id', $multiSiteFunkcjaIds)
+            ->pluck('id')
+            ->all();
+
+        if (!empty($nonSpecialIds)) {
+            $busyIds = DB::table('contact_work_dates')
+                ->whereIn('contact_id', $nonSpecialIds)
+                ->where('start', '<=', $end)
+                ->where('end', '>=', $start)
+                ->distinct()
+                ->pluck('contact_id')
+                ->all();
+
+            if (!empty($busyIds)) {
+                $busyNames = Contact::query()
+                    ->whereIn('id', $busyIds)
+                    ->orderBy('last_name')
+                    ->get(['first_name', 'last_name'])
+                    ->map(fn ($c) => $c->last_name . ' ' . $c->first_name)
+                    ->implode(', ');
+
+                return Redirect::back()->with(
+                    'error',
+                    'Niedostępni w tym terminie: ' . ($busyNames ?: 'wybrani pracownicy') . '.'
+                );
+            }
+        }
+
+        DB::transaction(function () use ($toAssign, $organization, $start, $end) {
+            foreach ($toAssign as $contactId) {
+
+                $exists = ContactWorkDate::query()
+                    ->where('contact_id', $contactId)
+                    ->where('organization_id', $organization->id)
+                    ->where('start', $start)
+                    ->where('end', $end)
+                    ->exists();
+
+                if ($exists) {
+                    continue;
+                }
+
+                $data = new ContactWorkDate();
+                $data->contact_id = $contactId;
+                $data->organization_id = $organization->id;
+                $data->start = $start;
+                $data->end = $end;
+                $data->save();
+            }
+        });
+
+        return Redirect::route('pracownicy.create', $organization->id)
+            ->with('success', 'Pracownicy dodani.');
     }
 
     public function edit(Organization $organization, ContactWorkDate $contactWorkDate)
@@ -121,49 +190,57 @@ class BudowaPracownicyController extends Controller
 
     public function find(FindPracownicyRequest $request, Organization $organization)
     {
-        $contactsBusy = DB::table('contact_work_dates')
+        $start = $request->start;
+        $end   = $request->end;
 
-            ->select('id', 'contact_id')
-            ->where(function ($query) use ($request){
-               $query->where('start', '>=', $request->start)
-                   ->where('end', '<=', $request->end);
-            })
-            ->orWhere(function ($query) use ($request){
-                $query->where('start', '<=', $request->start)
-                    ->where('end', '>=', $request->start);
-            })
-            ->orWhere(function ($query) use ($request){
-                $query->where('start', '<=', $request->end)
-                    ->where('end', '>=', $request->end);
-            })
-            ->distinct()
+        // 1) Wyciągamy kontakty specjalne (kierownik+inżynier) bez ograniczeń dostępności
+        $specialists = Contact::query()
+            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
+            ->select([
+                'contacts.id',
+                'contacts.first_name',
+                'contacts.last_name',
+                'contacts.phone',
+                'contacts.funkcja_id',
+                'funkcjas.name as fn_name',
+            ])
+            ->whereIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
+            ->orderBy('contacts.last_name', 'asc')
             ->get();
 
-        $contactsBusyArray = array();
-        $contactArray = array();
+        // 2) Wyciągamy zajętych w oknie [start,end] (overlap)
+        $busyContactIds = DB::table('contact_work_dates')
+            ->where('start', '<=', $end)
+            ->where('end', '>=', $start)
+            ->distinct()
+            ->pluck('contact_id')
+            ->all();
 
-        foreach ($contactsBusy as $item) {
-            array_push($contactsBusyArray, $item->contact_id);
-        }
-
-        $contacts = Contact::get();
-        foreach ($contacts as $item) {
-            array_push($contactArray, $item->id);
-//            ($item->funkcja_id === 1)?:array_push($contactArray, $item->id);
-        }
-        $contactFreeArray = array_diff($contactArray, $contactsBusyArray);
-        $contactFree = Contact::join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-            ->select('contacts.id', 'contacts.first_name', 'contacts.last_name', 'contacts.phone', 'funkcjas.name as fn_name', 'contacts.funkcja_id')
-            ->whereIn('contacts.id', $contactFreeArray)
+        // 3) Pozostali: nie-specjalni i wolni
+        $contactsFree = Contact::query()
+            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
+            ->select([
+                'contacts.id',
+                'contacts.first_name',
+                'contacts.last_name',
+                'contacts.phone',
+                'contacts.funkcja_id',
+                'funkcjas.name as fn_name',
+            ])
+            ->whereNotIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
+            ->whereNotIn('contacts.id', $busyContactIds)
             ->orderBy('contacts.last_name', 'asc')
             ->get();
 
         $workers = $this->organizationWorkers($organization->id);
 
         return Inertia::render('Pracownicy/Create', [
-            'contactsFree' => $contactFree,
-            'contacts' => $workers,
+            'specialists'  => $specialists,
+            'contactsFree' => $contactsFree,
+            'contacts'     => $workers,
             'organization' => $organization,
+            'start'        => $start,
+            'end'          => $end,
         ]);
     }
 }
