@@ -12,13 +12,6 @@
           <text-input v-model="form.numerBud" :error="form.errors.numerBud" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Budowy" />
           <text-input v-model="form.city" :error="form.errors.city" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa Klienta" />
-          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
-            <option value="0">Brak</option>
-            <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }}</option>
-          </select-input>
-          <select-input v-model="form.inzynier_id" :error="form.errors.inzynier_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Inżynier Budowy">
-            <option v-for="item in inzyniers" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
-          </select-input>
           <text-input v-model="form.zaklad" :error="form.errors.zaklad" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
           <select-input v-model="form.country_id" :error="form.errors.country_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>

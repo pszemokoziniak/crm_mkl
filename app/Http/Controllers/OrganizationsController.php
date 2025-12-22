@@ -38,15 +38,14 @@ class OrganizationsController extends Controller
                         ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
                         ->selectRaw("GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name) ORDER BY contacts.last_name SEPARATOR ', ')")
                         ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                        ////->activeOn($today)
                         ->where('contacts.funkcja_id', 1),
 
                     // Inżynierowie (funkcja_id = 6)
                     'inzynierowie_names' => ContactWorkDate::query()
                         ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
-                        ->selectRaw("GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name) ORDER BY contacts.last_name SEPARATOR ', ')")
+                        ->selectRaw(
+                            "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name) ORDER BY contacts.last_name SEPARATOR ', ')")
                         ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                        ////s->activeOn($today)
                         ->where('contacts.funkcja_id', 6),
                 ])
                 ->orderBy('numerBud', 'asc')
