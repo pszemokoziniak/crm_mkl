@@ -33,7 +33,7 @@ class BuildingTimeSheet extends Controller
         $timeShifts = BuildTimeShiftFactory::create($build, $date);
         $date = BuildTimeShiftFactory::getBuildDate($date);
 
-        return Inertia::render('Building/Index.vue',
+        return Inertia::render('Building/Index',
             [
                 'date' => $date,
                 'month' => $date->monthName,
@@ -66,7 +66,7 @@ class BuildingTimeSheet extends Controller
                         (int)$request->get('to')['minutes']
                     ),
                     'shift_status_id' => $request->get('status') ?? null,
-                    'effective_work_time' => $request->get('workTime')['hours'] . ':' . $request->get('workTime')['minutes'],
+                    'effective_work_time' => sprintf('%02d:%02d', (int)$request->get('workTime')['hours'], (int)$request->get('workTime')['minutes']),
                     'reduced_working_hours' => $request->get('reducedWorkingHours') ?? false
                 ]
             );
@@ -110,7 +110,7 @@ class BuildingTimeSheet extends Controller
 
     public function reportIndex(): Response
     {
-        return Inertia::render('Reports/MonthReport.vue');
+        return Inertia::render('Reports/MonthReport');
     }
 
     public function buildsReport(Request $request): BinaryFileResponse

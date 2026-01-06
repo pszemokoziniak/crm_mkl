@@ -44,8 +44,8 @@ class BuildTimeShiftCreator
 
                 $constraints->add(new ShiftOutWorkDatesConstraint(
                     $day,
-                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_start'])->startOfDay(),
-                    Carbon::createFromFormat('Y-m-d', $workersOnBuildData[$workerId]['work_end'])->startOfDay()
+                    Carbon::parse($workersOnBuildData[$workerId]['work_start'])->startOfDay(),
+                    Carbon::parse($workersOnBuildData[$workerId]['work_end'])->startOfDay()
                 ));
 
                 $constraintResult = $this->checkConstraints($constraints);

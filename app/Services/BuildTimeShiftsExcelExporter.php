@@ -402,7 +402,7 @@ class BuildTimeShiftsExcelExporter
                 }
 
                 if ($shift->work) {
-                    $shiftInMinutes = Carbon::createFromFormat('H:i', $shift->work)->diffInMinutes(Carbon::now()->startOfDay());
+                    $shiftInMinutes = Carbon::parse($shift->work)->diffInMinutes(Carbon::now()->startOfDay());
                     $workPaidSum += $shiftInMinutes;
                 }
             }
