@@ -331,7 +331,7 @@ class BuildTimeShiftsExcelExporter
                     continue;
                 }
 
-                if ($shift->isSaturday()) {
+                if ($shift->isSaturday() || $shift->blockedType === 'feast') {
                     $this->activeWorksheet
                         ->getStyle($cellFrom . ':' . $cellTo)
                         ->applyFromArray($this->borderStyleThin)

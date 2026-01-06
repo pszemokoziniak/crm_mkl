@@ -43,7 +43,7 @@ class Shift implements JsonSerializable
     public static function createFromShift(\stdClass $shift, int $build, bool $isBlocked, ?string $blockedType): self
     {
         return new self(
-            id: $shift->id,
+            id: $shift->contact_id,
             build: $build,
             name: $shift->first_name . ' ' . $shift->last_name,
             day: $shift->work_day,
@@ -57,13 +57,14 @@ class Shift implements JsonSerializable
         );
     }
 
-    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked, ?string $blockedType): Shift
+    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked, ?string $blockedType, ?int $status = null): Shift
     {
         return new self(
             id: $id,
             build: $build,
             name: $fullName,
             day: $day,
+            status: $status,
             isBlocked: $isBlocked,
             blockedType: $blockedType,
         );

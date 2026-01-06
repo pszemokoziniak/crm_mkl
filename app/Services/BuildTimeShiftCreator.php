@@ -6,7 +6,9 @@ namespace App\Services;
 
 use App\Constraints\CalendarConstraintInterface;
 use App\Constraints\FeastDaysConstraint;
+use App\Constraints\HolidayConstraint;
 use App\Constraints\ShiftOutWorkDatesConstraint;
+use App\Constraints\SundayConstraint;
 use App\DTO\Shift;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -37,19 +39,30 @@ class BuildTimeShiftCreator
         }, SORT_NATURAL)
         ->toArray();
 
+        // Cache shift status ID for 'UW' (Urlop wypoczynkowy)
+        $holidayStatusId = DB::table('shift_status')->where('code', 'UW')->value('id');
+
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
+            $holidays = $this->getHolidays($workerId, $period);
             foreach ($period as $day) {
                 $constraints = new Collection();
                 $constraints->add(new FeastDaysConstraint($feasts, $day));
+                $constraints->add(new SundayConstraint($day));
+                $holidayConstraint = new HolidayConstraint($holidays, $day);
+                $constraints->add($holidayConstraint);
 
-                $constraints->add(new ShiftOutWorkDatesConstraint(
-                    $day,
-                    Carbon::parse($workersOnBuildData[$workerId]['work_start'])->startOfDay(),
-                    Carbon::parse($workersOnBuildData[$workerId]['work_end'])->startOfDay()
-                ));
+                if (isset($workersOnBuildData[$workerId])) {
+                    $constraints->add(new ShiftOutWorkDatesConstraint(
+                        $day,
+                        Carbon::parse($workersOnBuildData[$workerId]['work_start'])->startOfDay(),
+                        Carbon::parse($workersOnBuildData[$workerId]['work_end'])->startOfDay()
+                    ));
+                }
 
                 $constraintResult = $this->checkConstraints($constraints);
                 $isBlocked = (bool)$constraintResult;
+                $blockedType = $constraintResult?->getType();
+                $isHolidayType = $blockedType === 'holiday';
 
                 $dayIndex = $day->day;
 
@@ -57,22 +70,52 @@ class BuildTimeShiftCreator
                     array_key_exists($dayIndex, $shifts)
                     && Carbon::create($shifts[$dayIndex]->work_day)->isSameDay($day)
                 ) {
+                    $shift = $shifts[$dayIndex];
+                    // If no status in DB, but it is a holiday, use holiday status.
+                    // Only if no work time is recorded.
+                    $hasWork = !empty($shift->effective_work_time) && $shift->effective_work_time !== '00:00';
+
+                    if (!$shift->shift_status_id && $isHolidayType && !$hasWork) {
+                        $shift->shift_status_id = $holidayStatusId;
+                    }
+
                     $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createFromShift(
-                        $shifts[$dayIndex],
+                        $shift,
                         $build,
                         $isBlocked,
-                        $constraintResult?->getType()
+                        $blockedType
                     );
                     continue;
+                }
+
+                $status = null;
+                if ($isHolidayType) {
+                    $status = $holidayStatusId;
+                }
+
+                // Fallback for name if worker data is missing (should not happen for drafts as drafts imply no shift, so worker must be in workersOnBuildData)
+                // But if we are here, it means no shift for this day.
+                // If workerId is not in workersOnBuildData, it means they have shifts on OTHER days but not this one, AND no contract data.
+                // We need a name.
+                $fullName = 'Unknown';
+                if (isset($workersOnBuildData[$workerId])) {
+                    $fullName = $workersOnBuildData[$workerId]['last_name'] . ' ' . $workersOnBuildData[$workerId]['first_name'];
+                } elseif (!empty($shifts)) {
+                     // Try to get name from existing shifts
+                     $firstShift = reset($shifts);
+                     if ($firstShift instanceof \stdClass) {
+                         $fullName = $firstShift->last_name . ' ' . $firstShift->first_name;
+                     }
                 }
 
                 $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createDraft(
                     id: $workerId,
                     build: $build,
-                    fullName: $workersOnBuildData[$workerId]['last_name'] . ' ' . $workersOnBuildData[$workerId]['first_name'],
+                    fullName: $fullName,
                     day: $day->toString(),
                     isBlocked: $isBlocked,
-                    blockedType: $constraintResult?->getType()
+                    blockedType: $blockedType,
+                    status: $status
                 );
             }
         }
@@ -109,7 +152,7 @@ class BuildTimeShiftCreator
     public function transform(Collection $buildWorkersShifts): iterable
     {
         return array_reduce($buildWorkersShifts->toArray(), static function ($carry, $item) {
-            $carry[$item->id][Carbon::create($item->work_day)->day] = $item;
+            $carry[$item->contact_id][Carbon::create($item->work_day)->day] = $item;
             return $carry;
         }, []);
     }
@@ -166,8 +209,20 @@ class BuildTimeShiftCreator
     {
         return DB::table('feasts', 'f')
             ->join('kraj_typs', 'kraj_typs.id', '=', 'f.country_id')
-            ->join('organizations', 'organizations.country_id', 'kraj_typs.id')
+            ->join('organizations', 'organizations.country_id', '=', 'kraj_typs.id')
             ->where('organizations.id', $build)
+            ->select('f.*')
+            ->get();
+    }
+
+    private function getHolidays(int $workerId, CarbonPeriod $period): Collection
+    {
+        return DB::table('holidays')
+            ->where('contact_id', $workerId)
+            ->where(function ($query) use ($period) {
+                $query->where('start', '<=', $period->last()->format('Y-m-d'))
+                      ->where('end', '>=', $period->first()->format('Y-m-d'));
+            })
             ->get();
     }
 }
