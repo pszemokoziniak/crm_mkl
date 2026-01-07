@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Services\Date\ExcelTimeFormatter;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\File;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -24,6 +26,11 @@ class BuildsExcelExporter
 
     public function generate(iterable $shifts, CarbonPeriod $date)
     {
+        $title = $date->first()?->locale('pl_PL')->isoFormat('MMMM YYYY');
+        if ($title) {
+            $this->activeWorksheet->setTitle(ucfirst($title));
+        }
+
         $this
             ->addMainHeaders($date)
             ->addDaysHeader($date)
@@ -38,7 +45,7 @@ class BuildsExcelExporter
         $this
             ->activeWorksheet
             ->setCellValue('A1', strtoupper(
-                $period->first()?->locale('pl_PL')->monthName
+                $period->first()?->locale('pl_PL')->monthName . ' ' . $period->first()?->year
             ));
 
         $this
@@ -47,7 +54,7 @@ class BuildsExcelExporter
 
         $this
             ->activeWorksheet
-            ->setCellValue('A2', 'Kolumna 1');
+            ->setCellValue('A2', 'Suma godzin');
 
         $this
             ->activeWorksheet
@@ -62,7 +69,11 @@ class BuildsExcelExporter
 
     public function export(?string $filename = ''): string
     {
-        $path = storage_path('app/export/') . 'general_report.xlsx';
+        $path = storage_path('app/export/');
+        if (!File::exists($path)) {
+            File::makeDirectory($path, 0755, true);
+        }
+        $path .= 'general_report.xlsx';
         $writer = new Xlsx($this->spreadsheet);
         $writer->save($path);
 
@@ -78,7 +89,7 @@ class BuildsExcelExporter
 
     public function addDaysHeader(CarbonPeriod $period): self
     {
-        $days = array_map(static fn(Carbon $carbon) => $carbon->day, $period->toArray());
+        $days = array_map(static fn(Carbon $carbon) => $carbon->day . ' ' . $carbon->locale('pl_PL')->shortDayName, $period->toArray());
 
         $arrayData = [
             $days
@@ -113,11 +124,17 @@ class BuildsExcelExporter
         $period->count();
         /** @var Collection $shift */
         foreach ($shifts as $shift) {
+            $sumHours = 0;
             /** @var [ 2 => 386 ] $dayToCode */
-            $rowForWorker = $shift->reduce(function ($carry, $item) {
-                $carry[Carbon::create($item->work_day)->day] = $item->code ?? $item->numerBud;
+            $rowForWorker = $shift->reduce(function ($carry, $item) use (&$sumHours) {
+                $value = $item->code;
+                if (!$value && !empty($item->effective_work_time) && (int)str_replace(':', '', $item->effective_work_time) > 0) {
+                    $value = ExcelTimeFormatter::dateToInteger($item->effective_work_time);
+                    $sumHours += (float)str_replace(',', '.', $value);
+                }
+                $carry[Carbon::create($item->work_day)->day - 1] = $value;
                 return $carry;
-            }, array_fill(3, $period->count(), ''));
+            }, array_fill(0, $period->count(), ''));
 
             ksort($rowForWorker);
 
@@ -134,6 +151,7 @@ class BuildsExcelExporter
                 );
             $this->activeWorksheet->setCellValue('B' . $startingRowId, $lastName);
             $this->activeWorksheet->setCellValue('C' . $startingRowId, $firstName);
+            $this->activeWorksheet->setCellValue('A' . $startingRowId, str_replace('.', ',', (string)$sumHours));
 
             $this
                 ->activeWorksheet
