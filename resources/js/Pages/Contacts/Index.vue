@@ -1,4 +1,4 @@
- <template>
+<template>
   <div>
     <Head title="Contacts" />
     <h1 class="mb-8 text-3xl font-bold">Pracownicy</h1>
@@ -6,7 +6,6 @@
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Wybierz:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
-<!--          <option :value="null" />-->
           <option value="with">Wszystkie</option>
           <option value="only">Usunięte</option>
         </select>
@@ -22,7 +21,7 @@
           <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
           <th class="pb-4 pt-6 px-6">Stanowisko</th>
           <th class="pb-4 pt-6 px-6">Pracuje na budowie</th>
-<!--          <th class="pb-4 pt-6 px-6">Status</th>-->
+          <th class="pb-4 pt-6 px-6">Status</th>
         </tr>
         <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -42,6 +41,13 @@
             <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
               <div v-if="contact.pracuje">
                 {{ contact.pracuje }}
+              </div>
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
+              <div v-if="contact.status_zatrudnienia">
+                {{ contact.status_zatrudnienia }}
               </div>
             </Link>
           </td>

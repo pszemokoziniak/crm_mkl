@@ -23,7 +23,7 @@ class BudowaPracownicyController extends Controller
 
     public function organizationWorkers($id) {
         $workers = DB::table('contact_work_dates', 'cwd')
-            ->select('cwd.id', 'cwd.contact_id', 'contacts.first_name', 'contacts.last_name', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name')
+            ->select('cwd.id', 'cwd.contact_id', 'contacts.first_name', 'contacts.last_name', 'contacts.status_zatrudnienia', 'cwd.organization_id', 'cwd.start', 'cwd.end', 'funkcjas.name')
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $id)
@@ -298,6 +298,7 @@ class BudowaPracownicyController extends Controller
                 'contacts.last_name',
                 'contacts.phone',
                 'contacts.funkcja_id',
+                'contacts.status_zatrudnienia',
                 'funkcjas.name as fn_name',
             ])
             ->whereIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
@@ -314,6 +315,7 @@ class BudowaPracownicyController extends Controller
                 'contacts.last_name',
                 'contacts.phone',
                 'contacts.funkcja_id',
+                'contacts.status_zatrudnienia',
                 'funkcjas.name as fn_name',
             ])
             ->whereNotIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)

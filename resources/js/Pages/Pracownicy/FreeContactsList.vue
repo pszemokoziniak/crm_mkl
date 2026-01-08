@@ -28,6 +28,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
           <th class="pb-4 pt-6 px-6">Pozycja</th>
+          <th class="pb-4 pt-6 px-6">Status</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
         <tr v-for="free in paginatedContacts" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
@@ -39,6 +40,11 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
               {{ free.fn_name }}
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
+              {{ free.status_zatrudnienia }}
             </Link>
           </td>
           <td class="border-t">
@@ -119,10 +125,10 @@ export default {
   },
   computed: {
     managers() {
-      return (this.specialists || []).filter((x) => x.funkcja_id == 1)
+      return (this.specialists || []).filter((x) => x.funkcja_id === 1)
     },
     engineers() {
-      return (this.specialists || []).filter((x) => x.funkcja_id == 6)
+      return (this.specialists || []).filter((x) => x.funkcja_id === 6)
     },
     filteredContactsFree() {
       let result = this.contactsFree || []

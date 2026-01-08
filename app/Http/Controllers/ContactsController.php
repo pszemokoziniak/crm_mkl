@@ -45,6 +45,7 @@ class ContactsController extends Controller
                     'budowa' => $contact->organization,
                     'a1' => A1::where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
                     'pracuje' => $this->findPresentBuild($contact->id),
+                    'status_zatrudnienia' => $contact->status_zatrudnienia,
                 ]),
         ]);
     }
@@ -86,6 +87,7 @@ class ContactsController extends Controller
             'phone' => Request::get('phone'),
             'address' => Request::get('address'),
             'photo_path' => Request::file('photo_path') ? Request::file('photo_path')->store('contacts') : null,
+            'status_zatrudnienia' => Request::get('status_zatrudnienia'),
         ]);
 
 
@@ -120,6 +122,7 @@ class ContactsController extends Controller
                 'miejsce_urodzenia' => $contact->miejsce_urodzenia,
                 'photo_path' => $contact->photo_path ? URL::route('image', ['path' => $contact->photo_path, 'w' => 260, 'h' => 260, 'fit' => 'crop']) : null,
                 'deleted_at' => $contact->deleted_at,
+                'status_zatrudnienia' => $contact->status_zatrudnienia,
             ],
             'organizations' => Auth::user()->account->organizations()
                 ->orderBy('name')
@@ -157,7 +160,7 @@ class ContactsController extends Controller
     {
 
         $contact->update(Request::only('first_name', 'last_name', 'birth_date', 'pesel', 'idCard_number', 'idCard_date', 'funkcja_id', 'work_start',
-            'work_end', 'ekuz', 'miejsce_urodzenia', 'organization_id', 'email', 'phone', 'address'));
+            'work_end', 'ekuz', 'miejsce_urodzenia', 'organization_id', 'email', 'phone', 'address', 'status_zatrudnienia'));
 
         if (Request::file('photo_path')) {
             $contact->update(['photo_path' => Request::file('photo_path')->store('contacts')]);

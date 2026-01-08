@@ -4,8 +4,8 @@
 
     <div class="grid grid-cols-3 bg-white rounded-md shadow overflow-hidden">
       <div class="grid col-span-1">
-        <img v-if="contact.photo_path" class="" :src="contact.photo_path"/>
-        <img v-if="contact.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill"/>
+        <img v-if="contact.photo_path" class="" :src="contact.photo_path" alt="image" />
+        <img v-if="contact.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill" alt="image" />
       </div>
       <div class="grid col-span-1 p-2">
         <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
@@ -21,49 +21,54 @@
         <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
           <span>Terminy:</span>
         </h2>
-        <h3 class="m-3">BHP:
+        <h3 class="m-3">
+          BHP:
           <span v-for="item in bhp" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <span v-if="item.end" class="m-1">
               {{ item.end }}
             </span>
           </span>
         </h3>
-        <h3 class="m-3">Badania lekarskie:
+        <h3 class="m-3">
+          Badania lekarskie:
           <span v-for="item in lekarskie" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <span v-if="item.end" class="m-1">
               {{ item.end }}
             </span>
           </span>
         </h3>
-        <h3 class="m-3">A1:
+        <h3 class="m-3">
+          A1:
           <span v-for="item in a1" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <span v-if="item.end" class="m-1">
               {{ item.end }}
             </span>
           </span>
         </h3>
-        <h3 class="m-3">Uprawnienia:
+        <h3 class="m-3">
+          Uprawnienia:
           <span v-for="item in uprawnienia" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <span v-if="item.end" class="m-1">
               {{ item.end }}
             </span>
           </span>
         </h3>
-        <h3 class="m-3">PBIOZ:
+        <h3 class="m-3">
+          PBIOZ:
           <span v-for="item in pbioz" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <span v-if="item.end" class="m-1">
               {{ item.end }}
             </span>
           </span>
         </h3>
-<!--        <h3 class="m-3">Badania lekarskie: <span v-if="lekarskie"> {{lekarskie.end}} </span> </h3>-->
-<!--        <h3 class="m-3">A1: <span v-if="a1"> {{a1.end}} </span> </h3>-->
-<!--        <h3 class="m-3">Uprawnienia: <span v-if="uprawnienia"> {{uprawnienia.end}} </span> </h3>-->
-<!--        <h3 class="m-3">PBIOZ: <span v-if="pbioz"> {{pbioz.end}} </span> </h3>-->
+        <!--        <h3 class="m-3">Badania lekarskie: <span v-if="lekarskie"> {{lekarskie.end}} </span> </h3>-->
+        <!--        <h3 class="m-3">A1: <span v-if="a1"> {{a1.end}} </span> </h3>-->
+        <!--        <h3 class="m-3">Uprawnienia: <span v-if="uprawnienia"> {{uprawnienia.end}} </span> </h3>-->
+        <!--        <h3 class="m-3">PBIOZ: <span v-if="pbioz"> {{pbioz.end}} </span> </h3>-->
       </div>
     </div>
     <div>
-      <WorkerMenu :contactId="contactId" :uprawnienia="uprawnienia" />
+      <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" />
     </div>
     <h1 class="mb-4 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>
@@ -75,12 +80,9 @@
       <span v-if="obecna_budowa !== 'Nie pracuje'" class="text-lg">{{ obecna_budowa.organization.nazwaBud }}</span>
       <span v-if="obecna_budowa === 'Nie pracuje'" class="text-lg">Nie pracuje</span>
     </h2>
-<!--    <div @click="disabled = 1" class="mb-3 btn-indigo w-1/1 text-center cursor-pointer">-->
-<!--      <span>Edytuj</span>-->
-<!--    </div>-->
     <trashed-message v-if="contact.deleted_at" :user_owner="user_owner" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
-      <fieldset :disabled="disabled == 0">
+      <fieldset :disabled="disabled === 0">
         <form @submit.prevent="update">
           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
             <text-input v-model="form.first_name" :error="form.errors.first_name" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />
@@ -102,6 +104,11 @@
               <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
             </select-input>
 
+            <select-input v-model="form.status_zatrudnienia" :error="form.errors.status_zatrudnienia" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Status zatrudnienia">
+              <option value="Aktywny">Aktywny</option>
+              <option value="Zwolniony">Zwolniony</option>
+            </select-input>
+
             <file-input v-model="form.photo_path" :error="form.errors.photo_path" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
 
             <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
@@ -109,7 +116,7 @@
             <text-input v-model="form.work_end" :error="form.errors.work_end" :disabled="flag" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec umowy" />
 
             <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Ekuz</label>
-            <text-input type="date" v-model="form.ekuz" :error="form.errors.ekuz" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
+            <text-input v-model="form.ekuz" type="date" :error="form.errors.ekuz" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
           </div>
           <div v-if="flag === false" class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
             <button v-if="!contact.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -153,11 +160,6 @@ export default {
     errors: Object,
     bhp: Object,
     lekarskie: Object,
-    // lekarskie: {
-    //   required: false,
-    //   default: null,
-    //   type: [Object, String, Array],
-    // },
     a1: Object,
     pbioz: Object,
     uprawnienia: Object,
@@ -174,9 +176,7 @@ export default {
     return {
       contactId: this.contact.id,
       disabled: 1,
-      // flag: true,
       form: this.$inertia.form({
-        // _method: 'put',
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,
         organization_id: this.contact.organization_id,
@@ -194,6 +194,7 @@ export default {
         work_end: this.contact.work_end,
         ekuz: this.contact.ekuz,
         photo_path: null,
+        status_zatrudnienia: this.contact.status_zatrudnienia,
       }),
     }
   },

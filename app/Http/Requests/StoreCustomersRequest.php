@@ -40,6 +40,7 @@ class StoreCustomersRequest extends FormRequest
             'email' => 'nullable | max:150| email | unique:contacts',
             'phone' => ['required', 'max:50', 'string'],
             'address' => ['nullable'],
+            'status_zatrudnienia' => ['nullable', 'in:Aktywny,Zwolniony'],
         ];
     }
 
@@ -72,6 +73,7 @@ class StoreCustomersRequest extends FormRequest
             'phone' => 'Telefon',
             'address' => 'Adres',
             'funkcja_id' => 'Stanowisko',
+            'status_zatrudnienia' => 'Status zatrudnienia',
         ];
     }
 }

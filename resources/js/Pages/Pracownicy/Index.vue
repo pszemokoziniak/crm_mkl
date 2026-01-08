@@ -21,6 +21,7 @@
           <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
           <th class="pb-4 pt-6 px-6">Czas Pracy</th>
           <th class="pb-4 pt-6 px-6">Stanowisko</th>
+          <th class="pb-4 pt-6 px-6">Status</th>
         </tr>
         <tr v-for="item in contactworkdates.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td v-if="item.contact" class="border-t">
@@ -39,6 +40,14 @@
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
               <div v-if="item.contact.funkcja">
                 {{ item.contact.funkcja.name }}
+              </div>
+              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
+          <td v-if="item.contact" class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
+              <div v-if="item.contact.status_zatrudnienia">
+                {{ item.contact.status_zatrudnienia }}
               </div>
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>

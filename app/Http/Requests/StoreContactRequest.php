@@ -40,6 +40,7 @@ class StoreContactRequest extends FormRequest
             'phone' => ['nullable', 'max:50'],
             'address' => ['nullable'],
             'photo_path' => ['nullable', 'image'],
+            'status_zatrudnienia' => ['nullable', 'in:Aktywny,Zwolniony'],
         ];
     }
     public function messages() {
@@ -71,6 +72,7 @@ class StoreContactRequest extends FormRequest
             'phone' => 'Telefon',
             'address' => 'Adres',
             'funkcja_id' => 'Stanowisko',
+            'status_zatrudnienia' => 'Status zatrudnienia',
         ];
     }
 }
