@@ -27,6 +27,9 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/narzedzia/`">
             <div :class="isUrl('narzedzia') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Sprzęt</div>
           </Link>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/a1/`">
+            <div :class="isUrl('a1') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">A1</div>
+          </Link>
         </div>
       </div>
     </nav>

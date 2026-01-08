@@ -326,4 +326,38 @@ class BudowaPracownicyController extends Controller
             'contactsFree' => $contactsFree,
         ];
     }
+
+    public function a1Index(Organization $organization)
+    {
+        $workerIds = ContactWorkDate::where('organization_id', $organization->id)
+            ->distinct()
+            ->pluck('contact_id');
+
+        $workers = Contact::whereIn('id', $workerIds)
+            ->with(['a1' => function ($q) {
+                $q->latest()->with('kraj');
+            }])
+            ->when(Request::input('search'), function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('first_name', 'like', '%'.$search.'%')
+                        ->orWhere('last_name', 'like', '%'.$search.'%')
+                        ->orWhereHas('a1.kraj', function ($query) use ($search) {
+                            $query->where('name', 'like', '%'.$search.'%');
+                        });
+                });
+            })
+            ->orderByName()
+            ->get()
+            ->map(function ($contact) {
+                $contact->latest_a1 = $contact->a1->sortByDesc('end')->first();
+                return $contact;
+            });
+
+        return Inertia::render('Building/A1', [
+            'build' => $organization->id,
+            'buildDetails' => $organization,
+            'workers' => $workers,
+            'filters' => Request::all('search'),
+        ]);
+    }
 }

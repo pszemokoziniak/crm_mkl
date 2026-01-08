@@ -16,7 +16,7 @@ class A1 extends Model
 
     public function contact()
     {
-        return $this->hasMany(Contact::class);
+        return $this->belongsTo(Contact::class);
     }
 
     public function kraj()

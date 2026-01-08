@@ -29,7 +29,7 @@ class Contact extends Model
 
     public function a1()
     {
-        return $this->belongsTo(A1::class);
+        return $this->hasMany(A1::class);
     }
 
     public function user()

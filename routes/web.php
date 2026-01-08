@@ -607,6 +607,11 @@ Route::put('a1/{a1}/restore', [A1Controller::class, 'restore'])
     ->name('a1.restore')
         ->middleware('auth', 'biuro-permission');
 
+// Budowa A1
+Route::get('budowy/{organization}/a1', [BudowaPracownicyController::class, 'a1Index'])
+    ->name('budowy.a1.index')
+    ->middleware('auth', 'biuro-kierownik-permission');
+
 
 // Uprawnienia
 

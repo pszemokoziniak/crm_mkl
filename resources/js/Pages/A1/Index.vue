@@ -37,7 +37,7 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/a1/${item.id}/edit`">
-              {{ item.kraj.name }}
+              {{ item.kraj ? item.kraj.name : '' }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
@@ -69,7 +69,7 @@
             <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.dokumentytyp.name }}</Link>
+            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.dokumentytyp ? document.dokumentytyp.name : '' }}</Link>
           </td>
           <td class="border-t">
             <div class="flex justify-end">

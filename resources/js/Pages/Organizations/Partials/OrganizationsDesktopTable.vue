@@ -62,8 +62,8 @@
           <!-- Inżynierowie -->
           <td class="hidden border-t lg:table-cell">
             <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-              <div v-if="organization.inzynierowie?.length" class="max-w-[320px]">
-                <p v-for="(name, idx) in organization.inzynierowie" :key="idx" class="text-gray-700 text-xs leading-tight">
+              <div v-if="organization.inzynierowie" class="max-w-[320px]">
+                <p v-for="(name, idx) in splitComma(organization.inzynierowie)" :key="idx" class="text-gray-700 text-xs leading-tight">
                   {{ name }}
                 </p>
               </div>
@@ -116,6 +116,9 @@ export default {
     },
     splitComma(value) {
       if (!value) return []
+      if (Array.isArray(value)) {
+        return value
+      }
       return String(value)
         .split(',')
         .map((s) => s.trim())
