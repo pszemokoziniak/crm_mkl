@@ -21,7 +21,7 @@
     </form>
   </div>
   <div v-if = "contactsFree" class="max-w" >
-    <FreeContactsList :contactsFree="contactsFree" :organization="organization" :start="form.start" :end="form.end"/>
+    <FreeContactsList :contactsFree="contactsFree" :organization="organization" :start="form.start" :end="form.end" :specialists="specialists"/>
   </div>
 
   <div class="max-w bg-white rounded-md shadow overflow-hidden my-5">
@@ -93,6 +93,7 @@ export default {
     organization: Object,
     contacts: Object,
     contactsFree: null,
+    specialists: Object,
   },
   remember: 'form',
   data() {

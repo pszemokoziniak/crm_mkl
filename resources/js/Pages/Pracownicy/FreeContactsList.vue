@@ -19,7 +19,10 @@
         </select>
       </div>
     </div>
-    <h3 class="p-4 text-xl font-medium">Dostępni pracownicy</h3>
+    <div class="flex items-center justify-between p-4">
+      <h3 class="text-xl font-medium">Dostępni pracownicy</h3>
+      <search-filter-no-filtr v-model="search" class="w-full max-w-md" @reset="reset" />
+    </div>
     <form @submit.prevent="store()">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -27,7 +30,7 @@
           <th class="pb-4 pt-6 px-6">Pozycja</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
-        <tr v-for="free in contactsFree" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="free in filteredContactsFree" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <input class="ml-2 mr-2" type="checkbox" :value="free.id" v-model="form.checkedValues" />
             {{ free.last_name }} {{ free.first_name }}
@@ -49,7 +52,7 @@
             </Link>
           </td>
         </tr>
-        <tr v-if="contactsFree.length === 0">
+        <tr v-if="filteredContactsFree.length === 0">
           <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
         </tr>
       </table>
@@ -66,6 +69,7 @@ import { Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import LoadingButton from '@/Shared/LoadingButton'
+import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr'
 // import mapValues from 'lodash/mapValues'
 
 export default {
@@ -73,6 +77,7 @@ export default {
     Icon,
     LoadingButton,
     Link,
+    SearchFilterNoFiltr,
   },
   layout: Layout,
   props: {
@@ -86,6 +91,7 @@ export default {
   remember: 'form',
   data() {
     return {
+      search: '',
       form: this.$inertia.form({
         manager_id: null,
         engineer_id: null,
@@ -97,15 +103,29 @@ export default {
   },
   computed: {
     managers() {
-      return (this.specialists || []).filter((x) => x.funkcja_id === 1)
+      return (this.specialists || []).filter((x) => x.funkcja_id == 1)
     },
     engineers() {
-      return (this.specialists || []).filter((x) => x.funkcja_id === 6)
+      return (this.specialists || []).filter((x) => x.funkcja_id == 6)
+    },
+    filteredContactsFree() {
+      if (!this.search) {
+        return this.contactsFree || []
+      }
+      const lowerSearch = this.search.toLowerCase()
+      return (this.contactsFree || []).filter((contact) => {
+        const fullName = `${contact.last_name} ${contact.first_name}`.toLowerCase()
+        const position = (contact.fn_name || '').toLowerCase()
+        return fullName.includes(lowerSearch) || position.includes(lowerSearch)
+      })
     },
   },
   methods: {
     store() {
       this.form.post(`/pracownicy/${this.organization.id}/`)
+    },
+    reset() {
+      this.search = ''
     },
   },
 }

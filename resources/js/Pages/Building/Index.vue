@@ -319,13 +319,6 @@ export default {
         minutes: String(new Date(time).getMinutes()).padStart(2, '0'),
       }
     },
-    /**
-     * @param time string HH:mm
-     */
-    criticalTime(time) {
-      const criticalShiftWork = 570
-      return moment.duration(time).asMinutes() > criticalShiftWork
-    },
     shiftBackground(shift) {
       if (this.isSunday(shift)) {
         return 'bg-red-200'
@@ -345,10 +338,6 @@ export default {
 
       if (shift.isBlocked) {
         return 'bg-gray-300'
-      }
-
-      if (this.criticalTime(shift.work)) {
-        return 'bg-red-300'
       }
 
       return ''
