@@ -7,6 +7,7 @@ use App\Http\Requests\StoreBudowaPracownicyRequest;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\BuildingTimeSheet;
+use App\Models\Funkcja;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +18,8 @@ use Inertia\Inertia;
 class BudowaPracownicyController extends Controller
 {
     private const MULTI_SITE_FUNKCJA_IDS = [
-        1, // Kierownik - przykładowe ID
-        6, // Inżynier  - przykładowe ID
+        Funkcja::KIEROWNIK,
+        Funkcja::INZYNIER,
     ];
 
     public function organizationWorkers($id) {
@@ -303,6 +304,7 @@ class BudowaPracownicyController extends Controller
             ])
             ->whereIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
             ->whereNotIn('contacts.id', $busyLocalIds) // Sprawdzamy tylko lokalną zajętość
+            ->where('contacts.status_zatrudnienia', '!=', Contact::STATUS_ZWOLNIONY) // Wykluczamy zwolnionych
             ->orderBy('contacts.last_name', 'asc')
             ->get();
 
@@ -320,6 +322,7 @@ class BudowaPracownicyController extends Controller
             ])
             ->whereNotIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
             ->whereNotIn('contacts.id', $busyGlobalIds) // Sprawdzamy globalną zajętość
+            ->where('contacts.status_zatrudnienia', '!=', Contact::STATUS_ZWOLNIONY) // Wykluczamy zwolnionych
             ->orderBy('contacts.last_name', 'asc')
             ->get();
 

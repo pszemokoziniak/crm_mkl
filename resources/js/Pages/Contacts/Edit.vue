@@ -4,8 +4,12 @@
 
     <div class="grid grid-cols-3 bg-white rounded-md shadow overflow-hidden">
       <div class="grid col-span-1">
-        <img v-if="contact.photo_path" class="" :src="contact.photo_path" alt="image" />
-        <img v-if="contact.photo_path == null" class="" src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill" alt="image" />
+        <!-- Podgląd nowo wybranego zdjęcia -->
+        <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover" alt="Podgląd" />
+        <!-- Istniejące zdjęcie -->
+        <img v-else-if="contact.photo_path" :src="contact.photo_path" class="w-full h-full object-cover" alt="image" />
+        <!-- Placeholder -->
+        <img v-else src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill" class="w-full h-full object-cover" alt="Brak zdjęcia" />
       </div>
       <div class="grid col-span-1 p-2">
         <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
@@ -61,10 +65,6 @@
             </span>
           </span>
         </h3>
-        <!--        <h3 class="m-3">Badania lekarskie: <span v-if="lekarskie"> {{lekarskie.end}} </span> </h3>-->
-        <!--        <h3 class="m-3">A1: <span v-if="a1"> {{a1.end}} </span> </h3>-->
-        <!--        <h3 class="m-3">Uprawnienia: <span v-if="uprawnienia"> {{uprawnienia.end}} </span> </h3>-->
-        <!--        <h3 class="m-3">PBIOZ: <span v-if="pbioz"> {{pbioz.end}} </span> </h3>-->
       </div>
     </div>
     <div>
@@ -176,6 +176,7 @@ export default {
     return {
       contactId: this.contact.id,
       disabled: 1,
+      photoPreview: null,
       form: this.$inertia.form({
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,
@@ -198,10 +199,26 @@ export default {
       }),
     }
   },
+  watch: {
+    'form.photo_path': function (value) {
+      if (value instanceof File) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          this.photoPreview = e.target.result
+        }
+        reader.readAsDataURL(value)
+      } else {
+        this.photoPreview = null
+      }
+    },
+  },
   methods: {
     update() {
       this.form.post(`/contacts/${this.contact.id}`, {
-        onSuccess: () => this.form.reset('photo_path'),
+        onSuccess: () => {
+          this.form.reset('photo_path')
+          this.photoPreview = null
+        },
       })
     },
     destroy() {

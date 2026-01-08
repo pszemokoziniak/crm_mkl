@@ -40,6 +40,7 @@ class StoreCustomersRequest extends FormRequest
             'email' => 'nullable | max:150| email | unique:contacts',
             'phone' => ['required', 'max:50', 'string'],
             'address' => ['nullable'],
+            'photo_path' => ['nullable', 'image'],
             'status_zatrudnienia' => ['nullable', 'in:Aktywny,Zwolniony'],
         ];
     }

@@ -12,6 +12,10 @@ class Contact extends Model
     use HasFactory;
     use SoftDeletes;
 
+    public const STATUS_AKTYWNY = 'Aktywny';
+    public const STATUS_URLOP = 'Urlop';
+    public const STATUS_ZWOLNIONY = 'Zwolniony';
+
     protected $fillable = [
         'first_name',
         'last_name',

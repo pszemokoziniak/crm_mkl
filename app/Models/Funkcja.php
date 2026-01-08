@@ -7,27 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Funkcja extends Model
 {
+    public const KIEROWNIK = 1;
+    public const INZYNIER = 6;
+
     public function contact()
     {
         return $this->hasMany(Contact::class);
     }
-    // use HasFactory;
-
-    // protected $fillable = ['name'];
-    // public function users()
-    // {
-    //     return $this->hasMany(User::class);
-    // }
-
-    // public function funkcjas()
-    // {
-    //     return $funkcjas = Funkcja::all();
-    // }
-
-    // public function contacts()
-    // {
-    //     return $this->hasMany(Contact::class);
-    // }
 
     public function funkcjas()
     {

@@ -71,23 +71,23 @@ class ContactsController extends Controller
     public function store(StoreCustomersRequest $request)
     {
         Auth::user()->account->contacts()->create([
-            'first_name' => Request::get('first_name'),
-            'last_name' => Request::get('last_name'),
-            'birth_date' => Request::get('birth_date'),
-            'pesel' => Request::get('pesel'),
-            'idCard_number' => Request::get('idCard_number'),
-            'idCard_date' => Request::get('idCard_date'),
-            'funkcja_id' => Request::get('funkcja_id'),
-            'work_start' => Request::get('work_start'),
-            'work_end' => Request::get('work_end'),
-            'ekuz' => Request::get('ekuz'),
-            'miejsce_urodzenia' => Request::get('miejsce_urodzenia'),
-            'organization_id' => Request::get('organization_id'),
-            'email' => Request::get('email'),
-            'phone' => Request::get('phone'),
-            'address' => Request::get('address'),
-            'photo_path' => Request::file('photo_path') ? Request::file('photo_path')->store('contacts') : null,
-            'status_zatrudnienia' => Request::get('status_zatrudnienia'),
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'birth_date' => $request->birth_date,
+            'pesel' => $request->pesel,
+            'idCard_number' => $request->idCard_number,
+            'idCard_date' => $request->idCard_date,
+            'funkcja_id' => $request->funkcja_id,
+            'work_start' => $request->work_start,
+            'work_end' => $request->work_end,
+            'ekuz' => $request->ekuz,
+            'miejsce_urodzenia' => $request->miejsce_urodzenia,
+            'organization_id' => $request->organization_id,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'photo_path' => $request->file('photo_path') ? $request->file('photo_path')->store('contacts') : null,
+            'status_zatrudnienia' => $request->status_zatrudnienia,
         ]);
 
 
@@ -96,7 +96,16 @@ class ContactsController extends Controller
 
     public function edit(Contact $contact)
     {
-        $obecna_budowa = (ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first())?ContactWorkDate::with('organization')->where('contact_id', $contact->id)->where('end', '>', Carbon::now())->where('start', '<=', Carbon::now())->first():'Nie pracuje';
+        $obecna_budowa = ContactWorkDate::with('organization')
+            ->where('contact_id', $contact->id)
+            ->where('end', '>', Carbon::now())
+            ->where('start', '<=', Carbon::now())
+            ->first();
+
+        if (!$obecna_budowa) {
+            $obecna_budowa = 'Nie pracuje';
+        }
+
         $flag = false;
         if (Auth::user()->owner === 3) {
             $flag = true;
@@ -120,7 +129,7 @@ class ContactsController extends Controller
                 'work_end' => $contact->work_end,
                 'ekuz' => $contact->ekuz,
                 'miejsce_urodzenia' => $contact->miejsce_urodzenia,
-                'photo_path' => $contact->photo_path ? URL::route('image', ['path' => $contact->photo_path, 'w' => 260, 'h' => 260, 'fit' => 'crop']) : null,
+                'photo_path' => $contact->photo_path ? URL::route('image', ['path' => $contact->photo_path, 'w' => 260, 'h' => 260, 'fit' => 'crop', 'fm' => 'jpg']) : null,
                 'deleted_at' => $contact->deleted_at,
                 'status_zatrudnienia' => $contact->status_zatrudnienia,
             ],
@@ -158,13 +167,14 @@ class ContactsController extends Controller
 
     public function update(Contact $contact, StoreContactRequest $request)
     {
+        $data = $request->only('first_name', 'last_name', 'birth_date', 'pesel', 'idCard_number', 'idCard_date', 'funkcja_id', 'work_start',
+            'work_end', 'ekuz', 'miejsce_urodzenia', 'organization_id', 'email', 'phone', 'address', 'status_zatrudnienia');
 
-        $contact->update(Request::only('first_name', 'last_name', 'birth_date', 'pesel', 'idCard_number', 'idCard_date', 'funkcja_id', 'work_start',
-            'work_end', 'ekuz', 'miejsce_urodzenia', 'organization_id', 'email', 'phone', 'address', 'status_zatrudnienia'));
-
-        if (Request::file('photo_path')) {
-            $contact->update(['photo_path' => Request::file('photo_path')->store('contacts')]);
+        if ($request->hasFile('photo_path')) {
+            $data['photo_path'] = $request->file('photo_path')->store('contacts');
         }
+
+        $contact->update($data);
 
         return Redirect::back()->with('success', 'Pracownik poprawiony.');
     }
