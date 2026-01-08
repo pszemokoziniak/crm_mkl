@@ -35,7 +35,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'bhp_typs.name', 'bhps.start', 'bhps.end']);
 
         foreach ($bhps as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'BHP / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => $item->name, 'type' => 'BHP', 'start' => $item->start, 'end' => $item->end);
         }
 
         $a1s = A1::join('contacts', 'a1_s.contact_id', '=', 'contacts.id')
@@ -44,7 +44,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'a1_s.start', 'a1_s.end']);
 
         foreach ($a1s as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'A1', 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'A1', 'type' => 'A1', 'start' => $item->start, 'end' => $item->end);
         }
 
         $badania = Badania::join('contacts', 'badanias.contact_id', '=', 'contacts.id')
@@ -54,7 +54,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'badania_typs.name', 'badanias.start', 'badanias.end']);
 
         foreach ($badania as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'Lekarskie / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => $item->name, 'type' => 'Badania lekarskie', 'start' => $item->start, 'end' => $item->end);
         }
 
         $uprawnienia = Uprawnienia::join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
@@ -64,7 +64,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'uprawnienia_typs.name', 'uprawnienias.start', 'uprawnienias.end']);
 
         foreach ($uprawnienia as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'Uprawnienia / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => $item->name, 'type' => 'Uprawnienia', 'start' => $item->start, 'end' => $item->end);
         }
 
         $pbioz = Pbioz::join('contacts', 'pbiozs.contact_id', '=', 'contacts.id')
@@ -73,7 +73,7 @@ class ReportsController extends Controller
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'pbiozs.name', 'pbiozs.start', 'pbiozs.end']);
 
         foreach ($pbioz as $item) {
-            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => 'PBIOZ / '.$item->name, 'start' => $item->start, 'end' => $item->end);
+            $data[] = array('client_id' => $item->id, 'last_name' => $item->last_name.' '.$item->first_name, 'name' => $item->name, 'type' => 'PBIOZ', 'start' => $item->start, 'end' => $item->end);
         }
 
         if ($data) {
@@ -83,16 +83,6 @@ class ReportsController extends Controller
         } else {
             $all = array();
         }
-//        if (Request::all()) {
-//            $search = strtolower(collect(Request::only('search'))->first());
-//            $collectionWhereLike = function ($collection, $key, $search) {
-//                $filtered = $collection->filter(fn ($item) => Str::contains(strtolower($item['last_name']), $search) || Str::contains(strtolower($item['name']), $search));
-//                $reIndexed = array_values($filtered->toArray());
-//                return collect($reIndexed);
-//            };
-//
-//            $data = $collectionWhereLike($all, 'last_name', $search);
-//        }
 
         if (Request::has('search')) {
             $search = strtolower(Request::input('search'));

@@ -23,10 +23,16 @@ class StoreA1Request extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'start' => 'required | date | before:end',
             'end' => 'required | date | after:start',
         ];
+
+        if ($this->isMethod('post')) {
+            $rules['end'] .= ' | after_or_equal:today';
+        }
+
+        return $rules;
     }
 
     public function messages() {
@@ -34,6 +40,7 @@ class StoreA1Request extends FormRequest
             'required'  => 'Pole :attribute jest wymagane.',
             'start.before' => 'Pole :attribute musi być mniejsze niż pole Koniec',
             'end.after' => 'Pole :attribute musi być większe niż pola Początek',
+            'end.after_or_equal' => 'Data wygaśnięcia nie może być z przeszłości.',
         ];
     }
     public function attributes()
