@@ -30,7 +30,7 @@
           <th class="pb-4 pt-6 px-6">Pozycja</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
-        <tr v-for="free in filteredContactsFree" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="free in paginatedContacts" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <input class="ml-2 mr-2" type="checkbox" :value="free.id" v-model="form.checkedValues" />
             {{ free.last_name }} {{ free.first_name }}
@@ -56,6 +56,20 @@
           <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
         </tr>
       </table>
+      <div v-if="filteredContactsFree.length > pageSize" class="flex justify-center py-4">
+        <div class="flex flex-wrap -mb-1">
+          <template v-for="(page, index) in totalPages" :key="index">
+            <button
+              type="button"
+              class="mb-1 mr-1 px-4 py-3 focus:text-indigo-500 text-sm leading-4 hover:bg-white border focus:border-indigo-500 rounded"
+              :class="{ 'bg-white': currentPage === page }"
+              @click="currentPage = page"
+            >
+              {{ page }}
+            </button>
+          </template>
+        </div>
+      </div>
       <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
         <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj pracowników</loading-button>
       </div>
@@ -92,6 +106,8 @@ export default {
   data() {
     return {
       search: '',
+      currentPage: 1,
+      pageSize: 20,
       form: this.$inertia.form({
         manager_id: null,
         engineer_id: null,
@@ -109,20 +125,39 @@ export default {
       return (this.specialists || []).filter((x) => x.funkcja_id == 6)
     },
     filteredContactsFree() {
-      if (!this.search) {
-        return this.contactsFree || []
+      let result = this.contactsFree || []
+      if (this.search) {
+        const lowerSearch = this.search.toLowerCase()
+        result = result.filter((contact) => {
+          const fullName = `${contact.last_name} ${contact.first_name}`.toLowerCase()
+          const position = (contact.fn_name || '').toLowerCase()
+          return fullName.includes(lowerSearch) || position.includes(lowerSearch)
+        })
       }
-      const lowerSearch = this.search.toLowerCase()
-      return (this.contactsFree || []).filter((contact) => {
-        const fullName = `${contact.last_name} ${contact.first_name}`.toLowerCase()
-        const position = (contact.fn_name || '').toLowerCase()
-        return fullName.includes(lowerSearch) || position.includes(lowerSearch)
-      })
+      return result
+    },
+    totalPages() {
+      return Math.ceil(this.filteredContactsFree.length / this.pageSize)
+    },
+    paginatedContacts() {
+      const start = (this.currentPage - 1) * this.pageSize
+      const end = start + this.pageSize
+      return this.filteredContactsFree.slice(start, end)
+    },
+  },
+  watch: {
+    search() {
+      this.currentPage = 1
     },
   },
   methods: {
     store() {
-      this.form.post(`/pracownicy/${this.organization.id}/`)
+      this.form.post(`/pracownicy/${this.organization.id}/`, {
+        onSuccess: () => {
+          this.form.reset('checkedValues', 'manager_id', 'engineer_id')
+          this.search = ''
+        },
+      })
     },
     reset() {
       this.search = ''

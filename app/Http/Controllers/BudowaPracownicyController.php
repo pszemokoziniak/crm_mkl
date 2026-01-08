@@ -76,14 +76,22 @@ class BudowaPracownicyController extends Controller
 
         $toAssign = [];
 
+        // 1. Zapisz kierownika i inżyniera w tabeli organizations (jeśli wybrani)
         if (!empty($request->manager_id)) {
+            $organization->kierownikBud_id = (int) $request->manager_id;
             $toAssign[] = (int) $request->manager_id;
         }
 
         if (!empty($request->engineer_id)) {
+            $organization->inzynier_id = (int) $request->engineer_id;
             $toAssign[] = (int) $request->engineer_id;
         }
 
+        if ($organization->isDirty(['kierownikBud_id', 'inzynier_id'])) {
+            $organization->save();
+        }
+
+        // 2. Dodaj pozostałych zaznaczonych pracowników
         foreach (($request->checkedValues ?? []) as $id) {
             $toAssign[] = (int) $id;
         }
@@ -96,14 +104,18 @@ class BudowaPracownicyController extends Controller
 
         $multiSiteFunkcjaIds = self::MULTI_SITE_FUNKCJA_IDS;
 
+        // Rozdzielamy pracowników na "zwykłych" i "specjalistów"
         $nonSpecialIds = Contact::query()
             ->whereIn('id', $toAssign)
             ->whereNotIn('funkcja_id', $multiSiteFunkcjaIds)
             ->pluck('id')
             ->all();
 
+        $specialIds = array_diff($toAssign, $nonSpecialIds);
+
+        // Walidacja dla zwykłych pracowników (nie mogą być nigdzie zajęci)
         if (!empty($nonSpecialIds)) {
-            $busyIds = DB::table('contact_work_dates')
+            $busyGlobalIds = DB::table('contact_work_dates')
                 ->whereIn('contact_id', $nonSpecialIds)
                 ->where('start', '<=', $end)
                 ->where('end', '>=', $start)
@@ -111,9 +123,9 @@ class BudowaPracownicyController extends Controller
                 ->pluck('contact_id')
                 ->all();
 
-            if (!empty($busyIds)) {
+            if (!empty($busyGlobalIds)) {
                 $busyNames = Contact::query()
-                    ->whereIn('id', $busyIds)
+                    ->whereIn('id', $busyGlobalIds)
                     ->orderBy('last_name')
                     ->get(['first_name', 'last_name'])
                     ->map(fn ($c) => $c->last_name . ' ' . $c->first_name)
@@ -121,14 +133,50 @@ class BudowaPracownicyController extends Controller
 
                 return Redirect::back()->with(
                     'error',
-                    'Niedostępni w tym terminie: ' . ($busyNames ?: 'wybrani pracownicy') . '.'
+                    'Niedostępni w tym terminie (zajęci na innej budowie): ' . ($busyNames ?: 'wybrani pracownicy') . '.'
                 );
             }
         }
 
+        // Walidacja dla specjalistów (nie mogą być zajęci NA TEJ SAMEJ budowie)
+        $skippedSpecialists = [];
+        if (!empty($specialIds)) {
+            $busyLocalIds = DB::table('contact_work_dates')
+                ->whereIn('contact_id', $specialIds)
+                ->where('organization_id', $organization->id)
+                ->where('start', '<=', $end)
+                ->where('end', '>=', $start)
+                ->distinct()
+                ->pluck('contact_id')
+                ->all();
+
+            if (!empty($busyLocalIds)) {
+                // Zamiast błędu, usuwamy ich z listy do przypisania i informujemy użytkownika
+                $busyNames = Contact::query()
+                    ->whereIn('id', $busyLocalIds)
+                    ->orderBy('last_name')
+                    ->get(['first_name', 'last_name'])
+                    ->map(fn ($c) => $c->last_name . ' ' . $c->first_name)
+                    ->all();
+
+                $skippedSpecialists = $busyNames;
+
+                // Usuwamy zajętych specjalistów z listy do przypisania
+                $toAssign = array_diff($toAssign, $busyLocalIds);
+            }
+        }
+
+        if (empty($toAssign)) {
+            if (!empty($skippedSpecialists)) {
+                $names = implode(', ', $skippedSpecialists);
+                return Redirect::back()->with('error', "Wszyscy wybrani specjaliści są już przypisani do tej budowy w tym terminie: $names.");
+            }
+            return Redirect::back()->with('error', 'Nie wybrano żadnego pracownika do dodania.');
+        }
+
         DB::transaction(function () use ($toAssign, $organization, $start, $end) {
             foreach ($toAssign as $contactId) {
-
+                // Sprawdzamy duplikaty (na wszelki wypadek)
                 $exists = ContactWorkDate::query()
                     ->where('contact_id', $contactId)
                     ->where('organization_id', $organization->id)
@@ -149,8 +197,24 @@ class BudowaPracownicyController extends Controller
             }
         });
 
-        return Redirect::route('pracownicy.create', $organization->id)
-            ->with('success', 'Pracownicy dodani.');
+        // Pobieramy dane do odświeżenia widoku
+        $availableData = $this->getAvailableWorkersData($organization, $start, $end);
+        $workers = $this->organizationWorkers($organization->id);
+
+        $successMsg = 'Pracownicy dodani.';
+        if (!empty($skippedSpecialists)) {
+            $successMsg .= ' Pominięto (już przypisani): ' . implode(', ', $skippedSpecialists) . '.';
+        }
+
+        return Inertia::render('Pracownicy/Create', [
+            'specialists'  => $availableData['specialists'],
+            'contactsFree' => $availableData['contactsFree'],
+            'contacts'     => $workers,
+            'organization' => $organization,
+            'start'        => $start,
+            'end'          => $end,
+            'flash'        => ['success' => $successMsg],
+        ]);
     }
 
     public function edit(Organization $organization, ContactWorkDate $contactWorkDate)
@@ -193,7 +257,39 @@ class BudowaPracownicyController extends Controller
         $start = $request->start;
         $end   = $request->end;
 
-        // 1) Wyciągamy kontakty specjalne (kierownik+inżynier) bez ograniczeń dostępności
+        $availableData = $this->getAvailableWorkersData($organization, $start, $end);
+        $workers = $this->organizationWorkers($organization->id);
+
+        return Inertia::render('Pracownicy/Create', [
+            'specialists'  => $availableData['specialists'],
+            'contactsFree' => $availableData['contactsFree'],
+            'contacts'     => $workers,
+            'organization' => $organization,
+            'start'        => $start,
+            'end'          => $end,
+        ]);
+    }
+
+    private function getAvailableWorkersData(Organization $organization, $start, $end)
+    {
+        // 1) Globalnie zajęci (dla zwykłych pracowników)
+        $busyGlobalIds = DB::table('contact_work_dates')
+            ->where('start', '<=', $end)
+            ->where('end', '>=', $start)
+            ->distinct()
+            ->pluck('contact_id')
+            ->all();
+
+        // 2) Lokalnie zajęci (dla specjalistów - na tej konkretnej budowie)
+        $busyLocalIds = DB::table('contact_work_dates')
+            ->where('organization_id', $organization->id)
+            ->where('start', '<=', $end)
+            ->where('end', '>=', $start)
+            ->distinct()
+            ->pluck('contact_id')
+            ->all();
+
+        // 3) Specjaliści (Kierownik/Inżynier) - mogą pracować na wielu budowach, ale nie na tej samej 2 razy
         $specialists = Contact::query()
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->select([
@@ -205,18 +301,11 @@ class BudowaPracownicyController extends Controller
                 'funkcjas.name as fn_name',
             ])
             ->whereIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
+            ->whereNotIn('contacts.id', $busyLocalIds) // Sprawdzamy tylko lokalną zajętość
             ->orderBy('contacts.last_name', 'asc')
             ->get();
 
-        // 2) Wyciągamy zajętych w oknie [start,end] (overlap)
-        $busyContactIds = DB::table('contact_work_dates')
-            ->where('start', '<=', $end)
-            ->where('end', '>=', $start)
-            ->distinct()
-            ->pluck('contact_id')
-            ->all();
-
-        // 3) Pozostali: nie-specjalni i wolni
+        // 4) Pozostali - muszą być wolni globalnie
         $contactsFree = Contact::query()
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->select([
@@ -228,19 +317,13 @@ class BudowaPracownicyController extends Controller
                 'funkcjas.name as fn_name',
             ])
             ->whereNotIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
-            ->whereNotIn('contacts.id', $busyContactIds)
+            ->whereNotIn('contacts.id', $busyGlobalIds) // Sprawdzamy globalną zajętość
             ->orderBy('contacts.last_name', 'asc')
             ->get();
 
-        $workers = $this->organizationWorkers($organization->id);
-
-        return Inertia::render('Pracownicy/Create', [
-            'specialists'  => $specialists,
+        return [
+            'specialists' => $specialists,
             'contactsFree' => $contactsFree,
-            'contacts'     => $workers,
-            'organization' => $organization,
-            'start'        => $start,
-            'end'          => $end,
-        ]);
+        ];
     }
 }
