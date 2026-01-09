@@ -124,6 +124,9 @@ class DashboardController extends Controller
                     ];
                 }),
             'organizations_biuro' => Organization::with(['inzynier', 'krajTyp'])
+                ->whereHas('contactWorkDates', function ($query) use ($now) {
+                    $query->activeOn($now);
+                })
                 ->filter(Request::only('search', 'trashed', 'my'))
                 ->paginate(100)
                 ->getCollection()

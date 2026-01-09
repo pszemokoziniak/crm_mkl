@@ -1,7 +1,7 @@
 <template>
   <div>
-    <Head title="Budowy" />
-    <h1 class="mb-8 text-3xl font-bold">Budowy KCP</h1>
+    <Head title="Dashboard" />
+    <h1 class="mb-8 text-3xl font-bold">Dashboard</h1>
 
     <div v-if="(user_owner[1]===1 || user_owner[1]===2) && expiring_items.length > 0" class="mb-8">
       <div class="flex items-center mb-4">
