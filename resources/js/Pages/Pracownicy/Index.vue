@@ -12,7 +12,7 @@
         </select>
       </search-filter-no-filtr>
       <Link class="btn-indigo" :href="`/pracownicy/${organization_id}/create`">
-        <span>Dodaj / Usuń</span>
+        <span>Dodaj Pracownika</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
