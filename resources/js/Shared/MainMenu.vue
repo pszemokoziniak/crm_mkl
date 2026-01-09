@@ -37,10 +37,9 @@
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center" href="/prognoza">
-        <icon name="forecast-workers" class="" :class="isUrl('prognoza') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-
-        <div :class="isUrl('prognoza') ? 'text-white' : 'text-indigo-300 group-hover:text-white'" class="m-2">Prognoza pracowników</div>
+      <Link class="group flex items-center py-3" href="/prognoza">
+        <icon name="forecast-workers" class="mr-2 w-4 h-4" :class="isUrl('prognoza') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <div :class="isUrl('prognoza') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Prognoza pracowników</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
@@ -49,10 +48,6 @@
         <div :class="isUrl('month-report') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Raport miesięczny</div>
       </Link>
     </div>
-<!--    <Link v-if="!$page.props.permissions.kierownik" class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/time-sheet/month-report`">-->
-<!--      <icon name="monthlyReport" class="mr-2 w-4 h-4" :class="isUrl('month-report') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />-->
-<!--      <div :class="isUrl('month-report') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Raport miesięczny</div>-->
-<!--    </Link>-->
   </div>
 </template>
 
@@ -67,7 +62,6 @@ export default {
   },
   props: {
     auth: Object,
-    // contact: Object,
   },
   methods: {
     isUrl(...urls) {

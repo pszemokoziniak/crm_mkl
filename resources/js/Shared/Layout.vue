@@ -13,7 +13,6 @@
             <div v-if="auth.user.owner === 1" class="mr-4 mt-1">Stanowisko: Administrator</div>
             <div v-if="auth.user.owner === 2" class="mr-4 mt-1">Stanowisko: Biuro</div>
             <div v-if="auth.user.owner === 3" class="mr-4 mt-1">Stanowisko: Kierownik Budowy</div>
-<!--            <div>    {{auth.permissions.kierownik}}</div>-->
             <dropdown class="mt-1" placement="bottom-end">
               <template #default>
                 <div class="group flex items-center cursor-pointer select-none">
@@ -35,8 +34,8 @@
           </div>
         </div>
         <div class="md:flex md:flex-grow md:overflow-hidden">
-          <main-menu class="hidden flex-shrink-0 p-12 w-56 bg-indigo-800 overflow-y-auto md:block" />
-          <div class="px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto" scroll-region>
+          <main-menu class="hidden flex-shrink-0 p-12 w-56 bg-indigo-800 md:block" />
+          <div class="px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto">
             <flash-messages />
             <slot />
           </div>
