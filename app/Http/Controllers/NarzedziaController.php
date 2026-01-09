@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
-use App\Models\CtnDocument;
 use App\Models\Narzedzia;
 use App\Models\ToolFile;
 use App\Services\DocumentService;
@@ -16,7 +15,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
-use PHPUnit\Util\Exception;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -40,8 +38,6 @@ class NarzedziaController extends Controller
                 'numer_seryjny' => $narzedzia->numer_seryjny,
                 'waznosc_badan' => $narzedzia->waznosc_badan,
                 'ilosc_all' => $narzedzia->ilosc_all,
-                'deleted_at' => $narzedzia->deleted_at,
-                'files' => $narzedzia->files
             ],
             'photos' => ToolFile::query()
                 ->where('tool_id', $narzedzia->id)
@@ -82,7 +78,6 @@ class NarzedziaController extends Controller
     }
 
     public function update(
-        Request $request,
         Narzedzia $narzedzia,
         DocumentService $documentService
     ): RedirectResponse
@@ -91,9 +86,9 @@ class NarzedziaController extends Controller
             $narzedzia->update(
                 Request::validate([
                     'name' => ['required', 'max:50'],
-                    'numer_seryjny' => ['required'],
-                    'waznosc_badan' => ['required', 'date'],
-                    'ilosc_all' => ['required'],
+                    'numer_seryjny' => ['nullable'],
+                    'waznosc_badan' => ['nullable', 'date'],
+                    'ilosc_all' => ['nullable', 'numeric'],
                 ])
             );
 
@@ -118,8 +113,8 @@ class NarzedziaController extends Controller
             }
 
         } catch (\Exception $exception) {
-            throw $exception;
-            // log
+            Log::error('Error while updating tool: ' . $exception->getMessage());
+            return Redirect::back()->with('error', 'Nie udało się zaktualizować.');
         }
 
         return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
@@ -128,7 +123,6 @@ class NarzedziaController extends Controller
     public function destroy(Narzedzia $narzedzia, DocumentService $documentService): RedirectResponse
     {
         $documentService->deleteFiles($narzedzia->id);
-
         $narzedzia->delete();
 
         return Redirect::route('narzedzia')->with('success', 'Usunięto.');
@@ -136,7 +130,8 @@ class NarzedziaController extends Controller
 
     public function restore(Narzedzia $narzedzia): RedirectResponse
     {
-        $narzedzia->restore();
+        // SoftDeletes not implemented in migration yet
+        // $narzedzia->restore();
 
         return Redirect::back()->with('success', 'Objekt przywrócony.');
     }
@@ -161,11 +156,11 @@ class NarzedziaController extends Controller
                 'ilosc_magazyn' => $request->get('ilosc_all'),
             ]);
 
-            foreach (Request::file('photos') as $file) {
+            foreach (Request::file('photos') ?? [] as $file) {
                 $documentService->storeToolFile($file, $tool->id, 'photo');
             }
 
-            foreach (Request::file('documents') as $file) {
+            foreach (Request::file('documents') ?? [] as $file) {
                 $documentService->storeToolFile($file, $tool->id, 'document');
             }
 
@@ -180,11 +175,10 @@ class NarzedziaController extends Controller
 
     public function deleteToolFile(
         Narzedzia $narzedzia,
-        DocumentService $documentService,
-        Request $request
+        DocumentService $documentService
     ): JsonResponse
     {
-        foreach ($request::all()['files'] as $name) {
+        foreach (Request::get('files') as $name) {
             $documentService->deleteToolFile($narzedzia->id, $name);
         }
 

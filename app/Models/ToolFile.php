@@ -7,5 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ToolFile extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'type',
+        'filename',
+        'tool_id',
+    ];
 }
