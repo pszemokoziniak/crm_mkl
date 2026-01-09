@@ -43,5 +43,11 @@ class Handler extends ExceptionHandler
                 'session_id' => request()->session()->getId(),
             ]);
         });
+
+        $this->renderable(function (TokenMismatchException $e, $request) {
+            return back()->with([
+                'error' => 'Sesja wygasła. Spróbuj ponownie.',
+            ]);
+        });
     }
 }
