@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreBadaniaRequest;
+use App\Http\Requests\StoreBhpRequest;
 use App\Http\Requests\UpdateBhpRequest;
 use App\Models\Bhp;
 use App\Models\BhpTyp;
@@ -57,13 +57,13 @@ class BhpController extends Controller
 
     public function update(UpdateBhpRequest $req, Contact $contact, Bhp $bhp)
     {
-        $data = Bhp::find($bhp->id);
-        $data->bhpTyp_id = $req->bhpTyp_id;
-        $data->start = $req->start;
-        $data->end = $req->end;
-        $data->save();
+        $bhp->update([
+            'bhpTyp_id' => $req->bhpTyp_id,
+            'start' => $req->start,
+            'end' => $req->end,
+        ]);
 
-        return Redirect::back()->with('success', 'Element poprawiony.');
+        return Redirect::route('bhp.index', $contact->id)->with('success', 'Element poprawiony.');
     }
 
     public function create(Contact $contact)
@@ -73,14 +73,15 @@ class BhpController extends Controller
         return Inertia('Bhp/Create', compact('contact_id', 'bhpTyps'));
     }
 
-    public function store(StoreBadaniaRequest $req, $contact_id)
+    public function store(StoreBhpRequest $req, $contact_id)
     {
         $data = new Bhp;
-        $data->bhpTyp_id=$req->bhpTyp_id;
-        $data->start=$req->start;
-        $data->end=$req->end;
-        $data->contact_id=$contact_id;
+        $data->bhpTyp_id = $req->bhpTyp_id;
+        $data->start = $req->start;
+        $data->end = $req->end;
+        $data->contact_id = $contact_id;
         $data->save();
+
         return Redirect::route('bhp.index', $contact_id)->with('success', 'Zapisano.');
     }
 
@@ -89,13 +90,13 @@ class BhpController extends Controller
         $contact_id = $bhp->contact_id;
         $bhp->delete();
 
-        return Redirect::route('bhp.index', $contact_id)->with('success', 'Pracownik usunięty.');
+        return Redirect::route('bhp.index', $contact_id)->with('success', 'Element usunięty.');
     }
 
-    public function restore(Badania $badania)
+    public function restore(Bhp $bhp)
     {
-        $badania->restore();
+        $bhp->restore();
 
-        return Redirect::back()->with('success', 'Pracownik przywrócony.');
+        return Redirect::back()->with('success', 'Element przywrócony.');
     }
 }

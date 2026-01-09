@@ -60,13 +60,13 @@ class UprawnieniaController extends Controller
 
     public function update(StoreUprawnieniaRequest $req, Contact $contact, Uprawnienia $uprawnienia)
     {
-        $data = Uprawnienia::find($uprawnienia->id);
-        $data->uprawnieniaTyp_id = $req->uprawnieniaTyp_id;
-        $data->start = $req->start;
-        $data->end = $req->end;
-        $data->save();
+        $uprawnienia->update([
+            'uprawnieniaTyp_id' => $req->uprawnieniaTyp_id,
+            'start' => $req->start,
+            'end' => $req->end,
+        ]);
 
-        return Redirect::back()->with('success', 'Element poprawiony.');
+        return Redirect::route('uprawnienia.index', $contact->id)->with('success', 'Element poprawiony.');
     }
 
     public function create(Contact $contact)

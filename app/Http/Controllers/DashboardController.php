@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Badania;
+use App\Models\Bhp;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\Organization;
+use App\Models\Pbioz;
+use App\Models\Uprawnienia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
@@ -17,9 +21,52 @@ class DashboardController extends Controller
         $contact_id = $contact ? $contact->id : null;
 
         $now = now()->format('Y-m-d');
+        $in30Days = now()->addDays(30)->format('Y-m-d');
+
+        $expiringItems = collect();
+
+        if (Auth::user()->owner === 1 || Auth::user()->owner === 2) {
+            // Uprawnienia
+            $uprawnienia = Uprawnienia::with(['uprawnieniaTyp'])
+                ->join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
+                ->whereNull('contacts.deleted_at')
+                ->whereBetween('end', [$now, $in30Days])
+                ->select('uprawnienias.*')
+                ->get()
+                ->map(fn($item) => $this->mapExpiringItem($item, 'Uprawnienia', $item->uprawnieniaTyp->name ?? 'Brak typu', $now));
+
+            // Badania
+            $badania = Badania::with(['badaniaTyp'])
+                ->join('contacts', 'badanias.contact_id', '=', 'contacts.id')
+                ->whereNull('contacts.deleted_at')
+                ->whereBetween('end', [$now, $in30Days])
+                ->select('badanias.*')
+                ->get()
+                ->map(fn($item) => $this->mapExpiringItem($item, 'Badania lekarskie', $item->badaniaTyp->name ?? 'Brak typu', $now));
+
+            // BHP
+            $bhp = Bhp::with(['bhpTyp'])
+                ->join('contacts', 'bhps.contact_id', '=', 'contacts.id')
+                ->whereNull('contacts.deleted_at')
+                ->whereBetween('end', [$now, $in30Days])
+                ->select('bhps.*')
+                ->get()
+                ->map(fn($item) => $this->mapExpiringItem($item, 'Szkolenie BHP', $item->bhpTyp->name ?? 'Brak typu', $now));
+
+            // PBIOZ
+            $pbioz = Pbioz::join('contacts', 'pbiozs.contact_id', '=', 'contacts.id')
+                ->whereNull('contacts.deleted_at')
+                ->whereBetween('end', [$now, $in30Days])
+                ->select('pbiozs.*')
+                ->get()
+                ->map(fn($item) => $this->mapExpiringItem($item, 'PBIOZ', 'PBIOZ', $now));
+
+            $expiringItems = $uprawnienia->concat($badania)->concat($bhp)->concat($pbioz)->sortBy('end')->values();
+        }
 
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed', 'my'),
+            'expiring_items' => $expiringItems,
             'organizations_user' => Organization::with(['inzynier', 'krajTyp'])
                 ->where(function($query) use ($contact_id) {
                     $query->where('kierownikBud_id', $contact_id)
@@ -102,5 +149,30 @@ class DashboardController extends Controller
                 }),
             'user_owner' => [Auth::id(), Auth::user()->owner, $contact_id],
         ]);
+    }
+
+    private function mapExpiringItem($item, $category, $type, $now)
+    {
+        $contact = Contact::find($item->contact_id);
+        $currentWork = ContactWorkDate::with('organization')
+            ->where('contact_id', $item->contact_id)
+            ->activeOn($now)
+            ->first();
+
+        return [
+            'id' => $item->id,
+            'end' => $item->end,
+            'category' => $category,
+            'type' => $type,
+            'contact' => [
+                'id' => $contact->id,
+                'first_name' => $contact->first_name,
+                'last_name' => $contact->last_name,
+            ],
+            'organization' => $currentWork && $currentWork->organization ? [
+                'id' => $currentWork->organization->id,
+                'nazwaBud' => $currentWork->organization->nazwaBud,
+            ] : null,
+        ];
     }
 }

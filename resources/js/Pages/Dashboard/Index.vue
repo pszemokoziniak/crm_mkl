@@ -2,6 +2,51 @@
   <div>
     <Head title="Budowy" />
     <h1 class="mb-8 text-3xl font-bold">Budowy KCP</h1>
+
+    <div v-if="(user_owner[1]===1 || user_owner[1]===2) && expiring_items.length > 0" class="mb-8">
+      <div class="flex items-center mb-4">
+        <icon name="eligibility" class="mr-2 w-5 h-5 fill-red-600" />
+        <h2 class="text-xl font-bold text-red-600">Kończące się terminy (najbliższe 30 dni)</h2>
+      </div>
+      <div class="bg-white rounded-md shadow overflow-x-auto">
+        <table class="w-full whitespace-nowrap">
+          <thead>
+            <tr class="text-left font-bold bg-red-50">
+              <th class="pb-4 pt-6 px-6">Pracownik</th>
+              <th class="pb-4 pt-6 px-6">Kategoria</th>
+              <th class="pb-4 pt-6 px-6">Rodzaj / Typ</th>
+              <th class="pb-4 pt-6 px-6">Data końcowa</th>
+              <th class="pb-4 pt-6 px-6">Obecna budowa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in expiring_items" :key="index" class="hover:bg-gray-100 focus-within:bg-gray-100">
+              <td class="border-t">
+                <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
+                  {{ item.contact.first_name }} {{ item.contact.last_name }}
+                </Link>
+              </td>
+              <td class="border-t px-6 py-4">
+                <span class="px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
+              </td>
+              <td class="border-t px-6 py-4">
+                {{ item.type }}
+              </td>
+              <td class="border-t px-6 py-4 font-bold text-red-600">
+                {{ item.end }}
+              </td>
+              <td class="border-t">
+                <Link v-if="item.organization" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.organization.id}/edit`">
+                  {{ item.organization.nazwaBud }}
+                </Link>
+                <span v-else class="px-6 py-4 text-gray-400 italic">Brak przypisanej budowy</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Wybierz:</label>
@@ -68,49 +113,49 @@
     <div v-if="user_owner[1]===3" class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-          <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
-        </tr>
+          <tr class="text-left font-bold">
+            <th class="pb-4 pt-6 px-6">Nazwa</th>
+            <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
+            <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
+            <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="item in organizations_other" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" href="#">
-              {{ item.nazwaBud }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              {{ item.workers_count }}
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              <div v-if="item.inzynier">
-                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
-              </div>
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              <div v-if="item.country">
-                {{ item.country.name }}
-              </div>
-            </Link>
-          </td>
-          <td class="w-px border-t">
-            <Link class="flex items-center px-4" href="#" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-          </td>
-        </tr>
-        <tr v-if="organizations_other.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
-        </tr>
+          <tr v-for="item in organizations_other" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <td class="border-t">
+              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" href="#">
+                {{ item.nazwaBud }}
+                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              </Link>
+            </td>
+            <td class="border-t">
+              <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
+                {{ item.workers_count }}
+              </Link>
+            </td>
+            <td class="border-t">
+              <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
+                <div v-if="item.inzynier">
+                  {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
+                </div>
+              </Link>
+            </td>
+            <td class="border-t">
+              <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
+                <div v-if="item.country">
+                  {{ item.country.name }}
+                </div>
+              </Link>
+            </td>
+            <td class="w-px border-t">
+              <Link class="flex items-center px-4" href="#" tabindex="-1">
+                <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+              </Link>
+            </td>
+          </tr>
+          <tr v-if="organizations_other.length === 0">
+            <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -118,93 +163,93 @@
     <div v-if="user_owner[1]===1 || user_owner[1]===2" class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-          <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
-        </tr>
+          <tr class="text-left font-bold">
+            <th class="pb-4 pt-6 px-6">Nazwa</th>
+            <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
+            <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
+            <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="item in organizations_biuro" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <Link v-if="user_owner[1] === 3 && (user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.id}/edit`">
-              {{ item.nazwaBud }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-            <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.id}/edit`">
-              {{ item.nazwaBud }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-            <Link v-if="user_owner[1] === 3 && (user_owner[3] !== item.kierownikBud_id || user_owner[3] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4 focus:text-indigo-500" href="#">
-              {{ item.nazwaBud }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link v-if="user_owner[1] === 3 && (user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              {{ item.workers_count }}
-            </Link>
-            <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              {{ item.workers_count }}
-            </Link>
-            <Link v-if="user_owner[1] === 3 && (user_owner[3] !== item.kierownikBud_id || user_owner[3] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              {{ item.workers_count }}
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link v-if="user_owner[1] === 3 && ((user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <div v-if="item.inzynier">
-                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
-              </div>
-            </Link>
-            <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <div v-if="item.inzynier">
-                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
-              </div>
-            </Link>
-            <Link v-if="user_owner[1] === 3 && (user_owner[0] !== item.kierownikBud_id || user_owner[0] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              <div v-if="item.inzynier">
-                {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
-              </div>
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link v-if="user_owner[1] === 3 && ((user_owner[0] === item.kierownikBud_id || user_owner[0] === item.inzynier_id) || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <div v-if="item.country">
-                {{ item.country.name }}
-              </div>
-            </Link>
-            <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <div v-if="item.country">
-                {{ item.country.name }}
-              </div>
-            </Link>
-            <Link v-if="user_owner[1] === 3 && (user_owner[0] !== item.kierownikBud_id || user_owner[0] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4" href="#" tabindex="-1">
-              <div v-if="item.country">
-                {{ item.country.name }}
-              </div>
-            </Link>
-          </td>
-          <td class="w-px border-t">
-            <Link v-if="user_owner[1] === 3 && ((user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-            <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-            <Link v-if="user_owner[1] === 3 && ((user_owner[3] !== item.kierownikBud_id || user_owner[3] !== item.inzynier_id) || user_owner[3] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-4" href="#" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-          </td>
-        </tr>
-        <tr v-if="organizations_biuro.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
-        </tr>
+          <tr v-for="item in organizations_biuro" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <td class="border-t">
+              <Link v-if="user_owner[1] === 3 && (user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.id}/edit`">
+                {{ item.nazwaBud }}
+                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              </Link>
+              <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.id}/edit`">
+                {{ item.nazwaBud }}
+                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              </Link>
+              <Link v-if="user_owner[1] === 3 && (user_owner[3] !== item.kierownikBud_id || user_owner[3] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4 focus:text-indigo-500" href="#">
+                {{ item.nazwaBud }}
+                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              </Link>
+            </td>
+            <td class="border-t">
+              <Link v-if="user_owner[1] === 3 && (user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                {{ item.workers_count }}
+              </Link>
+              <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                {{ item.workers_count }}
+              </Link>
+              <Link v-if="user_owner[1] === 3 && (user_owner[3] !== item.kierownikBud_id || user_owner[3] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4" href="#" tabindex="-1">
+                {{ item.workers_count }}
+              </Link>
+            </td>
+            <td class="border-t">
+              <Link v-if="user_owner[1] === 3 && ((user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                <div v-if="item.inzynier">
+                  {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
+                </div>
+              </Link>
+              <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                <div v-if="item.inzynier">
+                  {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
+                </div>
+              </Link>
+              <Link v-if="user_owner[1] === 3 && (user_owner[0] !== item.kierownikBud_id || user_owner[0] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4" href="#" tabindex="-1">
+                <div v-if="item.inzynier">
+                  {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
+                </div>
+              </Link>
+            </td>
+            <td class="border-t">
+              <Link v-if="user_owner[1] === 3 && ((user_owner[0] === item.kierownikBud_id || user_owner[0] === item.inzynier_id) || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                <div v-if="item.country">
+                  {{ item.country.name }}
+                </div>
+              </Link>
+              <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                <div v-if="item.country">
+                  {{ item.country.name }}
+                </div>
+              </Link>
+              <Link v-if="user_owner[1] === 3 && (user_owner[0] !== item.kierownikBud_id || user_owner[0] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-6 py-4" href="#" tabindex="-1">
+                <div v-if="item.country">
+                  {{ item.country.name }}
+                </div>
+              </Link>
+            </td>
+            <td class="w-px border-t">
+              <Link v-if="user_owner[1] === 3 && ((user_owner[3] === item.kierownikBud_id || user_owner[3] === item.inzynier_id) || user_owner[3] === item.inzynier_id) && item.deleted_at === null" class="flex items-center px-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+              </Link>
+              <Link v-if="user_owner[1] === 1 || user_owner[1] === 2" class="flex items-center px-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+                <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+              </Link>
+              <Link v-if="user_owner[1] === 3 && ((user_owner[3] !== item.kierownikBud_id || user_owner[3] !== item.inzynier_id) || user_owner[3] !== item.inzynier_id) && item.deleted_at !== null" class="flex items-center px-4" href="#" tabindex="-1">
+                <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+              </Link>
+            </td>
+          </tr>
+          <tr v-if="organizations_biuro.length === 0">
+            <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
+          </tr>
         </tbody>
       </table>
     </div>
-<!--    <pagination class="mt-6" :links="organizations.links" />-->
+    <!--    <pagination class="mt-6" :links="organizations.links" />-->
   </div>
 </template>
 
@@ -229,6 +274,7 @@ export default {
   layout: Layout,
   props: {
     filters: Object,
+    expiring_items: Array,
     organizations_user: Object,
     organizations_other: Object,
     organizations_biuro: Object,
