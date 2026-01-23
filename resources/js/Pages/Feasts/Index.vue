@@ -1,9 +1,12 @@
 <template>
   <div>
     <Head title="Kraje" />
-    <h1 class="mb-8 text-3xl font-bold">Święta</h1>
+    <h1 class="mb-8 text-3xl font-bold">
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/krajTyp">Święta</Link>
+      <span class="text-indigo-400 font-medium">/</span> {{ country.name }}
+    </h1>
     <div class="flex items-center justify-between mb-6">
-      <Link class="btn-indigo" :href="`/country/1/feasts/create`">
+      <Link class="btn-indigo" :href="`/country/${countryId}/feasts/create`">
         <span>Dodaj</span>
       </Link>
     </div>
@@ -20,10 +23,14 @@
               {{ feast.name }}
             </Link>
           </td>
-          <td class="border-t">{{ feast.date }}</td>
           <td class="border-t">
-            <Link method='delete' class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`">
-              <icon name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            <Link class="flex items-center px-6 py-4" :href="`/country/${feast.country_id}/feasts/${feast.id}`">
+              {{ feast.date }}
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link method="delete" class="flex items-center px-6 py-4 text-red-600 hover:text-red-900 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`">
+              Usuń
             </Link>
           </td>
         </tr>
@@ -34,18 +41,18 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
-import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 
 export default {
   components: {
     Head,
-    Icon,
     Link,
   },
   layout: Layout,
   props: {
     feasts: Object,
+    countryId: Number,
+    country: Object,
   },
 }
 </script>

@@ -18,6 +18,7 @@ class FeastsController extends Controller
     {
         return Inertia::render('Feasts/Index', [
             'countryId' => $country->getAttribute('id'),
+            'country'   => $country,
             'feasts'    => $country->getAttribute('feasts')
         ]);
     }
@@ -26,6 +27,7 @@ class FeastsController extends Controller
     {
         return Inertia::render('Feasts/Create', [
             'countryId' => $country->id,
+            'country' => $country,
         ]);
     }
 
@@ -33,24 +35,22 @@ class FeastsController extends Controller
     {
         return Inertia::render('Feasts/Edit', [
             'countryId' => $country->id,
+            'country' => $country,
             'feast'     => $feast
         ]);
     }
 
-    public function delete(KrajTyp $country, Feast $feast): Response
+    public function delete(KrajTyp $country, Feast $feast): RedirectResponse
     {
         $feast->delete();
 
-        return Inertia::render('Feasts/Index', [
-            'countryId' => $country->id,
-            'feasts'    => $country->feasts
-        ]);
+        return Redirect::route('country_feasts.index', $country->id);
     }
 
     public function store(FeastRequest $request, int $country): RedirectResponse
     {
         Feast::updateOrCreate(['id' => $request->get('id')], $request->all())->save();
 
-        return Redirect::route('country_feasts.index', $country);
+        return Redirect::route('krajTyp.edit', $country);
     }
 }
