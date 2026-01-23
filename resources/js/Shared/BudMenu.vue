@@ -15,14 +15,17 @@
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/pracownicy/${budId}/`">
             <div :class="isUrl('pracownicy') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Pracownicy</div>
           </Link>
+          <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/kierownictwo`">
+            <div :class="isUrl('kierownictwo') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Kierownictwo</div>
+          </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/edit/`">
-            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane budowy</div>
+            <div :class="isUrl('edit') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane budowy</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/building/${budId}/time-sheet/`">
-            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">KCP budowy</div>
+            <div :class="isUrl('time-sheet') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">KCP budowy</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/klient/`">
-            <div :class="isUrl('badania') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane klienta</div>
+            <div :class="isUrl('klient') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Dane klienta</div>
           </Link>
           <Link class="block mt-4 lg:inline-block lg:mt-0 mr-4" :href="`/budowy/${budId}/narzedzia/`">
             <div :class="isUrl('narzedzia') ? 'text-green-800' : 'text-indigo-300 group-hover:text-gray-900'">Sprzęt</div>
@@ -54,7 +57,7 @@ export default {
       if (urls[0] === '') {
         return currentUrl === ''
       }
-      return urls.filter((url) => currentUrl.endsWith(url)).length
+      return urls.filter((url) => currentUrl.includes(url)).length
     },
   },
 }

@@ -21,6 +21,14 @@
           </select-input>
           <text-input v-model="form.addressBud" :error="form.errors.addressBud" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Adres Budowy" />
           <text-input v-model="form.addressKwat" :error="form.errors.addressKwat" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Adres Kwatery" />
+          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
+            <option :value="null" />
+            <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
+          </select-input>
+          <select-input v-model="form.inzynier_id" :error="form.errors.inzynier_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Inżynier">
+            <option :value="null" />
+            <option v-for="item in inzyniers" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
+          </select-input>
         </div>
 
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
@@ -55,12 +63,12 @@ export default {
   props: {
     organization: Object,
     krajTyps: Object,
-    // kierownikBud: Object,
+    kierownikBud: Object,
     // contacts: Object,
     // contactsFree: Object,
     user_owner: Number,
     flag: Boolean,
-    // inzyniers: Object,
+    inzyniers: Object,
   },
   remember: 'form',
   data() {

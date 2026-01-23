@@ -10,8 +10,8 @@
   <!-- Tabs Navigation -->
   <div class="mb-6 border-b border-gray-200">
     <nav class="flex -mb-px space-x-8" aria-label="Tabs">
-      <button :class="[activeTab === 'current' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300', 'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm']" @click="activeTab = 'current'">Pracownicy na budowie</button>
       <button :class="[activeTab === 'add' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300', 'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm']" @click="activeTab = 'add'">Dodaj pracowników</button>
+      <button :class="[activeTab === 'current' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300', 'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm']" @click="activeTab = 'current'">Pracownicy na budowie</button>
     </nav>
   </div>
 
@@ -109,7 +109,7 @@ export default {
   remember: 'form',
   data() {
     return {
-      activeTab: this.contactsFree ? 'add' : 'current',
+      activeTab: 'add',
       budId: this.organization.id,
       org: {
         org: this.organization,

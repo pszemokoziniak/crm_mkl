@@ -27,7 +27,7 @@
         </svg>
       </button>
       <span class="text-gray-800 text-lg font-bold">{{ month.toUpperCase() }}</span>
-      <span class="ml-1 text-gray-600 text-lg font-normal">{{ date.getFullYear() }}</span>
+      <span class="ml-1 text-gray-600 text-lg font-normal">{{ currentDate.getFullYear() }}</span>
     </div>
     <div v-for="timeSheet in sortedByOrder" :key="timeSheet.id" class="flex border-l border-t" :class="Object.keys(timeSheets).length === 1 ? 'border-b' : ''">
       <div class="border-1 relative sticky z-10 left-0 pt-2 px-4 text-gray-500 bg-gray-100 border-r cursor-pointer" style="width: 127px; height: 68px">
@@ -72,34 +72,34 @@
               <div class="pb-4 pt-5 px-4 bg-white sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                   <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                    <DialogTitle as="h3" class="text-gray-900 text-lg font-medium leading-6"> Wprowadź dane dla dnia: {{ new Date(form.day).toLocaleDateString('pl-PL', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) }}</DialogTitle>
+                    <DialogTitle as="h3" class="text-gray-900 text-lg font-medium leading-6"> Wprowadź dane dla dnia: {{ new Date(modalForm.day).toLocaleDateString('pl-PL', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) }}</DialogTitle>
                     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
-                      <fieldset :disabled="disabled == 0">
+                      <fieldset>
                         <form @submit.prevent="update">
                           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
                             <div class="grid grid-cols-2">
                               <div>
                                 <label for="workFrom">Czas pracy od:</label>
-                                <Datepicker id="workFrom" v-model="form.from" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
+                                <Datepicker id="workFrom" v-model="modalForm.from" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
                               </div>
                               <div>
                                 <label for="workTo">Czas pracy do:</label>
-                                <Datepicker id="workTo" v-model="form.to" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
+                                <Datepicker id="workTo" v-model="modalForm.to" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
                               </div>
                             </div>
 
                             <div class="grid grid-cols-2">
                               <div>
                                 <label for="workTime">Czas pracy:</label>
-                                <Datepicker id="workTime" v-model="form.workTime" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6 w-full" />
+                                <Datepicker id="workTime" v-model="modalForm.workTime" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6 w-full" />
                               </div>
                               <div>
-                                <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" v-model="form.reducedWorkingHours" @change="wortTimeReduce()" />
+                                <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" v-model="modalForm.reducedWorkingHours" @change="wortTimeReduce()" />
                                 <label for="time-reduce">Skróć czas o 30 min</label>
                               </div>
                             </div>
 
-                            <select-input v-model="form.status" class="lg:w-1/1 pb-8 pr-6 w-full" label="Powód nieobecności" @change="statusChanged($event)">
+                            <select-input v-model="modalForm.status" class="lg:w-1/1 pb-8 pr-6 w-full" label="Powód nieobecności" @change="statusChanged($event)">
                               <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
                             </select-input>
                           </div>
@@ -131,7 +131,7 @@ import SelectInput from '@/Shared/SelectInput'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import BudMenu from '@/Shared/BudMenu.vue'
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link, useForm } from '@inertiajs/inertia-vue3'
 import { DocumentDownloadIcon } from '@heroicons/vue/solid'
 
 const DEFAULT_RANGES = {
@@ -162,7 +162,7 @@ export default {
       required: true,
     },
     timeSheetsOrder: Array,
-    date: Date,
+    date: [Date, String],
     month: String,
     shiftStatuses: Array,
     diffDays: Number,
@@ -171,10 +171,10 @@ export default {
   },
   data() {
     return {
-      date: new Date(this.date),
+      currentDate: new Date(this.date),
       open: false,
       isStatus: false,
-      form: this.$inertia.form({
+      modalForm: useForm({
         id: null,
         day: null,
         from: null,
@@ -214,7 +214,7 @@ export default {
     },
     calculateDiffDays() {
       const today = new Date()
-      const day = new Date(this.form.day) // Convert this.form.day to a Date object
+      const day = new Date(this.modalForm.day) // Convert this.modalForm.day to a Date object
       const diffTime = Math.abs(today.getTime() - day.getTime())
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) // Use Math.floor instead of Math.ceil
       return diffDays
@@ -270,10 +270,10 @@ export default {
       return `/building/${this.build}/time-sheet/export?date=${this.getYear()}-${(this.getMonthNumber() + 1).toString().padStart(2, '0')}`
     },
     getMonthNumber() {
-      return new Date(this.date).getMonth()
+      return new Date(this.currentDate).getMonth()
     },
     getYear() {
-      return new Date(this.date).getFullYear()
+      return new Date(this.currentDate).getFullYear()
     },
     /**
      *
@@ -355,17 +355,15 @@ export default {
       }
 
       this.open = true
-      this.form = this.$inertia.form = {
-        name: shift.name,
-        build: shift.build,
-        id: shift.id ?? null,
-        day: shift.day,
-        from: this.formatTimeObject(shift.from) ? this.formatTimeObject(shift.from) : DEFAULT_RANGES.from,
-        to: this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to,
-        workTime: this.formatTimeToObject(shift.work),
-        status: shift.status ?? null,
-        reducedWorkingHours: shift.reducedWorkingHours ?? false,
-      }
+      this.modalForm.name = shift.name
+      this.modalForm.build = shift.build
+      this.modalForm.id = shift.id ?? null
+      this.modalForm.day = shift.day
+      this.modalForm.from = this.formatTimeObject(shift.from) ? this.formatTimeObject(shift.from) : DEFAULT_RANGES.from
+      this.modalForm.to = this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to
+      this.modalForm.workTime = this.formatTimeToObject(shift.work)
+      this.modalForm.status = shift.status ?? null
+      this.modalForm.reducedWorkingHours = shift.reducedWorkingHours ?? false
 
       if (!shift.work) {
         this.calculateEffectiveTime()
@@ -384,9 +382,9 @@ export default {
     },
 
     calculateEffectiveTime() {
-      const workHours = moment.utc(moment.duration(moment(this.form.to.hours + ':' + this.form.to.minutes, 'HH:mm').diff(moment(this.form.from.hours + ':' + this.form.from.minutes, 'HH:mm'))).asMilliseconds()).format('HH:mm')
+      const workHours = moment.utc(moment.duration(moment(this.modalForm.to.hours + ':' + this.modalForm.to.minutes, 'HH:mm').diff(moment(this.modalForm.from.hours + ':' + this.modalForm.from.minutes, 'HH:mm'))).asMilliseconds()).format('HH:mm')
 
-      this.form.workTime = {
+      this.modalForm.workTime = {
         hours: workHours.split(':').at(0),
         minutes: workHours.split(':').at(1),
       }
@@ -394,20 +392,19 @@ export default {
     destroy() {
       if (confirm('Chcesz usunąć?')) {
         try {
-          this.$inertia.post(`/building/${this.build}/time-sheet/delete`, this.form)
+          this.$inertia.post(`/building/${this.build}/time-sheet/delete`, this.modalForm)
         } catch (e) {
           console.error('Bład usnięcie godzin pracy.')
           // @TODO display message with error
           throw e
         }
 
-        this.form = this.$inertia.form = {
-          id: null,
-          day: null,
-          from: null,
-          to: null,
-          workTime: null,
-        }
+        this.modalForm.id = null
+        this.modalForm.day = null
+        this.modalForm.from = null
+        this.modalForm.to = null
+        this.modalForm.workTime = null
+
         // display notification
         this.open = false
       }
@@ -415,11 +412,11 @@ export default {
     wortTimeReduce() {
       const checked = this.$refs.timeReduce.checked
       if (checked) {
-        const workHours = moment(this.form.workTime.hours + ':' + this.form.workTime.minutes, 'HH:mm')
+        const workHours = moment(this.modalForm.workTime.hours + ':' + this.modalForm.workTime.minutes, 'HH:mm')
           .subtract('30', 'minutes')
           .format('hh:mm')
 
-        this.form.workTime = {
+        this.modalForm.workTime = {
           hours: workHours.split(':').at(0),
           minutes: workHours.split(':').at(1),
         }
@@ -433,38 +430,37 @@ export default {
         /**
          * Day (int) is an index for worker day!
          */
-        const workerId = this.form.id
-        const dayIndex = new Date(this.form.day).getDate()
+        const workerId = this.modalForm.id
+        const dayIndex = new Date(this.modalForm.day).getDate()
 
         /**
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
          */
-        axios.post(`/building/${this.build}/time-sheet`, this.form)
+        axios.post(`/building/${this.build}/time-sheet`, this.modalForm)
 
         this.timeSheets[workerId][dayIndex] = {
-          name: this.form.name,
-          id: this.form.id ?? null,
-          build: this.form.build,
-          day: this.form.day,
-          from: this.formatModalTimeToDate(new Date(this.form.day), this.form.from).toString(),
-          to: this.formatModalTimeToDate(new Date(this.form.day), this.form.to).toString(),
-          work: this.form.workTime.hours + ':' + this.form.workTime.minutes,
-          status: this.form.status,
-          reducedWorkingHours: this.form.reducedWorkingHours,
+          name: this.modalForm.name,
+          id: this.modalForm.id ?? null,
+          build: this.modalForm.build,
+          day: this.modalForm.day,
+          from: this.formatModalTimeToDate(new Date(this.modalForm.day), this.modalForm.from).toString(),
+          to: this.formatModalTimeToDate(new Date(this.modalForm.day), this.modalForm.to).toString(),
+          work: this.modalForm.workTime.hours + ':' + this.modalForm.workTime.minutes,
+          status: this.modalForm.status,
+          reducedWorkingHours: this.modalForm.reducedWorkingHours,
         }
       } catch (e) {
         console.error('Something happen while saving data.')
         // @TODO display message with error
         throw e
       }
-      this.form = this.$inertia.form = {
-        id: null,
-        day: null,
-        from: null,
-        to: null,
-        workTime: null,
-      }
+      this.modalForm.id = null
+      this.modalForm.day = null
+      this.modalForm.from = null
+      this.modalForm.to = null
+      this.modalForm.workTime = null
+
       // display notification
       this.open = false
     },

@@ -454,6 +454,16 @@ Route::put('pracownicy/destroystore', [BudowaPracownicyController::class, 'destr
         ->middleware('auth', 'biuro-permission');
 
 
+// Kierownictwo budowy
+Route::get('budowy/{organization}/kierownictwo', [BudowaPracownicyController::class, 'management'])
+    ->name('budowy.management')
+    ->middleware('auth', 'biuro-kierownik-permission');
+
+Route::post('budowy/{organization}/kierownictwo', [BudowaPracownicyController::class, 'storeManagement'])
+    ->name('budowy.management.store')
+    ->middleware('auth', 'biuro-kierownik-permission');
+
+
 // Destroy pracownicy budowa
 Route::get('contacts/{contact}/budowa/destroy', [ContactsController::class, 'destroyPracownikBudowa'])
     ->name('contacts.destroyPracownikBudowa')

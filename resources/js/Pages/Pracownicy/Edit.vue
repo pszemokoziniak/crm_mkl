@@ -13,7 +13,6 @@
         <div class="flex flex-wrap -mb-3 -mr-6 p-8">
           <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek pracy na budowie" />
           <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec pracy na budowie" />
-<!--          <text-input type="hidden" value="@{{contact_id}}" v-model="form.contact_id" :error="form.errors.contact_id" />-->
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -25,12 +24,12 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link, useForm } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import BudMenu from '@/Shared/BudMenu.vue'
-//
+
 export default {
   components: {
     Head,
@@ -49,7 +48,7 @@ export default {
   data() {
     return {
       budId: this.organization.id,
-      form: this.$inertia.form({
+      form: useForm({
         id: this.contactWorkDate.id,
         start: this.contactWorkDate.start,
         end: this.contactWorkDate.end,

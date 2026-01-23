@@ -1,24 +1,5 @@
 <template>
   <div class="max-w my-5 bg-white rounded-md shadow overflow-hidden">
-    <h3 class="p-4 text-xl font-medium">Przypisz kierownika i inżyniera</h3>
-
-    <div class="grid gap-4 grid-cols-1 p-4 md:grid-cols-2">
-      <div>
-        <label class="block mb-1 text-sm font-medium">Kierownik</label>
-        <select v-model="form.manager_id" class="form-select w-full">
-          <option :value="null">— wybierz —</option>
-          <option v-for="p in managers" :key="p.id" :value="p.id">{{ p.last_name }} {{ p.first_name }} ({{ p.fn_name }})</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block mb-1 text-sm font-medium">Inżynier</label>
-        <select v-model="form.engineer_id" class="form-select w-full">
-          <option :value="null">— wybierz —</option>
-          <option v-for="p in engineers" :key="p.id" :value="p.id">{{ p.last_name }} {{ p.first_name }} ({{ p.fn_name }})</option>
-        </select>
-      </div>
-    </div>
     <div class="flex items-center justify-between p-4">
       <h3 class="text-xl font-medium">Dostępni pracownicy</h3>
       <search-filter-no-filtr v-model="search" class="w-full max-w-md" @reset="reset" />
@@ -115,8 +96,6 @@ export default {
       currentPage: 1,
       pageSize: 20,
       form: this.$inertia.form({
-        manager_id: null,
-        engineer_id: null,
         checkedValues: [],
         start: this.start,
         end: this.end,
@@ -124,12 +103,6 @@ export default {
     }
   },
   computed: {
-    managers() {
-      return (this.specialists || []).filter((x) => x.funkcja_id === 1)
-    },
-    engineers() {
-      return (this.specialists || []).filter((x) => x.funkcja_id === 6)
-    },
     filteredContactsFree() {
       let result = this.contactsFree || []
       if (this.search) {
@@ -160,7 +133,7 @@ export default {
     store() {
       this.form.post(`/pracownicy/${this.organization.id}/`, {
         onSuccess: () => {
-          this.form.reset('checkedValues', 'manager_id', 'engineer_id')
+          this.form.reset('checkedValues')
           this.search = ''
         },
       })
