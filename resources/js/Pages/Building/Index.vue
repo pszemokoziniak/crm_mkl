@@ -13,7 +13,8 @@
       <span>Pobierz</span>
     </a>
   </div>
-  <div ref="printTable" class="flex grid px-6 py-2 bg-white rounded-lg shadow overflow-auto">
+
+  <div class="px-6 py-2 bg-white rounded-lg shadow relative z-0">
     <div class="flex items-center py-2">
       <button type="button" class="inline-flex items-center p-1 leading-none hover:bg-gray-200 rounded-lg cursor-pointer transition duration-100 ease-in-out" @click="previousMonth()">
         <svg class="inline-flex w-6 h-6 text-gray-500 leading-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,97 +30,110 @@
       <span class="text-gray-800 text-lg font-bold">{{ month.toUpperCase() }}</span>
       <span class="ml-1 text-gray-600 text-lg font-normal">{{ currentDate.getFullYear() }}</span>
     </div>
-    <div v-for="timeSheet in sortedByOrder" :key="timeSheet.id" class="flex border-l border-t" :class="Object.keys(timeSheets).length === 1 ? 'border-b' : ''">
-      <div class="border-1 relative sticky z-10 left-0 pt-2 px-4 text-gray-500 bg-gray-100 border-r cursor-pointer" style="width: 127px; height: 68px">
-        <div class="text-center text-sm">{{ timeSheet[1].name }}</div>
-        <div class="text-center text-sm">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
-      </div>
-      <div v-for="shift in timeSheet" :key="shift.id" :class="shiftBackground(shift)" class="border-1 relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 border-r cursor-pointer" style="width: 127px; height: 68px" @click="showModal(shift)">
-        <div class="flex justify-between">
-          <div class="inline-flex items-center justify-center text-center text-gray-700 text-sm leading-none rounded-full cursor-pointer">{{ new Date(shift.day).getDate() }}</div>
-          <div class="inline-flex items-center justify-center text-center text-gray-700 text-sm leading-none rounded-full cursor-pointer">{{ dayOfWeek(new Date(shift.day)) }}</div>
-        </div>
-        <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="mt-1 text-center overflow-y-auto" style="height: 60px">
-          {{ shift.status === 8 ? getStatusName(shift.status) : 'Święto' }}
-        </div>
-        <div v-if="shift.status" class="mt-1 text-center overflow-y-auto" style="height: 60px">
-          {{ getStatusName(shift.status) }}
-        </div>
-        <div v-if="!shift.status" class="mt-1 overflow-y-auto" style="height: 60px">
-          {{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }} <br />
-          <div class="text-center text-sm">{{ shift.work }}</div>
-        </div>
-      </div>
-    </div>
 
-    <div v-if="timeSheets.length > 0" class="border-1 relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 border border-r cursor-pointer" style="width: 127px; height: 68px">
-      <div class="mt-1 overflow-y-auto" style="height: 60px">
-        <div class="text-center text-sm">Suma:</div>
+    <!-- Container with fixed height and custom scrollbar -->
+    <div ref="printTable" class="overflow-auto border rounded-lg custom-scrollbar relative z-0" style="max-height: 70vh;">
+      <!-- Header Row -->
+      <div v-if="sortedTimeSheets.length > 0" class="flex sticky top-0 z-10 bg-gray-100 border-b min-w-max">
+        <div class="sticky left-0 z-20 bg-gray-100 border-r px-2 py-2 font-bold text-sm text-center flex items-center justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 48px">
+          Pracownik
+        </div>
+        <div v-for="shift in daysHeader" :key="shift.day" class="border-r flex flex-col justify-center items-center text-gray-700 bg-gray-50" style="width: 127px; min-width: 127px; height: 48px">
+          <div class="text-xs font-bold">{{ new Date(shift.day).getDate() }}</div>
+          <div class="text-xs">{{ dayOfWeek(new Date(shift.day)) }}</div>
+        </div>
       </div>
-    </div>
 
-    <div v-if="timeSheets.length < 1" class="flex pt-2 px-4">Brak pracowników</div>
+      <!-- Worker Rows -->
+      <div v-for="(timeSheet, index) in sortedTimeSheets" :key="timeSheetsOrder[index]" class="flex border-b min-w-max">
+        <!-- Worker Info Column - FIXED -->
+        <div class="sticky left-0 z-10 bg-gray-100 border-r px-2 text-gray-700 cursor-pointer flex flex-col justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 68px">
+          <div class="text-center text-xs font-bold leading-tight break-words">{{ timeSheet[0]?.name }}</div>
+          <div class="text-center text-[10px] mt-1 text-indigo-600">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
+        </div>
+
+        <!-- Day Cells -->
+        <div v-for="shift in timeSheet" :key="shift.id" :class="shiftBackground(shift)" class="border-r relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 cursor-pointer flex flex-col justify-center" style="width: 127px; min-width: 127px; height: 68px" @click="showModal(shift)">
+          <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="text-center overflow-y-auto">
+            {{ shift.status === 8 ? getStatusName(shift.status) : 'Święto' }}
+          </div>
+          <div v-else-if="shift.status" class="text-center overflow-y-auto">
+            {{ getStatusName(shift.status) }}
+          </div>
+          <div v-else class="text-center overflow-y-auto">
+            <div class="whitespace-nowrap text-xs">{{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }}</div>
+            <div class="text-sm font-bold">{{ shift.work }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="sortedTimeSheets.length < 1" class="flex pt-2 px-4">Brak pracowników</div>
+    </div>
   </div>
-  <TransitionRoot as="template" :show="open">
-    <Dialog as="div" class="relative z-10" @close="open = false">
-      <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-      </TransitionChild>
-      <div class="fixed z-10 inset-0 overflow-y-auto">
-        <div class="flex items-end justify-center p-4 min-h-full text-center sm:items-center sm:p-0">
-          <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-            <DialogPanel class="relative text-left bg-white rounded-lg shadow-xl overflow-hidden transform transition-all sm:my-8 sm:w-full sm:max-w-lg">
-              <div class="pb-4 pt-5 px-4 bg-white sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                  <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                    <DialogTitle as="h3" class="text-gray-900 text-lg font-medium leading-6"> Wprowadź dane dla dnia: {{ new Date(modalForm.day).toLocaleDateString('pl-PL', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) }}</DialogTitle>
-                    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
-                      <fieldset>
-                        <form @submit.prevent="update">
-                          <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-                            <div class="grid grid-cols-2">
-                              <div>
-                                <label for="workFrom">Czas pracy od:</label>
-                                <Datepicker id="workFrom" v-model="modalForm.from" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
-                              </div>
-                              <div>
-                                <label for="workTo">Czas pracy do:</label>
-                                <Datepicker id="workTo" v-model="modalForm.to" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" />
-                              </div>
-                            </div>
 
-                            <div class="grid grid-cols-2">
-                              <div>
-                                <label for="workTime">Czas pracy:</label>
-                                <Datepicker id="workTime" v-model="modalForm.workTime" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6 w-full" />
+  <!-- Explicit Teleport to body to ensure it's outside any stacking context -->
+  <teleport to="body">
+    <TransitionRoot as="template" :show="open">
+      <Dialog as="div" class="relative z-[9999]" @close="open = false">
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+        </TransitionChild>
+        <div class="fixed z-[10000] inset-0 overflow-y-auto">
+          <div class="flex items-end justify-center p-4 min-h-full text-center sm:items-center sm:p-0">
+            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+              <DialogPanel class="relative text-left bg-white rounded-lg shadow-xl overflow-hidden transform transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <div class="pb-4 pt-5 px-4 bg-white sm:p-6 sm:pb-4">
+                  <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                      <DialogTitle as="h3" class="text-gray-900 text-lg font-medium leading-6"> Wprowadź dane dla dnia: {{ new Date(modalForm.day).toLocaleDateString('pl-PL', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) }}</DialogTitle>
+                      <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+                        <fieldset>
+                          <form @submit.prevent="update">
+                            <div class="flex flex-wrap -mb-8 -mr-6 p-8">
+                              <div class="grid grid-cols-2">
+                                <div>
+                                  <label for="workFrom">Czas pracy od:</label>
+                                  <Datepicker id="workFrom" v-model="modalForm.from" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" teleport="body" />
+                                </div>
+                                <div>
+                                  <label for="workTo">Czas pracy do:</label>
+                                  <Datepicker id="workTo" v-model="modalForm.to" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" teleport="body" />
+                                </div>
                               </div>
-                              <div>
-                                <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" v-model="modalForm.reducedWorkingHours" @change="wortTimeReduce()" />
-                                <label for="time-reduce">Skróć czas o 30 min</label>
-                              </div>
-                            </div>
 
-                            <select-input v-model="modalForm.status" class="lg:w-1/1 pb-8 pr-6 w-full" label="Powód nieobecności" @change="statusChanged($event)">
-                              <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
-                            </select-input>
-                          </div>
-                        </form>
-                      </fieldset>
+                              <div class="grid grid-cols-2">
+                                <div>
+                                  <label for="workTime">Czas pracy:</label>
+                                  <Datepicker id="workTime" v-model="modalForm.workTime" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6 w-full" disabled teleport="body" />
+                                </div>
+                                <div>
+                                  <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" v-model="modalForm.reducedWorkingHours" @change="wortTimeReduce()" />
+                                  <label for="time-reduce">Skróć czas o 30 min</label>
+                                </div>
+                              </div>
+
+                              <select-input v-model="modalForm.status" class="lg:w-1/1 pb-8 pr-6 w-full" label="Powód nieobecności" @change="statusChanged($event)">
+                                <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
+                              </select-input>
+                            </div>
+                          </form>
+                        </fieldset>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div v-if="(calculateDiffDays() < 3 && user_owner === 3) || user_owner !== 3" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
-                <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-white text-base font-medium bg-green-600 hover:bg-green-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
-                <button ref="cancelButtonRef" type="button" class="inline-flex justify-center mt-3 px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
-                <button class="mr-auto text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
-              </div>
-            </DialogPanel>
-          </TransitionChild>
+                <div v-if="(calculateDiffDays() < 3 && user_owner === 3) || user_owner !== 3" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+                  <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-white text-base font-medium bg-green-600 hover:bg-green-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
+                  <button ref="cancelButtonRef" type="button" class="inline-flex justify-center mt-3 px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
+                  <button class="mr-auto text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
         </div>
-      </div>
-    </Dialog>
-  </TransitionRoot>
+      </Dialog>
+    </TransitionRoot>
+  </teleport>
 </template>
 
 <script>
@@ -189,8 +203,14 @@ export default {
     }
   },
   computed: {
-    sortedByOrder() {
-      return this.timeSheetsOrder.map((id) => this.timeSheets[id])
+    sortedTimeSheets() {
+      return this.timeSheetsOrder.map((id) => {
+        const sheet = this.timeSheets[id]
+        return Object.values(sheet).sort((a, b) => new Date(a.day) - new Date(b.day))
+      })
+    },
+    daysHeader() {
+      return this.sortedTimeSheets.length > 0 ? this.sortedTimeSheets[0] : []
     },
   },
   /**
@@ -320,6 +340,10 @@ export default {
       }
     },
     shiftBackground(shift) {
+      if (shift.work && moment.duration(shift.work).asHours() > 12) {
+        return 'bg-red-400'
+      }
+
       if (this.isSunday(shift)) {
         return 'bg-red-200'
       }
@@ -414,7 +438,7 @@ export default {
       if (checked) {
         const workHours = moment(this.modalForm.workTime.hours + ':' + this.modalForm.workTime.minutes, 'HH:mm')
           .subtract('30', 'minutes')
-          .format('hh:mm')
+          .format('HH:mm')
 
         this.modalForm.workTime = {
           hours: workHours.split(':').at(0),
@@ -467,3 +491,27 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: auto;
+  scrollbar-color: #888 #f1f1f1;
+}
+</style>
