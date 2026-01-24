@@ -1,7 +1,17 @@
 <template>
   <div :class="$attrs.class">
     <label v-if="label" class="form-label" :for="id">{{ label }}:</label>
-    <input :id="id" ref="input" v-bind="{ ...$attrs, class: null }" class="form-input" :class="{ error: error }" type="date" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />
+    <input
+      :id="id"
+      ref="input"
+      v-bind="{ ...$attrs, class: null }"
+      class="form-input"
+      :class="{ error: error }"
+      type="number"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      @focus="handleFocus"
+    />
     <div v-if="error" class="form-error">{{ error }}</div>
   </div>
 </template>
@@ -15,23 +25,23 @@ export default {
     id: {
       type: String,
       default() {
-        return `date-input-${uuid()}`
+        return `number-input-${uuid()}`
       },
     },
     error: String,
     label: String,
-    modelValue: String,
+    modelValue: [String, Number],
   },
   emits: ['update:modelValue'],
   methods: {
     focus() {
       this.$refs.input.focus()
     },
-    select() {
-      this.$refs.input.select()
-    },
-    setSelectionRange(start, end) {
-      this.$refs.input.setSelectionRange(start, end)
+    handleFocus(event) {
+      if (this.modelValue === 0) {
+        this.$emit('update:modelValue', '')
+      }
+      event.target.select()
     },
   },
 }

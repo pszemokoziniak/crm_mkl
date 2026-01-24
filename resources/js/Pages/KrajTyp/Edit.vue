@@ -6,7 +6,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.name }}
     </h1>
-     <trashed-message v-if="kraj.deleted_at" class="mb-6" @restore="restore">Usunąć?</trashed-message>
+    <trashed-message v-if="kraj.deleted_at" class="mb-6" @restore="restore">Usunąć?</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -36,7 +36,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Data</th>
-          <th class="pb-4 pt-6 px-6">Akcje</th>
+          <th class="pb-4 pt-6 px-6 text-right">Akcje</th>
         </tr>
         <tr v-for="feast in feasts" :key="feast.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -44,16 +44,20 @@
               {{ feast.name }}
             </Link>
           </td>
-          <td class="border-t">{{ feast.date }}</td>
           <td class="border-t">
-            <Link method='delete' class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`">
-              <Icon name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            <Link class="flex items-center px-6 py-4" :href="`/country/${feast.country_id}/feasts/${feast.id}`">
+              {{ feast.date }}
             </Link>
+          </td>
+          <td class="border-t text-right px-6">
+            <delete-button
+              :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`"
+              confirm="Czy na pewno chcesz usunąć to święto?"
+            />
           </td>
         </tr>
       </table>
     </div>
-
   </div>
 </template>
 
@@ -63,7 +67,7 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
-import Icon from '@/Shared/Icon'
+import DeleteButton from '@/Shared/DeleteButton'
 
 export default {
   components: {
@@ -72,7 +76,7 @@ export default {
     LoadingButton,
     TextInput,
     TrashedMessage,
-    Icon,
+    DeleteButton,
   },
   layout: Layout,
   props: {

@@ -14,10 +14,6 @@
 
     <div class="flex items-center justify-between mb-6">
       <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset" />
-      <Link v-if="userOwner !== 3" class="btn-indigo" href="/contacts/create">
-        <span>Dodaj</span>
-        <span class="hidden md:inline">&nbsp;Pracownika</span>
-      </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">

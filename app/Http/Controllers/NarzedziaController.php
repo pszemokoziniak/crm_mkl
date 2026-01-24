@@ -25,7 +25,9 @@ class NarzedziaController extends Controller
     {
         return Inertia::render('Narzedzia/Index', [
             'filters' => Request::all('search', 'trashed'),
-            'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed'))->get()
+            'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed'))
+                ->paginate(20)
+                ->withQueryString()
         ]);
     }
 
@@ -47,12 +49,11 @@ class NarzedziaController extends Controller
                     'id' => $toolFile->id,
                     'name' => $toolFile->filename,
                     'type' => $toolFile->type,
-                    'display' => false,
+                    'display' => true,
                     'path' => URL::route(
                         'image',
                         [
                             'path' => DocumentService::toolFilePath($narzedzia->id, $toolFile->filename),
-                            'w' => 260, 'h' => 260, 'fit' => 'crop'
                         ]
                     )
                 ]),

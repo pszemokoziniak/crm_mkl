@@ -28,8 +28,8 @@ class StoreNarzedziaRequest extends FormRequest
             'numer_seryjny' =>'nullable',
             'waznosc_badan' =>'nullable|date',
             'ilosc_all' =>'nullable|numeric',
-            'photos' => 'nullable',
-            'documents' =>'nullable',
+            'photos.*' => 'nullable|image|max:5120',
+            'documents.*' => 'nullable|file|max:10240',
         ];
     }
 
@@ -38,14 +38,18 @@ class StoreNarzedziaRequest extends FormRequest
             'required'  => 'Pole :attribute jest wymagane.',
             'min'  => 'Wymagane 5 znaki.',
             'unique' => 'Nazwa użyta',
-            'numeric' => 'Pole musi zawierać cyfrę'
+            'numeric' => 'Pole musi zawierać cyfrę',
+            'image' => 'Plik musi być obrazem.',
+            'max' => 'Plik jest zbyt duży.',
         ];
     }
 
     public function attributes() {
         return [
             'name' => 'Nazwa',
-            'ilosc' => 'Ilość'
+            'ilosc' => 'Ilość',
+            'photos' => 'Zdjęcia',
+            'documents' => 'Dokumenty'
         ];
     }
 }

@@ -33,12 +33,13 @@
           </div>
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <button
-            v-if="!narzedzia.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button"
-            @click="destroy"
+          <delete-button
+            v-if="!narzedzia.deleted_at"
+            :href="`/narzedzia/${narzedzia.id}`"
+            confirm="Czy na pewno chcesz usunąć ten sprzęt?"
           >
-            Usuń
-          </button>
+            Usuń sprzęt
+          </delete-button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>
@@ -54,6 +55,7 @@ import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import DateInput from '@/Shared/DateInput.vue'
 import Dropzone from '@/Shared/Dropzone.vue'
+import DeleteButton from '@/Shared/DeleteButton.vue'
 import axios from 'axios'
 
 export default {
@@ -65,6 +67,7 @@ export default {
     TextInput,
     TrashedMessage,
     Dropzone,
+    DeleteButton,
   },
   layout: Layout,
   props: {
@@ -124,11 +127,6 @@ export default {
             }
           },
         })
-    },
-    destroy() {
-      if (confirm('Chcesz usunąć?')) {
-        this.$inertia.delete(`/narzedzia/${this.narzedzia.id}`)
-      }
     },
     restore() {
       if (confirm('Chcesz przywrócić?')) {

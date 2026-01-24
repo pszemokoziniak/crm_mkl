@@ -15,7 +15,7 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Data</th>
-          <th class="pb-4 pt-6 px-6">Akcje</th>
+          <th class="pb-4 pt-6 px-6 text-right">Akcje</th>
         </tr>
         <tr v-for="feast in feasts" :key="feast.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -28,10 +28,11 @@
               {{ feast.date }}
             </Link>
           </td>
-          <td class="border-t">
-            <Link method="delete" class="flex items-center px-6 py-4 text-red-600 hover:text-red-900 focus:text-indigo-500" :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`">
-              Usuń
-            </Link>
+          <td class="border-t text-right px-6">
+            <delete-button
+              :href="`/country/${feast.country_id}/feasts/${feast.id}/delete`"
+              confirm="Czy na pewno chcesz usunąć to święto?"
+            />
           </td>
         </tr>
       </table>
@@ -42,11 +43,13 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
+import DeleteButton from '@/Shared/DeleteButton'
 
 export default {
   components: {
     Head,
     Link,
+    DeleteButton,
   },
   layout: Layout,
   props: {

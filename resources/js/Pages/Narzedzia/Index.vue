@@ -1,15 +1,9 @@
 <template>
   <div>
-    <Head title="Kraje" />
+    <Head title="Sprzęt" />
     <h1 class="mb-8 text-3xl font-bold">Sprzęt</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-<!--        <label class="block text-gray-700">Trashed:</label>-->
-<!--        <select v-model="form.trashed" class="form-select mt-1 w-full">-->
-<!--          &lt;!&ndash;          <option :value="null" />&ndash;&gt;-->
-<!--          <option value="with">Wszystko</option>-->
-<!--          <option value="only">Usunięte</option>-->
-<!--        </select>-->
       </search-filter-no-filtr>
       <Link class="btn-indigo" href="/narzedzia/create">
         <span>Dodaj</span>
@@ -20,11 +14,12 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Numer Seryjny</th>
-          <th class="pb-4 pt-6 px-6">Ilość Całkowita</th>
-          <th class="pb-4 pt-6 px-6">Ilość Budowa</th>
-          <th class="pb-4 pt-6 px-6">Ilość Magazyn</th>
+          <th class="pb-4 pt-6 px-6 text-center">Ilość Całkowita</th>
+          <th class="pb-4 pt-6 px-6 text-center">Ilość Budowa</th>
+          <th class="pb-4 pt-6 px-6 text-center">Ilość Magazyn</th>
+          <th class="pb-4 pt-6 px-6"></th>
         </tr>
-        <tr v-for="item in narzedzia" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="item in narzedzia.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
               {{ item.name }}
@@ -34,25 +29,21 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
               {{ item.numer_seryjny }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
+          <td class="border-t text-center">
+            <Link class="flex items-center justify-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
               {{ item.ilosc_all }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
+          <td class="border-t text-center">
+            <Link class="flex items-center justify-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
               {{ item.ilosc_budowa }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
+          <td class="border-t text-center">
+            <Link class="flex items-center justify-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
               {{ item.ilosc_magazyn }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">
@@ -61,12 +52,12 @@
             </Link>
           </td>
         </tr>
-        <tr v-if="narzedzia.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pozycji</td>
+        <tr v-if="narzedzia.data.length === 0">
+          <td class="px-6 py-4 border-t" colspan="6">Nie znaleziono pozycji</td>
         </tr>
       </table>
     </div>
-    <!-- <pagination class="mt-6" :links="accounts.links" /> -->
+    <pagination class="mt-6" :links="narzedzia.links" />
   </div>
 </template>
 
@@ -78,11 +69,13 @@ import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
+import Pagination from '@/Shared/Pagination.vue'
 
 
 export default {
   components: {
     SearchFilterNoFiltr,
+    Pagination,
     Head,
     Icon,
     Link,
