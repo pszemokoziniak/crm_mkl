@@ -252,6 +252,10 @@ Route::put('contacts/{contact}/restore', [ContactsController::class, 'restore'])
     ->name('contacts.restore')
         ->middleware('auth', 'biuro-permission');
 
+Route::get('contacts/{contact}/history', [ContactsController::class, 'history'])
+    ->name('contacts.history')
+    ->middleware('auth', 'biuro-kierownik-permission');
+
 
 // Narzedzia
 

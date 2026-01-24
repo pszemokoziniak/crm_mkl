@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCustomersRequest;
 use App\Models\A1;
 use App\Models\Badania;
 use App\Models\Bhp;
+use App\Models\BuildingTimeSheet;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
@@ -236,5 +237,41 @@ class ContactsController extends Controller
             return "Nie pracuje";
         }
         return $data[0];
+    }
+
+    public function history(Contact $contact)
+    {
+        $history = BuildingTimeSheet::with('build')
+            ->where('contact_id', $contact->id)
+            ->orderBy('work_day', 'desc')
+            ->get()
+            ->groupBy('organization_id')
+            ->map(function ($group) {
+                $totalHours = 0;
+                foreach ($group as $item) {
+                    if ($item->effective_work_time) {
+                        $parts = explode(':', $item->effective_work_time);
+                        if (count($parts) === 2) {
+                            $totalHours += (int)$parts[0] + ((int)$parts[1] / 60);
+                        }
+                    }
+                }
+
+                return [
+                    'organization' => $group->first()->build->nazwaBud ?? 'Brak nazwy',
+                    'start' => $group->min('work_day'),
+                    'end' => $group->max('work_day'),
+                    'hours' => $totalHours,
+                ];
+            });
+
+        return Inertia::render('Contacts/History', [
+            'contact' => [
+                'id' => $contact->id,
+                'first_name' => $contact->first_name,
+                'last_name' => $contact->last_name,
+            ],
+            'history' => $history->values(),
+        ]);
     }
 }
