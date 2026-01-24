@@ -3,9 +3,9 @@
     <Head :title="form.name" />
     <BudMenu :budId="budId" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">Budowa</Link>
       <span class="text-indigo-400 font-medium">/</span>
-      {{ form.nazwaBud }}
+      {{ form.name }}
     </h1>
     <trashed-message v-if="organization.deleted_at" :user_owner="user_owner" class="mb-6" @restore="restore">Ta budowa jest usunięta</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
@@ -21,18 +21,16 @@
           </select-input>
           <text-input v-model="form.addressBud" :error="form.errors.addressBud" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Adres Budowy" />
           <text-input v-model="form.addressKwat" :error="form.errors.addressKwat" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Adres Kwatery" />
-          <select-input v-model="form.kierownikBud_id" :error="form.errors.kierownikBud_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kierownik Budowy">
-            <option :value="null" />
-            <option v-for="item in kierownikBud" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
-          </select-input>
-          <select-input v-model="form.inzynier_id" :error="form.errors.inzynier_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Inżynier">
-            <option :value="null" />
-            <option v-for="item in inzyniers" :key="item.id" :value="item.id">{{ item.last_name }} {{ item.first_name }}</option>
-          </select-input>
         </div>
 
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <button v-if="!organization.deleted_at && (user_owner === 1 || user_owner === 2)" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+          <delete-button
+            v-if="!organization.deleted_at && (user_owner === 1 || user_owner === 2)"
+            :href="`/budowy/${organization.id}`"
+            confirm="Jesteś pewien, że chcesz usunąć budowę?"
+          >
+            Usuń budowę
+          </delete-button>
           <loading-button v-if="!organization.deleted_at" :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>
@@ -48,6 +46,7 @@ import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import BudMenu from '@/Shared/BudMenu'
+import DeleteButton from '@/Shared/DeleteButton'
 
 export default {
   components: {
@@ -58,14 +57,13 @@ export default {
     TextInput,
     TrashedMessage,
     BudMenu,
+    DeleteButton,
   },
   layout: Layout,
   props: {
     organization: Object,
     krajTyps: Object,
     kierownikBud: Object,
-    // contacts: Object,
-    // contactsFree: Object,
     user_owner: Number,
     flag: Boolean,
     inzyniers: Object,
@@ -96,11 +94,6 @@ export default {
   methods: {
     update() {
       this.form.put(`/budowy/${this.organization.id}`)
-    },
-    destroy() {
-      if (confirm('Jesteś pewnien, że chcesz usunąć budowę?')) {
-        this.$inertia.delete(`/budowy/${this.organization.id}`)
-      }
     },
     restore() {
       if (confirm('Jesteś pewnien, że chcesz przywrócić budowę?')) {

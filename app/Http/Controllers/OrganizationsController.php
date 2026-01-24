@@ -23,20 +23,20 @@ class OrganizationsController extends Controller
     {
         $today = Carbon::today()->toDateString();
 
-        $sort = request('sort', 'numerBud');
+        $sort = request('sort', 'name');
         $direction = request('direction') === 'desc' ? 'desc' : 'asc';
 
         // Mapowanie "publicznych" nazw sortów -> realne kolumny/aliasy SQL
         $allowedSorts = [
-            'nazwaBud'           => 'organizations.nazwaBud',
+            'name'               => 'organizations.name',
             'numerBud'           => 'organizations.numerBud',
             'city'               => 'organizations.city',
-            'has_active_workers' => 'has_active_workers',   // alias z addSelect
-            'country'            => 'kt.name',              // join tylko przy tym sorcie
+            'has_active_workers' => 'has_active_workers',
+            'country'            => 'kt.name',
         ];
 
         if (!array_key_exists($sort, $allowedSorts)) {
-            $sort = 'numerBud';
+            $sort = 'name';
         }
 
         $query = Organization::query()
@@ -65,8 +65,18 @@ class OrganizationsController extends Controller
                     )
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
                     ->where('contacts.funkcja_id', 6),
-            ])
-            ->filter(Request::only('search', 'trashed'));
+            ]);
+
+        // Filtrowanie po wyszukiwarce i statusie usunięcia (soft delete)
+        $query->filter(Request::only('search', 'trashed'));
+
+        // DODATKOWA LOGIKA: Jeśli wybrano "Budowy aktywne" (trashed === null),
+        // pokaż tylko te, które mają aktywnych pracowników.
+        if (Request::get('trashed') === null) {
+            $query->whereHas('contactWorkDates', function ($q) use ($today) {
+                $q->activeOn($today);
+            });
+        }
 
         if ($sort === 'country') {
             $query->leftJoin('kraj_typs as kt', 'kt.id', '=', 'organizations.country_id')
@@ -75,17 +85,18 @@ class OrganizationsController extends Controller
         }
         $query->orderBy($allowedSorts[$sort], $direction);
 
-        if ($sort !== 'numerBud') {
-            $query->orderBy('organizations.numerBud', 'asc');
+        if ($sort !== 'numerBud' && $sort !== 'name') {
+            $query->orderBy('organizations.name', 'asc');
         }
 
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed', 'sort', 'direction'),
             'organizations' => $query
-                ->paginate(100)
+                ->paginate(20)
                 ->withQueryString()
                 ->through(fn ($organization) => [
                     'id' => $organization->id,
+                    'name' => $organization->name,
                     'nazwaBud' => $organization->nazwaBud,
                     'numerBud' => $organization->numerBud,
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
@@ -96,8 +107,7 @@ class OrganizationsController extends Controller
                 ]),
         ]);
     }
-
-
+    // ... reszta metod bez zmian
     public function create()
     {
         return Inertia::render('Organizations/Create', [

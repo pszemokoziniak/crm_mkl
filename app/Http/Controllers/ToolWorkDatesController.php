@@ -100,6 +100,49 @@ class ToolWorkDatesController extends Controller
         }
         return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Sprzęt dodany');
     }
+
+    public function edit(Organization $organization, ToolWorkDate $narzedzia)
+    {
+        return Inertia::render('NarzedziaBudowa/Edit', [
+            'organization' => $organization,
+            'toolWorkDate' => [
+                'id' => $narzedzia->id,
+                'narzedzia_nb' => $narzedzia->narzedzia_nb,
+                'narzedzia' => $narzedzia->narzedzia,
+            ],
+            'narzedzie' => $narzedzia->narzedzia,
+        ]);
+    }
+
+    public function update(Request $request, Organization $organization, ToolWorkDate $narzedzia)
+    {
+        $request->validate([
+            'narzedzia_nb' => ['required', 'numeric', 'min:1'],
+        ]);
+
+        $nowaIlosc = (int) $request->narzedzia_nb;
+        $staraIlosc = (int) $narzedzia->narzedzia_nb;
+        $roznica = $nowaIlosc - $staraIlosc;
+
+        // Aktualizujemy stany w magazynie i na budowie (ogólne)
+        $narzedzie = Narzedzia::find($narzedzia->narzedzia_id);
+
+        // Sprawdzamy czy mamy wystarczająco w magazynie jeśli zwiększamy
+        if ($roznica > 0 && $narzedzie->ilosc_magazyn < $roznica) {
+            return Redirect::back()->with('error', 'Brak wystarczającej ilości w magazynie.');
+        }
+
+        $narzedzie->ilosc_magazyn -= $roznica;
+        $narzedzie->ilosc_budowa += $roznica;
+        $narzedzie->save();
+
+        // Aktualizujemy ilość na tej budowie
+        $narzedzia->narzedzia_nb = $nowaIlosc;
+        $narzedzia->save();
+
+        return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Ilość zaktualizowana.');
+    }
+
     public function destroy(Organization $organization, ToolWorkDate $toolWorkDate)
     {
         $data = Narzedzia::find($toolWorkDate->narzedzia_id);

@@ -1,16 +1,21 @@
 <template>
   <div>
     <Head title="Budowa" />
-    <h1 class="mb-8 text-3xl font-bold">Budowy</h1>
+    <h1 class="mb-8 text-3xl font-bold">
+      Budowy <span class="text-indigo-400 font-medium">{{ titleSuffix }}</span>
+    </h1>
 
     <div class="flex items-center justify-between mb-6">
-      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-        <label class="block text-gray-700">Wybierz:</label>
-        <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <option :value="null">Budowy aktywne</option>
-          <option value="only">Zakończona</option>
-        </select>
-      </search-filter>
+      <div class="flex items-center">
+        <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+          <label class="block text-gray-700">Filtruj:</label>
+          <select v-model="form.trashed" class="form-select mt-1 w-full">
+            <option :value="null">Budowy aktywne</option>
+            <option value="with">Wszystkie budowy</option>
+            <option value="only">Budowy zakończone</option>
+          </select>
+        </search-filter>
+      </div>
 
       <Link class="btn-indigo" href="/budowy/create">
         <span>Utwórz</span>
@@ -58,10 +63,17 @@ export default {
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
-        sort: this.filters.sort ?? 'nazwaBud',
+        sort: this.filters.sort ?? 'name',
         direction: this.filters.direction ?? 'asc',
       },
     }
+  },
+  computed: {
+    titleSuffix() {
+      if (this.form.trashed === 'with') return '/ Wszystkie'
+      if (this.form.trashed === 'only') return '/ Zakończone'
+      return '/ Aktywne'
+    },
   },
   watch: {
     form: {

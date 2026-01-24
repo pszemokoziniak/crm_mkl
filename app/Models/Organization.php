@@ -27,11 +27,6 @@ class Organization extends Model
         return $this->hasMany(ContactWorkDate::class, 'organization_id', 'id');
     }
 
-//    public function contactWorkDates()
-//    {
-//        return $this->hasMany(\App\Models\ContactWorkDate::class);
-//    }
-
     public function inzynier()
     {
         return $this->belongsTo(Contact::class, 'inzynier_id','id');
@@ -49,12 +44,14 @@ class Organization extends Model
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {
-            $query->where('nazwaBud', 'like', '%'.$search.'%')
-                ->orWhere('numerBud', 'like', '%'.$search.'%')
-                ->orWhereHas('krajTyp', function ($query) use ($search) {
-                    $query->where('name', 'like', '%'.$search.'%');
-                });
-//                ->orWhere('country', 'like', '%'.$search.'%');
+            $query->where(function ($query) use ($search) {
+                $query->where('organizations.name', 'like', '%'.$search.'%')
+                    ->orWhere('organizations.nazwaBud', 'like', '%'.$search.'%')
+                    ->orWhere('organizations.numerBud', 'like', '%'.$search.'%')
+                    ->orWhereHas('krajTyp', function ($query) use ($search) {
+                        $query->where('name', 'like', '%'.$search.'%');
+                    });
+            });
         })->when($filters['trashed'] ?? null, function ($query, $trashed) {
             if ($trashed === 'with') {
                 $query->withTrashed();
@@ -63,6 +60,8 @@ class Organization extends Model
             } elseif ($trashed === 'my') {
                 $query->where('kierownikBud_id', Auth::id())->withTrashed();
             }
+        }, function ($query) {
+            $query->whereNull('organizations.deleted_at');
         });
     }
 }

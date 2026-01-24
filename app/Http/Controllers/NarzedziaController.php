@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreNarzedziaRequest;
 use App\Models\Narzedzia;
 use App\Models\ToolFile;
+use App\Models\ToolWorkDate;
 use App\Services\DocumentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -102,10 +103,11 @@ class NarzedziaController extends Controller
             /** save new photos and documents, remove these removed on dropzone */
             foreach (Request::file('photos') ?? [] as $file) {
 
+                // resent with form - exists
                 if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
                     continue;
                 }
-
+                // not exists - add
                 $documentService->storeToolFile($file, $narzedzia->id, 'photo');
             }
 
@@ -128,6 +130,13 @@ class NarzedziaController extends Controller
 
     public function destroy(Narzedzia $narzedzia, DocumentService $documentService): RedirectResponse
     {
+        // Sprawdź czy narzędzie jest na jakiejś budowie
+        $onBuild = ToolWorkDate::where('narzedzia_id', $narzedzia->id)->exists();
+
+        if ($onBuild) {
+            return Redirect::back()->with('error', 'Nie można usunąć narzędzia, które jest przypisane do budowy.');
+        }
+
         $documentService->deleteFiles($narzedzia->id);
         $narzedzia->delete();
 

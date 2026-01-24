@@ -4,9 +4,9 @@
       <thead>
         <tr class="text-left font-bold">
           <!-- Nazwa -->
-          <th class="pb-4 pt-6 px-6 cursor-pointer select-none" @click="emitSort('nazwaBud')">
+          <th class="pb-4 pt-6 px-6 cursor-pointer select-none" @click="emitSort('name')">
             Nazwa
-            <SortIcon column="nazwaBud" :sort="sort" :direction="direction" />
+            <SortIcon column="name" :sort="sort" :direction="direction" />
           </th>
 
           <!-- Kraj (sortowanie opcjonalne - jeśli backend wspiera) -->
@@ -22,7 +22,7 @@
           <th class="pb-4 pt-6 px-6 border-t lg:table-cell">Inżynierowie</th>
 
           <!-- Aktywna (sortowanie opcjonalne) -->
-          <th class="pb-4 pt-6 px-6 cursor-pointer select-none" @click="emitSort('has_active_workers')" colspan="2">
+          <th class="pb-4 pt-6 px-6 cursor-pointer select-none" colspan="2" @click="emitSort('has_active_workers')">
             Aktywna
             <SortIcon column="has_active_workers" :sort="sort" :direction="direction" />
           </th>
@@ -34,7 +34,7 @@
           <!-- Nazwa -->
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${organization.id}/edit`">
-              {{ organization.nazwaBud }}
+              {{ organization.name }}
               <Icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
