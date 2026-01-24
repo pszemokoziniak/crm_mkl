@@ -30,12 +30,12 @@ class ToolWorkDatesController extends Controller
 
     public function index(Organization $organization)
     {
-
         return Inertia::render('NarzedziaBudowa/Index', [
             'organization' => $organization,
             'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'toolsOnBuild' => ToolWorkDate::with('narzedzia')
                 ->where('organization_id', $organization->id)
+                ->filter(\Illuminate\Support\Facades\Request::only('search', 'trashed'))
                 ->paginate(100)
                 ->withQueryString()
                 ->through(fn ($item) => [
@@ -56,6 +56,7 @@ class ToolWorkDatesController extends Controller
             'organization' => $organization,
             'toolsOnBuild' => ToolWorkDate::with('narzedzia')
                 ->where('organization_id', $organization->id)
+                ->filter(\Illuminate\Support\Facades\Request::only('search', 'trashed'))
                 ->paginate(100)
                 ->withQueryString()
                 ->through(fn ($item) => [
@@ -69,20 +70,33 @@ class ToolWorkDatesController extends Controller
     public function store(Request $request, Organization $organization)
     {
         foreach ($request->checkedValues as $item) {
-            if ((integer)$request->ilosc[(integer) $item] !== null || (integer)$request->ilosc[(integer) $item] !== 0) {
-                $data = new ToolWorkDate;
-                $data->narzedzia_id = (integer)$item;
-                $data->organization_id = $organization->id;
-                $data->narzedzia_nb = (integer) $request->ilosc[(integer) $item];
-                $data->save();
+            $iloscDoDodania = (int) ($request->ilosc[(int) $item] ?? 0);
 
-                $data = Narzedzia::find((integer)$item);
-                $data->ilosc_magazyn = (integer) $data->ilosc_magazyn - (integer) $request->ilosc[(integer) $item];
-                $data->ilosc_budowa = (integer) $data->ilosc_budowa + (integer) $request->ilosc[(integer) $item];
-                $data->save();
+            if ($iloscDoDodania > 0) {
+                // Szukamy czy to narzędzie już jest na tej budowie
+                $toolOnBuild = ToolWorkDate::where('organization_id', $organization->id)
+                    ->where('narzedzia_id', (int) $item)
+                    ->first();
 
+                if ($toolOnBuild) {
+                    // Jeśli jest, zwiększamy ilość
+                    $toolOnBuild->narzedzia_nb += $iloscDoDodania;
+                    $toolOnBuild->save();
+                } else {
+                    // Jeśli nie ma, tworzymy nowy wpis
+                    $data = new ToolWorkDate;
+                    $data->narzedzia_id = (int) $item;
+                    $data->organization_id = $organization->id;
+                    $data->narzedzia_nb = $iloscDoDodania;
+                    $data->save();
+                }
+
+                // Aktualizujemy stany w magazynie i na budowie (ogólne)
+                $narzedzie = Narzedzia::find((int) $item);
+                $narzedzie->ilosc_magazyn -= $iloscDoDodania;
+                $narzedzie->ilosc_budowa += $iloscDoDodania;
+                $narzedzie->save();
             }
-
         }
         return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Sprzęt dodany');
     }

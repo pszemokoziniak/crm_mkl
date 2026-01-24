@@ -1,45 +1,68 @@
 <template>
-  <div class="max-w bg-white rounded-md shadow overflow-hidden my-5">
-    <h3 class="font-medium text-xl  p-4">Dostępne narzedzia</h3>
+  <div class="max-w bg-white rounded-md shadow overflow-hidden my-6 border border-gray-200">
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+      <h3 class="font-bold text-lg text-gray-700">Dostępne narzędzia</h3>
+      <div class="w-64">
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Szukaj narzędzia..."
+          class="form-input text-sm py-1.5"
+        />
+      </div>
+    </div>
     <form @submit.prevent="store()">
-      <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Ilość w magazynie</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Ilość</th>
-        </tr>
-        <tr v-for="item in toolsFree" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td v-if="item.ilosc_magazyn >0" class="border-t">
-            <input
-              v-model="form.checkedValues"
-              class="ml-2 mr-2"
-              type="checkbox"
-              :value="item.id"
-
-            />
-            {{ item.name }}
-            <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-          </td>
-          <td v-if="item.ilosc_magazyn > 0" class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/narzedzia/${item.id}/edit`" tabindex="-1">
-              {{ item.ilosc_magazyn }}
-            </Link>
-          </td>
-          <td v-if="item.ilosc_magazyn > 0" class="border-t">
-            <text-input v-model="form.ilosc[item.id]" :error="form.errors.ilosc" type="number" class="px-6 py-4 lg:w-1/2" label="" />
-          </td>
-          <td v-if="item.ilosc_magazyn > 0" class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/narzedzia/${item.id}/edit`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-          </td>
-        </tr>
-        <tr v-if="toolsFree.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Brak narzędzi</td>
-        </tr>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full whitespace-nowrap">
+          <thead>
+            <tr class="text-left font-bold bg-gray-50/50">
+              <th class="py-3 px-6 text-xs uppercase tracking-wider text-gray-500">Nazwa</th>
+              <th class="py-3 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">W magazynie</th>
+              <th class="py-3 px-6 text-xs uppercase tracking-wider text-gray-500 text-center w-32">Ilość</th>
+              <th class="py-3 px-6"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr v-for="item in filteredTools" :key="item.id" class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-2">
+                <div class="flex items-center">
+                  <input
+                    v-model="form.checkedValues"
+                    class="mr-3 h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    type="checkbox"
+                    :id="'tool-' + item.id"
+                    :value="item.id"
+                  />
+                  <label :for="'tool-' + item.id" class="cursor-pointer font-medium text-gray-900">{{ item.name }}</label>
+                </div>
+              </td>
+              <td class="px-6 py-2 text-center text-gray-600 text-sm">
+                {{ item.ilosc_magazyn }}
+              </td>
+              <td class="px-6 py-2">
+                <input
+                  v-model="form.ilosc[item.id]"
+                  type="number"
+                  class="form-input text-center w-20 mx-auto py-1 text-sm"
+                  :placeholder="item.ilosc_magazyn"
+                />
+              </td>
+              <td class="px-6 py-2 text-right">
+                <Link :href="`/narzedzia/${item.id}/edit`" class="text-gray-400 hover:text-indigo-600">
+                  <icon name="cheveron-right" class="w-5 h-5 fill-current" />
+                </Link>
+              </td>
+            </tr>
+            <tr v-if="filteredTools.length === 0">
+              <td class="px-6 py-8 text-center text-gray-500 text-sm" colspan="4">Nie znaleziono narzędzi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
-        <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj narzędzia</loading-button>
+        <loading-button :loading="form.processing" class="btn-indigo" type="submit">
+          Dodaj narzędzia na budowę
+        </loading-button>
       </div>
     </form>
   </div>
@@ -47,33 +70,37 @@
 
 <script>
 import { Link } from '@inertiajs/inertia-vue3'
-
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import LoadingButton from '@/Shared/LoadingButton'
-import TextInput from '@/Shared/TextInput.vue'
-
 
 export default {
   components: {
-    TextInput,
     Icon,
     LoadingButton,
     Link,
   },
   layout: Layout,
   props: {
-    toolsFree: Object,
+    toolsFree: Array,
     organization: Object,
   },
-  remember: 'form',
   data() {
     return {
+      search: '',
       form: this.$inertia.form({
         checkedValues: [],
         ilosc: [],
       }),
     }
+  },
+  computed: {
+    filteredTools() {
+      let tools = this.toolsFree.filter(item => item.ilosc_magazyn > 0)
+      if (!this.search) return tools
+      const searchLower = this.search.toLowerCase()
+      return tools.filter(item => item.name.toLowerCase().includes(searchLower))
+    },
   },
   methods: {
     store() {

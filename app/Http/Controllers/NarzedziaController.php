@@ -40,6 +40,8 @@ class NarzedziaController extends Controller
                 'numer_seryjny' => $narzedzia->numer_seryjny,
                 'waznosc_badan' => $narzedzia->waznosc_badan,
                 'ilosc_all' => $narzedzia->ilosc_all,
+                'ilosc_budowa' => $narzedzia->ilosc_budowa,
+                'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
             ],
             'photos' => ToolFile::query()
                 ->where('tool_id', $narzedzia->id)
@@ -84,23 +86,26 @@ class NarzedziaController extends Controller
     ): RedirectResponse
     {
         try {
-            $narzedzia->update(
-                Request::validate([
-                    'name' => ['required', 'max:50'],
-                    'numer_seryjny' => ['nullable'],
-                    'waznosc_badan' => ['nullable', 'date'],
-                    'ilosc_all' => ['nullable', 'numeric'],
-                ])
-            );
+            $data = Request::validate([
+                'name' => ['required', 'max:50'],
+                'numer_seryjny' => ['nullable'],
+                'waznosc_badan' => ['nullable', 'date'],
+                'ilosc_all' => ['nullable', 'numeric'],
+            ]);
+
+            $ilosc_all = (int) ($data['ilosc_all'] ?? 0);
+            $ilosc_budowa = (int) $narzedzia->ilosc_budowa;
+            $data['ilosc_magazyn'] = $ilosc_all - $ilosc_budowa;
+
+            $narzedzia->update($data);
 
             /** save new photos and documents, remove these removed on dropzone */
             foreach (Request::file('photos') ?? [] as $file) {
 
-                // resent with form - exists
                 if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
                     continue;
                 }
-                // not exists - add
+
                 $documentService->storeToolFile($file, $narzedzia->id, 'photo');
             }
 

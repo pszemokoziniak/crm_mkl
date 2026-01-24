@@ -19,10 +19,22 @@
             label="Ważność badań"
           />
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
-          <text-input
+          <number-input
             v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4"
             label="Ilość"
           />
+
+          <div class="pb-8 pr-6 w-full flex space-x-4">
+            <div class="w-1/3">
+              <label class="form-label">Ilość na budowie:</label>
+              <div class="form-input bg-gray-100">{{ narzedzia.ilosc_budowa }}</div>
+            </div>
+            <div class="w-1/3">
+              <label class="form-label">Ilość w magazynie:</label>
+              <div class="form-input bg-gray-100 font-bold" :class="{'text-red-600': iloscMagazyn < 0}">{{ iloscMagazyn }}</div>
+            </div>
+          </div>
+
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
             <dropzone v-model="form.photos" :extensions="['jpg', 'jpeg', 'png', 'tiff']" />
@@ -51,6 +63,7 @@
 import {Head, Link} from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
+import NumberInput from '@/Shared/NumberInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import DateInput from '@/Shared/DateInput.vue'
@@ -65,6 +78,7 @@ export default {
     Link,
     LoadingButton,
     TextInput,
+    NumberInput,
     TrashedMessage,
     Dropzone,
     DeleteButton,
@@ -89,6 +103,11 @@ export default {
       }),
     }
   },
+  computed: {
+    iloscMagazyn() {
+      return (parseInt(this.form.ilosc_all) || 0) - (parseInt(this.narzedzia.ilosc_budowa) || 0)
+    },
+  },
   methods: {
     update() {
       this.form
@@ -99,11 +118,6 @@ export default {
         }))
         .post(`/narzedzia/${this.narzedzia.id}`, {
           onBefore: () => {
-
-            /**
-               * Send files to delete because is impossible to add property `deleted`
-               * to File object. Backend also doesn't get it.
-             */
             const photosToDelete = this
               .form
               .photos

@@ -14,7 +14,8 @@
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Numer seryjny</th>
           <th class="pb-4 pt-6 px-6">Ważność badań</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Ilość</th>
+          <th class="pb-4 pt-6 px-6 text-center">Ilość</th>
+          <th class="pb-4 pt-6 px-6 text-right">Akcje</th>
         </tr>
         <tr v-for="item in toolsOnBuild.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -26,28 +27,27 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.narzedzia.id}/edit`">
               {{ item.narzedzia.numer_seryjny }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedzia/${item.narzedzia.id}/edit`">
               {{ item.narzedzia.waznosc_badan }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" href="#" tabindex="-1">
+          <td class="border-t text-center">
+            <Link class="flex items-center justify-center px-6 py-4" :href="`/narzedzia/${item.narzedzia.id}/edit`">
               {{ item.narzedzia_nb }}
             </Link>
           </td>
-          <td class="w-px border-t">
-            <Link class="flex items-center px-4" tabindex="-1" @click="destroy(organization.id, item.id)">
-              <icon name="destroy" class="block w-6 h-6 fill-gray-400" />
-            </Link>
+          <td class="border-t text-right px-6">
+            <delete-button
+              :href="`/budowy/${organization.id}/narzedzia/${item.id}/destroy`"
+              confirm="Czy na pewno chcesz usunąć to narzędzie z budowy?"
+            />
           </td>
         </tr>
         <tr v-if="toolsOnBuild.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono narzędzi</td>
+          <td class="px-6 py-4 border-t" colspan="5">Nie znaleziono narzędzi</td>
         </tr>
       </table>
     </div>
@@ -63,6 +63,7 @@ import Layout from '@/Shared/Layout.vue'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 import BudMenu from '@/Shared/BudMenu.vue'
+import DeleteButton from '@/Shared/DeleteButton.vue'
 
 
 export default {
@@ -71,6 +72,7 @@ export default {
     Head,
     Icon,
     Link,
+    DeleteButton,
   },
   layout: Layout,
   props: {
@@ -96,11 +98,6 @@ export default {
   methods: {
     reset() {
       this.form = mapValues(this.form, () => null)
-    },
-    destroy(organization, tool) {
-      if (confirm('Chcesz usunąć?')) {
-        this.$inertia.delete(`/budowy/${organization}/narzedzia/${tool}/destroy`)
-      }
     },
   },
 }
