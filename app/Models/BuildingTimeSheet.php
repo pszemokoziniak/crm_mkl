@@ -15,11 +15,11 @@ class BuildingTimeSheet extends Model
     /**  Build  */
     public function build(): BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
     public function worker(): BelongsTo
     {
-        return $this->belongsTo(Contact::class);
+        return $this->belongsTo(Contact::class, 'contact_id');
     }
 }

@@ -247,21 +247,16 @@ class ContactsController extends Controller
             ->get()
             ->groupBy('organization_id')
             ->map(function ($group) {
-                $totalHours = 0;
-                foreach ($group as $item) {
-                    if ($item->effective_work_time) {
-                        $parts = explode(':', $item->effective_work_time);
-                        if (count($parts) === 2) {
-                            $totalHours += (int)$parts[0] + ((int)$parts[1] / 60);
-                        }
-                    }
-                }
-
                 return [
-                    'organization' => $group->first()->build->nazwaBud ?? 'Brak nazwy',
+                    'organization' => $group->first()->build->nazwaBud,
                     'start' => $group->min('work_day'),
                     'end' => $group->max('work_day'),
-                    'hours' => $totalHours,
+                    'hours' => $group->sum(function ($item) {
+                        if (!$item->effective_work_time) return 0;
+                        list($hours, $minutes) = explode(':', $item->effective_work_time);
+
+                        return $hours + ($minutes / 60);
+                    }),
                 ];
             });
 
