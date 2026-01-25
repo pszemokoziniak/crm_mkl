@@ -1,5 +1,5 @@
 <template>
-  <div class="sm:hidden divide-y divide-gray-200">
+  <div class="md:hidden divide-y divide-gray-200">
     <Link
       v-for="organization in organizations"
       :key="organization.id"
@@ -7,7 +7,7 @@
       class="block p-4 hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
     >
       <div class="font-semibold">
-        {{ organization.nazwaBud }}
+        {{ organization.name }}
         <Icon v-if="organization.deleted_at" name="trash" class="inline ml-2 w-3 h-3 fill-gray-400" />
       </div>
 

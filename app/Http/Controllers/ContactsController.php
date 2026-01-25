@@ -32,7 +32,7 @@ class ContactsController extends Controller
                 ->with('organization')
                 ->orderByName()
                 ->filter(Request::only('search', 'trashed'))
-                ->paginate(100)
+                ->paginate(20)
                 ->withQueryString()
                 ->through(fn ($contact) => [
                     'id' => $contact->id,

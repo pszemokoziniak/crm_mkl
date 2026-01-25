@@ -27,8 +27,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
-      <span class="text-gray-800 text-lg font-bold">{{ month.toUpperCase() }}</span>
-      <span class="ml-1 text-gray-600 text-lg font-normal">{{ currentDate.getFullYear() }}</span>
+      <select v-model="selectedMonth" class="ml-2 border-none bg-transparent text-gray-800 text-lg font-bold focus:ring-0 cursor-pointer uppercase p-0" @change="goToDate">
+        <option v-for="m in months" :key="m.id" :value="m.id">{{ m.name.toUpperCase() }}</option>
+      </select>
+      <select v-model="selectedYear" class="ml-1 border-none bg-transparent text-gray-600 text-lg font-normal focus:ring-0 cursor-pointer p-0" @change="goToDate">
+        <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
+      </select>
     </div>
 
     <!-- Container with fixed height and custom scrollbar -->
@@ -93,11 +97,11 @@
                               <div class="grid grid-cols-2">
                                 <div>
                                   <label for="workFrom">Czas pracy od:</label>
-                                  <Datepicker id="workFrom" v-model="modalForm.from" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" teleport="body" />
+                                  <Datepicker id="workFrom" v-model="modalForm.from" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" teleport="body" @update:modelValue="calculateEffectiveTime" />
                                 </div>
                                 <div>
                                   <label for="workTo">Czas pracy do:</label>
-                                  <Datepicker id="workTo" v-model="modalForm.to" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" @update:modelValue="calculateEffectiveTime" teleport="body" />
+                                  <Datepicker id="workTo" v-model="modalForm.to" :disabled="isStatus" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6" teleport="body" @update:modelValue="calculateEffectiveTime" />
                                 </div>
                               </div>
 
@@ -107,7 +111,7 @@
                                   <Datepicker id="workTime" v-model="modalForm.workTime" :clearable="false" time-picker minutes-increment="30" class="pb-8 pr-6 w-full" disabled teleport="body" />
                                 </div>
                                 <div>
-                                  <input id="time-reduce" ref="timeReduce" class="mr-2 mt-7" type="checkbox" v-model="modalForm.reducedWorkingHours" @change="wortTimeReduce()" />
+                                  <input id="time-reduce" ref="timeReduce" v-model="modalForm.reducedWorkingHours" class="mr-2 mt-7" type="checkbox" @change="wortTimeReduce()" />
                                   <label for="time-reduce">Skróć czas o 30 min</label>
                                 </div>
                               </div>
@@ -186,6 +190,23 @@ export default {
   data() {
     return {
       currentDate: new Date(this.date),
+      selectedMonth: new Date(this.date).getMonth() + 1,
+      selectedYear: new Date(this.date).getFullYear(),
+      months: [
+        { id: 1, name: 'Styczeń' },
+        { id: 2, name: 'Luty' },
+        { id: 3, name: 'Marzec' },
+        { id: 4, name: 'Kwiecień' },
+        { id: 5, name: 'Maj' },
+        { id: 6, name: 'Czerwiec' },
+        { id: 7, name: 'Lipiec' },
+        { id: 8, name: 'Sierpień' },
+        { id: 9, name: 'Wrzesień' },
+        { id: 10, name: 'Październik' },
+        { id: 11, name: 'Listopad' },
+        { id: 12, name: 'Grudzień' },
+      ],
+      years: [],
       open: false,
       isStatus: false,
       modalForm: useForm({
@@ -218,6 +239,16 @@ export default {
    *
    */
   mounted() {
+    const startYear = 2022
+    const endYear = new Date().getFullYear() + 1
+    for (let i = startYear; i <= endYear; i++) {
+      this.years.push(i)
+    }
+    if (!this.years.includes(this.selectedYear)) {
+      this.years.push(this.selectedYear)
+      this.years.sort()
+    }
+
     this.shiftStatuses.push({
       id: 0,
       title: 'Nie dotyczy',
@@ -279,6 +310,9 @@ export default {
       const nextMonthNumber = this.getMonthNumber() + 2 > 12
       const year = nextMonthNumber ? this.getYear() + 1 : this.getYear()
       this.redirect(this.dateUrl(this.build, year, nextMonthNumber ? '01' : this.getMonthNumber() + 2))
+    },
+    goToDate() {
+      this.redirect(this.dateUrl(this.build, this.selectedYear, this.selectedMonth))
     },
     redirect(url) {
       window.location = url

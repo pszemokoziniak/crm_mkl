@@ -5,8 +5,8 @@
       Budowy <span class="text-indigo-400 font-medium">{{ titleSuffix }}</span>
     </h1>
 
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <div class="flex items-center w-full sm:w-auto">
         <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
           <label class="block text-gray-700">Filtruj:</label>
           <select v-model="form.trashed" class="form-select mt-1 w-full">
@@ -17,13 +17,13 @@
         </search-filter>
       </div>
 
-      <Link class="btn-indigo" href="/budowy/create">
+      <Link class="btn-indigo w-full sm:w-auto text-center" href="/budowy/create">
         <span>Utwórz</span>
         <span class="hidden md:inline">&nbsp;Budowę</span>
       </Link>
     </div>
 
-    <div class="bg-white rounded-md shadow">
+    <div class="bg-white rounded-md shadow overflow-hidden">
       <OrganizationsMobileList :organizations="organizations.data" />
       <OrganizationsDesktopTable :organizations="organizations.data" :sort="form.sort" :direction="form.direction" @sort="onSort" />
     </div>

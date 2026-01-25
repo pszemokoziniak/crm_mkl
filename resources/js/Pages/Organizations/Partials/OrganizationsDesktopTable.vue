@@ -1,28 +1,28 @@
 <template>
   <div class="hidden overflow-x-auto lg:block">
-    <table class="w-full whitespace-nowrap">
+    <table class="w-full text-sm">
       <thead>
-        <tr class="text-left font-bold">
+        <tr class="text-left font-bold border-b">
           <!-- Nazwa -->
-          <th class="pb-4 pt-6 px-6 cursor-pointer select-none" @click="emitSort('name')">
+          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" @click="emitSort('name')">
             Nazwa
             <SortIcon column="name" :sort="sort" :direction="direction" />
           </th>
 
-          <!-- Kraj (sortowanie opcjonalne - jeśli backend wspiera) -->
-          <th class="pb-4 pt-6 px-6 cursor-pointer select-none" @click="emitSort('country')">
+          <!-- Kraj -->
+          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" @click="emitSort('country')">
             Kraj
             <SortIcon column="country" :sort="sort" :direction="direction" />
           </th>
 
           <!-- Kierownicy -->
-          <th class="pb-4 pt-6 px-6 border-t lg:table-cell">Kierownicy</th>
+          <th class="pb-4 pt-6 px-4 lg:table-cell">Kierownicy</th>
 
           <!-- Inżynierowie -->
-          <th class="pb-4 pt-6 px-6 border-t lg:table-cell">Inżynierowie</th>
+          <th class="pb-4 pt-6 px-4 lg:table-cell">Inżynierowie</th>
 
-          <!-- Aktywna (sortowanie opcjonalne) -->
-          <th class="pb-4 pt-6 px-6 cursor-pointer select-none" colspan="2" @click="emitSort('has_active_workers')">
+          <!-- Aktywna -->
+          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" colspan="2" @click="emitSort('has_active_workers')">
             Aktywna
             <SortIcon column="has_active_workers" :sort="sort" :direction="direction" />
           </th>
@@ -33,49 +33,47 @@
         <tr v-for="organization in organizations" :key="organization.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <!-- Nazwa -->
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${organization.id}/edit`">
+            <Link class="flex items-center px-4 py-3 focus:text-indigo-500 font-medium" :href="`/budowy/${organization.id}/edit`">
               {{ organization.name }}
               <Icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
 
           <!-- Kraj -->
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+          <td class="border-t whitespace-nowrap">
+            <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
               <div>{{ organization.country?.name ?? '' }}</div>
             </Link>
           </td>
 
           <!-- Kierownicy -->
           <td class="hidden border-t lg:table-cell">
-            <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-              <div v-if="organization.kierownicy" class="max-w-[320px]" :title="organization.kierownicy">
-                <p v-for="(name, idx) in splitComma(organization.kierownicy)" :key="idx" class="text-gray-700 text-xs leading-tight">
+            <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+              <div v-if="organization.kierownicy" class="max-w-[250px]" :title="organization.kierownicy">
+                <p v-for="(name, idx) in splitComma(organization.kierownicy)" :key="idx" class="text-gray-700 text-xs leading-tight mb-1 last:mb-0">
                   {{ name }}
                 </p>
               </div>
-
               <div v-else class="text-gray-400 text-xs">—</div>
             </Link>
           </td>
 
           <!-- Inżynierowie -->
           <td class="hidden border-t lg:table-cell">
-            <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-              <div v-if="organization.inzynierowie" class="max-w-[320px]">
-                <p v-for="(name, idx) in splitComma(organization.inzynierowie)" :key="idx" class="text-gray-700 text-xs leading-tight">
+            <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+              <div v-if="organization.inzynierowie" class="max-w-[250px]">
+                <p v-for="(name, idx) in splitComma(organization.inzynierowie)" :key="idx" class="text-gray-700 text-xs leading-tight mb-1 last:mb-0">
                   {{ name }}
                 </p>
               </div>
-
               <div v-else class="text-gray-400 text-xs">—</div>
             </Link>
           </td>
 
           <!-- Aktywna -->
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-              <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded" :class="organization.has_active_workers ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">
+          <td class="border-t whitespace-nowrap">
+            <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded" :class="organization.has_active_workers ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">
                 {{ organization.has_active_workers ? 'TAK' : 'NIE' }}
               </span>
             </Link>
@@ -84,7 +82,7 @@
           <!-- Chevron -->
           <td class="w-px border-t">
             <Link class="flex items-center px-4" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-              <Icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+              <Icon name="cheveron-right" class="block w-5 h-5 fill-gray-400" />
             </Link>
           </td>
         </tr>
