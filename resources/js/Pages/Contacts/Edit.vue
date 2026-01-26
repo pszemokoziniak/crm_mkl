@@ -3,68 +3,62 @@
     <Head :title="`${form.first_name} ${form.last_name}`" />
 
     <div class="grid grid-cols-3 bg-white rounded-md shadow overflow-hidden">
-      <div class="grid col-span-1">
+      <div class="grid col-span-1 relative group bg-gray-200">
         <!-- Podgląd nowo wybranego zdjęcia -->
         <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover" alt="Podgląd" />
         <!-- Istniejące zdjęcie -->
         <img v-else-if="contact.photo_path" :src="contact.photo_path" class="w-full h-full object-cover" alt="image" />
         <!-- Placeholder -->
-        <img v-else src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill" class="w-full h-full object-cover" alt="Brak zdjęcia" />
+        <img v-else src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill" class="w-full h-full object-cover opacity-50" alt="Brak zdjęcia" />
+
+        <!-- Stanowisko nakładka na zdjęcie - GÓRNY LEWY RÓG -->
+        <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent p-5 pt-6">
+          <p class="text-[10px] font-bold text-black-300 uppercase tracking-[0.2em] mb-1 drop-shadow-sm">Stanowisko</p>
+          <p class="text-2xl text-black font-black tracking-tight leading-tight drop-shadow-md uppercase">
+            {{ currentFunkcjaName }}
+          </p>
+        </div>
       </div>
       <div class="grid col-span-1 p-2">
-        <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
-          <span class="p-4">Języki:</span>
-        </h2>
-        <span v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <h3 v-if="item.jezyk" class="m-1">
-            {{ item.jezyk.name }} - {{ item.poziom }}
-          </h3>
-        </span>
+        <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium" />
+        <div class="p-2 space-y-1">
+          <span class="p-4 font-bold text-gray-700 uppercase text-xs tracking-wider">Języki:</span>
+          <div v-for="item in jezyks.data" :key="item.id" class="text-sm">
+            <span v-if="item.jezyk" class="font-medium text-gray-900">{{ item.jezyk.name }}</span>
+            <span v-if="item.poziom" class="text-gray-500 ml-1">- {{ item.poziom }}</span>
+          </div>
+        </div>
       </div>
-      <div class="grid col-span-1 p-2">
-        <h2 class="hover:bg-gray-100 focus-within:bg-gray-100 border-b m-1 font-medium">
-          <span>Terminy:</span>
-        </h2>
-        <h3 class="m-3">
-          BHP:
-          <span v-for="item in bhp" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <span v-if="item.end" class="m-1">
-              {{ item.end }}
-            </span>
-          </span>
-        </h3>
-        <h3 class="m-3">
-          Badania lekarskie:
-          <span v-for="item in lekarskie" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <span v-if="item.end" class="m-1">
-              {{ item.end }}
-            </span>
-          </span>
-        </h3>
-        <h3 class="m-3">
-          A1:
-          <span v-for="item in a1" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <span v-if="item.end" class="m-1">
-              {{ item.end }}
-            </span>
-          </span>
-        </h3>
-        <h3 class="m-3">
-          Uprawnienia:
-          <span v-for="item in uprawnienia" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <span v-if="item.end" class="m-1">
-              {{ item.end }}
-            </span>
-          </span>
-        </h3>
-        <h3 class="m-3">
-          PBIOZ:
-          <span v-for="item in pbioz" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <span v-if="item.end" class="m-1">
-              {{ item.end }}
-            </span>
-          </span>
-        </h3>
+      <div class="grid col-span-1 p-4 bg-gray-50 border-l">
+        <h2 class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-4 border-b pb-2">Ważne terminy:</h2>
+        <div class="space-y-4">
+          <div v-if="filterActive(bhp).length">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">BHP</p>
+            <p v-for="item in filterActive(bhp)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+          </div>
+
+          <div v-if="filterActive(lekarskie).length">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">Badania lekarskie</p>
+            <p v-for="item in filterActive(lekarskie)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+          </div>
+
+          <div v-if="filterActive(a1).length">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">A1</p>
+            <p v-for="item in filterActive(a1)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+          </div>
+
+          <div v-if="filterActive(uprawnienia).length">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">Uprawnienia</p>
+            <p v-for="item in filterActive(uprawnienia)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+          </div>
+
+          <div v-if="filterActive(pbioz).length">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">PBIOZ</p>
+            <p v-for="item in filterActive(pbioz)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+          </div>
+
+          <div v-if="!hasAnyActiveTermin" class="text-xs text-gray-400 italic">Brak aktywnych terminów</div>
+        </div>
       </div>
     </div>
     <div>
@@ -119,7 +113,7 @@
             <text-input v-model="form.ekuz" type="date" :error="form.errors.ekuz" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważne do" />
           </div>
           <div v-if="flag === false" class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-            <button v-if="!contact.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+            <delete-button v-if="!contact.deleted_at" :href="`/contacts/${contact.id}`" confirm="Chcesz usunąć pracownika?">Usuń</delete-button>
             <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zapisz</loading-button>
           </div>
         </form>
@@ -137,6 +131,8 @@ import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import WorkerMenu from '@/Shared/WorkerMenu'
 import FileInput from '@/Shared/FileInput'
+import DeleteButton from '@/Shared/DeleteButton'
+import moment from 'moment'
 
 
 export default {
@@ -149,6 +145,7 @@ export default {
     TrashedMessage,
     WorkerMenu,
     FileInput,
+    DeleteButton,
   },
   layout: Layout,
   props: {
@@ -199,6 +196,21 @@ export default {
       }),
     }
   },
+  computed: {
+    currentFunkcjaName() {
+      const funkcja = Object.values(this.funkcjas).find(f => f.id === this.form.funkcja_id);
+      return funkcja ? funkcja.name : 'Nie określono';
+    },
+    hasAnyActiveTermin() {
+      return (
+        this.filterActive(this.bhp).length > 0 ||
+        this.filterActive(this.lekarskie).length > 0 ||
+        this.filterActive(this.a1).length > 0 ||
+        this.filterActive(this.uprawnienia).length > 0 ||
+        this.filterActive(this.pbioz).length > 0
+      )
+    },
+  },
   watch: {
     'form.photo_path': function (value) {
       if (value instanceof File) {
@@ -213,6 +225,12 @@ export default {
     },
   },
   methods: {
+    filterActive(items) {
+      if (!items) return []
+      const today = moment().startOf('day')
+      const itemsArray = Array.isArray(items) ? items : Object.values(items)
+      return itemsArray.filter((item) => item.end && moment(item.end).isSameOrAfter(today))
+    },
     update() {
       this.form.post(`/contacts/${this.contact.id}`, {
         onSuccess: () => {

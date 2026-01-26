@@ -5,19 +5,19 @@
       Budowy <span class="text-indigo-400 font-medium">{{ titleSuffix }}</span>
     </h1>
 
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+    <div class="flex flex-col gap-4 items-start justify-between mb-6 sm:flex-row sm:items-center">
       <div class="flex items-center w-full sm:w-auto">
         <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
           <label class="block text-gray-700">Filtruj:</label>
           <select v-model="form.trashed" class="form-select mt-1 w-full">
             <option :value="null">Budowy aktywne</option>
-            <option value="with">Wszystkie budowy</option>
+            <option value="with">Budowy wszystkie</option>
             <option value="only">Budowy zakończone</option>
           </select>
         </search-filter>
       </div>
 
-      <Link class="btn-indigo w-full sm:w-auto text-center" href="/budowy/create">
+      <Link class="btn-indigo w-full text-center sm:w-auto" href="/budowy/create">
         <span>Utwórz</span>
         <span class="hidden md:inline">&nbsp;Budowę</span>
       </Link>

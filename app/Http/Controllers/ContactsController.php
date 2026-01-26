@@ -112,6 +112,14 @@ class ContactsController extends Controller
             $flag = true;
         }
 
+        $timeSheets = BuildingTimeSheet::where('contact_id', $contact->id)->get();
+        $totalHours = $timeSheets->sum(function ($item) {
+            if (!$item->effective_work_time) return 0;
+            list($hours, $minutes) = explode(':', $item->effective_work_time);
+            return (int)$hours + ((int)$minutes / 60);
+        });
+        $buildsCount = $timeSheets->pluck('organization_id')->unique()->count();
+
         return Inertia::render('Contacts/Edit', [
             'contact' => [
                 'id' => $contact->id,
@@ -163,6 +171,10 @@ class ContactsController extends Controller
             'obecna_budowa' => $obecna_budowa,
             'flag' => $flag,
             'user_owner' => Auth::user()->owner,
+            'stats' => [
+                'total_hours' => round($totalHours, 1),
+                'builds_count' => $buildsCount,
+            ]
         ]);
     }
 
