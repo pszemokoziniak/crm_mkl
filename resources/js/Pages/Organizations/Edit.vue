@@ -1,11 +1,11 @@
 <template>
   <div>
-    <Head :title="form.name" />
+    <Head :title="form.nazwaBud" />
     <BudMenu :budId="budId" />
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">Budowa</Link>
       <span class="text-indigo-400 font-medium">/</span>
-      {{ form.name }}
+      {{ form.nazwaBud }}
     </h1>
     <trashed-message v-if="organization.deleted_at" :user_owner="user_owner" class="mb-6" @restore="restore">Ta budowa jest usunięta</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">

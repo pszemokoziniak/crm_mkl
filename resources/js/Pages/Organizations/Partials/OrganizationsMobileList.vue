@@ -7,7 +7,7 @@
       class="block p-4 hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
     >
       <div class="font-semibold">
-        {{ organization.name }}
+        {{ organization.nazwaBud }}
         <Icon v-if="organization.deleted_at" name="trash" class="inline ml-2 w-3 h-3 fill-gray-400" />
       </div>
 
@@ -26,12 +26,12 @@
         </div>
 
         <div class="pt-2">
-          <span class="text-gray-500 mr-2">Aktywna dziś:</span>
+          <span class="text-gray-500 mr-2">Aktywni pracownicy:</span>
           <span
             class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded"
-            :class="organization.has_active_workers ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'"
+            :class="organization.active_workers_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'"
           >
-            {{ organization.has_active_workers ? 'TAK' : 'NIE' }}
+            {{ organization.active_workers_count }}
           </span>
         </div>
       </div>

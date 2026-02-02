@@ -11,7 +11,6 @@
           <label class="block text-gray-700">Filtruj:</label>
           <select v-model="form.trashed" class="form-select mt-1 w-full">
             <option :value="null">Budowy aktywne</option>
-            <option value="with">Budowy wszystkie</option>
             <option value="only">Budowy zakończone</option>
           </select>
         </search-filter>
@@ -63,7 +62,7 @@ export default {
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
-        sort: this.filters.sort ?? 'name',
+        sort: this.filters.sort ?? 'nazwaBud',
         direction: this.filters.direction ?? 'asc',
       },
     }

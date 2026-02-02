@@ -4,9 +4,9 @@
       <thead>
         <tr class="text-left font-bold border-b">
           <!-- Nazwa -->
-          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" @click="emitSort('name')">
+          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" @click="emitSort('nazwaBud')">
             Nazwa
-            <SortIcon column="name" :sort="sort" :direction="direction" />
+            <SortIcon column="nazwaBud" :sort="sort" :direction="direction" />
           </th>
 
           <!-- Kraj -->
@@ -21,10 +21,10 @@
           <!-- Inżynierowie -->
           <th class="pb-4 pt-6 px-4 lg:table-cell">Inżynierowie</th>
 
-          <!-- Aktywna -->
-          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" colspan="2" @click="emitSort('has_active_workers')">
-            Aktywna
-            <SortIcon column="has_active_workers" :sort="sort" :direction="direction" />
+          <!-- Pracownicy -->
+          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" colspan="2" @click="emitSort('active_workers_count')">
+            Pracownicy
+            <SortIcon column="active_workers_count" :sort="sort" :direction="direction" />
           </th>
         </tr>
       </thead>
@@ -34,7 +34,7 @@
           <!-- Nazwa -->
           <td class="border-t">
             <Link class="flex items-center px-4 py-3 focus:text-indigo-500 font-medium" :href="`/budowy/${organization.id}/edit`">
-              {{ organization.name }}
+              {{ organization.nazwaBud }}
               <Icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
@@ -70,11 +70,11 @@
             </Link>
           </td>
 
-          <!-- Aktywna -->
+          <!-- Pracownicy -->
           <td class="border-t whitespace-nowrap">
             <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-              <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded" :class="organization.has_active_workers ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">
-                {{ organization.has_active_workers ? 'TAK' : 'NIE' }}
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded" :class="organization.active_workers_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">
+                {{ organization.active_workers_count }}
               </span>
             </Link>
           </td>
