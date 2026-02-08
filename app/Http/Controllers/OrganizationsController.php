@@ -23,8 +23,8 @@ class OrganizationsController extends Controller
     {
         $today = Carbon::today()->toDateString();
 
-        $sort = request('sort', 'nazwaBud');
-        $direction = request('direction') === 'desc' ? 'desc' : 'asc';
+        $sort = request('sort', 'created_at');
+        $direction = request('direction') === 'asc' ? 'asc' : 'desc';
 
         // Mapowanie "publicznych" nazw sortów -> realne kolumny/aliasy SQL
         $allowedSorts = [
@@ -34,10 +34,11 @@ class OrganizationsController extends Controller
             'city'                 => 'organizations.city',
             'active_workers_count' => 'active_workers_count',
             'country'              => 'kt.name',
+            'created_at'           => 'organizations.created_at',
         ];
 
         if (!array_key_exists($sort, $allowedSorts)) {
-            $sort = 'nazwaBud';
+            $sort = 'created_at';
         }
 
         $query = Organization::query()
@@ -77,8 +78,9 @@ class OrganizationsController extends Controller
         }
         $query->orderBy($allowedSorts[$sort], $direction);
 
-        if ($sort !== 'numerBud' && $sort !== 'nazwaBud') {
-            $query->orderBy('organizations.nazwaBud', 'asc');
+        // Fallback sort
+        if ($sort !== 'created_at') {
+            $query->orderBy('organizations.created_at', 'desc');
         }
 
         return Inertia::render('Organizations/Index', [
