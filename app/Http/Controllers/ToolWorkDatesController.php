@@ -48,7 +48,19 @@ class ToolWorkDatesController extends Controller
     }
     public function create(Organization $organization) {
 
-        $toolsFree = Narzedzia::where('ilosc_all', '>', 0)->get()->map->only('id', 'name', 'ilosc_all', 'ilosc_magazyn');
+        $toolsFree = Narzedzia::where(function($query) {
+                $query->where('ilosc_all', '>', 0)
+                      ->orWhereNull('ilosc_all');
+            })
+            ->get()
+            ->map(function ($tool) {
+                return [
+                    'id' => $tool->id,
+                    'name' => $tool->name,
+                    'ilosc_all' => $tool->ilosc_all ?? 0,
+                    'ilosc_magazyn' => $tool->ilosc_magazyn ?? $tool->ilosc_all ?? 0,
+                ];
+            });
 
 
         return Inertia::render('NarzedziaBudowa/Create', [
@@ -93,8 +105,8 @@ class ToolWorkDatesController extends Controller
 
                 // Aktualizujemy stany w magazynie i na budowie (ogólne)
                 $narzedzie = Narzedzia::find((int) $item);
-                $narzedzie->ilosc_magazyn -= $iloscDoDodania;
-                $narzedzie->ilosc_budowa += $iloscDoDodania;
+                $narzedzie->ilosc_magazyn = ($narzedzie->ilosc_magazyn ?? $narzedzie->ilosc_all ?? 0) - $iloscDoDodania;
+                $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $iloscDoDodania;
                 $narzedzie->save();
             }
         }
@@ -128,12 +140,13 @@ class ToolWorkDatesController extends Controller
         $narzedzie = Narzedzia::find($narzedzia->narzedzia_id);
 
         // Sprawdzamy czy mamy wystarczająco w magazynie jeśli zwiększamy
-        if ($roznica > 0 && $narzedzie->ilosc_magazyn < $roznica) {
+        $magazyn = $narzedzie->ilosc_magazyn ?? $narzedzie->ilosc_all ?? 0;
+        if ($roznica > 0 && $magazyn < $roznica) {
             return Redirect::back()->with('error', 'Brak wystarczającej ilości w magazynie.');
         }
 
-        $narzedzie->ilosc_magazyn -= $roznica;
-        $narzedzie->ilosc_budowa += $roznica;
+        $narzedzie->ilosc_magazyn = $magazyn - $roznica;
+        $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $roznica;
         $narzedzie->save();
 
         // Aktualizujemy ilość na tej budowie
@@ -146,8 +159,8 @@ class ToolWorkDatesController extends Controller
     public function destroy(Organization $organization, ToolWorkDate $toolWorkDate)
     {
         $data = Narzedzia::find($toolWorkDate->narzedzia_id);
-        $data->ilosc_magazyn = (integer) $data->ilosc_magazyn + (integer) $toolWorkDate->narzedzia_nb;
-        $data->ilosc_budowa = (integer) $data->ilosc_budowa - (integer) $toolWorkDate->narzedzia_nb;
+        $data->ilosc_magazyn = (integer) ($data->ilosc_magazyn ?? $data->ilosc_all ?? 0) + (integer) $toolWorkDate->narzedzia_nb;
+        $data->ilosc_budowa = (integer) ($data->ilosc_budowa ?? 0) - (integer) $toolWorkDate->narzedzia_nb;
         $data->save();
 
         $toolWorkDate->delete();

@@ -19,7 +19,7 @@
               <th class="py-3 px-6 text-xs uppercase tracking-wider text-gray-500">Nazwa</th>
               <th class="py-3 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">W magazynie</th>
               <th class="py-3 px-6 text-xs uppercase tracking-wider text-gray-500 text-center w-32">Ilość</th>
-              <th class="py-3 px-6"></th>
+              <th class="py-3 px-6" />
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
@@ -27,10 +27,10 @@
               <td class="px-6 py-2">
                 <div class="flex items-center">
                   <input
+                    :id="'tool-' + item.id"
                     v-model="form.checkedValues"
                     class="mr-3 h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     type="checkbox"
-                    :id="'tool-' + item.id"
                     :value="item.id"
                   />
                   <label :for="'tool-' + item.id" class="cursor-pointer font-medium text-gray-900">{{ item.name }}</label>
@@ -96,7 +96,7 @@ export default {
   },
   computed: {
     filteredTools() {
-      let tools = this.toolsFree.filter(item => item.ilosc_magazyn > 0)
+      let tools = this.toolsFree
       if (!this.search) return tools
       const searchLower = this.search.toLowerCase()
       return tools.filter(item => item.name.toLowerCase().includes(searchLower))
