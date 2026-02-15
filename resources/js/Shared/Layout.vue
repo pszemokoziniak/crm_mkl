@@ -4,9 +4,9 @@
     <div class="md:flex md:flex-col">
       <div class="md:flex md:flex-col md:h-screen">
         <div class="md:flex md:flex-shrink-0">
-          <div class="flex items-center justify-between px-6 py-4 bg-indigo-900 md:flex-shrink-0 md:justify-center md:w-56">
+          <div class="flex items-center justify-between px-6 py-4 bg-white md:flex-shrink-0 md:justify-center md:w-56 border-b">
             <Link class="mt-1" href="/">
-              <logo class="fill-white" width="120" height="28" />
+              <img src="/img/MKL-BAU.png" alt="logo" width="120" height="28" />
             </Link>
           </div>
           <div class="md:text-md flex items-center justify-between p-4 w-full text-sm bg-white border-b md:px-12 md:py-0">
