@@ -25,14 +25,13 @@ class NarzedziaController extends Controller
     public function index(): Response
     {
         // Cicha naprawa: znajdź rekordy gdzie suma się nie zgadza i je zaktualizuj
-        // Robimy to w małych paczkach, żeby nie obciążać bazy
         Narzedzia::query()
             ->whereRaw('ilosc_magazyn != (ilosc_all - ilosc_budowa)')
             ->orWhereNull('ilosc_magazyn')
             ->limit(50)
             ->get()
             ->each(function ($tool) {
-                $tool->save(); // saving() event w modelu przeliczy wartość
+                $tool->save();
             });
 
         return Inertia::render('Narzedzia/Index', [
@@ -50,7 +49,7 @@ class NarzedziaController extends Controller
                 'id' => $narzedzia->id,
                 'name' => $narzedzia->name,
                 'numer_seryjny' => $narzedzia->numer_seryjny,
-                'waznosc_badan' => $narzedzia->waznosc_badan,
+                'waznosc_badan' => $narzedzia->waznosc_badan ? $narzedzia->waznosc_badan->format('Y-m-d') : null,
                 'ilosc_all' => $narzedzia->ilosc_all,
                 'ilosc_budowa' => $narzedzia->ilosc_budowa,
                 'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
