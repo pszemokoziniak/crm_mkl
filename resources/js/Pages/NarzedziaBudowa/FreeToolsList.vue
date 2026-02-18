@@ -90,7 +90,7 @@ export default {
       search: '',
       form: this.$inertia.form({
         checkedValues: [],
-        ilosc: [],
+        ilosc: {},
       }),
     }
   },

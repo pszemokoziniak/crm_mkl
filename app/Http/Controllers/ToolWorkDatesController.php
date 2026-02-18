@@ -30,20 +30,31 @@ class ToolWorkDatesController extends Controller
 
     public function index(Organization $organization)
     {
+        $tools = ToolWorkDate::with('narzedzia')
+            ->where('organization_id', $organization->id)
+            ->filter(\Illuminate\Support\Facades\Request::only('search', 'trashed'))
+            ->get();
+
+        $groupedTools = $tools->groupBy(function ($item) {
+            return $item->narzedzia ? $item->narzedzia->name : 'Nieznane';
+        })->map(function ($group, $name) {
+            return [
+                'name' => $name,
+                'total_qty' => $group->sum('narzedzia_nb'),
+                'items' => $group->map(fn ($item) => [
+                    'id' => $item->id,
+                    'narzedzia_id' => $item->narzedzia_id,
+                    'narzedzia_nb' => $item->narzedzia_nb,
+                    'numer_seryjny' => $item->narzedzia->numer_seryjny ?? '-',
+                    'waznosc_badan' => $item->narzedzia->waznosc_badan,
+                ]),
+            ];
+        })->values();
+
         return Inertia::render('NarzedziaBudowa/Index', [
             'organization' => $organization,
             'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
-            'toolsOnBuild' => ToolWorkDate::with('narzedzia')
-                ->where('organization_id', $organization->id)
-                ->filter(\Illuminate\Support\Facades\Request::only('search', 'trashed'))
-                ->paginate(100)
-                ->withQueryString()
-                ->through(fn ($item) => [
-                    'id' => $item->id,
-                    'organization_id' => $item->organization_id,
-                    'narzedzia_nb' => $item->narzedzia_nb,
-                    'narzedzia' => $item->narzedzia,
-                ]),
+            'groupedTools' => $groupedTools,
         ]);
     }
     public function create(Organization $organization) {
@@ -81,33 +92,36 @@ class ToolWorkDatesController extends Controller
     }
     public function store(Request $request, Organization $organization)
     {
-        foreach ($request->checkedValues as $item) {
-            $iloscDoDodania = (int) ($request->ilosc[(int) $item] ?? 0);
+        $checkedValues = $request->checkedValues ?? [];
+        $ilosci = $request->ilosc ?? [];
+
+        foreach ($checkedValues as $toolId) {
+            $iloscDoDodania = isset($ilosci[$toolId]) && (int)$ilosci[$toolId] > 0
+                ? (int)$ilosci[$toolId]
+                : 1;
 
             if ($iloscDoDodania > 0) {
-                // Szukamy czy to narzędzie już jest na tej budowie
                 $toolOnBuild = ToolWorkDate::where('organization_id', $organization->id)
-                    ->where('narzedzia_id', (int) $item)
+                    ->where('narzedzia_id', (int) $toolId)
                     ->first();
 
                 if ($toolOnBuild) {
-                    // Jeśli jest, zwiększamy ilość
                     $toolOnBuild->narzedzia_nb += $iloscDoDodania;
                     $toolOnBuild->save();
                 } else {
-                    // Jeśli nie ma, tworzymy nowy wpis
-                    $data = new ToolWorkDate;
-                    $data->narzedzia_id = (int) $item;
-                    $data->organization_id = $organization->id;
-                    $data->narzedzia_nb = $iloscDoDodania;
-                    $data->save();
+                    ToolWorkDate::create([
+                        'narzedzia_id' => (int) $toolId,
+                        'organization_id' => $organization->id,
+                        'narzedzia_nb' => $iloscDoDodania,
+                    ]);
                 }
 
-                // Aktualizujemy stany w magazynie i na budowie (ogólne)
-                $narzedzie = Narzedzia::find((int) $item);
-                $narzedzie->ilosc_magazyn = ($narzedzie->ilosc_magazyn ?? $narzedzie->ilosc_all ?? 0) - $iloscDoDodania;
-                $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $iloscDoDodania;
-                $narzedzie->save();
+                $narzedzie = Narzedzia::find((int) $toolId);
+                if ($narzedzie) {
+                    $narzedzie->ilosc_magazyn = ($narzedzie->ilosc_magazyn ?? $narzedzie->ilosc_all ?? 0) - $iloscDoDodania;
+                    $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $iloscDoDodania;
+                    $narzedzie->save();
+                }
             }
         }
         return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Sprzęt dodany');
@@ -136,10 +150,8 @@ class ToolWorkDatesController extends Controller
         $staraIlosc = (int) $narzedzia->narzedzia_nb;
         $roznica = $nowaIlosc - $staraIlosc;
 
-        // Aktualizujemy stany w magazynie i na budowie (ogólne)
         $narzedzie = Narzedzia::find($narzedzia->narzedzia_id);
 
-        // Sprawdzamy czy mamy wystarczająco w magazynie jeśli zwiększamy
         $magazyn = $narzedzie->ilosc_magazyn ?? $narzedzie->ilosc_all ?? 0;
         if ($roznica > 0 && $magazyn < $roznica) {
             return Redirect::back()->with('error', 'Brak wystarczającej ilości w magazynie.');
@@ -149,7 +161,6 @@ class ToolWorkDatesController extends Controller
         $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $roznica;
         $narzedzie->save();
 
-        // Aktualizujemy ilość na tej budowie
         $narzedzia->narzedzia_nb = $nowaIlosc;
         $narzedzia->save();
 
@@ -159,9 +170,11 @@ class ToolWorkDatesController extends Controller
     public function destroy(Organization $organization, ToolWorkDate $toolWorkDate)
     {
         $data = Narzedzia::find($toolWorkDate->narzedzia_id);
-        $data->ilosc_magazyn = (integer) ($data->ilosc_magazyn ?? $data->ilosc_all ?? 0) + (integer) $toolWorkDate->narzedzia_nb;
-        $data->ilosc_budowa = (integer) ($data->ilosc_budowa ?? 0) - (integer) $toolWorkDate->narzedzia_nb;
-        $data->save();
+        if ($data) {
+            $data->ilosc_magazyn = (integer) ($data->ilosc_magazyn ?? $data->ilosc_all ?? 0) + (integer) $toolWorkDate->narzedzia_nb;
+            $data->ilosc_budowa = (integer) ($data->ilosc_budowa ?? 0) - (integer) $toolWorkDate->narzedzia_nb;
+            $data->save();
+        }
 
         $toolWorkDate->delete();
 

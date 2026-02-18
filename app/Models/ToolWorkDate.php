@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ToolWorkDate extends Model
 {
+    protected $fillable = [
+        'narzedzia_id',
+        'organization_id',
+        'narzedzia_nb',
+    ];
+
     public function narzedzia()
     {
         return $this->belongsTo(Narzedzia::class);
