@@ -24,6 +24,17 @@ class NarzedziaController extends Controller
 {
     public function index(): Response
     {
+        // Cicha naprawa: znajdź rekordy gdzie suma się nie zgadza i je zaktualizuj
+        // Robimy to w małych paczkach, żeby nie obciążać bazy
+        Narzedzia::query()
+            ->whereRaw('ilosc_magazyn != (ilosc_all - ilosc_budowa)')
+            ->orWhereNull('ilosc_magazyn')
+            ->limit(50)
+            ->get()
+            ->each(function ($tool) {
+                $tool->save(); // saving() event w modelu przeliczy wartość
+            });
+
         return Inertia::render('Narzedzia/Index', [
             'filters' => Request::all('search', 'trashed'),
             'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed'))
@@ -86,43 +97,34 @@ class NarzedziaController extends Controller
         DocumentService $documentService
     ): RedirectResponse
     {
+        $data = Request::validate([
+            'name' => ['required', 'max:50'],
+            'numer_seryjny' => ['nullable'],
+            'waznosc_badan' => ['nullable', 'date'],
+            'ilosc_all' => ['nullable', 'numeric'],
+        ]);
+
         try {
-            $data = Request::validate([
-                'name' => ['required', 'max:50'],
-                'numer_seryjny' => ['nullable'],
-                'waznosc_badan' => ['nullable', 'date'],
-                'ilosc_all' => ['nullable', 'numeric'],
-            ]);
-
-            $ilosc_all = (int) ($data['ilosc_all'] ?? 0);
-            $ilosc_budowa = (int) $narzedzia->ilosc_budowa;
-            $data['ilosc_magazyn'] = $ilosc_all - $ilosc_budowa;
-
             $narzedzia->update($data);
 
             /** save new photos and documents, remove these removed on dropzone */
             foreach (Request::file('photos') ?? [] as $file) {
-
-                // resent with form - exists
                 if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
                     continue;
                 }
-                // not exists - add
                 $documentService->storeToolFile($file, $narzedzia->id, 'photo');
             }
 
             foreach (Request::file('documents') ?? [] as $file) {
-
                 if ($documentService->hasToolFile($narzedzia->id, $file->getClientOriginalName())) {
                     continue;
                 }
-
                 $documentService->storeToolFile($file, $narzedzia->id, 'document');
             }
 
         } catch (\Exception $exception) {
             Log::error('Error while updating tool: ' . $exception->getMessage());
-            return Redirect::back()->with('error', 'Nie udało się zaktualizować.');
+            return Redirect::back()->with('error', 'Wystąpił błąd podczas zapisu: ' . $exception->getMessage());
         }
 
         return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
@@ -145,9 +147,6 @@ class NarzedziaController extends Controller
 
     public function restore(Narzedzia $narzedzia): RedirectResponse
     {
-        // SoftDeletes not implemented in migration yet
-        // $narzedzia->restore();
-
         return Redirect::back()->with('success', 'Objekt przywrócony.');
     }
     public function create(): Response
@@ -168,7 +167,6 @@ class NarzedziaController extends Controller
                 'name' => $request->get('name'),
                 'ilosc_all' => $request->get('ilosc_all'),
                 'ilosc_budowa' => 0,
-                'ilosc_magazyn' => $request->get('ilosc_all'),
             ]);
 
             foreach (Request::file('photos') ?? [] as $file) {

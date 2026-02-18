@@ -33,21 +33,23 @@
             </td>
             <td class="px-6 py-4 text-center">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                {{ item.ilosc_all }}
+                {{ item.ilosc_all ?? 0 }}
               </span>
             </td>
             <td class="px-6 py-4 text-center">
-              <span v-if="item.ilosc_budowa > 0" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+              <span v-if="(item.ilosc_budowa ?? 0) > 0" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
                 {{ item.ilosc_budowa }}
               </span>
               <span v-else class="text-gray-300 text-xs">-</span>
             </td>
             <td class="px-6 py-4 text-center">
-              <span :class="[
-                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                item.ilosc_magazyn > 0 ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
-              ]">
-                {{ item.ilosc_magazyn }}
+              <span
+                :class="[
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
+                  (item.ilosc_magazyn ?? 0) > 0 ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
+                ]"
+              >
+                {{ item.ilosc_magazyn ?? 0 }}
               </span>
             </td>
             <td class="px-6 py-4 text-right">
