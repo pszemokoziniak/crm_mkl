@@ -36,7 +36,7 @@
                 {{ item.end }}
               </td>
               <td class="border-t">
-                <Link v-if="item.organization" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.organization.id}/edit`">
+                <Link v-if="item.organization" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="user_owner[1] === 3 ? `/building/${item.organization.id}/time-sheet` : `/budowy/${item.organization.id}/edit`">
                   {{ item.organization.nazwaBud }}
                 </Link>
                 <span v-else class="px-6 py-4 text-gray-400 italic">Brak przypisanej budowy</span>
@@ -72,18 +72,18 @@
         <tbody>
           <tr v-for="item in organizations_user" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.id}/edit`">
+              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/building/${item.id}/time-sheet`">
                 {{ item.nazwaBud }}
                 <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               </Link>
             </td>
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+              <Link class="flex items-center px-6 py-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
                 {{ item.workers_count }}
               </Link>
             </td>
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+              <Link class="flex items-center px-6 py-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
                 <div v-if="item.inzynier_name">
                   {{ item.inzynier_name }}
                 </div>
@@ -93,14 +93,14 @@
               </Link>
             </td>
             <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+              <Link class="flex items-center px-6 py-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
                 <div v-if="item.country">
                   {{ item.country.name }}
                 </div>
               </Link>
             </td>
             <td class="w-px border-t">
-              <Link class="flex items-center px-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
+              <Link class="flex items-center px-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
                 <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
               </Link>
             </td>

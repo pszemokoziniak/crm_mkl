@@ -1143,27 +1143,27 @@ Route::delete('contacts/{contact_id}/documents/{document_id}/a1', [CtnDocumentsC
 /** Building time sheets */
 Route::get('building/{build}/time-sheet', [BuildingTimeSheet::class, 'view'])
     ->name('workTimeSheet.view')
-    ->middleware('auth');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::post('building/{build}/time-sheet', [BuildingTimeSheet::class, 'store'])
     ->name('workTimeSheet.store')
-    ->middleware('auth');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::post('building/{build}/time-sheet/delete', [BuildingTimeSheet::class, 'delete'])
     ->name('workTimeSheet.delete')
-    ->middleware('auth');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::get('building/{build}/time-sheet/export', [BuildingTimeSheet::class, 'excelExport'])
     ->name('workTimeSheet.excelExport')
-    ->middleware('auth');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::get('building/time-sheet/general-report', [BuildingTimeSheet::class, 'buildsReport'])
     ->name('workTimeSheet.buildsReport')
-    ->middleware('auth');
+    ->middleware('auth', 'biuro-permission');
 
 Route::get('building/time-sheet/month-report', [BuildingTimeSheet::class, 'reportIndex'])
     ->name('workTimeSheet.reportIndex')
-    ->middleware('auth');
+    ->middleware('auth', 'biuro-permission');
 
 /** Country Feasts */
 Route::get('country/{country}/feasts', [FeastsController::class, 'index'])
