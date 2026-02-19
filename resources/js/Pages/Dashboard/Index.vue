@@ -84,7 +84,10 @@
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.inzynier">
+                <div v-if="item.inzynier_name">
+                  {{ item.inzynier_name }}
+                </div>
+                <div v-else-if="item.inzynier">
                   {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
                 </div>
               </Link>
@@ -135,7 +138,10 @@
             </td>
             <td class="border-t">
               <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.inzynier">
+                <div v-if="item.inzynier_name">
+                  {{ item.inzynier_name }}
+                </div>
+                <div v-else-if="item.inzynier">
                   {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
                 </div>
               </Link>
@@ -183,7 +189,6 @@ export default {
     filters: Object,
     expiring_items: Array,
     organizations_user: Object,
-    organizations_other: Object,
     organizations_biuro: Object,
     buildings: Object,
     inzynier: Object,

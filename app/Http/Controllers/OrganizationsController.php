@@ -56,7 +56,8 @@ class OrganizationsController extends Controller
                      ORDER BY contacts.last_name SEPARATOR ', ')"
                     )
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                    ->where('contacts.funkcja_id', 1),
+                    ->where('contacts.funkcja_id', 1)
+                    ->activeOn($today),
 
                 'inzynierowie_names' => ContactWorkDate::query()
                     ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
@@ -65,7 +66,8 @@ class OrganizationsController extends Controller
                      ORDER BY contacts.last_name SEPARATOR ', ')"
                     )
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                    ->where('contacts.funkcja_id', 6),
+                    ->where('contacts.funkcja_id', 6)
+                    ->activeOn($today),
             ]);
 
         // Filtrowanie po wyszukiwarce i statusie usunięcia (soft delete)
@@ -163,6 +165,21 @@ class OrganizationsController extends Controller
 
     public function edit(Organization $organization)
     {
+        if (Auth::user()->owner === 3) {
+            $contact = Contact::where('user_id', Auth::id())->first();
+            $contact_id = $contact ? $contact->id : null;
+            $now = now()->format('Y-m-d');
+
+            $isAssigned = ContactWorkDate::where('organization_id', $organization->id)
+                ->where('contact_id', $contact_id)
+                ->activeOn($now)
+                ->exists();
+
+            if (!$isAssigned && $organization->kierownikBud_id != $contact_id && $organization->inzynier_id != $contact_id) {
+                return Redirect::route('dashboard')->with('error', 'Nie masz uprawnień do edycji tej budowy.');
+            }
+        }
+
         $flag = false;
         if (Auth::user()->owner === 3) {
             $flag = true;
@@ -214,6 +231,21 @@ class OrganizationsController extends Controller
 
     public function update(Organization $organization)
     {
+        if (Auth::user()->owner === 3) {
+            $contact = Contact::where('user_id', Auth::id())->first();
+            $contact_id = $contact ? $contact->id : null;
+            $now = now()->format('Y-m-d');
+
+            $isAssigned = ContactWorkDate::where('organization_id', $organization->id)
+                ->where('contact_id', $contact_id)
+                ->activeOn($now)
+                ->exists();
+
+            if (!$isAssigned && $organization->kierownikBud_id != $contact_id && $organization->inzynier_id != $contact_id) {
+                return Redirect::route('dashboard')->with('error', 'Nie masz uprawnień do edycji tej budowy.');
+            }
+        }
+
         $organization->update(
             Request::validate([
                 'name' => ['required', 'max:100'],

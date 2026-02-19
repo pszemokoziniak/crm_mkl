@@ -92,11 +92,21 @@ class DashboardController extends Controller
         }
 
         $organizations_user = collect();
-        $organizations_other = collect();
         $organizations_biuro = collect();
 
         if (Auth::user()->owner === 3) {
             $organizations_user = Organization::with(['inzynier', 'krajTyp'])
+                ->addSelect([
+                    'inzynierowie_names' => ContactWorkDate::query()
+                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
+                        ->selectRaw(
+                            "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name)
+                         ORDER BY contacts.last_name SEPARATOR ', ')"
+                        )
+                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                        ->where('contacts.funkcja_id', 6)
+                        ->activeOn($now),
+                ])
                 ->whereIn('id', $myOrgIds)
                 ->filter(Request::only('search', 'trashed', 'my'))
                 ->paginate(100)
@@ -104,6 +114,17 @@ class DashboardController extends Controller
                 ->transform(fn($org) => $this->transformOrganization($org, $now));
         } else {
             $organizations_biuro = Organization::with(['inzynier', 'krajTyp'])
+                ->addSelect([
+                    'inzynierowie_names' => ContactWorkDate::query()
+                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
+                        ->selectRaw(
+                            "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name)
+                         ORDER BY contacts.last_name SEPARATOR ', ')"
+                        )
+                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                        ->where('contacts.funkcja_id', 6)
+                        ->activeOn($now),
+                ])
                 ->whereHas('contactWorkDates', function ($query) use ($now) {
                     $query->activeOn($now);
                 })
@@ -117,7 +138,6 @@ class DashboardController extends Controller
             'filters' => Request::all('search', 'trashed', 'my'),
             'expiring_items' => $expiringItems,
             'organizations_user' => $organizations_user,
-            'organizations_other' => $organizations_other,
             'organizations_biuro' => $organizations_biuro,
             'user_owner' => [Auth::id(), Auth::user()->owner, $contact_id],
         ]);
@@ -136,6 +156,7 @@ class DashboardController extends Controller
             'workers_count' => ContactWorkDate::where('organization_id', $organization->id)
                 ->activeOn($now)
                 ->count(),
+            'inzynier_name' => $organization->inzynierowie_names,
             'inzynier' => $organization->inzynier ? [
                 'id' => $organization->inzynier->id,
                 'first_name' => $organization->inzynier->first_name,
