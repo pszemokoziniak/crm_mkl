@@ -122,6 +122,8 @@ class DashboardController extends Controller
                 ])
                 ->whereIn('id', $myOrgIds)
                 ->filter(Request::only('search', 'trashed', 'my'))
+                ->whereNull('organizations.deleted_at')
+                ->orderBy('organizations.created_at', 'desc')
                 ->get()
                 ->transform(fn($org) => $this->transformOrganization($org, $now));
         } else {
@@ -141,6 +143,8 @@ class DashboardController extends Controller
                     $query->activeOn($now);
                 })
                 ->filter(Request::only('search', 'trashed', 'my'))
+                ->whereNull('organizations.deleted_at')
+                ->orderBy('organizations.created_at', 'desc')
                 ->paginate(100)
                 ->getCollection()
                 ->transform(fn($org) => $this->transformOrganization($org, $now));
