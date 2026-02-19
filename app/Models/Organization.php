@@ -58,7 +58,12 @@ class Organization extends Model
             } elseif ($trashed === 'only') {
                 $query->onlyTrashed();
             } elseif ($trashed === 'my') {
-                $query->where('kierownikBud_id', Auth::id())->withTrashed();
+                $contact = Contact::where('user_id', Auth::id())->first();
+                $contact_id = $contact ? $contact->id : null;
+                $query->where(function($q) use ($contact_id) {
+                    $q->where('kierownikBud_id', $contact_id)
+                      ->orWhere('inzynier_id', $contact_id);
+                })->withTrashed();
             }
         }, function ($query) {
             $query->whereNull('organizations.deleted_at');
