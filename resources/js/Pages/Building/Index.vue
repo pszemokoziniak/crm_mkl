@@ -2,7 +2,8 @@
   <Head title="KCP" />
   <BudMenu :bud-id="build" />
   <h1 class="mb-8 text-3xl font-bold">
-    <Link class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
+    <Link v-if="user_owner !== 3" class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
+    <Link v-else class="text-indigo-400 hover:text-indigo-600" href="/">Dashboard</Link>
     <span class="text-indigo-400 font-medium">/</span>
     {{ buildDetails.nazwaBud }}
   </h1>
