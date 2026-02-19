@@ -22,7 +22,10 @@
           <tbody>
             <tr v-for="(item, index) in expiring_items" :key="index" class="hover:bg-gray-100 focus-within:bg-gray-100">
               <td class="border-t">
-                <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
+                <span v-if="user_owner[1] === 3" class="flex items-center px-6 py-4">
+                  {{ item.contact.first_name }} {{ item.contact.last_name }}
+                </span>
+                <Link v-else class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
                   {{ item.contact.first_name }} {{ item.contact.last_name }}
                 </Link>
               </td>

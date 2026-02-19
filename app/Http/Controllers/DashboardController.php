@@ -17,7 +17,14 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $contact = Contact::where('user_id', Auth::id())->first();
+        $user = Auth::user();
+        $contact = Contact::where('user_id', $user->id)
+            ->orWhere(function($query) use ($user) {
+                $query->where('first_name', $user->first_name)
+                      ->where('last_name', $user->last_name);
+            })
+            ->first();
+
         $contact_id = $contact ? $contact->id : null;
 
         $now = now()->format('Y-m-d');
@@ -26,17 +33,21 @@ class DashboardController extends Controller
         $expiringItems = collect();
         $myOrgIds = collect();
 
-        if (Auth::user()->owner === 3 && $contact_id) {
-            $myOrgIds = Organization::where('kierownikBud_id', $contact_id)
-                ->orWhere('inzynier_id', $contact_id)
-                ->orWhereHas('contactWorkDates', function ($q) use ($contact_id, $now) {
-                    $q->where('contact_id', $contact_id)
-                      ->activeOn($now);
-                })
-                ->pluck('id');
+        if ($user->owner === 3) {
+            $myOrgIds = Organization::where(function ($query) use ($contact_id) {
+                if ($contact_id) {
+                    $query->where('kierownikBud_id', $contact_id)
+                        ->orWhere('inzynier_id', $contact_id)
+                        ->orWhereHas('contactWorkDates', function ($q) use ($contact_id) {
+                            $q->where('contact_id', $contact_id);
+                        });
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            })->pluck('id');
         }
 
-        if (Auth::user()->owner === 1 || Auth::user()->owner === 2 || Auth::user()->owner === 3) {
+        if ($user->owner === 1 || $user->owner === 2 || $user->owner === 3) {
             // Uprawnienia
             $uprawnieniaQuery = Uprawnienia::with(['uprawnieniaTyp'])
                 ->join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
@@ -64,24 +75,26 @@ class DashboardController extends Controller
                 ->whereBetween('end', [$now, $in30Days])
                 ->select('pbiozs.*');
 
-            if (Auth::user()->owner === 3) {
-                $filterByMySites = function($query) use ($myOrgIds, $now) {
-                    $query->whereIn('contacts.id', function($q) use ($myOrgIds, $now) {
-                        $q->select('contact_id')
-                          ->from('contact_work_dates')
-                          ->whereIn('organization_id', $myOrgIds)
-                          ->whereDate('start', '<=', $now)
-                          ->where(function ($q2) use ($now) {
-                              $q2->whereNull('end')->orWhereDate('end', '>=', $now);
-                          });
-                    });
-                };
+            // Filtrowanie pracowników, którzy są OBECNIE na budowie
+            $filterByActiveWorkers = function($query) use ($myOrgIds, $user, $now) {
+                $query->whereIn('contacts.id', function($q) use ($myOrgIds, $user, $now) {
+                    $q->select('contact_id')
+                      ->from('contact_work_dates')
+                      ->whereDate('start', '<=', $now)
+                      ->where(function ($q2) use ($now) {
+                          $q2->whereNull('end')->orWhereDate('end', '>=', $now);
+                      });
 
-                $filterByMySites($uprawnieniaQuery);
-                $filterByMySites($badaniaQuery);
-                $filterByMySites($bhpQuery);
-                $filterByMySites($pbiozQuery);
-            }
+                    if ($user->owner === 3) {
+                        $q->whereIn('organization_id', $myOrgIds);
+                    }
+                });
+            };
+
+            $filterByActiveWorkers($uprawnieniaQuery);
+            $filterByActiveWorkers($badaniaQuery);
+            $filterByActiveWorkers($bhpQuery);
+            $filterByActiveWorkers($pbiozQuery);
 
             $uprawnienia = $uprawnieniaQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Uprawnienia', $item->uprawnieniaTyp->name ?? 'Brak typu', $now));
             $badania = $badaniaQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Badania lekarskie', $item->badaniaTyp->name ?? 'Brak typu', $now));
@@ -94,7 +107,7 @@ class DashboardController extends Controller
         $organizations_user = collect();
         $organizations_biuro = collect();
 
-        if (Auth::user()->owner === 3) {
+        if ($user->owner === 3) {
             $organizations_user = Organization::with(['inzynier', 'krajTyp'])
                 ->addSelect([
                     'inzynierowie_names' => ContactWorkDate::query()
@@ -109,8 +122,7 @@ class DashboardController extends Controller
                 ])
                 ->whereIn('id', $myOrgIds)
                 ->filter(Request::only('search', 'trashed', 'my'))
-                ->paginate(100)
-                ->getCollection()
+                ->get()
                 ->transform(fn($org) => $this->transformOrganization($org, $now));
         } else {
             $organizations_biuro = Organization::with(['inzynier', 'krajTyp'])
@@ -139,7 +151,7 @@ class DashboardController extends Controller
             'expiring_items' => $expiringItems,
             'organizations_user' => $organizations_user,
             'organizations_biuro' => $organizations_biuro,
-            'user_owner' => [Auth::id(), Auth::user()->owner, $contact_id],
+            'user_owner' => [$user->id, $user->owner, $contact_id],
         ]);
     }
 

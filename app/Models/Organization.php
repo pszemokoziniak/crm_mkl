@@ -62,7 +62,10 @@ class Organization extends Model
                 $contact_id = $contact ? $contact->id : null;
                 $query->where(function($q) use ($contact_id) {
                     $q->where('kierownikBud_id', $contact_id)
-                      ->orWhere('inzynier_id', $contact_id);
+                      ->orWhere('inzynier_id', $contact_id)
+                      ->orWhereHas('contactWorkDates', function ($q2) use ($contact_id) {
+                          $q2->where('contact_id', $contact_id);
+                      });
                 })->withTrashed();
             }
         }, function ($query) {

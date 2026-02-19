@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 
 class ContactWorkDate extends Model
 {
-    use HasFactory;
-
     protected $table = 'contact_work_dates';
 
     protected $fillable = [
@@ -67,5 +64,12 @@ class ContactWorkDate extends Model
             ->where(function ($q) use ($date) {
                 $q->whereNull('end')->orWhereDate('end', '>=', $date);
             });
+    }
+
+    public function scopeNotFinished(Builder $query, string $date): Builder
+    {
+        return $query->where(function ($q) use ($date) {
+            $q->whereNull('end')->orWhereDate('end', '>=', $date);
+        });
     }
 }
