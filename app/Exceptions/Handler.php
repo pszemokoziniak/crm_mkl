@@ -5,6 +5,8 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Session\TokenMismatchException;
 use Throwable;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Inertia\Inertia;
 
 class Handler extends ExceptionHandler
 {
@@ -48,6 +50,14 @@ class Handler extends ExceptionHandler
             return back()->with([
                 'error' => 'Sesja wygasła. Spróbuj ponownie.',
             ]);
+        });
+
+        $this->renderable(function (HttpException $e, $request) {
+            if ($e->getStatusCode() === 403) {
+                return Inertia::render('Error', ['status' => $e->getStatusCode()])
+                    ->toResponse($request)
+                    ->setStatusCode($e->getStatusCode());
+            }
         });
     }
 }
