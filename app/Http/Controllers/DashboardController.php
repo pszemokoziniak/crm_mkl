@@ -34,17 +34,8 @@ class DashboardController extends Controller
         $myOrgIds = collect();
 
         if ($user->owner === 3) {
-            $myOrgIds = Organization::where(function ($query) use ($contact_id) {
-                if ($contact_id) {
-                    $query->where('kierownikBud_id', $contact_id)
-                        ->orWhere('inzynier_id', $contact_id)
-                        ->orWhereHas('contactWorkDates', function ($q) use ($contact_id) {
-                            $q->where('contact_id', $contact_id);
-                        });
-                } else {
-                    $query->whereRaw('1 = 0');
-                }
-            })->pluck('id');
+            // "Budowa kierownika" = kierownictwo obecne lub byłe (patrz Organization::scopeManagedBy).
+            $myOrgIds = Organization::managedBy($contact_id)->pluck('id');
         }
 
         if ($user->owner === 1 || $user->owner === 2 || $user->owner === 3) {

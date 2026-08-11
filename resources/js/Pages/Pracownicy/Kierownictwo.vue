@@ -4,7 +4,7 @@
     <BudMenu :budId="organization.id" />
     <h1 class="mb-8 text-3xl font-bold">Kierownictwo budowy</h1>
 
-    <div class="max-w bg-white rounded-md shadow overflow-hidden mb-8">
+    <div v-if="!$page.props.permissions.kierownik" class="max-w bg-white rounded-md shadow overflow-hidden mb-8">
       <h3 class="p-4 text-xl font-medium">Dodaj Kierownika / Inżyniera</h3>
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-3 -mr-6 p-8">
@@ -46,8 +46,11 @@
             {{ item.name }}
           </td>
           <td class="border-t px-6 py-4">
-            <Link class="text-indigo-600 hover:underline mr-4" :href="`/pracownicy/${organization.id}/edit/${item.id}`">Popraw</Link>
-            <button class="text-red-600 hover:underline" @click="destroy(item.id)">Usuń</button>
+            <template v-if="!$page.props.permissions.kierownik">
+              <Link class="text-indigo-600 hover:underline mr-4" :href="`/pracownicy/${organization.id}/edit/${item.id}`">Popraw</Link>
+              <button class="text-red-600 hover:underline" @click="destroy(item.id)">Usuń</button>
+            </template>
+            <span v-else class="text-gray-400">—</span>
           </td>
         </tr>
         <tr v-if="management.length === 0">

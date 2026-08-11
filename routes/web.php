@@ -123,7 +123,7 @@ Route::post('users/{user}/disconnect', [UsersController::class, 'disconnect'])
 
 Route::get('budowy', [OrganizationsController::class, 'index'])
     ->name('organizations')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::get('budowy/create', [OrganizationsController::class, 'create'])
     ->name('organizations.create')
@@ -135,7 +135,7 @@ Route::post('budowy', [OrganizationsController::class, 'store'])
 
 Route::get('budowy/{organization}/edit', [OrganizationsController::class, 'edit'])
     ->name('organizations.edit')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::put('budowy/{organization}', [OrganizationsController::class, 'update'])
     ->name('organizations.update')
@@ -153,7 +153,7 @@ Route::put('budowy/{organization}/restore', [OrganizationsController::class, 're
 
 Route::get('budowy/{organization}/klient', [KlientController::class, 'index'])
     ->name('klient.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('budowy/{organization}/klient/create', [KlientController::class, 'create'])
@@ -235,7 +235,7 @@ Route::post('contacts', [ContactsController::class, 'store'])
 
 Route::get('contacts/{contact}/edit', [ContactsController::class, 'edit'])
     ->name('contacts.edit')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::post('contacts/{contact}', [ContactsController::class, 'update'])
@@ -254,7 +254,7 @@ Route::put('contacts/{contact}/restore', [ContactsController::class, 'restore'])
 
 Route::get('contacts/{contact}/history', [ContactsController::class, 'history'])
     ->name('contacts.history')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Narzedzia
@@ -305,7 +305,7 @@ Route::get('narzedzia/{narzedzia}/file/{name}', [NarzedziaController::class, 'do
 
 Route::get('contacts/{contact}/holiday', [HolidayController::class, 'index'])
     ->name('holiday.index')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/holiday/create', [HolidayController::class, 'create'])
@@ -341,7 +341,7 @@ Route::put('holiday/{holiday}/restore', [HolidayController::class, 'restore'])
 
 Route::get('budowy/{organization}/narzedzia', [ToolWorkDatesController::class, 'index'])
     ->name('budowy.narzedzia')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('budowy/{organization}/narzedzia/create', [ToolWorkDatesController::class, 'create'])
@@ -420,7 +420,7 @@ Route::put('dokumentyTyp/{account}/restore', [DokumentyTypController::class, 're
 
 Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'index'])
     ->name('pracownicy.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::put('pracownicy/{contactWorkDate}', [BudowaPracownicyController::class, 'update'])
@@ -461,7 +461,7 @@ Route::put('pracownicy/destroystore', [BudowaPracownicyController::class, 'destr
 // Kierownictwo budowy
 Route::get('budowy/{organization}/kierownictwo', [BudowaPracownicyController::class, 'management'])
     ->name('budowy.management')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 Route::post('budowy/{organization}/kierownictwo', [BudowaPracownicyController::class, 'storeManagement'])
     ->name('budowy.management.store')
@@ -478,7 +478,7 @@ Route::get('contacts/{contact}/budowa/destroy', [ContactsController::class, 'des
 
 Route::get('contacts/{contact}/badania', [BadaniaController::class, 'index'])
     ->name('badania.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/badania/create', [BadaniaController::class, 'create'])
@@ -515,7 +515,7 @@ Route::put('badania/{badania}/restore', [BadaniaController::class, 'restore'])
 
 Route::get('contacts/{contact}/bhp', [BhpController::class, 'index'])
     ->name('bhp.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/bhp/create', [BhpController::class, 'create'])
@@ -552,7 +552,7 @@ Route::put('bhp/{bhp}/restore', [BhpController::class, 'restore'])
 
 Route::get('contacts/{contact}/pbioz', [PbiozController::class, 'index'])
     ->name('pbioz.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/pbioz/create', [PbiozController::class, 'create'])
@@ -589,7 +589,7 @@ Route::put('pbioz/{pbioz}/restore', [PbiozController::class, 'restore'])
 
 Route::get('contacts/{contact}/a1', [A1Controller::class, 'index'])
     ->name('a1.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/a1/create', [A1Controller::class, 'create'])
@@ -624,14 +624,14 @@ Route::put('a1/{a1}/restore', [A1Controller::class, 'restore'])
 // Budowa A1
 Route::get('budowy/{organization}/a1', [BudowaPracownicyController::class, 'a1Index'])
     ->name('budowy.a1.index')
-    ->middleware('auth', 'biuro-permission');
+    ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Uprawnienia
 
 Route::get('contacts/{contact}/uprawnienia', [UprawnieniaController::class, 'index'])
     ->name('uprawnienia.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/uprawnienia/create', [UprawnieniaController::class, 'create'])
@@ -703,7 +703,7 @@ Route::put('narzedziaTyp/{narzedziaTyp}/restore', [NarzedziaTypController::class
 
 Route::get('contacts/{contact}/jezyk', [JezykController::class, 'index'])
     ->name('jezyk.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact}/jezyk/create', [JezykController::class, 'create'])

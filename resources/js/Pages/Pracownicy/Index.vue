@@ -11,7 +11,7 @@
           <option value="only">Usunięte</option>
         </select>
       </search-filter-no-filtr>
-      <Link class="btn-indigo" :href="`/pracownicy/${organization_id}/create`">
+      <Link v-if="user_owner !== 3" class="btn-indigo" :href="`/pracownicy/${organization_id}/create`">
         <span>Dodaj Pracownika</span>
       </Link>
     </div>
@@ -53,7 +53,7 @@
             </Link>
           </td>
           <td v-if="item.contact" class="w-px border-t p-2">
-            <Link class="flex items-center px-4 mb-4 underline text-indigo-600" tabindex="-1" :href="`/pracownicy/${organization_id}/edit/${item.id}`">
+            <Link v-if="user_owner !== 3" class="flex items-center px-4 mb-4 underline text-indigo-600" tabindex="-1" :href="`/pracownicy/${organization_id}/edit/${item.id}`">
               Popraw daty
             </Link>
             <Link v-if="user_owner !== 3" class="flex items-center px-4 underline text-indigo-600" tabindex="-1" @click="destroy(item.id)">

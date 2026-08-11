@@ -70,6 +70,9 @@ class OrganizationsController extends Controller
                     ->activeOn($today),
             ]);
 
+        // Kierownik widzi tylko swoje budowy (aktywne kierownictwo); admin/biuro — wszystkie.
+        $query->visibleTo(Auth::user());
+
         // Filtrowanie po wyszukiwarce i statusie usunięcia (soft delete)
         $query->filter(Request::only('search', 'trashed'));
 

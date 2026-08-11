@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -113,9 +114,55 @@ class User extends Authenticatable
 
     public function getPermissionsAttribute() {
         return [
-            'admin' => $this->owner==1,
-            'biuro' => $this->owner==2,
-            'kierownik' => $this->owner==3,
+            'admin' => $this->hasRole(Role::ADMIN),
+            'biuro' => $this->hasRole(Role::BIURO),
+            'kierownik' => $this->hasRole(Role::KIEROWNIK),
         ];
+    }
+
+    public function hasRole(Role $role): bool
+    {
+        return (int) $this->owner === $role->value;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(Role::ADMIN);
+    }
+
+    public function isBiuro(): bool
+    {
+        return $this->hasRole(Role::BIURO);
+    }
+
+    public function isKierownik(): bool
+    {
+        return $this->hasRole(Role::KIEROWNIK);
+    }
+
+    /** Admin lub biuro — pełny dostęp do wszystkich budów. */
+    public function isOffice(): bool
+    {
+        return in_array((int) $this->owner, Role::officeValues(), true);
+    }
+
+    /**
+     * Rekord pracownika (Contact) powiązany z użytkownikiem.
+     * Powiązanie po user_id, a w razie braku — po imieniu i nazwisku.
+     * Jedno źródło prawdy dla dashboardu, scope'ów i policy.
+     */
+    public function contactRecord(): ?Contact
+    {
+        return Contact::where('user_id', $this->id)
+            ->orWhere(function ($query) {
+                $query->where('first_name', $this->first_name)
+                      ->where('last_name', $this->last_name);
+            })
+            ->first();
+    }
+
+    public function contactId(): ?int
+    {
+        return $this->contactRecord()?->id;
     }
 }

@@ -62,7 +62,7 @@
       </div>
     </div>
     <div>
-      <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" />
+      <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" :user-owner="user_owner" />
     </div>
     <h1 class="mb-4 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>

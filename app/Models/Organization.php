@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +40,44 @@ class Organization extends Model
     public function kierownik()
     {
         return $this->belongsTo(Contact::class, 'kierownikBud_id','id');
+    }
+
+    /**
+     * Budowy, na których dany kontakt jest lub BYŁ w kierownictwie:
+     * ma wpis w contact_work_dates na tej budowie, a jego funkcja to
+     * Kierownik lub Inżynier. Bez ograniczenia datą (aktywny lub były).
+     * To definicja "budowy kierownika". Stare kolumny kierownikBud_id/
+     * inzynier_id są ignorowane (relikt wczesnej wersji).
+     */
+    public function scopeManagedBy($query, ?int $contactId)
+    {
+        if (!$contactId) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereHas('contactWorkDates', function ($q) use ($contactId) {
+            $q->where('contact_id', $contactId)
+                ->whereHas('contact', function ($c) {
+                    $c->whereIn('funkcja_id', [Funkcja::KIEROWNIK, Funkcja::INZYNIER]);
+                });
+        });
+    }
+
+    /**
+     * Ogranicza listę budów do widocznych dla użytkownika:
+     * admin/biuro widzą wszystko, kierownik tylko swoje (kierownictwo — obecne lub byłe).
+     */
+    public function scopeVisibleTo($query, ?User $user)
+    {
+        if ($user && $user->isOffice()) {
+            return $query;
+        }
+
+        if ($user && $user->isKierownik()) {
+            return $query->managedBy($user->contactId());
+        }
+
+        return $query->whereRaw('1 = 0');
     }
 
     public function scopeFilter($query, array $filters)
