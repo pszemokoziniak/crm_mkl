@@ -168,25 +168,10 @@ class OrganizationsController extends Controller
 
     public function edit(Organization $organization)
     {
-        if (Auth::user()->owner === 3) {
-            $contact = Contact::where('user_id', Auth::id())->first();
-            $contact_id = $contact ? $contact->id : null;
-            $now = now()->format('Y-m-d');
+        // Dostęp do budowy autoryzuje middleware biuro-kierownik-permission
+        // (OrganizationPolicy@view => Organization::scopeManagedBy). Tu tylko tryb read-only dla kierownika.
+        $flag = Auth::user()->owner === 3;
 
-            $isAssigned = ContactWorkDate::where('organization_id', $organization->id)
-                ->where('contact_id', $contact_id)
-                ->activeOn($now)
-                ->exists();
-
-            if (!$isAssigned && $organization->kierownikBud_id != $contact_id && $organization->inzynier_id != $contact_id) {
-                return Redirect::route('dashboard')->with('error', 'Nie masz uprawnień do edycji tej budowy.');
-            }
-        }
-
-        $flag = false;
-        if (Auth::user()->owner === 3) {
-            $flag = true;
-        }
         return Inertia::render('Organizations/Edit', [
             'organization' => [
                 'id' => $organization->id,
@@ -234,21 +219,7 @@ class OrganizationsController extends Controller
 
     public function update(Organization $organization)
     {
-        if (Auth::user()->owner === 3) {
-            $contact = Contact::where('user_id', Auth::id())->first();
-            $contact_id = $contact ? $contact->id : null;
-            $now = now()->format('Y-m-d');
-
-            $isAssigned = ContactWorkDate::where('organization_id', $organization->id)
-                ->where('contact_id', $contact_id)
-                ->activeOn($now)
-                ->exists();
-
-            if (!$isAssigned && $organization->kierownikBud_id != $contact_id && $organization->inzynier_id != $contact_id) {
-                return Redirect::route('dashboard')->with('error', 'Nie masz uprawnień do edycji tej budowy.');
-            }
-        }
-
+        // Mutacje budowy są tylko dla admina/biura — kierownika blokuje middleware biuro-permission (read-only).
         $organization->update(
             Request::validate([
                 'name' => ['required', 'max:100'],
