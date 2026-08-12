@@ -23,6 +23,10 @@ class OrganizationsController extends Controller
     {
         $today = Carbon::today()->toDateString();
 
+        // Kontakt zalogowanego (kierownik) — do oznaczenia jego aktywnej budowy 🟢
+        $myContactId = Auth::user()?->contactId();
+
+        $hasExplicitSort = request()->filled('sort');
         $sort = request('sort', 'created_at');
         $direction = request('direction') === 'asc' ? 'asc' : 'desc';
 
@@ -68,6 +72,13 @@ class OrganizationsController extends Controller
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
                     ->where('contacts.funkcja_id', 6)
                     ->activeOn($today),
+
+                // Czy zalogowany kierownik ma na tej budowie aktywne kierownictwo (dziś)
+                'is_active_for_me' => ContactWorkDate::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->where('contact_work_dates.contact_id', $myContactId)
+                    ->activeOn($today),
             ]);
 
         // Kierownik widzi tylko swoje budowy (aktywne kierownictwo); admin/biuro — wszystkie.
@@ -81,6 +92,12 @@ class OrganizationsController extends Controller
                 ->addSelect('organizations.*')
                 ->orderBy('kt.name', $direction);
         }
+
+        // Domyślnie (bez ręcznego sortowania) aktywna budowa użytkownika ląduje na górze.
+        if (!$hasExplicitSort) {
+            $query->orderByDesc('is_active_for_me');
+        }
+
         $query->orderBy($allowedSorts[$sort], $direction);
 
         // Fallback sort
@@ -102,6 +119,7 @@ class OrganizationsController extends Controller
                     'kierownicy' => $organization->kierownicy_names ?: null,
                     'inzynierowie' => $organization->inzynierowie_names ?: null,
                     'active_workers_count' => (int) ($organization->active_workers_count ?? 0),
+                    'is_active' => (bool) ($organization->is_active_for_me ?? false),
                     'deleted_at' => $organization->deleted_at,
                 ]),
         ]);

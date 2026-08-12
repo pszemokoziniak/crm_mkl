@@ -2,7 +2,8 @@
   <div>
     <Head title="Budowa" />
     <h1 class="mb-8 text-3xl font-bold">
-      Budowy <span class="text-indigo-400 font-medium">{{ titleSuffix }}</span>
+      <template v-if="$page.props.permissions.kierownik">Twoje Budowy</template>
+      <template v-else>Budowy <span class="text-indigo-400 font-medium">{{ titleSuffix }}</span></template>
     </h1>
 
     <div class="flex flex-col gap-4 items-start justify-between mb-6 sm:flex-row sm:items-center">

@@ -13,9 +13,10 @@ class OrganizationPolicy
     use HandlesAuthorization;
 
     /**
-     * Podgląd danych budowy.
-     * Admin/biuro — zawsze. Kierownik — tylko jeśli jest lub był
-     * w kierownictwie tej budowy (patrz Organization::scopeManagedBy).
+     * Wejście/edycja budowy.
+     * Admin/biuro — zawsze. Kierownik — tylko jeśli jest AKTYWNIE
+     * w kierownictwie tej budowy DZIŚ (patrz Organization::scopeActivelyManagedBy).
+     * Zamknięte budowy kierownik widzi na liście, ale nie może w nie wejść.
      */
     public function view(User $user, Organization $organization): bool
     {
@@ -32,7 +33,7 @@ class OrganizationPolicy
 
             return Organization::query()
                 ->whereKey($organization->getKey())
-                ->managedBy($contactId)
+                ->activelyManagedBy($contactId)
                 ->exists();
         }
 

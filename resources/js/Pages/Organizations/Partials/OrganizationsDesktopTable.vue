@@ -30,10 +30,12 @@
       </thead>
 
       <tbody>
-        <tr v-for="organization in organizations" :key="organization.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="organization in organizations" :key="organization.id" class="focus-within:bg-gray-100" :class="canOpen(organization) ? 'hover:bg-gray-100' : 'opacity-60 pointer-events-none select-none'">
           <!-- Nazwa -->
           <td class="border-t">
             <Link class="flex items-center px-4 py-3 focus:text-indigo-500 font-medium" :href="`/budowy/${organization.id}/edit`">
+              <span v-if="organization.is_active" class="flex-shrink-0 mr-2" title="Aktywna budowa" aria-label="Aktywna budowa">🟢</span>
+              <span v-else-if="!canOpen(organization)" class="flex-shrink-0 mr-2" title="Budowa zamknięta — tylko podgląd" aria-label="Budowa zamknięta">🔒</span>
               {{ organization.nazwaBud }}
               <Icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
@@ -109,6 +111,10 @@ export default {
   },
   emits: ['sort'],
   methods: {
+    canOpen(org) {
+      const p = (this.$page && this.$page.props && this.$page.props.permissions) || {}
+      return !!org.is_active || !!p.admin || !!p.biuro
+    },
     emitSort(column) {
       this.$emit('sort', column)
     },

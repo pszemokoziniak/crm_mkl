@@ -64,6 +64,29 @@ class Organization extends Model
     }
 
     /**
+     * Budowy, na których dany kontakt jest AKTYWNIE w kierownictwie DZIŚ
+     * (wpis w contact_work_dates z activeOn: start <= dziś i (end NULL lub >= dziś),
+     * funkcja Kierownik/Inżynier). Węższe niż managedBy — używane do decyzji
+     * o DOSTĘPIE do budowy (kierownik wchodzi tylko na swoje aktywne budowy).
+     */
+    public function scopeActivelyManagedBy($query, ?int $contactId)
+    {
+        if (!$contactId) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $today = now()->toDateString();
+
+        return $query->whereHas('contactWorkDates', function ($q) use ($contactId, $today) {
+            $q->where('contact_id', $contactId)
+                ->activeOn($today)
+                ->whereHas('contact', function ($c) {
+                    $c->whereIn('funkcja_id', [Funkcja::KIEROWNIK, Funkcja::INZYNIER]);
+                });
+        });
+    }
+
+    /**
      * Ogranicza listę budów do widocznych dla użytkownika:
      * admin/biuro widzą wszystko, kierownik tylko swoje (kierownictwo — obecne lub byłe).
      */
