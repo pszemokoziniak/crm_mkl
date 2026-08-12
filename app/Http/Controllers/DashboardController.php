@@ -18,6 +18,12 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+
+        // Kierownik nie ma dashboardu — jego jedynym widokiem jest lista budów.
+        if ($user->owner === 3) {
+            return redirect('/budowy');
+        }
+
         $contact = Contact::where('user_id', $user->id)
             ->orWhere(function($query) use ($user) {
                 $query->where('first_name', $user->first_name)
