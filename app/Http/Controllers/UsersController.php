@@ -134,7 +134,14 @@ class UsersController extends Controller
         ]
         );
 
-        $user->update(Request::only('first_name', 'last_name', 'email', 'owner' ));
+        // Zmiana roli (owner) tylko dla biura/admina — kierownik edytujący własny
+        // profil nie może podnieść sobie uprawnień.
+        $isOffice = Auth::user()->isOffice();
+        $fields = ['first_name', 'last_name', 'email'];
+        if ($isOffice) {
+            $fields[] = 'owner';
+        }
+        $user->update(Request::only($fields));
 
         if (Request::file('photo')) {
             $user->update(['photo_path' => Request::file('photo')->store('users')]);
@@ -144,7 +151,8 @@ class UsersController extends Controller
             $user->update(['password' => Request::get('password')]);
         }
 
-        if (Request::get('contact_id') !== null) {
+        // Powiązanie User<->Pracownik również tylko dla biura.
+        if ($isOffice && Request::get('contact_id') !== null) {
             $data = Contact::where('id', (int) Request::get('contact_id'))->first();
             $data->user_id = $user->id;
             $data->save();

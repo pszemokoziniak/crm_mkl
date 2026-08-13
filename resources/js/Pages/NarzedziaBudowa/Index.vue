@@ -9,7 +9,7 @@
     </h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset" />
-      <Link class="btn-indigo" :href="`/budowy/${organization.id}/narzedzia/create`">
+      <Link v-if="!$page.props.permissions.kierownik" class="btn-indigo" :href="`/budowy/${organization.id}/narzedzia/create`">
         <span>Dodaj sprzęt</span>
       </Link>
     </div>
@@ -58,7 +58,7 @@
               </td>
               <td class="px-6 py-3 text-right">
                 <div class="flex items-center justify-end space-x-3">
-                  <Link :href="`/budowy/${organization.id}/narzedzia/${item.id}/edit`" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                  <Link :href="$page.props.permissions.kierownik ? '' : `/budowy/${organization.id}/narzedzia/${item.id}/edit`" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
                     Edytuj
                   </Link>
                   <delete-button

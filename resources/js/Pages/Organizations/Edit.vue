@@ -31,7 +31,7 @@
           >
             Usuń budowę
           </delete-button>
-          <loading-button v-if="!organization.deleted_at" :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
+          <loading-button v-if="!organization.deleted_at && (user_owner === 1 || user_owner === 2)" :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>
     </div>

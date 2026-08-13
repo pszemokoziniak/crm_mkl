@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'kierownik-permission' => \App\Http\Middleware\KierownikPermission::class,
         'admin-permission' => \App\Http\Middleware\AdminPermission::class,
         'biuro-kierownik-permission' => \App\Http\Middleware\BiuroKierownikPermission::class,
+        'self-or-biuro-permission' => \App\Http\Middleware\SelfOrBiuroPermission::class,
     ];
 }

@@ -1,12 +1,16 @@
 <template>
   <div class="md:hidden divide-y divide-gray-200">
-    <Link
+    <component
+      :is="canOpen(organization) ? 'Link' : 'div'"
       v-for="organization in organizations"
       :key="organization.id"
-      :href="`/budowy/${organization.id}/edit`"
-      class="block p-4 hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+      :href="canOpen(organization) ? `/budowy/${organization.id}/edit` : null"
+      class="block p-4 focus:outline-none"
+      :class="canOpen(organization) ? 'hover:bg-gray-50 focus:bg-gray-50' : 'opacity-60'"
     >
       <div class="font-semibold">
+        <span v-if="organization.is_active" class="mr-1" title="Aktywna budowa" aria-label="Aktywna budowa">🟢</span>
+        <span v-else-if="!canOpen(organization)" class="mr-1" title="Budowa zamknięta — tylko podgląd" aria-label="Budowa zamknięta">🔒</span>
         {{ organization.nazwaBud }}
         <Icon v-if="organization.deleted_at" name="trash" class="inline ml-2 w-3 h-3 fill-gray-400" />
       </div>
@@ -35,7 +39,7 @@
           </span>
         </div>
       </div>
-    </Link>
+    </component>
 
     <div v-if="organizations.length === 0" class="p-4 text-sm text-gray-600">
       Brak danych.
@@ -51,6 +55,12 @@ export default {
   components: { Link, Icon },
   props: {
     organizations: { type: Array, required: true },
+  },
+  methods: {
+    canOpen(org) {
+      const p = (this.$page && this.$page.props && this.$page.props.permissions) || {}
+      return !!org.is_active || !!p.admin || !!p.biuro
+    },
   },
 }
 </script>

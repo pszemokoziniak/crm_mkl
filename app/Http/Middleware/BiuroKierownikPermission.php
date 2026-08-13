@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\Contact;
-use App\Models\ContactWorkDate;
 use App\Models\Organization;
 use Closure;
 use Illuminate\Http\Request;
@@ -12,9 +11,12 @@ use Illuminate\Support\Facades\Auth;
 class BiuroKierownikPermission
 {
     /**
-     * Handle an incoming request.
+     * Dostęp dla admina, biura i kierownika.
+     * Kierownik dostaje dostęp do konkretnej budowy (parametr trasy
+     * `organization` lub `build`) tylko jeśli przejdzie OrganizationPolicy@view
+     * — czyli jest AKTYWNIE w kierownictwie tej budowy. Analogicznie dla
+     * pracownika (parametr `contact`) — musi być na jego budowie (ContactPolicy@view).
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
@@ -22,45 +24,35 @@ class BiuroKierownikPermission
     {
         $user = Auth::user();
 
-        if (!in_array($user->owner, [1, 2, 3])) {
+        if (!$user->isOffice() && !$user->isKierownik()) {
             abort(403);
         }
 
-        // Jeśli to kierownik, sprawdź czy ma dostęp do konkretnej budowy (jeśli ID budowy jest w URL)
-        if ($user->owner === 3) {
-            $organization = $request->route('organization') ?: $request->route('build');
+        // Biuro/admin mają pełny dostęp — sprawdzamy zakres tylko dla kierownika.
+        if ($user->isKierownik()) {
+            // Dostęp do budowy (parametr organization / build)
+            $orgParam = $request->route('organization') ?: $request->route('build');
 
-            if ($organization) {
-                // Pobierz ID organizacji (obsługa zarówno obiektu modelu jak i ID)
-                $orgId = is_object($organization) ? $organization->id : $organization;
+            if ($orgParam !== null) {
+                $organization = $orgParam instanceof Organization
+                    ? $orgParam
+                    : Organization::withTrashed()->find(is_object($orgParam) ? $orgParam->id : $orgParam);
 
-                $contact = Contact::where('user_id', $user->id)
-                    ->orWhere(function($query) use ($user) {
-                        $query->where('first_name', $user->first_name)
-                              ->where('last_name', $user->last_name);
-                    })
-                    ->first();
-
-                $contact_id = $contact ? $contact->id : null;
-
-                if (!$contact_id) {
-                    abort(403, 'Użytkownik nie jest powiązany z żadnym pracownikiem.');
-                }
-
-                // Sprawdź przypisanie w tabeli contact_work_dates (bez ograniczenia do dzisiejszej daty)
-                $isAssigned = ContactWorkDate::where('organization_id', $orgId)
-                    ->where('contact_id', $contact_id)
-                    ->exists();
-
-                // Dodatkowy check dla pól w tabeli organizations (stara metoda przypisania)
-                $isMainKierownik = Organization::where('id', $orgId)
-                    ->where(function($q) use ($contact_id) {
-                        $q->where('kierownikBud_id', $contact_id)
-                          ->orWhere('inzynier_id', $contact_id);
-                    })->exists();
-
-                if (!$isAssigned && !$isMainKierownik) {
+                if (!$organization || $user->cannot('view', $organization)) {
                     abort(403, 'Nie masz uprawnień do tej budowy.');
+                }
+            }
+
+            // Dostęp do pracownika (parametr contact)
+            $contactParam = $request->route('contact');
+
+            if ($contactParam !== null) {
+                $contact = $contactParam instanceof Contact
+                    ? $contactParam
+                    : Contact::withTrashed()->find(is_object($contactParam) ? $contactParam->id : $contactParam);
+
+                if (!$contact || $user->cannot('view', $contact)) {
+                    abort(403, 'Nie masz uprawnień do tego pracownika.');
                 }
             }
         }

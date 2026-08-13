@@ -46,8 +46,8 @@
           <button v-if="user.active===1" class="text-indigo-600 hover:underline ml-auto" tabindex="-1" type="button" @click="blockActive">Zablokuj konto </button>
           <button v-if="user.active===0" class="text-indigo-600 hover:underline ml-auto" tabindex="-1" type="button" @click="unblockActive">Odblokuj konto</button>
         </div>
-        <div v-if="user_owner === 1" class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <button v-if="!user.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+        <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
+          <button v-if="!user.deleted_at && user_owner === 1" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zapisz</loading-button>
         </div>
       </form>
