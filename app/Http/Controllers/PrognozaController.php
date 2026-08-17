@@ -107,9 +107,18 @@ class PrognozaController extends Controller
 
     public function create()
     {
-        $building = Organization::where('id', $_GET['building'])->get()->map->only(['id', 'nazwaBud']);
+        $buildingId = request()->query('building');
+
+        $building = Organization::where('id', $buildingId)->get()->map->only(['id', 'nazwaBud']);
+
+        // Bez konkretnej budowy nie ma czego prognozować — formularz nie miałby nazwy budowy.
+        if ($building->isEmpty()) {
+            return Redirect::route('prognoza', request()->only('year', 'month'))
+                ->with('error', 'Najpierw wybierz budowę.');
+        }
+
         $currentYear = Carbon::now();
-        $dates = $this->getSelectDates($currentYear, $_GET['building']);
+        $dates = $this->getSelectDates($currentYear, $buildingId);
 
         return Inertia('Prognoza/Create', compact('dates', 'building'));
     }
@@ -187,14 +196,21 @@ class PrognozaController extends Controller
 
     }
 
+    /**
+     * Lata do wyboru — tylko te, dla których mamy w bazie tygodnie.
+     * Wcześniej lista szła 7 lat w przód i trafiała na roczniki bez tygodni,
+     * gdzie lista dat była pusta bez żadnego wyjaśnienia.
+     */
     function getCalendarYears($currentYear)
     {
-        $years = array();
+        $years = PrognozaDates::query()
+            ->distinct()
+            ->where('year', '>=', $currentYear->year)
+            ->orderBy('year')
+            ->pluck('year')
+            ->all();
 
-        for ($i = 0; $i < 7; $i++) {
-            $years[] = $currentYear->copy()->addYears($i)->year;
-        }
-        return $years;
+        return $years ?: [$currentYear->year];
     }
 
     function getCalendarMonths($currentYear)

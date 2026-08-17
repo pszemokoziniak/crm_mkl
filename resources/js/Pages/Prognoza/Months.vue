@@ -4,7 +4,8 @@
       <div class="flex items-center justify-between w-full">
         <div class="bg-white rounded-md shadow flex flex-col p-3 w-full">
           <select-input v-model="selected" class="pr-6 w-full font-bold" label="Wybierz miesiąc" @change="handleChange">
-            <option v-for="(item, index) in data" :key="index" :value="index">{{ item }}</option>
+            <!-- Wartością musi być numer miesiąca (1-12), nie indeks opcji. -->
+            <option v-for="item in data" :key="item.value" :value="item.value">{{ item.label }}</option>
           </select-input>
         </div>
         <button class="p-3 text-gray-500 hover:text-gray-700 focus:text-indigo-500 text-sm" type="button" @click="reset">Wyczyść</button>
