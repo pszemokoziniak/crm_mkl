@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Organization;
+use App\Models\Prognoza;
 use App\Models\PrognozaDates;
 use App\Models\User;
 use Carbon\Carbon;
@@ -111,6 +112,41 @@ class PrognozaTest extends TestCase
                 ->component('Prognoza/Index')
                 ->where('years', [2026, 2027])
             );
+
+        Carbon::setTestNow();
+    }
+
+    public function test_naglowek_konczy_sie_na_ostatnim_tygodniu_z_prognoza(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 8, 17));
+
+        $tydzien = PrognozaDates::where('start', '2026-12-07')->first();
+        Prognoza::create([
+            'organization_id' => $this->budowa->id,
+            'prognoza_dates_id' => $tydzien->id,
+            'workers_count' => 12,
+        ]);
+
+        $this->actingAs($this->biuro)
+            ->get('/prognoza')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('startDateFormat', '2026-01-01')
+                // Koniec zakresu = koniec ostatniego tygodnia z wpisem, nie "dziś + 6 lat".
+                ->where('endDateFormat', $tydzien->end)
+            );
+
+        Carbon::setTestNow();
+    }
+
+    public function test_bez_zadnej_prognozy_naglowek_konczy_rok(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 8, 17));
+
+        $this->actingAs($this->biuro)
+            ->get('/prognoza')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('endDateFormat', '2026-12-31'));
 
         Carbon::setTestNow();
     }

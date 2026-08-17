@@ -8,7 +8,7 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.building" :error="form.errors.building" :value="building[0].id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa budowa" disabled/>
+          <text-input v-model="form.building" :error="form.errors.building" :value="building[0].id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa budowy" disabled/>
           <text-input v-show="false" v-model="form.building_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.month_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.year_id" :error="form.errors.building_id"/>
@@ -26,7 +26,7 @@
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <!-- Własne :disabled nadpisuje to z LoadingButton, więc warunek na ładowanie powtarzamy tutaj. -->
-          <loading-button :loading="form.processing" :disabled="!dates.length || form.processing" class="btn-indigo disabled:opacity-50 disabled:cursor-not-allowed" type="submit">Dodaj godziny</loading-button>
+          <loading-button :loading="form.processing" :disabled="!dates.length || form.processing" class="btn-indigo disabled:opacity-50 disabled:cursor-not-allowed" type="submit">Dodaj pracowników</loading-button>
         </div>
       </form>
     </div>

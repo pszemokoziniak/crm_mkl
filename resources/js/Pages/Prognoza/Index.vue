@@ -20,13 +20,14 @@
           </div>
           <div class="w-1/2" v-else></div>
         </div>
+        <!-- Guzik w tym samym kontenerze co filtry, żeby trzymał ich lewą krawędź. -->
+        <div v-if="month" class="pt-2">
+          <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
+            <span>Dodaj</span>
+            <span class="hidden md:inline">&nbsp;Pracowników</span>
+          </Link>
+        </div>
       </div>
-    </div>
-    <div v-if="month" class="m-10">
-      <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
-        <span>Dodaj</span>
-        <span class="hidden md:inline">&nbsp;Godziny</span>
-      </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
