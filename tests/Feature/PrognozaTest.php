@@ -139,6 +139,33 @@ class PrognozaTest extends TestCase
         Carbon::setTestNow();
     }
 
+    public function test_wykres_bez_wybranego_roku_obejmuje_kolejne_lata(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 8, 17));
+
+        $w2026 = PrognozaDates::where('start', '2026-12-07')->first();
+        $w2027 = PrognozaDates::where('start', '2027-01-04')->first();
+
+        foreach ([$w2026, $w2027] as $tydzien) {
+            Prognoza::create([
+                'organization_id' => $this->budowa->id,
+                'prognoza_dates_id' => $tydzien->id,
+                'workers_count' => 10,
+            ]);
+        }
+
+        $this->actingAs($this->biuro)
+            ->get('/prognoza')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                // Oba tygodnie na wykresie — nie tylko ten z bieżącego roku.
+                ->has('chartData.labels', 2)
+                ->where('endDateFormat', $w2027->end)
+            );
+
+        Carbon::setTestNow();
+    }
+
     public function test_bez_zadnej_prognozy_naglowek_konczy_rok(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 8, 17));

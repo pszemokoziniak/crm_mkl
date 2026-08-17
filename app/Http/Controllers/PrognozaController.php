@@ -73,20 +73,28 @@ class PrognozaController extends Controller
         $yearSelected = $hasYear ? $year : null;
         $monthSelected = ($hasYear && $hasMonth) ? $month : null;
 
-        $chartLabels = $this->getChartLabels($building, $year, $month, $startDate, $endDate);
+        // Rok podajemy tylko wtedy, gdy użytkownik go wybrał. Wcześniej szedł tu
+        // domyślny rok bieżący i wykres ucinał prognozy z kolejnych lat, mimo że
+        // tabela pod spodem i zakres w nagłówku już je obejmowały.
+        $chartLabels = $this->getChartLabels($building, $yearSelected, $monthSelected, $startDate, $endDate);
 
-        $labels = $chartLabels->flatMap(function ($data) {
-            return [$data['prognoza_dates']['start'] . ' to ' . $data['prognoza_dates']['end']];
-        })->toArray();
+        // Chronologicznie — grupowanie szło po id wpisu, więc kolejność słupków
+        // zależała od tego, kto i kiedy wpisywał prognozę.
+        $chartLabels = $chartLabels->sortBy(fn ($group) => $group['prognoza_dates']['start'])->values();
 
+        // Na osi sam początek tygodnia; pełny zakres trafia do dymka, bo dwie daty
+        // w każdej etykiecie zlewały się w nieczytelną kaszę.
+        $labels = $chartLabels->map(fn ($group) => $group['prognoza_dates']['start'])->toArray();
 
-        $dataChart = $chartLabels->flatMap(function ($group) {
-            return [$group['total_workers']];
-        })->toArray();
+        $ranges = $chartLabels->map(
+            fn ($group) => $group['prognoza_dates']['start'].' – '.$group['prognoza_dates']['end']
+        )->toArray();
+
+        $dataChart = $chartLabels->map(fn ($group) => $group['total_workers'])->toArray();
 
         $chartData = [
-
             'labels' => $labels,
+            'ranges' => $ranges,
             'datasets' => [
                 [
                     'label' => 'Liczba pracowników',
