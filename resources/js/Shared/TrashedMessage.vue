@@ -6,7 +6,7 @@
         <slot />
       </div>
     </div>
-    <button v-if="user_owner === 1" class="text-yellow-800 hover:underline text-sm" tabindex="-1" type="button" @click="$emit('restore')">Przywróć</button>
+    <button v-if="canRestore" class="text-yellow-800 hover:underline text-sm" tabindex="-1" type="button" @click="$emit('restore')">Przywróć</button>
   </div>
 </template>
 
@@ -17,9 +17,18 @@ export default {
   components: {
     Icon,
   },
-  props: {
-    user_owner: Number,
-  },
   emits: ['restore'],
+  computed: {
+    /**
+     * Uprawnienia bierzemy ze współdzielonych propsów, a nie z propa strony —
+     * większość stron go nie przekazywała i guzik nie pokazywał się nikomu.
+     * Zakres zgodny z trasami restore, które chroni `biuro-permission`.
+     */
+    canRestore() {
+      const permissions = this.$page.props.permissions || {}
+
+      return Boolean(permissions.admin || permissions.biuro)
+    },
+  },
 }
 </script>
