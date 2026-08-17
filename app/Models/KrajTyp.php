@@ -16,6 +16,12 @@ class KrajTyp extends Model
         return $this->hasOne(Organization::class);
     }
 
+    /** Kraje na listach wyboru pokazujemy alfabetycznie. */
+    public function scopeOrderByName($query)
+    {
+        $query->orderBy('name');
+    }
+
     public function feasts(): HasMany
     {
         return $this->hasMany(Feast::class, 'country_id');

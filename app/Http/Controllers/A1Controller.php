@@ -45,7 +45,7 @@ class A1Controller extends Controller
                 'end' => $a1->end,
             ],
             'contact' => $contact,
-            'countries' => KrajTyp::get(),
+            'countries' => KrajTyp::orderByName()->get(),
         ]);
     }
 
@@ -63,7 +63,7 @@ class A1Controller extends Controller
     public function create(Contact $contact)
     {
         $contact_id = $contact->id;
-        $countries = KrajTyp::get();
+        $countries = KrajTyp::orderByName()->get();
 //        $a1s   = A1::all();
         return Inertia('A1/Create', compact('contact_id', 'countries'));
     }

@@ -55,7 +55,7 @@ class KlientController extends Controller
                 'email' => $klient->email,
             ],
             'budId' => $organization->id,
-            'krajTyps' => KrajTyp::all(),
+            'krajTyps' => KrajTyp::orderByName()->get(),
 
         ]);
     }
@@ -91,7 +91,7 @@ class KlientController extends Controller
     public function create(Organization $organization)
     {
         $budId = $organization->id;
-        $krajTyps = KrajTyp::all();
+        $krajTyps = KrajTyp::orderByName()->get();
         return Inertia('Klients/Create', compact('krajTyps', 'budId'));
     }
     public function store(StoreKlientRequest $req)
