@@ -9,7 +9,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
-    <trashed-message v-if="badanie.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
+    <trashed-message v-if="badanie.deleted_at" class="mb-6" @restore="restore"> To badanie zostało usunięte</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -81,7 +81,8 @@ export default {
     },
     restore() {
       if (confirm('Chcesz przywrócić?')) {
-        this.$inertia.put(`/contacts/${this.contact.id}/restore`)
+        // Baner dotyczy badania, nie pracownika — przywracamy właściwy rekord.
+        this.$inertia.put(`/badania/${this.badanie.id}/restore`)
       }
     },
   },
