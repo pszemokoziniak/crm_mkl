@@ -6,6 +6,12 @@
         <div :class="isUrl('budowy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Budowy</div>
       </Link>
     </div>
+    <div class="mb-4">
+      <Link class="group flex items-center py-3" href="/zadania">
+        <icon name="zadania" class="mr-2 w-4 h-4" :class="isUrl('zadania') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <div :class="isUrl('zadania') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Zadania</div>
+      </Link>
+    </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/narzedzia">
         <icon name="sprzet2" class="mr-2 w-4 h-4" :class="isUrl('narzedzia') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />

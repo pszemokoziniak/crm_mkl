@@ -13,6 +13,7 @@
             <div v-if="auth.user.owner === 1" class="mr-4 mt-1">Stanowisko: Administrator</div>
             <div v-if="auth.user.owner === 2" class="mr-4 mt-1">Stanowisko: Biuro</div>
             <div v-if="auth.user.owner === 3" class="mr-4 mt-1">Stanowisko: Kierownik Budowy</div>
+            <notification-bell class="mr-4 mt-1" />
             <dropdown class="mt-1" placement="bottom-end">
               <template #default>
                 <div class="group flex items-center cursor-pointer select-none">
@@ -52,6 +53,7 @@ import Logo from '@/Shared/Logo'
 import Dropdown from '@/Shared/Dropdown'
 import MainMenu from '@/Shared/MainMenu'
 import FlashMessages from '@/Shared/FlashMessages'
+import NotificationBell from '@/Shared/NotificationBell'
 
 export default {
   components: {
@@ -61,6 +63,7 @@ export default {
     Link,
     Logo,
     MainMenu,
+    NotificationBell,
   },
   props: {
     auth: Object,
