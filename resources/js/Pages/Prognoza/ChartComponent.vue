@@ -20,7 +20,8 @@ export default {
     },
   },
   mounted() {
-    // Render chart when the component is mounted
+    const ranges = this.chartData.ranges || []
+
     new Chart(document.getElementById('myChart'), {
       type: 'bar', // You can use different chart types like 'line', 'pie', etc.
       data: this.chartData,
@@ -30,6 +31,22 @@ export default {
           y: {
             beginAtZero: true,
             max: 200,
+          },
+          x: {
+            ticks: {
+              autoSkip: true,
+              maxRotation: 60,
+              minRotation: 60,
+            },
+          },
+        },
+        plugins: {
+          ...(this.chartOptions.plugins || {}),
+          tooltip: {
+            callbacks: {
+              // Na osi jest sam początek tygodnia — pełny zakres pokazujemy tutaj.
+              title: (items) => ranges[items[0].dataIndex] ?? items[0].label,
+            },
           },
         },
       },
