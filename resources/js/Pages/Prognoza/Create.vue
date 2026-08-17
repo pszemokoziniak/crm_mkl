@@ -8,7 +8,7 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.building" :error="form.errors.building" :value="building[0].id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa budowa" disabled/>
+          <text-input v-model="form.building" :error="form.errors.building" :value="building[0].id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa budowy" disabled/>
           <text-input v-show="false" v-model="form.building_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.month_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.year_id" :error="form.errors.building_id"/>
