@@ -37,8 +37,38 @@ class NarzedziaController extends Controller
         return Inertia::render('Narzedzia/Index', [
             'filters' => Request::all('search', 'trashed'),
             'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed'))
+                // Zdjęcia dociągamy jednym zapytaniem — miniaturka na liście
+                // nie może kosztować zapytania na każdy wiersz.
+                ->with(['files' => fn ($query) => $query->where('type', 'photo')->orderBy('id')])
                 ->paginate(20)
                 ->withQueryString()
+                ->through(fn (Narzedzia $narzedzia) => [
+                    'id' => $narzedzia->id,
+                    'name' => $narzedzia->name,
+                    'numer_seryjny' => $narzedzia->numer_seryjny,
+                    'ilosc_all' => $narzedzia->ilosc_all,
+                    'ilosc_budowa' => $narzedzia->ilosc_budowa,
+                    'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
+                    'deleted_at' => $narzedzia->deleted_at ?? null,
+                    'photo' => $this->thumbnailUrl($narzedzia),
+                ]),
+        ]);
+    }
+
+    /** Miniaturka pierwszego zdjęcia sprzętu — skalowana przez Glide. */
+    private function thumbnailUrl(Narzedzia $narzedzia): ?string
+    {
+        $photo = $narzedzia->files->first();
+
+        if (! $photo) {
+            return null;
+        }
+
+        return URL::route('image', [
+            'path' => DocumentService::toolFilePath($narzedzia->id, $photo->filename),
+            'w' => 96,
+            'h' => 96,
+            'fit' => 'crop',
         ]);
     }
 
