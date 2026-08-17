@@ -2,7 +2,12 @@
   <div>
     <Head title="Budowa" />
     <BudMenu :budId="organization_id" />
-    <h1 class="mb-8 text-3xl font-bold">Budowa Pracownicy</h1>
+    <h1 class="mb-2 text-3xl font-bold">Budowa Pracownicy</h1>
+    <p class="mb-6 text-sm text-gray-500">
+      Na budowie obecnie: <span class="font-bold text-gray-700">{{ naBudowie }}</span>
+      z {{ contactworkdates.data.length }} wpisów na tej stronie.
+      <span v-if="zakonczone > 0">Pozostałe {{ zakonczone }} to zakończone pobyty — zostają jako historia.</span>
+    </p>
     <div class="flex items-center justify-between mb-6">
       <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Wybierz:</label>
@@ -21,7 +26,8 @@
           <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
           <th class="pb-4 pt-6 px-6">Czas Pracy</th>
           <th class="pb-4 pt-6 px-6">Stanowisko</th>
-          <th class="pb-4 pt-6 px-6">Status</th>
+          <th class="pb-4 pt-6 px-6">Na budowie</th>
+          <th class="pb-4 pt-6 px-6">Zatrudnienie</th>
         </tr>
         <tr v-for="item in contactworkdates.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td v-if="item.contact" class="border-t">
@@ -44,9 +50,21 @@
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
+          <!-- Pobyt na tej budowie — to co wcześniej trzeba było wyczytać z dat -->
+          <td v-if="item.contact" class="border-t">
+            <div class="px-6 py-4">
+              <span v-if="item.on_site" class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 border border-green-200 rounded-full">
+                Pracuje
+              </span>
+              <span v-else class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-full">
+                Zakończony {{ item.end }}
+              </span>
+            </div>
+          </td>
+          <!-- Status zatrudnienia w firmie — nie mówi nic o tej budowie -->
           <td v-if="item.contact" class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
-              <div v-if="item.contact.status_zatrudnienia">
+              <div v-if="item.contact.status_zatrudnienia" class="text-gray-500">
                 {{ item.contact.status_zatrudnienia }}
               </div>
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
@@ -62,7 +80,7 @@
           </td>
         </tr>
         <tr v-if="contactworkdates === null">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
+          <td class="px-6 py-4 border-t" colspan="6">Nie znaleziono pracownika</td>
         </tr>
       </table>
     </div>
@@ -103,6 +121,14 @@ export default {
         trashed: this.filters.trashed,
       },
     }
+  },
+  computed: {
+    naBudowie() {
+      return this.contactworkdates.data.filter((item) => item.on_site).length
+    },
+    zakonczone() {
+      return this.contactworkdates.data.length - this.naBudowie
+    },
   },
   watch: {
     form: {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -84,6 +85,15 @@ class Organization extends Model
                     $c->whereIn('funkcja_id', [Funkcja::KIEROWNIK, Funkcja::INZYNIER]);
                 });
         });
+    }
+
+    /**
+     * Pobyty, które jeszcze się nie skończyły — trwające i zaplanowane na przyszłość.
+     * To one blokują archiwizację budowy; zakończone są już tylko historią.
+     */
+    public function unfinishedWorkDates()
+    {
+        return $this->contactWorkDates()->notFinished(Carbon::today()->toDateString());
     }
 
     /**

@@ -38,6 +38,14 @@
               <span v-else-if="!canOpen(organization)" class="flex-shrink-0 mr-2" title="Budowa zamknięta — tylko podgląd" aria-label="Budowa zamknięta">🔒</span>
               {{ organization.nazwaBud }}
               <Icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <!-- Wszyscy pracownicy zakończyli pobyt — budowę można zarchiwizować. -->
+              <span
+                v-if="!organization.deleted_at && organization.ready_to_archive"
+                class="flex-shrink-0 ml-2 px-2 py-0.5 text-[10px] font-semibold text-amber-800 bg-amber-100 border border-amber-200 rounded-full"
+                title="Wszyscy pracownicy zakończyli pobyt — budowę można zarchiwizować"
+              >
+                do archiwizacji
+              </span>
             </Link>
           </td>
 

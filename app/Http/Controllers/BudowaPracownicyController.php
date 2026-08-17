@@ -9,6 +9,7 @@ use App\Models\ContactWorkDate;
 use App\Models\BuildingTimeSheet;
 use App\Models\Funkcja;
 use App\Models\Organization;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -57,6 +58,10 @@ class BudowaPracownicyController extends Controller
                     'funkcja' => $contactworkdate->funkcja,
                     'start' => $contactworkdate->start,
                     'end' => $contactworkdate->end,
+                    // Czy pobyt na TEJ budowie jeszcze trwa — inna rzecz niż
+                    // status zatrudnienia pracownika w firmie.
+                    'on_site' => $contactworkdate->end === null
+                        || Carbon::parse($contactworkdate->end)->toDateString() >= Carbon::today()->toDateString(),
                 ]),
             'user_owner' => Auth::user()->owner,
         ]);

@@ -43,7 +43,7 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
-              {{ item.organization.nazwaBud }}
+              {{ item.organization?.nazwaBud ?? '— budowa usunięta —' }}
             </Link>
           </td>
           <td class="border-t">
