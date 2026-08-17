@@ -13,7 +13,7 @@
       <p> Połączono {{contact.first_name}} {{contact.last_name}}</p>
     </div>
     <div v-if="contact" class="flex justify-start max-w-3xl p-2">
-      <div v-if="user_owner === 1" class="px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center">
+      <div v-if="isOffice" class="px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center">
         <icon name="zablokuj" class="mr-2 w-4 h-4 inline" />
         <button v-if="user" class="text-indigo-600 hover:underline ml-auto" tabindex="-1" type="button" @click="disconnect">
           Rozłącz
@@ -36,8 +36,10 @@
             <option value="2">Biuro</option>
             <option value="3">Kierownik budowy</option>
           </select-input>
-          <select-input v-if="user_owner === 1" v-model="form.contact_id" :error="form.errors.contact_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Połącz User z Pracownikiem">
-            <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.first_name}} {{item.last_name}}</option>
+          <!-- Powiązanie z pracownikiem: biuro i admin — tak samo jak po stronie serwera. -->
+          <select-input v-if="isOffice" v-model="form.contact_id" :error="form.errors.contact_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Połącz User z Pracownikiem">
+            <option :value="null">— nie łącz —</option>
+            <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.last_name}} {{item.first_name}}</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
         </div>
@@ -97,6 +99,14 @@ export default {
         contact_id: this.user.contact_id,
       }),
     }
+  },
+  computed: {
+    /** Biuro i admin — zakres zgodny z middleware biuro-permission na trasach. */
+    isOffice() {
+      const permissions = this.$page.props.permissions || {}
+
+      return Boolean(permissions.admin || permissions.biuro)
+    },
   },
   methods: {
     update() {
