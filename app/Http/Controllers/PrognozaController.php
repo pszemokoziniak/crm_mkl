@@ -37,8 +37,15 @@ class PrognozaController extends Controller
             $startDate = Carbon::createFromDate($year, 1, 1)->startOfYear();
             $endDate = Carbon::createFromDate($year, 1, 1)->endOfYear();
         } else {
+            // Bez wybranego roku pokazujemy wszystko, co jest wpisane — zakres kończymy
+            // na ostatnim tygodniu z prognozą, żeby nagłówek zgadzał się z wykresem.
+            // Wcześniej sztywne "dziś + 6 lat" obiecywało datę, do której nic nie sięgało.
             $startDate = $currentYear->copy()->startOfYear();
-            $endDate = $currentYear->copy()->addYears(6)->endOfMonth();
+            $ostatniTydzien = $this->ostatniTydzienPrognozy($building);
+
+            $endDate = $ostatniTydzien && $ostatniTydzien->gt($startDate)
+                ? $ostatniTydzien
+                : $currentYear->copy()->endOfYear();
         }
 
         $startDateFormat = $startDate->format('Y-m-d');
@@ -160,6 +167,21 @@ class PrognozaController extends Controller
             ])
         );
         return Redirect::route('prognoza', ['year' => $year, 'month' => $month, 'building' => $prognoza->organization_id])->with('success', 'Poprawiono.');
+    }
+
+    /**
+     * Koniec ostatniego tygodnia, na który ktoś wpisał prognozę
+     * (dla wybranej budowy albo wszystkich). Null, gdy nie ma żadnej.
+     */
+    private function ostatniTydzienPrognozy($building): ?Carbon
+    {
+        $ostatni = PrognozaDates::query()
+            ->whereIn('id', Prognoza::query()
+                ->when($building !== 'all', fn ($query) => $query->where('organization_id', $building))
+                ->select('prognoza_dates_id'))
+            ->max('end');
+
+        return $ostatni ? Carbon::parse($ostatni) : null;
     }
 
     function getUrlBuildParams($id)
