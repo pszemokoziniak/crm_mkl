@@ -133,7 +133,7 @@ class PrognozaController extends Controller
             'workers_count' => $request->workers_count,
         ]);
 
-        return Redirect::route('prognoza', ['building'=>$request->building_id, 'year'=>$request->year_id, 'month'=>$request->month_id])->with('success', 'Godziny dodane.');
+        return Redirect::route('prognoza', ['building'=>$request->building_id, 'year'=>$request->year_id, 'month'=>$request->month_id])->with('success', 'Prognoza dodana.');
     }
 
     public function edit(Prognoza $prognoza)

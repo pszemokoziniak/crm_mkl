@@ -26,7 +26,7 @@
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <!-- Własne :disabled nadpisuje to z LoadingButton, więc warunek na ładowanie powtarzamy tutaj. -->
-          <loading-button :loading="form.processing" :disabled="!dates.length || form.processing" class="btn-indigo disabled:opacity-50 disabled:cursor-not-allowed" type="submit">Dodaj godziny</loading-button>
+          <loading-button :loading="form.processing" :disabled="!dates.length || form.processing" class="btn-indigo disabled:opacity-50 disabled:cursor-not-allowed" type="submit">Dodaj pracowników</loading-button>
         </div>
       </form>
     </div>
