@@ -21,6 +21,8 @@ use App\Http\Controllers\KlientController;
 use App\Http\Controllers\KrajTypController;
 use App\Http\Controllers\NarzedziaController;
 use App\Http\Controllers\NarzedziaTypController;
+use App\Http\Controllers\NoteController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PbiozController;
 use App\Http\Controllers\PrognozaController;
@@ -30,6 +32,7 @@ use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
 use App\Http\Controllers\UprawnieniaTypController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ZadaniaController;
 use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\FunkcjaController;
@@ -1086,6 +1089,83 @@ Route::get('reports/koniecUprawinien', [ReportsController::class, 'koniecUprawin
 Route::get('tools', [ToolsController::class, 'index'])
     ->name('tools')
     ->middleware('auth', 'biuro-permission');
+
+
+// Zadania — proces testowania strony
+
+Route::get('zadania', [ZadaniaController::class, 'index'])
+    ->name('zadania.index')
+    ->middleware('auth');
+
+Route::get('zadania/create', [ZadaniaController::class, 'create'])
+    ->name('zadania.create')
+    ->middleware('auth');
+
+Route::post('zadania', [ZadaniaController::class, 'store'])
+    ->name('zadania.store')
+    ->middleware('auth');
+
+Route::get('zadania/{zadanie}', [ZadaniaController::class, 'show'])
+    ->name('zadania.show')
+    ->middleware('auth');
+
+Route::get('zadania/{zadanie}/edit', [ZadaniaController::class, 'edit'])
+    ->name('zadania.edit')
+    ->middleware('auth');
+
+Route::put('zadania/{zadanie}', [ZadaniaController::class, 'update'])
+    ->name('zadania.update')
+    ->middleware('auth');
+
+Route::put('zadania/{zadanie}/status', [ZadaniaController::class, 'updateStatus'])
+    ->name('zadania.status')
+    ->middleware('auth');
+
+Route::delete('zadania/{zadanie}', [ZadaniaController::class, 'destroy'])
+    ->name('zadania.destroy')
+    ->middleware('auth');
+
+Route::put('zadania/{zadanie}/restore', [ZadaniaController::class, 'restore'])
+    ->name('zadania.restore')
+    ->middleware('auth');
+
+Route::post('zadania/{zadanie}/files', [ZadaniaController::class, 'storeFiles'])
+    ->name('zadania.files.store')
+    ->middleware('auth');
+
+Route::get('zadania/{zadanie}/files/{file}', [ZadaniaController::class, 'showFile'])
+    ->name('zadania.files.show')
+    ->middleware('auth');
+
+Route::delete('zadania/{zadanie}/files/{file}', [ZadaniaController::class, 'destroyFile'])
+    ->name('zadania.files.destroy')
+    ->middleware('auth');
+
+
+// Komentarze (dyskusja pod zgłoszeniem)
+
+Route::post('notes', [NoteController::class, 'store'])
+    ->name('notes.store')
+    ->middleware('auth');
+
+Route::put('notes/{note}', [NoteController::class, 'update'])
+    ->name('notes.update')
+    ->middleware('auth');
+
+Route::delete('notes/{note}', [NoteController::class, 'destroy'])
+    ->name('notes.destroy')
+    ->middleware('auth');
+
+
+// Powiadomienia
+
+Route::post('notifications/{id}/read', [NotificationController::class, 'read'])
+    ->name('notifications.read')
+    ->middleware('auth');
+
+Route::post('notifications/read-all', [NotificationController::class, 'readAll'])
+    ->name('notifications.readAll')
+    ->middleware('auth');
 
 
 // Images

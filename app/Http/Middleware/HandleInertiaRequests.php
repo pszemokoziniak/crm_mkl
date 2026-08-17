@@ -58,7 +58,26 @@ class HandleInertiaRequests extends Middleware
                     'error' => $request->session()->get('error'),
                 ];
             },
-            'permissions' => auth()->user()->permissions ?? []
+            'permissions' => auth()->user()->permissions ?? [],
+            // Dzwonek w nagłówku — wywołania @ i przypisania zgłoszeń.
+            'notifications' => function () use ($request) {
+                if (! $request->user()) {
+                    return ['unread' => 0, 'items' => []];
+                }
+
+                return [
+                    'unread' => $request->user()->unreadNotifications()->count(),
+                    'items' => $request->user()->notifications()
+                        ->latest()
+                        ->limit(10)
+                        ->get()
+                        ->map(fn ($notification) => [
+                            'id' => $notification->id,
+                            'read' => $notification->read_at !== null,
+                            'created_at' => $notification->created_at?->format('d.m.Y H:i'),
+                        ] + (array) $notification->data),
+                ];
+            },
         ]);
     }
 }

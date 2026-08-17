@@ -71,6 +71,12 @@
   <svg v-else-if="name === 'zablokuj'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" width="11.967" height="11.967" viewBox="0 0 11.967 11.967">
     <path id="Icon_metro-blocked" data-name="Icon metro-blocked" d="M12.785,3.681a5.983,5.983,0,1,0,1.752,4.231,5.944,5.944,0,0,0-1.752-4.231Zm.257,4.231a4.463,4.463,0,0,1-.831,2.6L5.955,4.255a4.485,4.485,0,0,1,7.086,3.657Zm-8.975,0a4.463,4.463,0,0,1,.831-2.6l6.255,6.255A4.486,4.486,0,0,1,4.067,7.911Z" transform="translate(-2.571 -1.928)" fill="#d5233f" />
   </svg>
+  <svg v-else-if="name === 'zadania'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path d="M5 2h10a2 2 0 0 1 2 2v14l-3-2-2 2-2-2-2 2-3-2V4a2 2 0 0 1 2-2zm1 4v2h8V6H6zm0 4v2h8v-2H6zm0 4v2h5v-2H6z" />
+  </svg>
+  <svg v-else-if="name === 'bell'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path d="M10 20a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2zm8-4H2v-2l2-1V8a6 6 0 1 1 12 0v5l2 1v2z" />
+  </svg>
 </template>
 
 <script>
