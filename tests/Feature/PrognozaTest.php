@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use App\Models\Account;
+use App\Models\Organization;
+use App\Models\PrognozaDates;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
+use Tests\TestCase;
+
+/**
+ * Wybór tygodni w prognozie pracowników — miesiąc z listy musi trafiać
+ * we właściwe tygodnie, również na przełomie roku.
+ */
+class PrognozaTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $biuro;
+    private Organization $budowa;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $accountId = Account::create(['name' => 'MKL'])->id;
+
+        $this->biuro = User::factory()->create([
+            'account_id' => $accountId,
+            'email' => 'biuro@example.com',
+            'owner' => 2,
+            'active' => 1,
+        ]);
+
+        $this->budowa = Organization::create([
+            'account_id' => $accountId,
+            'name' => 'Grudziądz',
+            'nazwaBud' => 'Grudziądz',
+        ]);
+
+        // Tygodnie poniedziałek-niedziela na przełomie 2026/2027.
+        $poniedzialek = Carbon::create(2026, 11, 23);
+
+        for ($i = 0; $i < 12; $i++) {
+            $start = $poniedzialek->copy()->addWeeks($i);
+
+            PrognozaDates::create([
+                'start' => $start->format('Y-m-d'),
+                'end' => $start->copy()->addDays(6)->format('Y-m-d'),
+                'year' => $start->year,
+            ]);
+        }
+    }
+
+    public function test_wybrany_miesiac_daje_tygodnie_tego_miesiaca(): void
+    {
+        $this->actingAs($this->biuro)
+            ->get('/prognoza/create?building='.$this->budowa->id.'&year=2026&month=12')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Prognoza/Create')
+                ->has('dates', 4)
+                ->where('dates.0.start', '2026-12-07')
+                ->where('dates.3.start', '2026-12-28')
+            );
+    }
+
+    public function test_styczen_nowego_roku_ma_swoje_tygodnie(): void
+    {
+        $this->actingAs($this->biuro)
+            ->get('/prognoza/create?building='.$this->budowa->id.'&year=2027&month=1')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('dates', 4)
+                ->where('dates.0.start', '2027-01-04')
+                ->where('dates.3.start', '2027-01-25')
+            );
+    }
+
+    public function test_kazdy_tydzien_nalezy_do_dokladnie_jednego_miesiaca(): void
+    {
+        $zebrane = [];
+
+        foreach ([[2026, 11], [2026, 12], [2027, 1], [2027, 2]] as [$rok, $miesiac]) {
+            $response = $this->actingAs($this->biuro)
+                ->get('/prognoza/create?building='.$this->budowa->id.'&year='.$rok.'&month='.$miesiac);
+
+            foreach ($response->viewData('page')['props']['dates'] as $date) {
+                $zebrane[] = $date['start'];
+            }
+        }
+
+        // Żaden tydzień nie może się powtórzyć ani zgubić między miesiącami.
+        $this->assertSame($zebrane, array_values(array_unique($zebrane)));
+        $this->assertCount(PrognozaDates::count(), $zebrane);
+    }
+
+    public function test_lista_lat_pomija_roczniki_bez_tygodni(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 8, 17));
+
+        $this->actingAs($this->biuro)
+            ->get('/prognoza')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Prognoza/Index')
+                ->where('years', [2026, 2027])
+            );
+
+        Carbon::setTestNow();
+    }
+}

@@ -12,14 +12,21 @@
           <text-input v-show="false" v-model="form.building_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.month_id" :error="form.errors.building_id"/>
           <text-input v-show="false" v-model="form.year_id" :error="form.errors.building_id"/>
-          <select-input v-model="form.prognoza_dates_id" :error="form.errors.prognoza_dates_id" class="pb-8 pr-6 w-full lg:w-3/4" label="Wybierz daty">
-<!--            <option value="0" disabled>wybierz</option>-->
+          <select-input v-if="dates.length" v-model="form.prognoza_dates_id" :error="form.errors.prognoza_dates_id" class="pb-8 pr-6 w-full lg:w-3/4" label="Wybierz daty">
             <option v-for="item in dates" :key="item.id" :value="item.id">{{ item.start }} - {{ item.end }}</option>
           </select-input>
+          <!-- Pusta lista znaczy tyle, że wszystkie tygodnie tego miesiąca mają już prognozę. -->
+          <div v-else class="pb-8 pr-6 w-full lg:w-3/4">
+            <div class="form-label">Wybierz daty:</div>
+            <p class="p-3 text-sm text-yellow-800 bg-yellow-100 rounded">
+              Brak wolnych tygodni w tym miesiącu — dla tej budowy wszystkie mają już wpisaną prognozę.
+            </p>
+          </div>
           <text-input v-model="form.workers_count" :error="form.errors.workers_count" class="pb-8 pr-6 w-full lg:w-3/4" label="Ilość pracowników"/>
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj godziny</loading-button>
+          <!-- Własne :disabled nadpisuje to z LoadingButton, więc warunek na ładowanie powtarzamy tutaj. -->
+          <loading-button :loading="form.processing" :disabled="!dates.length || form.processing" class="btn-indigo disabled:opacity-50 disabled:cursor-not-allowed" type="submit">Dodaj godziny</loading-button>
         </div>
       </form>
     </div>
