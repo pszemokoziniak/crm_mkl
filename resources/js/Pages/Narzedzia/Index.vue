@@ -24,6 +24,10 @@
           <tr v-for="item in narzedzia.data" :key="item.id" class="hover:bg-gray-50 transition-colors group">
             <td class="px-6 py-4">
               <Link class="flex items-center font-medium text-gray-900 focus:text-indigo-500" :href="`/narzedzia/${item.id}/edit`">
+                <img v-if="item.photo" :src="item.photo" :alt="item.name" class="flex-shrink-0 mr-3 w-12 h-12 object-cover rounded border border-gray-200" />
+                <span v-else class="flex flex-shrink-0 items-center justify-center mr-3 w-12 h-12 bg-gray-50 rounded border border-gray-200">
+                  <icon name="sprzet2" class="w-5 h-5 fill-gray-300" />
+                </span>
                 {{ item.name }}
                 <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               </Link>
