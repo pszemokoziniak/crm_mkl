@@ -53,6 +53,17 @@ class OrganizationsController extends Controller
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
                     ->activeOn($today),
 
+                // Pobyty jeszcze niezakończone (łącznie z przyszłymi) — zero oznacza,
+                // że budowa jest gotowa do archiwizacji.
+                'unfinished_workers_count' => ContactWorkDate::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->notFinished($today),
+
+                'all_workers_count' => ContactWorkDate::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id'),
+
                 'kierownicy_names' => ContactWorkDate::query()
                     ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
                     ->selectRaw(
@@ -120,6 +131,9 @@ class OrganizationsController extends Controller
                     'inzynierowie' => $organization->inzynierowie_names ?: null,
                     'active_workers_count' => (int) ($organization->active_workers_count ?? 0),
                     'is_active' => (bool) ($organization->is_active_for_me ?? false),
+                    // Budowa, na której wszyscy zakończyli pobyt — kandydat do archiwum.
+                    'ready_to_archive' => (int) ($organization->all_workers_count ?? 0) > 0
+                        && (int) ($organization->unfinished_workers_count ?? 0) === 0,
                     'deleted_at' => $organization->deleted_at,
                 ]),
         ]);
@@ -206,6 +220,18 @@ class OrganizationsController extends Controller
                 'deleted_at' => $organization->deleted_at,
 //                'contacts' => $organization->contacts()->funkcja()->orderByName()->get()->map->only('id', 'last_name', 'position', 'phone', 'name'),
             ],
+            // Kto jeszcze pracuje — decyduje o tym, czy budowę da się zarchiwizować.
+            'unfinishedWorkers' => $organization->unfinishedWorkDates()
+                ->with('contact')
+                ->orderBy('end')
+                ->get()
+                ->map(fn (ContactWorkDate $workDate) => [
+                    'name' => $workDate->contact
+                        ? trim($workDate->contact->last_name.' '.$workDate->contact->first_name)
+                        : 'pracownik',
+                    'end' => $workDate->end,
+                ])
+                ->values(),
             'krajTyps' => KrajTyp::orderByName()->get(),
             'kierownikBud' => Contact::with('user')
                 ->with('funkcja')
@@ -256,15 +282,50 @@ class OrganizationsController extends Controller
         return Redirect::back()->with('success', 'Budowa poprawiona.');
     }
 
+    /**
+     * Archiwizacja budowy (soft delete).
+     * Blokują tylko pobyty, które jeszcze trwają lub dopiero się zaczną — zakończone
+     * zostają jako historia i nie stoją na drodze. Admin może archiwizować mimo blokady.
+     */
     public function destroy(Organization $organization)
     {
-        $checkWorker = ContactWorkDate::where('organization_id', $organization->id)->get();
-        if (count($checkWorker) > 0) {
-            return Redirect::back()->with('error', 'Budowa nie została usunięta, najpierw proszę usunąć pracowników przypisanych do budowy');
+        $blocking = $organization->unfinishedWorkDates()
+            ->with('contact')
+            ->orderBy('end')
+            ->get();
+
+        $force = Request::boolean('force') && Auth::user()->isAdmin();
+
+        if ($blocking->isNotEmpty() && ! $force) {
+            return Redirect::back()->with('error', $this->blockingWorkersMessage($blocking));
         }
+
         $organization->delete();
 
-        return Redirect::back()->with('success', 'Budowa usunięta.');
+        return Redirect::back()->with('success', 'Budowa zarchiwizowana.');
+    }
+
+    /**
+     * Komunikat mówiący wprost, kto blokuje archiwizację i do kiedy —
+     * wcześniej było ogólne "usuń pracowników" i nie było wiadomo których.
+     */
+    private function blockingWorkersMessage($blocking): string
+    {
+        $names = $blocking->take(3)->map(function (ContactWorkDate $workDate) {
+            $contact = $workDate->contact;
+            $name = $contact ? trim($contact->last_name.' '.$contact->first_name) : 'pracownik';
+
+            return $workDate->end
+                ? $name.' (do '.Carbon::parse($workDate->end)->format('d.m.Y').')'
+                : $name.' (bez daty końca)';
+        })->implode(', ');
+
+        $pozostali = $blocking->count() - min(3, $blocking->count());
+
+        return 'Budowa nie została zarchiwizowana — pracownicy jeszcze na niej pracują: '
+            .$names
+            .($pozostali > 0 ? ' i '.$pozostali.' innych' : '')
+            .'. Popraw daty pobytu albo poczekaj do ich zakończenia.';
     }
 
     public function restore(Organization $organization)

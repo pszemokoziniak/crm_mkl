@@ -13,25 +13,29 @@
             <div v-if="auth.user.owner === 1" class="mr-4 mt-1">Stanowisko: Administrator</div>
             <div v-if="auth.user.owner === 2" class="mr-4 mt-1">Stanowisko: Biuro</div>
             <div v-if="auth.user.owner === 3" class="mr-4 mt-1">Stanowisko: Kierownik Budowy</div>
-            <notification-bell class="mr-4 mt-1" />
-            <dropdown class="mt-1" placement="bottom-end">
-              <template #default>
-                <div class="group flex items-center cursor-pointer select-none">
-                  <div class="mr-1 text-gray-700 group-hover:text-indigo-600 focus:text-indigo-600 whitespace-nowrap">
-                    <span>{{ auth.user.first_name }}</span>
-                    <span class="hidden md:inline">&nbsp;{{ auth.user.last_name }}</span>
+            <!-- Dzwonek trzymamy w jednej grupie z nazwiskiem, żeby justify-between
+                 nie wypychało go na środek paska. -->
+            <div class="flex items-center ml-auto">
+              <notification-bell class="mr-3" />
+              <dropdown class="mt-1" placement="bottom-end">
+                <template #default>
+                  <div class="group flex items-center cursor-pointer select-none">
+                    <div class="mr-1 text-gray-700 group-hover:text-indigo-600 focus:text-indigo-600 whitespace-nowrap">
+                      <span>{{ auth.user.first_name }}</span>
+                      <span class="hidden md:inline">&nbsp;{{ auth.user.last_name }}</span>
+                    </div>
+                    <icon class="w-5 h-5 fill-gray-700 group-hover:fill-indigo-600 focus:fill-indigo-600" name="cheveron-down" />
                   </div>
-                  <icon class="w-5 h-5 fill-gray-700 group-hover:fill-indigo-600 focus:fill-indigo-600" name="cheveron-down" />
-                </div>
-              </template>
-              <template #dropdown>
-                <div class="mt-2 py-2 text-sm bg-white rounded shadow-xl">
-                  <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" :href="`/users/${auth.user.id}/edit`">Profil</Link>
-                  <Link v-if="auth.user.owner === 1 || auth.user.owner === 2" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
-                  <Link class="block px-6 py-2 w-full text-left hover:text-white hover:bg-indigo-500" href="/logout" method="delete" as="button">Wyloguj</Link>
-                </div>
-              </template>
-            </dropdown>
+                </template>
+                <template #dropdown>
+                  <div class="mt-2 py-2 text-sm bg-white rounded shadow-xl">
+                    <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" :href="`/users/${auth.user.id}/edit`">Profil</Link>
+                    <Link v-if="auth.user.owner === 1 || auth.user.owner === 2" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
+                    <Link class="block px-6 py-2 w-full text-left hover:text-white hover:bg-indigo-500" href="/logout" method="delete" as="button">Wyloguj</Link>
+                  </div>
+                </template>
+              </dropdown>
+            </div>
           </div>
         </div>
         <div class="md:flex md:flex-grow md:overflow-hidden">

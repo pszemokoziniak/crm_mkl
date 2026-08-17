@@ -89,7 +89,9 @@ class PrognozaController extends Controller
             ]
         ];
 
-        $data = Prognoza::with(['organization', 'prognozadates'])
+        // withTrashed — prognoza zarchiwizowanej budowy ma dalej pokazywać jej nazwę,
+        // inaczej relacja wraca pusta i lista się sypie.
+        $data = Prognoza::with(['organization' => fn ($query) => $query->withTrashed(), 'prognozadates'])
             ->whereHas('prognozadates', function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('start', [$startDate, $endDate]);
             })

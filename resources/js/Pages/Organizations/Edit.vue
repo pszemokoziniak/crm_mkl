@@ -24,13 +24,15 @@
         </div>
 
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <delete-button
+          <button
             v-if="!organization.deleted_at && (user_owner === 1 || user_owner === 2)"
-            :href="`/budowy/${organization.id}`"
-            confirm="Jesteś pewien, że chcesz usunąć budowę?"
+            type="button"
+            class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 transition-colors"
+            @click="archive"
           >
-            Usuń budowę
-          </delete-button>
+            <icon name="trash" class="mr-1.5 w-3 h-3 fill-red-700" />
+            Archiwizuj budowę
+          </button>
           <loading-button v-if="!organization.deleted_at && (user_owner === 1 || user_owner === 2)" :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>
@@ -46,18 +48,18 @@ import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import BudMenu from '@/Shared/BudMenu'
-import DeleteButton from '@/Shared/DeleteButton'
+import Icon from '@/Shared/Icon'
 
 export default {
   components: {
     Head,
+    Icon,
     Link,
     LoadingButton,
     SelectInput,
     TextInput,
     TrashedMessage,
     BudMenu,
-    DeleteButton,
   },
   layout: Layout,
   props: {
@@ -67,6 +69,7 @@ export default {
     user_owner: Number,
     flag: Boolean,
     inzyniers: Object,
+    unfinishedWorkers: { type: Array, default: () => [] },
   },
   remember: 'form',
   data() {
@@ -94,6 +97,35 @@ export default {
   methods: {
     update() {
       this.form.put(`/budowy/${this.organization.id}`)
+    },
+    /**
+     * Archiwizacja. Zakończone pobyty nie przeszkadzają — blokują tylko te trwające
+     * i przyszłe. Admin może je pominąć, ale musi to świadomie potwierdzić.
+     */
+    archive() {
+      const blokujacy = this.unfinishedWorkers
+
+      if (blokujacy.length === 0) {
+        if (confirm('Zarchiwizować budowę? Historia pracowników i godzin zostaje.')) {
+          this.$inertia.delete(`/budowy/${this.organization.id}`)
+        }
+        return
+      }
+
+      const lista = blokujacy
+        .slice(0, 5)
+        .map((worker) => `• ${worker.name}${worker.end ? ` — do ${worker.end}` : ' — bez daty końca'}`)
+        .join('\n')
+      const reszta = blokujacy.length > 5 ? `\n• i ${blokujacy.length - 5} innych` : ''
+
+      if (this.user_owner !== 1) {
+        alert(`Na budowie pracuje jeszcze ${blokujacy.length} os\u00f3b:\n${lista}${reszta}\n\nPopraw daty pobytu albo poczekaj do ich zakończenia.`)
+        return
+      }
+
+      if (confirm(`Na budowie pracuje jeszcze ${blokujacy.length} os\u00f3b:\n${lista}${reszta}\n\nZarchiwizować mimo to?`)) {
+        this.$inertia.delete(`/budowy/${this.organization.id}`, { data: { force: true } })
+      }
     },
     restore() {
       if (confirm('Jesteś pewnien, że chcesz przywrócić budowę?')) {

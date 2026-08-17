@@ -71,7 +71,7 @@
     </h1>
     <h2 class="mb-4 font-medium">
       <span class="text-indigo-400">Obecna budowa: </span>
-      <span v-if="obecna_budowa !== 'Nie pracuje'" class="text-lg">{{ obecna_budowa.organization.nazwaBud }}</span>
+      <span v-if="obecna_budowa !== 'Nie pracuje'" class="text-lg">{{ obecna_budowa.organization?.nazwaBud ?? 'budowa usunięta' }}</span>
       <span v-if="obecna_budowa === 'Nie pracuje'" class="text-lg">Nie pracuje</span>
     </h2>
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
