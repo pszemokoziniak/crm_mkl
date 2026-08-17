@@ -153,9 +153,18 @@ class UsersController extends Controller
 
         // Powiązanie User<->Pracownik również tylko dla biura.
         if ($isOffice && Request::get('contact_id') !== null) {
-            $data = Contact::where('id', (int) Request::get('contact_id'))->first();
-            $data->user_id = $user->id;
-            $data->save();
+            $contact = Contact::find((int) Request::get('contact_id'));
+
+            if ($contact) {
+                // Jeden użytkownik = jeden pracownik. Bez tego zmiana powiązania
+                // zostawiała poprzedniego pracownika przypiętego do tego konta.
+                Contact::where('user_id', $user->id)
+                    ->where('id', '!=', $contact->id)
+                    ->update(['user_id' => null]);
+
+                $contact->user_id = $user->id;
+                $contact->save();
+            }
         }
 
         return Redirect::back()->with('success', 'Użytkownik poprawiony.');
