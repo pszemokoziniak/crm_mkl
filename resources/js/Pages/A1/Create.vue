@@ -8,8 +8,8 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store(contact_id)">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.start" type="date" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Start badań" />
-          <text-input v-model="form.end" type="date" :error="form.errors.end" :min="minDate" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec badań" />
+          <text-input v-model="form.start" type="date" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek A1" />
+          <text-input v-model="form.end" type="date" :error="form.errors.end" :min="minDate" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec A1" />
           <select-input v-model="form.kraj_typs_id" :error="form.errors.kraj_typs_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj">
             <option v-for="item in countries" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
