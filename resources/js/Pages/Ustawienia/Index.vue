@@ -1,7 +1,10 @@
 <template>
   <div>
     <Head title="Ustawienia" />
-    <h1 class="mb-8 text-3xl font-bold">Ustawienia</h1>
+    <h1 class="mb-8 text-3xl font-bold">
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/tools">Ustawienia</Link>
+      <span class="text-indigo-400 font-medium">/</span> Wykres prognozy
+    </h1>
 
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="submit">
@@ -29,7 +32,7 @@
 </template>
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
@@ -37,6 +40,7 @@ import LoadingButton from '@/Shared/LoadingButton'
 export default {
   components: {
     Head,
+    Link,
     TextInput,
     LoadingButton,
   },
