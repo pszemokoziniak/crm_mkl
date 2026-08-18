@@ -6,6 +6,7 @@ use App\Http\Requests\StorePrognozaRequest;
 use App\Models\Organization;
 use App\Models\Prognoza;
 use App\Models\PrognozaDates;
+use App\Models\Setting;
 use App\Services\PrognozaService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -119,7 +120,9 @@ class PrognozaController extends Controller
             ];
         });
 
-        return Inertia('Prognoza/Index', compact('years', 'yearSelected', 'months', 'monthSelected', 'data', 'selectedBuild', 'buildings', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat'));
+        $chartMax = (int) Setting::get(Setting::PROGNOZA_MAX_WORKERS, 200);
+
+        return Inertia('Prognoza/Index', compact('years', 'yearSelected', 'months', 'monthSelected', 'data', 'selectedBuild', 'buildings', 'chartData', 'startDate', 'endDate', 'startDateFormat', 'endDateFormat', 'chartMax'));
     }
 
     public function create()

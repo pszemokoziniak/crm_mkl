@@ -4,7 +4,7 @@
     <div class="my-6 font-bold text-2xl">
       <h1>Zestawienie liczby pracowników</h1>
       <h2>{{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{ selectedBuild.nazwaBud }}</span> <span v-if="year">w roku {{ year }}</span></h2>
-      <ChartComponent :chartData="chartData" />
+      <ChartComponent :chartData="chartData" :chartMax="chartMax" />
     </div>
     <div class="m-2">
       <div class="m-2 space-y-3">
@@ -92,6 +92,7 @@ export default {
     buildings: Array,
     selectedBuild: Object,
     chartData: Object,
+    chartMax: Number,
     startDate: String,
     endDate: String,
     startDateFormat: String,

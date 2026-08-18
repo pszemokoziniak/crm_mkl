@@ -18,6 +18,11 @@ export default {
       required: false,
       default: () => ({}),
     },
+    chartMax: {
+      type: Number,
+      required: false,
+      default: 200,
+    },
   },
   mounted() {
     const ranges = this.chartData.ranges || []
@@ -30,7 +35,7 @@ export default {
         scales: {
           y: {
             beginAtZero: true,
-            max: 200,
+            max: this.chartMax,
           },
           x: {
             ticks: {
