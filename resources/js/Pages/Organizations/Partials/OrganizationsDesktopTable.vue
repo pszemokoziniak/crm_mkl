@@ -41,7 +41,7 @@
               <!-- Wszyscy pracownicy zakończyli pobyt — budowę można zarchiwizować. -->
               <span
                 v-if="!organization.deleted_at && organization.ready_to_archive"
-                class="flex-shrink-0 ml-2 px-2 py-0.5 text-[10px] font-semibold text-amber-800 bg-amber-100 border border-amber-200 rounded-full"
+                class="flex-shrink-0 ml-2 px-2 py-0.5 text-[10px] font-semibold text-orange-800 bg-orange-100 border border-orange-200 rounded-full"
                 title="Wszyscy pracownicy zakończyli pobyt — budowę można zarchiwizować"
               >
                 do archiwizacji

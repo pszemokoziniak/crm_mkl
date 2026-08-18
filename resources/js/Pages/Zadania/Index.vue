@@ -256,16 +256,16 @@ export default {
     statusDot(status) {
       return {
         do_zrobienia: 'bg-gray-400',
-        w_toku: 'bg-blue-500',
-        test: 'bg-amber-500',
+        w_toku: 'bg-indigo-500',
+        test: 'bg-yellow-500',
         zrobione: 'bg-green-500',
       }[status] || 'bg-gray-400'
     },
     statusClass(status) {
       return {
         do_zrobienia: 'bg-gray-100 text-gray-800 border-gray-200',
-        w_toku: 'bg-blue-100 text-blue-800 border-blue-200',
-        test: 'bg-amber-100 text-amber-800 border-amber-200',
+        w_toku: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+        test: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         zrobione: 'bg-green-100 text-green-800 border-green-200',
       }[status] || 'bg-gray-100 text-gray-800 border-gray-200'
     },

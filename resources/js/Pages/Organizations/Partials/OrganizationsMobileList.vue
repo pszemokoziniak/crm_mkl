@@ -15,7 +15,7 @@
         <Icon v-if="organization.deleted_at" name="trash" class="inline ml-2 w-3 h-3 fill-gray-400" />
         <span
           v-if="!organization.deleted_at && organization.ready_to_archive"
-          class="ml-2 px-2 py-0.5 text-[10px] font-semibold text-amber-800 bg-amber-100 border border-amber-200 rounded-full"
+          class="ml-2 px-2 py-0.5 text-[10px] font-semibold text-orange-800 bg-orange-100 border border-orange-200 rounded-full"
         >
           do archiwizacji
         </span>

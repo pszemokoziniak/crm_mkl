@@ -38,7 +38,7 @@
     <path d="M6.66 15.66l-3.32 -3.32a1.25 1.25 0 0 1 .42 -2.044l3.24 -1.296l6 -6l3 3l-6 6l-1.296 3.24a1.25 1.25 0 0 1 -2.044 .42z" />
   </svg>
 
-  <svg v-else-if="name === 'sprzet2'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 318.15 318.15" class="text-blue-300 " style="enable-background:new 0 0 318.15 318.15;" xml:space="preserve">
+  <svg v-else-if="name === 'sprzet2'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 318.15 318.15" class="text-indigo-300 " style="enable-background:new 0 0 318.15 318.15;" xml:space="preserve">
     <path
       d="M232.015,112.306c1-1.226,2.021-2.484,3.088-3.789c-0.992-0.991-1.983-1.983-2.976-2.976
       c3.532-3.567,7.097-7.17,10.716-10.836c-7.638-7.635-11.451-11.449-19.092-19.092c-3.666,3.62-7.268,7.184-10.836,10.716

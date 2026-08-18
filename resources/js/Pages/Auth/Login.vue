@@ -1,6 +1,6 @@
 <template>
   <Head title="Logowanie" />
-  <div class="flex items-center justify-center p-6 min-h-screen bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900">
+  <div class="flex items-center justify-center p-6 min-h-screen bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-900">
     <div class="w-full max-w-md">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
         <div class="px-10 py-12">
@@ -40,7 +40,7 @@
             </div>
 
             <div class="mt-10">
-              <loading-button :loading="form.processing" class="w-full btn-indigo py-3 text-lg justify-center shadow-lg hover:shadow-indigo-500/30 transition-all duration-200" type="submit">
+              <loading-button :loading="form.processing" class="w-full btn-indigo py-3 text-lg justify-center shadow-lg transition-all duration-200" type="submit">
                 Zaloguj się
               </loading-button>
             </div>
