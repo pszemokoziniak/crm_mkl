@@ -14,8 +14,8 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Start" />
-          <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec" />
+          <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek A1" />
+          <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec A1" />
           <select-input v-model="form.kraj_typs_id" :error="form.errors.kraj_typs_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj">
             <option v-for="item in countries" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
