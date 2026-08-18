@@ -33,6 +33,9 @@
       <Link class="btn-indigo mr-5" :href="`/uprawnieniaTyp`">
         <span>Uprawnienia Typ</span>
       </Link>
+      <Link class="btn-indigo mr-5" :href="`/ustawienia`">
+        <span>Wykres prognozy</span>
+      </Link>
     </div>
   </div>
 
