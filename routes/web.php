@@ -26,6 +26,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PbiozController;
 use App\Http\Controllers\PrognozaController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
@@ -187,6 +188,15 @@ Route::delete('klient/{klient}/delete', [KlientController::class, 'destroy'])
 Route::put('budowy/{klient}/restore', [KlientController::class, 'restore'])
     ->name('klient.restore')
         ->middleware('auth', 'biuro-permission');
+
+// Ustawienia aplikacji
+Route::get('ustawienia', [SettingsController::class, 'index'])
+    ->name('ustawienia')
+    ->middleware('auth', 'biuro-permission');
+
+Route::put('ustawienia', [SettingsController::class, 'update'])
+    ->name('ustawienia.update')
+    ->middleware('auth', 'biuro-permission');
 
 //Prognoza pracowników na budowach
 
