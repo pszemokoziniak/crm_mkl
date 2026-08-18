@@ -24,7 +24,6 @@
             <th class="pb-4 pt-6 px-4">Nazwisko Imię</th>
             <th class="pb-4 pt-6 px-4">Stanowisko</th>
             <th class="pb-4 pt-6 px-4">Pracuje na budowie</th>
-            <th class="pb-4 pt-6 px-4">Status</th>
             <th class="pb-4 pt-6 px-4" />
           </tr>
         </thead>
@@ -50,23 +49,6 @@
                 </div>
               </Link>
             </td>
-            <td class="border-t whitespace-nowrap">
-              <Link class="flex items-center px-4 py-3" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
-                <div v-if="contact.deleted_at">
-                  <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">
-                    Nieaktywny
-                  </span>
-                </div>
-                <div v-else-if="contact.status_zatrudnienia">
-                  <span
-                    class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded"
-                    :class="contact.status_zatrudnienia === 'Aktywny' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'"
-                  >
-                    {{ contact.status_zatrudnienia }}
-                  </span>
-                </div>
-              </Link>
-            </td>
             <td class="w-px border-t">
               <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
                 <icon name="cheveron-right" class="block w-5 h-5 fill-gray-400" />
@@ -74,7 +56,7 @@
             </td>
           </tr>
           <tr v-if="contacts.data.length === 0">
-            <td class="px-6 py-4 border-t" colspan="5">Nie znaleziono kontaktu</td>
+            <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono kontaktu</td>
           </tr>
         </tbody>
       </table>
