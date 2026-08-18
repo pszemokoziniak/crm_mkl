@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FindPracownicyRequest;
 use App\Http\Requests\StoreBudowaPracownicyRequest;
+use App\Models\A1;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\BuildingTimeSheet;
@@ -281,35 +282,151 @@ class BudowaPracownicyController extends Controller
 
     public function a1Index(Organization $organization)
     {
-        $workerIds = ContactWorkDate::where('organization_id', $organization->id)
-            ->distinct()
-            ->pluck('contact_id');
+        $organization->load('krajTyp');
+        $orgCountryId = $organization->country_id;
+        $today = Carbon::today()->toDateString();
+        $search = Request::input('search');
 
-        $workers = Contact::whereIn('id', $workerIds)
-            ->with(['a1' => function ($q) {
-                $q->latest()->with('kraj');
-            }])
-            ->when(Request::input('search'), function ($query, $search) {
+        // Kazdy pobyt (contact_work_date) na tej budowie osobno - A1 weryfikuje
+        // sie per pobyt, nie per nazwisko: pracownik zjezdzajacy wczesniej na
+        // inna budowe potrzebuje nowego A1 na nowy termin.
+        $stays = ContactWorkDate::query()
+            ->where('contact_work_dates.organization_id', $organization->id)
+            ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
+            ->whereNull('contacts.deleted_at')
+            ->when($search, function ($query, $search) {
                 $query->where(function ($query) use ($search) {
-                    $query->where('first_name', 'like', '%'.$search.'%')
-                        ->orWhere('last_name', 'like', '%'.$search.'%')
-                        ->orWhereHas('a1.kraj', function ($query) use ($search) {
-                            $query->where('name', 'like', '%'.$search.'%');
-                        });
+                    $query->where('contacts.first_name', 'like', '%'.$search.'%')
+                        ->orWhere('contacts.last_name', 'like', '%'.$search.'%');
                 });
             })
-            ->orderByName()
+            ->orderByRaw('(contact_work_dates.end IS NULL OR contact_work_dates.end >= ?) DESC', [$today])
+            ->orderByRaw('contact_work_dates.end IS NULL DESC')
+            ->orderBy('contact_work_dates.end', 'desc')
+            ->orderBy('contacts.last_name')
+            ->get([
+                'contact_work_dates.id',
+                'contact_work_dates.contact_id',
+                'contact_work_dates.start',
+                'contact_work_dates.end',
+                'contacts.first_name',
+                'contacts.last_name',
+            ]);
+
+        $a1sByContact = A1::with('kraj')
+            ->whereIn('contact_id', $stays->pluck('contact_id')->unique()->all())
             ->get()
-            ->map(function ($contact) {
-                $contact->latest_a1 = $contact->a1->sortByDesc('end')->first();
-                return $contact;
-            });
+            ->groupBy('contact_id');
+
+        $rows = $stays->map(function ($stay) use ($a1sByContact, $orgCountryId, $today) {
+            $a1s = $a1sByContact->get($stay->contact_id, collect());
+            $coverage = $this->resolveA1Coverage($stay->start, $stay->end, $orgCountryId, $a1s);
+
+            if ($stay->end !== null && $stay->end < $today) {
+                $period = 'zakonczony';
+            } elseif ($stay->start !== null && $stay->start > $today) {
+                $period = 'przyszly';
+            } else {
+                $period = 'trwa';
+            }
+
+            return [
+                'id' => $stay->id,
+                'contact_id' => $stay->contact_id,
+                'last_name' => $stay->last_name,
+                'first_name' => $stay->first_name,
+                'start' => $stay->start,
+                'end' => $stay->end,
+                'period' => $period,
+                'status' => $coverage['status'],
+                'a1' => $coverage['a1'],
+            ];
+        })->values();
+
+        $summary = [
+            'total' => $rows->count(),
+            'ok' => $rows->where('status', 'ok')->count(),
+            // Pokrywa termin, ale nie da sie potwierdzic kraju (dokument bez kraju).
+            'do_weryfikacji' => $rows->where('status', 'brak_kraju')->count(),
+            // Realny brak: zaden A1 nie pokrywa tego pobytu (albo zly kraj, albo brak dat).
+            'braki' => $rows->whereIn('status', ['brak', 'wygasle', 'czesciowe', 'zly_kraj', 'brak_dat'])->count(),
+        ];
 
         return Inertia::render('Building/A1', [
             'build' => $organization->id,
             'buildDetails' => $organization,
-            'workers' => $workers,
+            'orgCountry' => $organization->krajTyp->name ?? null,
+            'rows' => $rows,
+            'summary' => $summary,
             'filters' => Request::all('search'),
         ]);
+    }
+
+    /**
+     * Ustala, czy pobyt na budowie jest pokryty waznym A1.
+     *
+     * Kolejnosc od najlepszego do najgorszego przypadku; zwraca status i
+     * dokument, ktory najlepiej pasuje do pokazania w tabeli.
+     */
+    private function resolveA1Coverage($stayStart, $stayEnd, $orgCountryId, $a1s): array
+    {
+        // Bez dat pobytu nie ma czego weryfikowac (czesc pobytow zapisano bez dat).
+        if (!$stayStart || !$stayEnd) {
+            return ['status' => 'brak_dat', 'a1' => null];
+        }
+
+        // Daty to stringi ISO 'Y-m-d' - porownanie leksykograficzne jest poprawne.
+        $covers = fn ($a) => $a->start && $a->end && $a->start <= $stayStart && $a->end >= $stayEnd;
+        $overlaps = fn ($a) => $a->start && $a->end && $a->start <= $stayEnd && $a->end >= $stayStart;
+
+        $full = $a1s->filter($covers);
+
+        // 1) Pelne pokrycie + kraj zgodny z krajem budowy.
+        if ($orgCountryId !== null) {
+            $ok = $full->first(fn ($a) => $a->kraj_typs_id !== null && (int) $a->kraj_typs_id === (int) $orgCountryId);
+            if ($ok) {
+                return $this->a1Row('ok', $ok);
+            }
+        }
+
+        // 2) Pelne pokrycie, ale dokument bez wpisanego kraju - nie mozna potwierdzic.
+        $noCountry = $full->first(fn ($a) => $a->kraj_typs_id === null);
+        if ($noCountry) {
+            return $this->a1Row('brak_kraju', $noCountry);
+        }
+
+        // 3) Pelne pokrycie, ale A1 na inny kraj.
+        $wrongCountry = $full->sortByDesc('end')->first();
+        if ($wrongCountry) {
+            return $this->a1Row('zly_kraj', $wrongCountry);
+        }
+
+        // 4) Jest A1 zachodzace na termin, ale nie obejmuje calego pobytu.
+        $partial = $a1s->filter($overlaps)->sortByDesc('end')->first();
+        if ($partial) {
+            return $this->a1Row('czesciowe', $partial);
+        }
+
+        // 5) Pracownik ma jakies A1, ale zadne nie dotyczy tego terminu.
+        $any = $a1s->sortByDesc('end')->first();
+        if ($any) {
+            return $this->a1Row('wygasle', $any);
+        }
+
+        // 6) Brak jakiegokolwiek A1.
+        return ['status' => 'brak', 'a1' => null];
+    }
+
+    private function a1Row(string $status, $a1): array
+    {
+        return [
+            'status' => $status,
+            'a1' => [
+                'id' => $a1->id,
+                'start' => $a1->start,
+                'end' => $a1->end,
+                'kraj' => $a1->kraj->name ?? null,
+            ],
+        ];
     }
 }
