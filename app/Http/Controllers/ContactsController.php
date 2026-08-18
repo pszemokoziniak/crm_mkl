@@ -46,7 +46,6 @@ class ContactsController extends Controller
                     'budowa' => $contact->organization,
                     'a1' => A1::where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
                     'pracuje' => $this->findPresentBuild($contact->id),
-                    'status_zatrudnienia' => $contact->status_zatrudnienia,
                 ]),
         ]);
     }
