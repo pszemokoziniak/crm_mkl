@@ -8,7 +8,7 @@
       </select-input>
     </div>
     <a target="_self" :href="`/building/time-sheet/general-report?date=${date.replace('/', '-')}`" class="btn-indigo py-2 px-4 rounded inline-flex items-center">
-      <DocumentDownloadIcon class="h-5 w-5 text-blue-500" />
+      <DocumentDownloadIcon class="h-5 w-5" />
       <span>Pobierz</span>
     </a>
   </div>

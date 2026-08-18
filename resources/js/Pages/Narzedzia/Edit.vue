@@ -29,10 +29,10 @@
                     <p class="mt-1 text-xs text-gray-400">Całkowita ilość w firmie</p>
                   </div>
 
-                  <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    <label class="block text-sm font-medium text-blue-600 mb-1">Na budowach</label>
-                    <div class="text-2xl font-bold text-blue-800">{{ narzedzia.ilosc_budowa }}</div>
-                    <p class="mt-1 text-xs text-blue-400">Aktualnie przypisane</p>
+                  <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                    <label class="block text-sm font-medium text-indigo-600 mb-1">Na budowach</label>
+                    <div class="text-2xl font-bold text-indigo-800">{{ narzedzia.ilosc_budowa }}</div>
+                    <p class="mt-1 text-xs text-indigo-400">Aktualnie przypisane</p>
                   </div>
 
                   <div :class="[
