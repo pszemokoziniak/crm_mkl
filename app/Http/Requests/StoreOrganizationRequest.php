@@ -25,6 +25,7 @@ class StoreOrganizationRequest extends FormRequest
     {
         return [
             'name' => 'required | max:1200',
+            'crm_client_id' => 'nullable | integer',
             'nazwaBud' => 'nullable | max:1200',
             'numerBud' => 'nullable |  max:500',
             'city' => 'nullable | max:2000',

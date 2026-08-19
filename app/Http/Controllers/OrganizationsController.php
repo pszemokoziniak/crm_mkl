@@ -12,6 +12,7 @@ use App\Models\KrajTyp;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
@@ -139,6 +140,38 @@ class OrganizationsController extends Controller
         ]);
     }
 
+    /**
+     * Proxy wyszukiwarki klientów do API CRM (crm_mklv2). Token trzymamy po
+     * stronie serwera — przeglądarka go nie widzi. Gdy integracja nie jest
+     * skonfigurowana albo CRM nie odpowiada, zwracamy pustą listę, a picker
+     * degraduje się do zwykłego wpisywania nazwy.
+     */
+    public function searchClients()
+    {
+        $q = trim((string) Request::query('q', ''));
+        $base = rtrim((string) config('services.crm.url'), '/');
+        $token = (string) config('services.crm.token');
+
+        if ($base === '' || $token === '') {
+            return response()->json([]);
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(5)
+                ->get($base.'/api/clients', ['q' => $q]);
+
+            if (!$response->successful()) {
+                return response()->json([]);
+            }
+
+            return response()->json($response->json());
+        } catch (\Throwable $e) {
+            return response()->json([]);
+        }
+    }
+
     public function create()
     {
         return Inertia::render('Organizations/Create', [
@@ -162,6 +195,7 @@ class OrganizationsController extends Controller
         $org->country_id = $req->country_id;
         $org->addressBud = $req->addressBud;
         $org->addressKwat = $req->addressKwat;
+        $org->crm_client_id = $req->input('crm_client_id');
         $org->save();
 
         $kierownicyIds = array_values(array_filter((array) $req->input('kierownikBud_ids', [])));
@@ -208,6 +242,7 @@ class OrganizationsController extends Controller
             'organization' => [
                 'id' => $organization->id,
                 'name' => $organization->name,
+                'crm_client_id' => $organization->crm_client_id,
                 'nazwaBud' => $organization->nazwaBud,
                 'numerBud' => $organization->numerBud,
                 'city' => $organization->city,
@@ -267,6 +302,7 @@ class OrganizationsController extends Controller
         $organization->update(
             Request::validate([
                 'name' => ['required', 'max:100'],
+                'crm_client_id' => ['nullable', 'integer'],
                 'nazwaBud' => ['nullable', 'max:2250'],
                 'numerBud' => ['nullable', 'max:550'],
                 'city' => ['nullable', 'max:150'],

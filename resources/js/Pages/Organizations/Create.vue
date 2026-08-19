@@ -11,7 +11,7 @@
           <text-input v-model="form.nazwaBud" :error="form.errors.nazwaBud" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa Budowy" />
           <text-input v-model="form.numerBud" :error="form.errors.numerBud" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Budowy" />
           <text-input v-model="form.city" :error="form.errors.city" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
-          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa Klienta" />
+          <client-picker v-model="form.name" v-model:clientId="form.crm_client_id" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa Klienta" />
           <text-input v-model="form.zaklad" :error="form.errors.zaklad" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
           <select-input v-model="form.country_id" :error="form.errors.country_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
@@ -33,6 +33,7 @@ import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
+import ClientPicker from '@/Shared/ClientPicker'
 
 export default {
   components: {
@@ -41,6 +42,7 @@ export default {
     LoadingButton,
     SelectInput,
     TextInput,
+    ClientPicker,
   },
   layout: Layout,
   props: {
@@ -55,6 +57,7 @@ export default {
         nazwaBud: null,
         numerBud: null,
         name: null,
+        crm_client_id: null,
         city: null,
         kierownikBud_id: null,
         inzynier_id: null,
