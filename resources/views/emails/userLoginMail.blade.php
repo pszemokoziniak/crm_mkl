@@ -1,10 +1,13 @@
 @component('mail::message')
-    #Dane do logowania
+# Dane do logowania
 
-    ## Adres strony: https://hrm.mkl.pl/login
+**Adres strony:** [https://hrm.mkl.pl/login](https://hrm.mkl.pl/login)
 
-    Twój login {{ $email }}
-    Jednorazowe hasło: {{ $password }}
+**Twój login:** {{ $email }}
 
-    Zespół HRM
+**Hasło jednorazowe:** {{ $password }}
+
+Przy pierwszym logowaniu system poprosi o ustawienie własnego hasła.
+
+Zespół HRM
 @endcomponent

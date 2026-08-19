@@ -11,13 +11,16 @@
           <text-input v-model="form.first_name" :error="form.errors.first_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />
           <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
-          <text-input v-model="form.password" :error="form.errors.password" class="pb-8 pr-6 w-full lg:w-1/2" type="password" autocomplete="new-password" label="Hasło" />
           <select-input v-model="form.owner" :error="form.errors.owner" class="pb-8 pr-6 w-full lg:w-1/2" label="Uprawnienia">
             <option value="1">Administrator</option>
             <option value="2">Biuro</option>
             <option value="3">Kierownik budowy</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcia" />
+          <p class="pb-8 pr-6 w-full text-sm text-gray-500">
+            Hasło startowe zostanie wygenerowane automatycznie i wysłane na podany adres e-mail.
+            Użytkownik zmieni je przy pierwszym logowaniu.
+          </p>
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj użytkownika</loading-button>
@@ -52,7 +55,6 @@ export default {
         first_name: '',
         last_name: '',
         email: '',
-        password: '',
         owner: '',
         photo: null,
       }),
