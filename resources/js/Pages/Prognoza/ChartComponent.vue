@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <canvas id="myChart" width="400" height="50" aria-label="Zestwienie praconików" role="img"></canvas>
+  <div class="chart-wrap">
+    <canvas ref="canvas" aria-label="Zestawienie liczby pracowników" role="img"></canvas>
   </div>
 </template>
 
@@ -27,11 +27,17 @@ export default {
   mounted() {
     const ranges = this.chartData.ranges || []
 
-    new Chart(document.getElementById('myChart'), {
+    this.chart = new Chart(this.$refs.canvas, {
       type: 'bar', // You can use different chart types like 'line', 'pie', etc.
       data: this.chartData,
       options: {
         ...this.chartOptions,
+        responsive: true,
+        // Wysokość bierze się ze stałej wysokości kontenera (.chart-wrap), a nie
+        // z proporcji <canvas>. Przy nawigacji SPA (Inertia) proporcja bywała
+        // liczona zanim layout się ustabilizował i wykres puchł na cały ekran;
+        // pełne przeładowanie mierzyło poprawnie, stąd "po odświeżeniu jest ok".
+        maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
@@ -57,12 +63,19 @@ export default {
       },
     })
   },
+  beforeUnmount() {
+    if (this.chart) {
+      this.chart.destroy()
+      this.chart = null
+    }
+  },
 }
 </script>
 
 <style scoped>
-canvas {
-  max-width: 100%;
-  height: auto;
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 260px;
 }
 </style>
