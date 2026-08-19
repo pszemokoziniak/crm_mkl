@@ -133,6 +133,11 @@ Route::get('budowy/create', [OrganizationsController::class, 'create'])
     ->name('organizations.create')
     ->middleware('auth', 'biuro-permission');
 
+// Wyszukiwarka klientów z CRM (proxy do crm_mklv2)
+Route::get('crm/klienci', [OrganizationsController::class, 'searchClients'])
+    ->name('crm.klienci')
+    ->middleware('auth', 'biuro-permission');
+
 Route::post('budowy', [OrganizationsController::class, 'store'])
     ->name('organizations.store')
     ->middleware('auth', 'biuro-permission');

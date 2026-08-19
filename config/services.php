@@ -30,4 +30,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // API klientów z CRM (crm_mklv2). URL to root aplikacji CRM (bez /api).
+    'crm' => [
+        'url' => env('CRM_API_URL'),
+        'token' => env('CRM_API_TOKEN'),
+    ],
+
 ];
