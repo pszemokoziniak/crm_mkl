@@ -49,11 +49,6 @@ class UsersController extends Controller
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
             'email' => ['required', 'max:50', 'email', Rule::unique('users')],
-            'password' => [
-                'required',
-                'min:8',
-                'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
-            ],
             'owner' => ['required', 'max:10'],
             'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
@@ -62,24 +57,59 @@ class UsersController extends Controller
                 'required'  => 'Pole jest wymagane.',
                 'unique' => 'Nazwa użyta',
                 'numeric' => 'Pole attribute może zawierać tylko cyfry',
-                'password.regex' => 'Hasło musi zawierać dużą literę, znak specjalny, cyfrę',
-                'password.min' => 'Hasło musi zawierać 8 znaków',
             ]
         );
+
+        // Rotacja: hasło startowe losujemy per konto (zamiast wpisywanego ręcznie
+        // przez admina). Użytkownik i tak musi je zmienić przy pierwszym logowaniu
+        // (PasswordExpired: password_changed_at zostaje NULL).
+        $password = $this->generateInitialPassword();
 
         Auth::user()->account->users()->create([
             'first_name' => Request::get('first_name'),
             'last_name' => Request::get('last_name'),
             'email' => Request::get('email'),
-            'password' => Request::get('password'),
+            'password' => $password,
             'owner' => Request::get('owner'),
             'contact_id' => Request::get('user_id'),
             'photo_path' => Request::file('photo') ? Request::file('photo')->store('users') : null,
         ]);
 
-        Mail::send(new CreateUserPassword(Request::get('email'), Request::get('password')));
+        Mail::send(new CreateUserPassword(Request::get('email'), $password));
 
         return Redirect::route('users')->with('success', 'Użytkownik utworzony.');
+    }
+
+    /**
+     * Losowe, mocne hasło startowe. Bez znaków dwuznacznych (0/O, 1/l/I),
+     * z gwarantowaną dużą i małą literą, cyfrą oraz znakiem specjalnym.
+     */
+    private function generateInitialPassword(int $length = 12): string
+    {
+        $upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        $lower = 'abcdefghijkmnpqrstuvwxyz';
+        $digits = '23456789';
+        $special = '!$#%';
+        $all = $upper.$lower.$digits.$special;
+
+        $chars = [
+            $upper[random_int(0, strlen($upper) - 1)],
+            $lower[random_int(0, strlen($lower) - 1)],
+            $digits[random_int(0, strlen($digits) - 1)],
+            $special[random_int(0, strlen($special) - 1)],
+        ];
+        for ($i = count($chars); $i < $length; $i++) {
+            $chars[] = $all[random_int(0, strlen($all) - 1)];
+        }
+
+        // Wymieszanie pozycji (Fisher–Yates na random_int), żeby wymagane klasy
+        // znaków nie stały zawsze na początku.
+        for ($i = count($chars) - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]];
+        }
+
+        return implode('', $chars);
     }
 
     public function edit(User $user)

@@ -36,9 +36,8 @@ class CreateUserPassword extends Mailable
         return $this
             ->from('hrm2@mkl.pl', 'Admin - Nowy Użytkownik')
             ->to($this->email)
-            ->cc('natalia.paldyna@mkl.pl')
             ->bcc('krzysztof.kielczykowski@mkl.pl')
-            ->subject('Utowrzono konto')
+            ->subject('Baza HRM – Twoje nowe konto')
             ->markdown('emails.userLoginMail');
     }
 }
