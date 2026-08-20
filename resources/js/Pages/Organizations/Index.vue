@@ -9,11 +9,11 @@
     <div class="flex flex-col gap-4 items-start justify-between mb-6 sm:flex-row sm:items-center">
       <div class="flex items-center w-full sm:w-auto">
         <search-filter v-model="form.search" class="mr-4 w-full max-md" @reset="reset">
-          <label class="block text-gray-700">Filtruj:</label>
+          <label class="block text-gray-700">Wyświetlaj:</label>
           <select v-model="form.trashed" class="form-select mt-1 w-full">
-            <option :value="null">Budowy aktywne</option>
-            <option value="with">Budowy wszystkie</option>
-            <option value="only">Budowy zakończone</option>
+            <option :value="null">Aktualne</option>
+            <option value="only">Archiwum</option>
+            <option value="with">Wszystko</option>
           </select>
         </search-filter>
       </div>
@@ -71,9 +71,9 @@ export default {
   },
   computed: {
     titleSuffix() {
-      if (this.form.trashed === 'with') return '/ Wszystkie'
-      if (this.form.trashed === 'only') return '/ Zakończone'
-      return '/ Aktywne'
+      if (this.form.trashed === 'with') return '/ Wszystko'
+      if (this.form.trashed === 'only') return '/ Archiwum'
+      return '/ Aktualne'
     },
   },
   watch: {
