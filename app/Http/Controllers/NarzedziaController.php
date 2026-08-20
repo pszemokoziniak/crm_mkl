@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
 use App\Models\Narzedzia;
+use App\Models\NarzedziaTyp;
 use App\Models\ToolFile;
 use App\Models\ToolWorkDate;
 use App\Services\DocumentService;
@@ -85,11 +86,13 @@ class NarzedziaController extends Controller
     public function edit(Narzedzia $narzedzia): Response
     {
         return Inertia::render('Narzedzia/Edit', [
+            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name']),
             'narzedzia' => [
                 'id' => $narzedzia->id,
                 'name' => $narzedzia->name,
                 'numer_seryjny' => $narzedzia->numer_seryjny,
                 'waznosc_badan' => $narzedzia->waznosc_badan ? $narzedzia->waznosc_badan->format('Y-m-d') : null,
+                'narzedzia_typ_id' => $narzedzia->narzedzia_typ_id,
                 'ilosc_all' => $narzedzia->ilosc_all,
                 'ilosc_budowa' => $narzedzia->ilosc_budowa,
                 'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
@@ -147,14 +150,23 @@ class NarzedziaController extends Controller
     ): RedirectResponse
     {
         $data = Request::validate([
-            'name' => ['required', 'max:50'],
+            'narzedzia_typ_id' => ['nullable', 'integer', 'exists:narzedzia_typs,id'],
+            'new_typ_name' => ['nullable', 'string', 'max:100'],
             'numer_seryjny' => ['nullable'],
             'waznosc_badan' => ['nullable', 'date'],
             'ilosc_all' => ['nullable', 'numeric'],
         ]);
 
+        [$typId, $typName] = $this->resolveTyp($data['narzedzia_typ_id'] ?? null, $data['new_typ_name'] ?? null);
+
         try {
-            $narzedzia->update($data);
+            $narzedzia->update([
+                'narzedzia_typ_id' => $typId ?? $narzedzia->narzedzia_typ_id,
+                'name' => $typName ?? $narzedzia->name,
+                'numer_seryjny' => $data['numer_seryjny'] ?? null,
+                'waznosc_badan' => $data['waznosc_badan'] ?? null,
+                'ilosc_all' => $data['ilosc_all'] ?? $narzedzia->ilosc_all,
+            ]);
 
             /** save new photos and documents, remove these removed on dropzone */
             foreach (Request::file('photos') ?? [] as $file) {
@@ -200,7 +212,21 @@ class NarzedziaController extends Controller
     }
     public function create(): Response
     {
-        return Inertia('Narzedzia/Create');
+        return Inertia('Narzedzia/Create', [
+            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    /** Wspólne: ustal typ (istniejący lub nowy) i zwróć [id, nazwa]. */
+    private function resolveTyp($typId, $newName): array
+    {
+        $newName = trim((string) $newName);
+        if ($newName !== '') {
+            $typ = NarzedziaTyp::firstOrCreate(['name' => $newName]);
+            return [$typ->id, $typ->name];
+        }
+        $typ = $typId ? NarzedziaTyp::find($typId) : null;
+        return [$typ?->id, $typ?->name];
     }
 
     public function store(
@@ -209,11 +235,14 @@ class NarzedziaController extends Controller
     ): RedirectResponse
     {
         try {
+            [$typId, $typName] = $this->resolveTyp($request->get('narzedzia_typ_id'), $request->get('new_typ_name'));
+
             /** @var Narzedzia $tool */
             $tool = Narzedzia::create([
+                'narzedzia_typ_id' => $typId,
+                'name' => $typName,
                 'numer_seryjny' => $request->get('numer_seryjny'),
                 'waznosc_badan' => $request->get('waznosc_badan'),
-                'name' => $request->get('name'),
                 'ilosc_all' => $request->get('ilosc_all'),
                 'ilosc_budowa' => 0,
             ]);

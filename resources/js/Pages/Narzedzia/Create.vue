@@ -10,7 +10,12 @@
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.numer_seryjny" :error="form.errors.numer_seryjny" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer seryjny" />
           <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważność badań" />
-          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
+          <select-input v-model="form.narzedzia_typ_id" :error="form.errors.narzedzia_typ_id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa sprzętu (typ)">
+            <option value="">— wybierz —</option>
+            <option v-for="t in typy" :key="t.id" :value="t.id">{{ t.name }}</option>
+            <option value="__new__">+ Nowy typ…</option>
+          </select-input>
+          <text-input v-if="form.narzedzia_typ_id === '__new__'" v-model="form.new_typ_name" :error="form.errors.new_typ_name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa nowego typu" />
           <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
@@ -36,11 +41,13 @@ import TextInput from '@/Shared/TextInput'
 import NumberInput from '@/Shared/NumberInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import DateInput from '@/Shared/DateInput.vue'
+import SelectInput from '@/Shared/SelectInput'
 import Dropzone from '@/Shared/Dropzone.vue'
 
 export default {
   components: {
     DateInput,
+    SelectInput,
     Head,
     Link,
     LoadingButton,
@@ -51,6 +58,7 @@ export default {
   layout: Layout,
   props: {
     organizations: Array,
+    typy: { type: Array, default: () => [] },
   },
   remember: 'form',
   data() {
@@ -58,7 +66,8 @@ export default {
       form: this.$inertia.form({
         numer_seryjny: '',
         waznosc_badan: new Date().toISOString().substr(0, 10),
-        name: '',
+        narzedzia_typ_id: '',
+        new_typ_name: '',
         ilosc_all: 0,
         photos: [],
         documents: [],
@@ -70,6 +79,7 @@ export default {
       this.form
         .transform((data) => ({
           ...data,
+          narzedzia_typ_id: data.narzedzia_typ_id === '__new__' ? null : data.narzedzia_typ_id,
           photos: data.photos ? data.photos.filter((file) => file.deleted !== true) : [],
           documents: data.documents ? data.documents.filter((file) => file.deleted !== true) : [],
         }))

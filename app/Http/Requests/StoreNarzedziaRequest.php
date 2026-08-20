@@ -24,13 +24,23 @@ class StoreNarzedziaRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' =>'required|min:5|unique:narzedzias,name',
+            'narzedzia_typ_id' => 'nullable|integer|exists:narzedzia_typs,id',
+            'new_typ_name' => 'nullable|string|max:100',
             'numer_seryjny' =>'nullable',
             'waznosc_badan' =>'nullable|date',
             'ilosc_all' =>'nullable|numeric',
             'photos.*' => 'nullable|image|max:5120',
             'documents.*' => 'nullable|file|max:10240',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (! $this->filled('narzedzia_typ_id') && trim((string) $this->input('new_typ_name')) === '') {
+                $validator->errors()->add('narzedzia_typ_id', 'Wybierz typ sprzętu lub dodaj nowy.');
+            }
+        });
     }
 
     public function messages() {
