@@ -17,6 +17,11 @@ class ToolWorkDate extends Model
         return $this->belongsTo(Narzedzia::class);
     }
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {

@@ -40,6 +40,8 @@ class NarzedziaController extends Controller
                 // Zdjęcia dociągamy jednym zapytaniem — miniaturka na liście
                 // nie może kosztować zapytania na każdy wiersz.
                 ->with(['files' => fn ($query) => $query->where('type', 'photo')->orderBy('id')])
+                // Na których budowach jest sprzęt — jednym zapytaniem, bez N+1.
+                ->with(['toolWorkDates.organization'])
                 ->paginate(20)
                 ->withQueryString()
                 ->through(fn (Narzedzia $narzedzia) => [
@@ -51,6 +53,13 @@ class NarzedziaController extends Controller
                     'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
                     'deleted_at' => $narzedzia->deleted_at ?? null,
                     'photo' => $this->thumbnailUrl($narzedzia),
+                    'budowy' => $narzedzia->toolWorkDates
+                        ->filter(fn ($t) => (int) $t->narzedzia_nb > 0 && $t->organization)
+                        ->map(fn ($t) => [
+                            'nazwaBud' => $t->organization->nazwaBud,
+                            'qty' => (int) $t->narzedzia_nb,
+                        ])
+                        ->values(),
                 ]),
         ]);
     }
@@ -83,6 +92,15 @@ class NarzedziaController extends Controller
                 'ilosc_all' => $narzedzia->ilosc_all,
                 'ilosc_budowa' => $narzedzia->ilosc_budowa,
                 'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
+                'budowy' => $narzedzia->toolWorkDates()
+                    ->with('organization')
+                    ->get()
+                    ->filter(fn ($t) => (int) $t->narzedzia_nb > 0 && $t->organization)
+                    ->map(fn ($t) => [
+                        'nazwaBud' => $t->organization->nazwaBud,
+                        'qty' => (int) $t->narzedzia_nb,
+                    ])
+                    ->values(),
             ],
             'photos' => ToolFile::query()
                 ->where('tool_id', $narzedzia->id)

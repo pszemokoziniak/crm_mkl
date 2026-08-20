@@ -24,6 +24,7 @@
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Wszystkie</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Na budowie</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">W magazynie</th>
+            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Na budowach</th>
             <th class="py-4 px-6" />
           </tr>
         </thead>
@@ -63,6 +64,14 @@
                 {{ item.ilosc_magazyn ?? 0 }}
               </span>
             </td>
+            <td class="px-6 py-4">
+              <div v-if="item.budowy && item.budowy.length" class="flex flex-col gap-0.5 text-xs leading-tight text-gray-600 max-w-xs">
+                <span v-for="(b, i) in item.budowy" :key="i" class="truncate">
+                  {{ b.nazwaBud }}<span v-if="b.qty > 1" class="text-gray-400"> ({{ b.qty }})</span>
+                </span>
+              </div>
+              <span v-else class="text-gray-300 text-xs">-</span>
+            </td>
             <td class="px-6 py-4 text-right">
               <Link :href="`/narzedzia/${item.id}/edit`" class="text-gray-400 group-hover:text-indigo-600 transition-colors">
                 <icon name="cheveron-right" class="w-6 h-6 fill-current" />
@@ -70,7 +79,7 @@
             </td>
           </tr>
           <tr v-if="narzedzia.data.length === 0">
-            <td class="px-6 py-12 text-center text-gray-500" colspan="6">
+            <td class="px-6 py-12 text-center text-gray-500" colspan="7">
               <div class="flex flex-col items-center">
                 <icon name="office" class="w-12 h-12 fill-gray-200 mb-2" />
                 <p>Nie znaleziono żadnego sprzętu w magazynie</p>

@@ -45,6 +45,11 @@ class Narzedzia extends Model
         return $this->hasMany(ToolFile::class, 'tool_id');
     }
 
+    public function toolWorkDates(): HasMany
+    {
+        return $this->hasMany(ToolWorkDate::class, 'narzedzia_id');
+    }
+
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {
