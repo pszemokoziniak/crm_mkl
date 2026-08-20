@@ -54,6 +54,13 @@ class Narzedzia extends Model
             });
         })->when($filters['trashed'] ?? null, function ($query, $trashed) {
             // SoftDeletes not implemented in migration yet
+        })->when($filters['wyswietlaj'] ?? null, function ($query, $wyswietlaj) {
+            // Dostępne = jest sztuka w magazynie; Na budowie = jest sztuka na budowie.
+            if ($wyswietlaj === 'dostepne') {
+                $query->where('ilosc_magazyn', '>', 0);
+            } elseif ($wyswietlaj === 'na_budowie') {
+                $query->where('ilosc_budowa', '>', 0);
+            }
         });
     }
 }

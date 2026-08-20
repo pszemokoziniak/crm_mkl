@@ -35,8 +35,8 @@ class NarzedziaController extends Controller
             });
 
         return Inertia::render('Narzedzia/Index', [
-            'filters' => Request::all('search', 'trashed'),
-            'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed'))
+            'filters' => Request::all('search', 'trashed', 'wyswietlaj'),
+            'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed', 'wyswietlaj'))
                 // Zdjęcia dociągamy jednym zapytaniem — miniaturka na liście
                 // nie może kosztować zapytania na każdy wiersz.
                 ->with(['files' => fn ($query) => $query->where('type', 'photo')->orderBy('id')])
