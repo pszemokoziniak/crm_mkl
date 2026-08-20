@@ -138,7 +138,7 @@ export default {
   },
   data() {
     return {
-      open: false,
+      open: true,
       showConfirm: false,
       search: '',
       page: 1,

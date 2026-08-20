@@ -41,13 +41,22 @@ class ToolWorkDatesController extends Controller
             return [
                 'name' => $name,
                 'total_qty' => $group->sum('narzedzia_nb'),
-                'items' => $group->map(fn ($item) => [
-                    'id' => $item->id,
-                    'narzedzia_id' => $item->narzedzia_id,
-                    'narzedzia_nb' => $item->narzedzia_nb,
-                    'numer_seryjny' => $item->narzedzia->numer_seryjny ?? '-',
-                    'waznosc_badan' => $item->narzedzia->waznosc_badan,
-                ]),
+                'items' => $group->map(function ($item) {
+                    // waznosc_badan bywa surowym Carbon (pełne ISO) albo zepsutą
+                    // datą (np. rok 0001) — formatujemy i odsiewamy nierealne.
+                    $badania = optional($item->narzedzia)->waznosc_badan;
+                    $badaniaData = ($badania && $badania->year >= 2000 && $badania->year <= 2100)
+                        ? $badania->format('Y-m-d')
+                        : null;
+
+                    return [
+                        'id' => $item->id,
+                        'narzedzia_id' => $item->narzedzia_id,
+                        'narzedzia_nb' => $item->narzedzia_nb,
+                        'numer_seryjny' => optional($item->narzedzia)->numer_seryjny ?: '-',
+                        'waznosc_badan' => $badaniaData,
+                    ];
+                }),
             ];
         })->values();
 

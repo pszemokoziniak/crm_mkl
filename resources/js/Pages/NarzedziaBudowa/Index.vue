@@ -42,15 +42,23 @@
             <!-- Wiersze szczegółowe (poszczególne egzemplarze) -->
             <tr v-for="item in group.items" :key="item.id" class="hover:bg-gray-50 transition-colors">
               <td class="px-12 py-3">
-                <div class="flex flex-col">
-                  <div class="flex items-center text-sm text-gray-600">
-                    <span class="font-medium mr-2">S/N:</span> {{ item.numer_seryjny }}
-                    <span class="mx-3 text-gray-300">|</span>
-                    <span class="font-medium mr-2">Badania:</span>
-                    <span :class="{'text-red-600 font-bold': isExpired(item.waznosc_badan)}">
-                      {{ item.waznosc_badan || 'Brak daty' }}
+                <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+                  <span class="text-gray-500">
+                    S/N:
+                    <span class="font-medium text-gray-800">{{ item.numer_seryjny && item.numer_seryjny !== '-' ? item.numer_seryjny : '—' }}</span>
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-gray-500">
+                    Badania:
+                    <span v-if="!item.waznosc_badan" class="text-gray-400">brak daty</span>
+                    <span
+                      v-else
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+                      :class="isExpired(item.waznosc_badan) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'"
+                    >
+                      {{ item.waznosc_badan }}
+                      <span v-if="isExpired(item.waznosc_badan)" class="ml-1">· po terminie</span>
                     </span>
-                  </div>
+                  </span>
                 </div>
               </td>
               <td class="px-6 py-3 text-center text-sm text-gray-500">
