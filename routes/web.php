@@ -384,9 +384,6 @@ Route::get('budowy/{organization}/narzedzia/create', [ToolWorkDatesController::c
         ->middleware('auth', 'biuro-permission');
 
 
-Route::post('budowy/{organization}/narzedzia/create', [ToolWorkDatesController::class, 'find'])
-    ->name('budowy.narzedzia.post')
-        ->middleware('auth', 'biuro-permission');
 
 
 Route::post('budowy/{organization}/narzedzia', [ToolWorkDatesController::class, 'store'])

@@ -32,6 +32,7 @@
                     class="mr-3 h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     type="checkbox"
                     :value="item.id"
+                    @change="onToggle(item)"
                   />
                   <label :for="'tool-' + item.id" class="cursor-pointer font-medium text-gray-900">{{ item.name }}</label>
                 </div>
@@ -43,8 +44,11 @@
                 <input
                   v-model="form.ilosc[item.id]"
                   type="number"
+                  min="1"
+                  :max="item.ilosc_magazyn"
                   class="form-input text-center w-20 mx-auto py-1 text-sm"
-                  :placeholder="item.ilosc_magazyn"
+                  :placeholder="String(item.ilosc_magazyn)"
+                  @input="clampQty(item)"
                 />
               </td>
               <td class="px-6 py-2 text-right">
@@ -103,6 +107,22 @@ export default {
     },
   },
   methods: {
+    onToggle(item) {
+      // Zaznaczenie od razu ustawia ilość 1 (domyślnie), odznaczenie ją czyści.
+      if (this.form.checkedValues.includes(item.id)) {
+        if (!this.form.ilosc[item.id]) this.form.ilosc[item.id] = 1
+      } else {
+        delete this.form.ilosc[item.id]
+      }
+    },
+    clampQty(item) {
+      // Nie pozwalamy wpisać więcej, niż jest w magazynie.
+      let v = parseInt(this.form.ilosc[item.id], 10)
+      if (isNaN(v)) return
+      if (v < 1) v = 1
+      if (v > item.ilosc_magazyn) v = item.ilosc_magazyn
+      this.form.ilosc[item.id] = v
+    },
     store() {
       this.form.post(`/budowy/${this.organization.id}/narzedzia`)
     },

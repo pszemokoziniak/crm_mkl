@@ -92,25 +92,10 @@ export default {
     toolsFree: Array,
     toolsOnBuild: Object,
   },
-  remember: 'form',
   data() {
     return {
       budId: this.organization.id,
-      org: {
-        org: this.organization,
-      },
-      checkedValues: [],
-      form: this.$inertia.form({
-        start: '',
-        end: '',
-      }),
-      output: '',
     }
-  },
-  methods: {
-    find() {
-      this.$inertia.post(`/budowy/${this.organization.id}/narzedzia/create`, this.form)
-    },
   },
 }
 </script>
