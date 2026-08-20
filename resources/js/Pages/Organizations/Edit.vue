@@ -7,6 +7,30 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.nazwaBud }}
     </h1>
+
+    <!-- Podsumowanie budowy (rozbudowywalne — kolejne kafelki dojdą obok) -->
+    <div class="mb-8 flex flex-wrap gap-4">
+      <Link :href="`/budowy/${budId}/prognoza`" class="block bg-white rounded-md shadow px-5 py-4 hover:bg-gray-50 transition">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Kadra — szczyt zapotrzebowania</div>
+        <template v-if="summary && summary.peak !== null">
+          <div class="flex items-end gap-4">
+            <div>
+              <div class="text-2xl font-bold text-indigo-700">{{ summary.peak }}</div>
+              <div class="text-xs text-gray-500">potrzebujemy (max)</div>
+            </div>
+            <div class="text-gray-300 text-2xl font-light">/</div>
+            <div>
+              <div class="text-2xl font-bold text-gray-800">{{ summary.assigned }}</div>
+              <div class="text-xs text-gray-500">mamy przypisanych</div>
+            </div>
+            <span class="ml-2 self-center inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded" :class="gapClass">{{ gapLabel }}</span>
+          </div>
+          <div v-if="summary.peakStart" class="mt-1 text-xs text-gray-400">szczyt w tygodniu {{ summary.peakStart }} – {{ summary.peakEnd }}</div>
+        </template>
+        <div v-else class="text-sm text-gray-400">Brak wpisanej prognozy — dodaj w zakładce Prognoza.</div>
+      </Link>
+    </div>
+
     <trashed-message v-if="organization.deleted_at" class="mb-6" @restore="restore">Ta budowa jest usunięta</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
@@ -72,6 +96,7 @@ export default {
     flag: Boolean,
     inzyniers: Object,
     unfinishedWorkers: { type: Array, default: () => [] },
+    summary: { type: Object, default: () => ({}) },
   },
   remember: 'form',
   data() {
@@ -96,6 +121,21 @@ export default {
         inzynier_id: this.organization.inzynier_id,
       }),
     }
+  },
+  computed: {
+    gap() {
+      if (!this.summary || this.summary.peak === null) return null
+      return this.summary.assigned - this.summary.peak
+    },
+    gapLabel() {
+      if (this.gap === null) return ''
+      if (this.gap >= 0) return 'komplet'
+      return `brakuje ${-this.gap}`
+    },
+    gapClass() {
+      if (this.gap === null) return 'bg-gray-100 text-gray-700'
+      return this.gap >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+    },
   },
   methods: {
     update() {

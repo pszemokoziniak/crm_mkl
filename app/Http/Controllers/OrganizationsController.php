@@ -10,6 +10,7 @@ use App\Models\ContactWorkDate;
 use App\Models\JezykTyp;
 use App\Models\KrajTyp;
 use App\Models\Organization;
+use App\Models\Prognoza;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -238,6 +239,21 @@ class OrganizationsController extends Controller
         // (OrganizationPolicy@view => Organization::scopeManagedBy). Tu tylko tryb read-only dla kierownika.
         $flag = Auth::user()->owner === 3;
 
+        // Podsumowanie kadrowe: szczyt zapotrzebowania (max tygodniowa prognoza)
+        // vs liczba pracowników przypisanych do budowy (distinct osoby z pobytów).
+        $peak = Prognoza::with('prognozadates')
+            ->where('organization_id', $organization->id)
+            ->orderByDesc('workers_count')
+            ->first();
+
+        $summary = [
+            'peak' => $peak ? (int) $peak->workers_count : null,
+            'peakStart' => optional(optional($peak)->prognozadates)->start,
+            'peakEnd' => optional(optional($peak)->prognozadates)->end,
+            'assigned' => ContactWorkDate::where('organization_id', $organization->id)
+                ->distinct()->count('contact_id'),
+        ];
+
         return Inertia::render('Organizations/Edit', [
             'organization' => [
                 'id' => $organization->id,
@@ -292,6 +308,7 @@ class OrganizationsController extends Controller
                     'funkcja' => $contact->funkcja,
                 ]),
             'user_owner' => Auth::user()->owner,
+            'summary' => $summary,
             'flag' => $flag,
         ]);
     }
