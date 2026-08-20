@@ -28,6 +28,9 @@
           <Link class="block mt-0 lg:inline-block mr-4" :href="`/budowy/${budId}/a1/`">
             <div :class="isUrl('a1') ? 'text-green-800 font-bold' : 'text-indigo-300 hover:text-indigo-600'">A1</div>
           </Link>
+          <Link class="block mt-0 lg:inline-block mr-4" :href="`/budowy/${budId}/prognoza`">
+            <div :class="isUrl('prognoza') ? 'text-green-800 font-bold' : 'text-indigo-300 hover:text-indigo-600'">Prognoza</div>
+          </Link>
         </div>
       </div>
     </nav>

@@ -138,6 +138,23 @@ Route::get('crm/klienci', [OrganizationsController::class, 'searchClients'])
     ->name('crm.klienci')
     ->middleware('auth', 'biuro-permission');
 
+// Prognoza pracowników w kontekście budowy (podzakładka)
+Route::get('budowy/{organization}/prognoza', [PrognozaController::class, 'budowaShow'])
+    ->name('budowy.prognoza')
+    ->middleware('auth', 'biuro-kierownik-permission');
+
+Route::post('budowy/{organization}/prognoza', [PrognozaController::class, 'budowaStore'])
+    ->name('budowy.prognoza.store')
+    ->middleware('auth', 'biuro-permission');
+
+Route::put('budowy/{organization}/prognoza/{prognoza}', [PrognozaController::class, 'budowaUpdate'])
+    ->name('budowy.prognoza.update')
+    ->middleware('auth', 'biuro-permission');
+
+Route::delete('budowy/{organization}/prognoza/{prognoza}', [PrognozaController::class, 'budowaDestroy'])
+    ->name('budowy.prognoza.destroy')
+    ->middleware('auth', 'biuro-permission');
+
 Route::post('budowy', [OrganizationsController::class, 'store'])
     ->name('organizations.store')
     ->middleware('auth', 'biuro-permission');
