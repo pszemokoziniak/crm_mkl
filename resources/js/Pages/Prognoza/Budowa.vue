@@ -16,7 +16,7 @@
     <!-- Dodawanie tygodnia (tylko biuro/admin) -->
     <div v-if="!flag" class="mb-8 bg-white rounded-md shadow overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-700">Dodaj zapotrzebowanie na tydzień</div>
-      <form class="flex flex-wrap items-end gap-4 p-6" @submit.prevent="add">
+      <form class="flex flex-wrap items-end gap-4 p-6 pb-12" @submit.prevent="add">
         <div class="w-full sm:w-40">
           <label class="form-label">Rok:</label>
           <select v-model="pick.year" class="form-select mt-1 w-full" @change="reloadWeeks">
@@ -31,21 +31,21 @@
             <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
           </select>
         </div>
-        <div class="w-full sm:w-64">
+        <div class="relative w-full sm:w-64">
           <label class="form-label">Tydzień:</label>
           <select v-model="form.prognoza_dates_id" class="form-select mt-1 w-full">
             <option value="">—</option>
             <option v-for="w in freeWeeks" :key="w.id" :value="w.id">{{ w.start }} – {{ w.end }}</option>
           </select>
-          <div v-if="form.errors.prognoza_dates_id" class="form-error">{{ form.errors.prognoza_dates_id }}</div>
-          <p v-if="pick.year && pick.month && !freeWeeks.length" class="mt-1 text-xs text-yellow-800">
+          <div v-if="form.errors.prognoza_dates_id" class="absolute left-0 top-full mt-1 w-full form-error">{{ form.errors.prognoza_dates_id }}</div>
+          <p v-else-if="pick.year && pick.month && !freeWeeks.length" class="absolute left-0 top-full mt-1 w-full text-xs text-yellow-800">
             Wszystkie tygodnie tego miesiąca mają już wpisane zapotrzebowanie.
           </p>
         </div>
-        <div class="w-full sm:w-40">
+        <div class="relative w-full sm:w-40">
           <label class="form-label">Liczba osób:</label>
           <input v-model="form.workers_count" type="number" min="1" class="form-input mt-1 w-full" />
-          <div v-if="form.errors.workers_count" class="form-error">{{ form.errors.workers_count }}</div>
+          <div v-if="form.errors.workers_count" class="absolute left-0 top-full mt-1 w-full form-error">{{ form.errors.workers_count }}</div>
         </div>
         <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj</loading-button>
       </form>
