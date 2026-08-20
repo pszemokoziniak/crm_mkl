@@ -93,7 +93,11 @@ class Organization extends Model
      */
     public function unfinishedWorkDates()
     {
-        return $this->contactWorkDates()->notFinished(Carbon::today()->toDateString());
+        // whereHas('contact') pomija pobyty osieroconych — pracownik usunięty
+        // (soft-delete) nie powinien blokować archiwizacji ani straszyć w liście.
+        return $this->contactWorkDates()
+            ->whereHas('contact')
+            ->notFinished(Carbon::today()->toDateString());
     }
 
     /**

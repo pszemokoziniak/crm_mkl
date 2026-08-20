@@ -193,6 +193,9 @@ class ContactsController extends Controller
 
     public function destroy(Contact $contact)
     {
+        // Usuwamy też pobyty pracownika na budowach — inaczej zostają
+        // osierocone (blokują archiwizację budowy, zawyżają obsadę w prognozie).
+        ContactWorkDate::where('contact_id', $contact->id)->delete();
         $contact->delete();
 
         return Redirect::back()->with('success', 'Pracownik usunięty.');

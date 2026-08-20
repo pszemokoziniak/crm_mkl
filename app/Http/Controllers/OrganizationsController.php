@@ -60,11 +60,13 @@ class OrganizationsController extends Controller
                 'unfinished_workers_count' => ContactWorkDate::query()
                     ->selectRaw('count(*)')
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->whereHas('contact')
                     ->notFinished($today),
 
                 'all_workers_count' => ContactWorkDate::query()
                     ->selectRaw('count(*)')
-                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id'),
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->whereHas('contact'),
 
                 'kierownicy_names' => ContactWorkDate::query()
                     ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
