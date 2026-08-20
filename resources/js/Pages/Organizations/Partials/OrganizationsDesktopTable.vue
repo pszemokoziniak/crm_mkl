@@ -3,6 +3,12 @@
     <table class="w-full text-sm">
       <thead>
         <tr class="text-left font-bold border-b">
+          <!-- Numer Projektu -->
+          <th class="pb-4 pt-6 px-4 cursor-pointer select-none whitespace-nowrap" @click="emitSort('numerBud')">
+            Numer Projektu
+            <SortIcon column="numerBud" :sort="sort" :direction="direction" />
+          </th>
+
           <!-- Nazwa -->
           <th class="pb-4 pt-6 px-4 cursor-pointer select-none" @click="emitSort('nazwaBud')">
             Nazwa
@@ -31,6 +37,13 @@
 
       <tbody>
         <tr v-for="organization in organizations" :key="organization.id" class="focus-within:bg-gray-100" :class="canOpen(organization) ? 'hover:bg-gray-100' : 'opacity-60 pointer-events-none select-none'">
+          <!-- Numer Projektu -->
+          <td class="border-t whitespace-nowrap">
+            <Link class="flex items-center px-4 py-3 font-semibold text-gray-800" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+              {{ organization.numerBud || '—' }}
+            </Link>
+          </td>
+
           <!-- Nazwa -->
           <td class="border-t">
             <Link class="flex items-center px-4 py-3 focus:text-indigo-500 font-medium" :href="`/budowy/${organization.id}/edit`">
