@@ -36,7 +36,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <tr v-for="item in filteredTools" :key="item.id" class="hover:bg-gray-50 transition-colors">
+            <tr v-for="item in pagedTools" :key="item.id" class="hover:bg-gray-50 transition-colors">
               <td class="px-6 py-2">
                 <div class="flex items-center">
                   <input
@@ -75,6 +75,11 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      <div v-if="totalPages > 1" class="flex items-center justify-between px-6 py-3 border-t border-gray-100 text-sm">
+        <button type="button" class="px-3 py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed" :disabled="page === 1" @click="page--">Poprzednia</button>
+        <span class="text-gray-500">Strona {{ page }} z {{ totalPages }} · {{ filteredTools.length }} narzędzi</span>
+        <button type="button" class="px-3 py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed" :disabled="page === totalPages" @click="page++">Następna</button>
       </div>
       <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
         <loading-button :loading="form.processing" class="btn-indigo" type="submit">
@@ -136,6 +141,8 @@ export default {
       open: false,
       showConfirm: false,
       search: '',
+      page: 1,
+      perPage: 20,
       form: this.$inertia.form({
         checkedValues: [],
         ilosc: {},
@@ -155,11 +162,26 @@ export default {
     selectedTotal() {
       return this.selected.reduce((sum, s) => sum + s.qty, 0)
     },
+    totalPages() {
+      return Math.max(1, Math.ceil(this.filteredTools.length / this.perPage))
+    },
+    pagedTools() {
+      const start = (this.page - 1) * this.perPage
+      return this.filteredTools.slice(start, start + this.perPage)
+    },
     filteredTools() {
       let tools = this.toolsFree
       if (!this.search) return tools
       const searchLower = this.search.toLowerCase()
       return tools.filter(item => item.name.toLowerCase().includes(searchLower))
+    },
+  },
+  watch: {
+    search() {
+      this.page = 1
+    },
+    totalPages(val) {
+      if (this.page > val) this.page = val
     },
   },
   methods: {
