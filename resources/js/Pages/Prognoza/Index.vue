@@ -6,7 +6,7 @@
       <h2>{{ startDateFormat }} do {{ endDateFormat }} <span v-if="selectedBuild.id !== 'all'">na budowie {{ selectedBuild.nazwaBud }}</span> <span v-if="year">w roku {{ year }}</span></h2>
       <ChartComponent :chartData="chartData" :chartMax="chartMax" />
     </div>
-    <div class="m-2">
+    <div class="m-2 mb-8">
       <div class="m-2 space-y-3">
         <div class="w-full">
           <Buildings :selectedBuild="selectedBuild" :buildings="buildings" />
@@ -21,7 +21,7 @@
           <div class="w-1/2" v-else></div>
         </div>
         <!-- Guzik w tym samym kontenerze co filtry, żeby trzymał ich lewą krawędź. -->
-        <div v-if="month" class="pt-2">
+        <div v-if="month" class="pt-2 pb-2">
           <Link class="btn-indigo px-10" :href="`/prognoza/create?building=${selectedBuild['id']}&year=${year}&month=${month}`">
             <span>Dodaj</span>
             <span class="hidden md:inline">&nbsp;Pracowników</span>
