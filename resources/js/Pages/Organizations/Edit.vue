@@ -35,11 +35,15 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.nazwaBud" :error="form.errors.nazwaBud" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Pełna Nazwa Budowy" />
-          <text-input v-model="form.numerBud" :error="form.errors.numerBud" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Budowy" />
+          <text-input v-model="form.nazwaBud" :error="form.errors.nazwaBud" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Nazwa Projektu" />
+          <text-input v-model="form.numerBud" :error="form.errors.numerBud" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Projektu" />
           <text-input v-model="form.city" :error="form.errors.city" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
           <client-picker v-model="form.name" v-model:clientId="form.crm_client_id" :error="form.errors.name" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Nazwa Klienta" />
-          <text-input v-model="form.zaklad" :error="form.errors.zaklad" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy" />
+          <select-input v-model="form.zaklad" :error="form.errors.zaklad" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy">
+            <option :value="null">—</option>
+            <option value="TAK">TAK</option>
+            <option value="NIE">NIE</option>
+          </select-input>
           <select-input v-model="form.country_id" :error="form.errors.country_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
