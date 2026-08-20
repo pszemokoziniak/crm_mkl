@@ -3,7 +3,14 @@
     <Head title="Magazyn Sprzętu" />
     <h1 class="mb-8 text-3xl font-bold text-gray-900">Magazyn Sprzętu</h1>
     <div class="flex items-center justify-between mb-6">
-      <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset" />
+      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+        <label class="block text-gray-700">Wyświetlaj:</label>
+        <select v-model="form.wyswietlaj" class="form-select mt-1 w-full">
+          <option :value="null">Wszystkie</option>
+          <option value="dostepne">Dostępne</option>
+          <option value="na_budowie">Na budowie</option>
+        </select>
+      </search-filter>
       <Link class="btn-indigo" href="/narzedzia/create">
         <span>Dodaj nowy sprzęt</span>
       </Link>
@@ -84,13 +91,13 @@ import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
-import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
+import SearchFilter from '@/Shared/SearchFilter.vue'
 import Pagination from '@/Shared/Pagination.vue'
 
 
 export default {
   components: {
-    SearchFilterNoFiltr,
+    SearchFilter,
     Pagination,
     Head,
     Icon,
@@ -106,6 +113,7 @@ export default {
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
+        wyswietlaj: this.filters.wyswietlaj,
       },
     }
   },
