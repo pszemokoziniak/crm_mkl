@@ -59,17 +59,18 @@ class ToolWorkDatesController extends Controller
     }
     public function create(Organization $organization) {
 
-        $toolsFree = Narzedzia::where(function($query) {
-                $query->where('ilosc_all', '>', 0)
-                      ->orWhereNull('ilosc_all');
-            })
+        // Tylko sprzęt realnie dostępny w magazynie (ilosc_all - ilosc_budowa > 0).
+        // Liczymy z kolumn, żeby nie zależeć od ewentualnie nieświeżej ilosc_magazyn.
+        $toolsFree = Narzedzia::whereRaw('(COALESCE(ilosc_all, 0) - COALESCE(ilosc_budowa, 0)) > 0')
+            ->orderBy('name')
             ->get()
             ->map(function ($tool) {
                 return [
                     'id' => $tool->id,
                     'name' => $tool->name,
                     'ilosc_all' => $tool->ilosc_all ?? 0,
-                    'ilosc_magazyn' => $tool->ilosc_magazyn ?? $tool->ilosc_all ?? 0,
+                    // Akcesor zwraca ilosc_all - ilosc_budowa (zawsze poprawnie).
+                    'ilosc_magazyn' => $tool->ilosc_magazyn,
                 ];
             });
 
@@ -94,37 +95,58 @@ class ToolWorkDatesController extends Controller
     {
         $checkedValues = $request->checkedValues ?? [];
         $ilosci = $request->ilosc ?? [];
+        $ograniczone = []; // sprzęt, gdzie chciano więcej niż jest w magazynie
 
         foreach ($checkedValues as $toolId) {
-            $iloscDoDodania = isset($ilosci[$toolId]) && (int)$ilosci[$toolId] > 0
-                ? (int)$ilosci[$toolId]
+            $narzedzie = Narzedzia::find((int) $toolId);
+            if (! $narzedzie) {
+                continue;
+            }
+
+            // Realnie dostępne w magazynie teraz.
+            $dostepne = ($narzedzie->ilosc_all ?? 0) - ($narzedzie->ilosc_budowa ?? 0);
+            if ($dostepne <= 0) {
+                $ograniczone[] = $narzedzie->name.' (brak w magazynie)';
+                continue;
+            }
+
+            $chciane = isset($ilosci[$toolId]) && (int) $ilosci[$toolId] > 0
+                ? (int) $ilosci[$toolId]
                 : 1;
 
-            if ($iloscDoDodania > 0) {
-                $toolOnBuild = ToolWorkDate::where('organization_id', $organization->id)
-                    ->where('narzedzia_id', (int) $toolId)
-                    ->first();
-
-                if ($toolOnBuild) {
-                    $toolOnBuild->narzedzia_nb += $iloscDoDodania;
-                    $toolOnBuild->save();
-                } else {
-                    ToolWorkDate::create([
-                        'narzedzia_id' => (int) $toolId,
-                        'organization_id' => $organization->id,
-                        'narzedzia_nb' => $iloscDoDodania,
-                    ]);
-                }
-
-                $narzedzie = Narzedzia::find((int) $toolId);
-                if ($narzedzie) {
-                    $narzedzie->ilosc_magazyn = ($narzedzie->ilosc_magazyn ?? $narzedzie->ilosc_all ?? 0) - $iloscDoDodania;
-                    $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $iloscDoDodania;
-                    $narzedzie->save();
-                }
+            // Nie wydajemy więcej, niż jest — magazyn nie może zejść poniżej zera.
+            $doDodania = min($chciane, $dostepne);
+            if ($chciane > $dostepne) {
+                $ograniczone[] = $narzedzie->name.' (dodano '.$doDodania.' z '.$chciane.')';
             }
+
+            $toolOnBuild = ToolWorkDate::where('organization_id', $organization->id)
+                ->where('narzedzia_id', (int) $toolId)
+                ->first();
+
+            if ($toolOnBuild) {
+                $toolOnBuild->narzedzia_nb += $doDodania;
+                $toolOnBuild->save();
+            } else {
+                ToolWorkDate::create([
+                    'narzedzia_id' => (int) $toolId,
+                    'organization_id' => $organization->id,
+                    'narzedzia_nb' => $doDodania,
+                ]);
+            }
+
+            // Ustawiamy tylko ilosc_budowa — hook w modelu przeliczy ilosc_magazyn.
+            $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $doDodania;
+            $narzedzie->save();
         }
-        return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Sprzęt dodany');
+
+        $redirect = Redirect::route('budowy.narzedzia', $organization->id);
+
+        if (! empty($ograniczone)) {
+            return $redirect->with('error', 'Ograniczono do stanu magazynu: '.implode(', ', $ograniczone));
+        }
+
+        return $redirect->with('success', 'Sprzęt dodany');
     }
 
     public function edit(Organization $organization, ToolWorkDate $narzedzia)
