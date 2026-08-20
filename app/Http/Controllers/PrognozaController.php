@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePrognozaRequest;
+use App\Models\ContactWorkDate;
 use App\Models\Organization;
 use App\Models\Prognoza;
 use App\Models\PrognozaDates;
 use App\Models\Setting;
 use App\Services\PrognozaService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
 use stdClass;
@@ -275,6 +278,114 @@ class PrognozaController extends Controller
         $years = $this->getCalendarYears(Carbon::now()->startOfYear());
         $buildings = $this->getBuildings();
 
+    }
+
+    /**
+     * Podzakładka "Prognoza" na budowie: zapotrzebowanie (plan) tydzień po
+     * tygodniu zestawione z faktyczną obsadą (contact_work_dates).
+     */
+    public function budowaShow(Organization $organization)
+    {
+        $flag = Auth::user()->owner === 3; // kierownik — tylko podgląd
+
+        $prognozas = Prognoza::with('prognozadates')
+            ->where('organization_id', $organization->id)
+            ->get()
+            ->sortBy(fn ($p) => optional($p->prognozadates)->start)
+            ->values();
+
+        // Pobyty tej budowy raz; obsadę per tydzień liczymy w PHP.
+        $stays = ContactWorkDate::where('organization_id', $organization->id)
+            ->get(['contact_id', 'start', 'end']);
+
+        $rows = $prognozas->map(function ($p) use ($stays) {
+            $wStart = optional($p->prognozadates)->start;
+            $wEnd = optional($p->prognozadates)->end;
+
+            $assigned = 0;
+            if ($wStart && $wEnd) {
+                $assigned = $stays->filter(function ($s) use ($wStart, $wEnd) {
+                    // Pobyt zachodzi na tydzień: start <= koniec tygodnia oraz
+                    // (brak końca albo koniec >= początek tygodnia).
+                    return $s->start
+                        && $s->start <= $wEnd
+                        && ($s->end === null || $s->end >= $wStart);
+                })->pluck('contact_id')->unique()->count();
+            }
+
+            return [
+                'id' => $p->id,
+                'start' => $wStart,
+                'end' => $wEnd,
+                'workers_count' => (int) $p->workers_count,
+                'assigned' => $assigned,
+            ];
+        })->values();
+
+        $chartData = [
+            'labels' => $rows->pluck('start')->toArray(),
+            'ranges' => $rows->map(fn ($r) => $r['start'].' – '.$r['end'])->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Zapotrzebowanie',
+                    'backgroundColor' => '#6574cd',
+                    'data' => $rows->pluck('workers_count')->toArray(),
+                ],
+                [
+                    'label' => 'Obsadzeni',
+                    'backgroundColor' => '#4caf7d',
+                    'data' => $rows->pluck('assigned')->toArray(),
+                ],
+            ],
+        ];
+
+        // Formularz dodawania — wolne tygodnie dla wybranego roku/miesiąca.
+        $currentYear = Carbon::now();
+
+        return Inertia::render('Prognoza/Budowa', [
+            'build' => $organization->id,
+            'buildDetails' => $organization,
+            'rows' => $rows,
+            'chartData' => $chartData,
+            'years' => $this->getCalendarYears($currentYear),
+            'months' => $this->getCalendarMonths($currentYear),
+            'freeWeeks' => $this->getSelectDates($currentYear, $organization->id)
+                ->map->only(['id', 'start', 'end'])->values(),
+            'filters' => [
+                'year' => request()->query('year'),
+                'month' => request()->query('month'),
+            ],
+            'flag' => $flag,
+        ]);
+    }
+
+    public function budowaStore(StorePrognozaRequest $request, Organization $organization)
+    {
+        Prognoza::create([
+            'organization_id' => $organization->id,
+            'prognoza_dates_id' => $request->prognoza_dates_id,
+            'workers_count' => $request->workers_count,
+        ]);
+
+        return Redirect::route('budowy.prognoza', $organization->id)->with('success', 'Prognoza dodana.');
+    }
+
+    public function budowaUpdate(Organization $organization, Prognoza $prognoza)
+    {
+        $prognoza->update(
+            Request::validate([
+                'workers_count' => ['required', 'numeric', 'gt:0', 'max:500'],
+            ])
+        );
+
+        return Redirect::route('budowy.prognoza', $organization->id)->with('success', 'Poprawiono.');
+    }
+
+    public function budowaDestroy(Organization $organization, Prognoza $prognoza)
+    {
+        $prognoza->delete();
+
+        return Redirect::route('budowy.prognoza', $organization->id)->with('success', 'Usunięto.');
     }
 
     private function getChartLabels($building = null, $year = null, $month = null, $startDate = null, $endDate = null)
