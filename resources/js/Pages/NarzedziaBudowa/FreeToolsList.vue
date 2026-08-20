@@ -85,7 +85,7 @@
     </div>
 
     <teleport to="body">
-      <div v-if="showConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+      <div v-if="showConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4" @keydown.esc.window="showConfirm = false">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showConfirm = false" />
         <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
           <div class="px-6 py-4 border-b border-gray-100">
@@ -99,6 +99,10 @@
                 <span class="font-semibold text-gray-900 whitespace-nowrap">× {{ s.qty }}</span>
               </li>
             </ul>
+            <div class="flex items-center justify-between pt-3 mt-2 border-t border-gray-200 text-sm">
+              <span class="font-medium text-gray-700">Razem</span>
+              <span class="font-bold text-gray-900">{{ selectedTotal }} szt.</span>
+            </div>
           </div>
           <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
             <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="showConfirm = false">Anuluj</button>
@@ -147,6 +151,9 @@ export default {
           name: t.name,
           qty: parseInt(this.form.ilosc[t.id], 10) || 1,
         }))
+    },
+    selectedTotal() {
+      return this.selected.reduce((sum, s) => sum + s.qty, 0)
     },
     filteredTools() {
       let tools = this.toolsFree
