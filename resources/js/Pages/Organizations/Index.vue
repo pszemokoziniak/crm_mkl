@@ -64,7 +64,7 @@ export default {
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
-        sort: this.filters.sort ?? 'created_at',
+        sort: this.filters.sort ?? 'numerBud',
         direction: this.filters.direction ?? 'desc',
       },
     }

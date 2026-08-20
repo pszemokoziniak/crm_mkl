@@ -29,7 +29,7 @@ class OrganizationsController extends Controller
         $myContactId = Auth::user()?->contactId();
 
         $hasExplicitSort = request()->filled('sort');
-        $sort = request('sort', 'created_at');
+        $sort = request('sort', 'numerBud');
         $direction = request('direction') === 'asc' ? 'asc' : 'desc';
 
         // Mapowanie "publicznych" nazw sortów -> realne kolumny/aliasy SQL
@@ -111,7 +111,12 @@ class OrganizationsController extends Controller
             $query->orderByDesc('is_active_for_me');
         }
 
-        $query->orderBy($allowedSorts[$sort], $direction);
+        if ($sort === 'numerBud') {
+            // Numer projektu bywa różnej długości — sortujemy liczbowo, nie tekstowo.
+            $query->orderByRaw('CAST(organizations.numerBud AS UNSIGNED) '.($direction === 'asc' ? 'asc' : 'desc'));
+        } else {
+            $query->orderBy($allowedSorts[$sort], $direction);
+        }
 
         // Fallback sort
         if ($sort !== 'created_at') {

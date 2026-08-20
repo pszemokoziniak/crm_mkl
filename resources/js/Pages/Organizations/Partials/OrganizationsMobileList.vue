@@ -22,6 +22,9 @@
       </div>
 
       <div class="mt-2 text-sm text-gray-600 space-y-1">
+        <div v-if="organization.numerBud">
+          <span class="text-gray-500">Numer Projektu:</span> {{ organization.numerBud }}
+        </div>
         <div v-if="organization.country">
           <span class="text-gray-500">Kraj:</span> {{ organization.country.name }}
         </div>
