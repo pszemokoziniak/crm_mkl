@@ -65,10 +65,10 @@
               </span>
             </td>
             <td class="px-6 py-4">
-              <div v-if="item.budowy && item.budowy.length" class="flex flex-col gap-0.5 text-xs leading-tight text-gray-600 max-w-xs">
-                <span v-for="(b, i) in item.budowy" :key="i" class="truncate">
+              <div v-if="item.budowy && item.budowy.length" class="flex flex-col gap-0.5 text-xs leading-tight max-w-xs">
+                <Link v-for="(b, i) in item.budowy" :key="i" :href="`/budowy/${b.id}/edit`" class="truncate text-indigo-600 hover:text-indigo-800 hover:underline">
                   {{ b.nazwaBud }}<span v-if="b.qty > 1" class="text-gray-400"> ({{ b.qty }})</span>
-                </span>
+                </Link>
               </div>
               <span v-else class="text-gray-300 text-xs">-</span>
             </td>
