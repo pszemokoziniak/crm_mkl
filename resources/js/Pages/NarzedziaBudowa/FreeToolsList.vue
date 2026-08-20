@@ -20,7 +20,11 @@
           class="form-input text-sm py-1.5 w-full sm:w-64"
         />
       </div>
-      <form @submit.prevent="store()">
+      <form @submit.prevent="openConfirm">
+      <div class="flex items-center justify-between px-6 py-3 bg-gray-50 border-b border-gray-100">
+        <span class="text-sm text-gray-600">Wybrano: <span class="font-semibold text-gray-900">{{ form.checkedValues.length }}</span></span>
+        <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj narzędzia na budowę</loading-button>
+      </div>
       <div class="overflow-x-auto">
         <table class="w-full whitespace-nowrap">
           <thead>
@@ -79,6 +83,30 @@
       </div>
       </form>
     </div>
+
+    <teleport to="body">
+      <div v-if="showConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showConfirm = false" />
+        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800">Potwierdź pobranie sprzętu</h3>
+          </div>
+          <div class="px-6 py-4 max-h-72 overflow-y-auto">
+            <p class="text-sm text-gray-500 mb-3">Na budowę zostanie pobrany sprzęt:</p>
+            <ul class="divide-y divide-gray-100">
+              <li v-for="s in selected" :key="s.id" class="flex items-center justify-between py-2 text-sm">
+                <span class="text-gray-800 pr-4">{{ s.name }}</span>
+                <span class="font-semibold text-gray-900 whitespace-nowrap">× {{ s.qty }}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="showConfirm = false">Anuluj</button>
+            <button type="button" class="btn-indigo" :disabled="form.processing" @click="confirmStore">Potwierdź</button>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 
@@ -102,6 +130,7 @@ export default {
   data() {
     return {
       open: false,
+      showConfirm: false,
       search: '',
       form: this.$inertia.form({
         checkedValues: [],
@@ -110,6 +139,15 @@ export default {
     }
   },
   computed: {
+    selected() {
+      return this.toolsFree
+        .filter((t) => this.form.checkedValues.includes(t.id))
+        .map((t) => ({
+          id: t.id,
+          name: t.name,
+          qty: parseInt(this.form.ilosc[t.id], 10) || 1,
+        }))
+    },
     filteredTools() {
       let tools = this.toolsFree
       if (!this.search) return tools
@@ -133,6 +171,15 @@ export default {
       if (v < 1) v = 1
       if (v > item.ilosc_magazyn) v = item.ilosc_magazyn
       this.form.ilosc[item.id] = v
+    },
+    openConfirm() {
+      // Bez zaznaczenia nie ma czego potwierdzać.
+      if (!this.form.checkedValues.length) return
+      this.showConfirm = true
+    },
+    confirmStore() {
+      this.showConfirm = false
+      this.store()
     },
     store() {
       this.form.post(`/budowy/${this.organization.id}/narzedzia`)
