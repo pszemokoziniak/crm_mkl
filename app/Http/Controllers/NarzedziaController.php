@@ -56,6 +56,7 @@ class NarzedziaController extends Controller
                     'budowy' => $narzedzia->toolWorkDates
                         ->filter(fn ($t) => (int) $t->narzedzia_nb > 0 && $t->organization)
                         ->map(fn ($t) => [
+                            'id' => $t->organization->id,
                             'nazwaBud' => $t->organization->nazwaBud,
                             'qty' => (int) $t->narzedzia_nb,
                         ])
@@ -97,6 +98,7 @@ class NarzedziaController extends Controller
                     ->get()
                     ->filter(fn ($t) => (int) $t->narzedzia_nb > 0 && $t->organization)
                     ->map(fn ($t) => [
+                        'id' => $t->organization->id,
                         'nazwaBud' => $t->organization->nazwaBud,
                         'qty' => (int) $t->narzedzia_nb,
                     ])
