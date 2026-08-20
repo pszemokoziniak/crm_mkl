@@ -33,6 +33,11 @@
                     <label class="block text-sm font-medium text-indigo-600 mb-1">Na budowach</label>
                     <div class="text-2xl font-bold text-indigo-800">{{ narzedzia.ilosc_budowa }}</div>
                     <p class="mt-1 text-xs text-indigo-400">Aktualnie przypisane</p>
+                    <div v-if="narzedzia.budowy && narzedzia.budowy.length" class="mt-2 flex flex-col gap-0.5 text-xs leading-tight text-indigo-700 border-t border-indigo-100 pt-2">
+                      <span v-for="(b, i) in narzedzia.budowy" :key="i" class="truncate">
+                        {{ b.nazwaBud }}<span v-if="b.qty > 1" class="text-indigo-400"> ({{ b.qty }})</span>
+                      </span>
+                    </div>
                   </div>
 
                   <div :class="[
