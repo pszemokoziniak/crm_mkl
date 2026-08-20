@@ -15,7 +15,12 @@
           <form @submit.prevent="update">
             <div class="p-8">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <text-input v-model="form.name" :error="form.errors.name" label="Nazwa sprzętu" class="md:col-span-2" />
+                <select-input v-model="form.narzedzia_typ_id" :error="form.errors.narzedzia_typ_id" label="Nazwa sprzętu (typ)" class="md:col-span-2">
+                  <option value="">— wybierz —</option>
+                  <option v-for="t in typy" :key="t.id" :value="t.id">{{ t.name }}</option>
+                  <option value="__new__">+ Nowy typ…</option>
+                </select-input>
+                <text-input v-if="form.narzedzia_typ_id === '__new__'" v-model="form.new_typ_name" :error="form.errors.new_typ_name" label="Nazwa nowego typu" class="md:col-span-2" />
                 <text-input v-model="form.numer_seryjny" :error="form.errors.numer_seryjny" label="Numer seryjny" />
                 <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" label="Ważność badań" />
               </div>
@@ -119,6 +124,7 @@ import NumberInput from '@/Shared/NumberInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import DateInput from '@/Shared/DateInput.vue'
+import SelectInput from '@/Shared/SelectInput'
 import Dropzone from '@/Shared/Dropzone.vue'
 import DeleteButton from '@/Shared/DeleteButton.vue'
 import Icon from '@/Shared/Icon.vue'
@@ -127,6 +133,7 @@ import axios from 'axios'
 export default {
   components: {
     DateInput,
+    SelectInput,
     Head,
     Link,
     LoadingButton,
@@ -142,6 +149,7 @@ export default {
     narzedzia: Object,
     photos: Array,
     documents: Array,
+    typy: { type: Array, default: () => [] },
   },
   remember: 'form',
   data() {
@@ -151,6 +159,8 @@ export default {
         numer_seryjny: this.narzedzia.numer_seryjny,
         waznosc_badan: this.narzedzia.waznosc_badan,
         name: this.narzedzia.name,
+        narzedzia_typ_id: this.narzedzia.narzedzia_typ_id ?? '',
+        new_typ_name: '',
         ilosc_all: this.narzedzia.ilosc_all,
         photos: this.photos,
         documents: this.documents,
@@ -167,6 +177,7 @@ export default {
       this.form
         .transform((data) => ({
           ...data,
+          narzedzia_typ_id: data.narzedzia_typ_id === '__new__' ? null : data.narzedzia_typ_id,
           photos: data.photos.filter(file => file.deleted !== true),
           documents: data.documents.filter(file => file.deleted !== true),
         }))

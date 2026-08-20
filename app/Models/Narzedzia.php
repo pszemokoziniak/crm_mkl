@@ -9,6 +9,7 @@ class Narzedzia extends Model
 {
     protected $fillable = [
         'name',
+        'narzedzia_typ_id',
         'numer_seryjny',
         'waznosc_badan',
         'ilosc_all',
@@ -43,6 +44,11 @@ class Narzedzia extends Model
     public function files(): HasMany
     {
         return $this->hasMany(ToolFile::class, 'tool_id');
+    }
+
+    public function typ()
+    {
+        return $this->belongsTo(NarzedziaTyp::class, 'narzedzia_typ_id');
     }
 
     public function toolWorkDates(): HasMany
