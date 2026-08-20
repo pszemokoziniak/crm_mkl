@@ -1,17 +1,26 @@
 <template>
   <div class="max-w bg-white rounded-md shadow overflow-hidden my-6 border border-gray-200">
-    <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+    <div
+      class="px-6 py-4 bg-gray-50 flex justify-between items-center cursor-pointer select-none"
+      :class="{ 'border-b border-gray-100': open }"
+      @click="open = !open"
+    >
       <h3 class="font-bold text-lg text-gray-700">Dostępne narzędzia</h3>
-      <div class="w-64">
+      <span class="flex items-center gap-1 text-sm font-medium text-indigo-600">
+        {{ open ? 'Ukryj' : 'Pokaż' }}
+        <icon :name="open ? 'cheveron-down' : 'cheveron-right'" class="w-5 h-5 fill-current" />
+      </span>
+    </div>
+    <div v-show="open">
+      <div class="px-6 py-3 border-b border-gray-100">
         <input
           v-model="search"
           type="text"
           placeholder="Szukaj narzędzia..."
-          class="form-input text-sm py-1.5"
+          class="form-input text-sm py-1.5 w-full sm:w-64"
         />
       </div>
-    </div>
-    <form @submit.prevent="store()">
+      <form @submit.prevent="store()">
       <div class="overflow-x-auto">
         <table class="w-full whitespace-nowrap">
           <thead>
@@ -68,7 +77,8 @@
           Dodaj narzędzia na budowę
         </loading-button>
       </div>
-    </form>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -91,6 +101,7 @@ export default {
   },
   data() {
     return {
+      open: false,
       search: '',
       form: this.$inertia.form({
         checkedValues: [],
