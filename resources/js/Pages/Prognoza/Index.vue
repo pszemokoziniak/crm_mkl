@@ -29,14 +29,18 @@
         </div>
       </div>
     </div>
+    <div class="flex items-center justify-between mb-4 mt-6">
+      <search-filter-no-filtr v-model="tableSearch" class="w-full max-w-md" @reset="tableSearch = ''" />
+      <span class="ml-4 text-sm text-gray-500 whitespace-nowrap">{{ displayedRows.length }} z {{ data.length }}</span>
+    </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Data</th>
-          <th class="pb-4 pt-6 px-6">Nazwa budowy</th>
-          <th class="pb-4 pt-6 px-6 col-2">Ilość pracowników</th>
+          <th class="pb-4 pt-6 px-6 cursor-pointer select-none hover:text-indigo-600" @click="sortBy('date')">Data <span class="text-gray-400">{{ sortArrow('date') }}</span></th>
+          <th class="pb-4 pt-6 px-6 cursor-pointer select-none hover:text-indigo-600" @click="sortBy('name')">Nazwa budowy <span class="text-gray-400">{{ sortArrow('name') }}</span></th>
+          <th class="pb-4 pt-6 px-6 col-2 cursor-pointer select-none hover:text-indigo-600" @click="sortBy('count')">Ilość pracowników <span class="text-gray-400">{{ sortArrow('count') }}</span></th>
         </tr>
-        <tr v-for="item in data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="item in displayedRows" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-4" :href="`/prognoza/${item.id}/edit`" tabindex="-1">
               {{ item.prognozadates.start }} - {{ item.prognozadates.end }}
@@ -58,6 +62,9 @@
             </Link>
           </td>
         </tr>
+        <tr v-if="displayedRows.length === 0">
+          <td class="px-6 py-4 border-t text-gray-500" colspan="4">Brak wyników.</td>
+        </tr>
       </table>
     </div>
   </div>
@@ -71,10 +78,12 @@ import Years from '@/Pages/Prognoza/Years'
 import Buildings from '@/Pages/Prognoza/Buildings.vue'
 import Months from '@/Pages/Prognoza/Months.vue'
 import ChartComponent from '@/Pages/Prognoza/ChartComponent.vue'
+import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
 
 export default {
   components: {
     ChartComponent,
+    SearchFilterNoFiltr,
     Months,
     Buildings,
     Head,
@@ -103,7 +112,55 @@ export default {
       edit: false,
       year: this.yearSelected,
       month: null,
+      tableSearch: '',
+      sortKey: 'date',
+      sortDir: 'asc',
     }
+  },
+  computed: {
+    displayedRows() {
+      const q = this.tableSearch.trim().toLowerCase()
+      let rows = this.data
+      if (q) {
+        rows = rows.filter((it) => {
+          const range = `${it.prognozadates?.start ?? ''} - ${it.prognozadates?.end ?? ''}`.toLowerCase()
+          const name = (it.organization?.nazwaBud ?? '').toLowerCase()
+          return range.includes(q) || name.includes(q)
+        })
+      }
+      const dir = this.sortDir === 'asc' ? 1 : -1
+      const key = this.sortKey
+      return [...rows].sort((a, b) => {
+        let av, bv
+        if (key === 'name') {
+          av = (a.organization?.nazwaBud ?? '').toLowerCase()
+          bv = (b.organization?.nazwaBud ?? '').toLowerCase()
+        } else if (key === 'count') {
+          av = Number(a.workers_count)
+          bv = Number(b.workers_count)
+        } else {
+          av = a.prognozadates?.start ?? ''
+          bv = b.prognozadates?.start ?? ''
+        }
+        if (av < bv) return -1 * dir
+        if (av > bv) return 1 * dir
+        return 0
+      })
+    },
+  },
+  methods: {
+    sortBy(key) {
+      if (this.sortKey === key) {
+        this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'
+      } else {
+        this.sortKey = key
+        this.sortDir = 'asc'
+      }
+    },
+    sortArrow(key) {
+      if (this.sortKey !== key) return '↕'
+      return this.sortDir === 'asc' ? '↑' : '↓'
+    },
   },
   mounted() {
     const urlParams = new URLSearchParams(window.location.search)
