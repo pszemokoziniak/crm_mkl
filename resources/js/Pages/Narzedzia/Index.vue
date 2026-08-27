@@ -23,7 +23,7 @@
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Numer Seryjny</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Wszystkie</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Na budowie</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">W magazynie</th>
+            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Dostępny</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Na budowach</th>
             <th class="py-4 px-6" />
           </tr>
