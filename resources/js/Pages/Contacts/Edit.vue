@@ -32,32 +32,47 @@
       <div class="grid col-span-1 p-4 bg-gray-50 border-l">
         <h2 class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-4 border-b pb-2">Ważne terminy:</h2>
         <div class="space-y-4">
-          <div v-if="filterActive(bhp).length">
+          <div v-if="latestTermin(bhp)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">BHP</p>
-            <p v-for="item in filterActive(bhp)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(bhp).end) ? 'text-red-600' : 'text-indigo-600'">
+              {{ latestTermin(bhp).end }}
+              <span v-if="isExpired(latestTermin(bhp).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
           </div>
 
-          <div v-if="filterActive(lekarskie).length">
+          <div v-if="latestTermin(lekarskie)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">Badania lekarskie</p>
-            <p v-for="item in filterActive(lekarskie)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(lekarskie).end) ? 'text-red-600' : 'text-indigo-600'">
+              {{ latestTermin(lekarskie).end }}
+              <span v-if="isExpired(latestTermin(lekarskie).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
           </div>
 
-          <div v-if="filterActive(a1).length">
+          <div v-if="latestTermin(a1)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">A1</p>
-            <p v-for="item in filterActive(a1)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(a1).end) ? 'text-red-600' : 'text-indigo-600'">
+              {{ latestTermin(a1).end }}
+              <span v-if="isExpired(latestTermin(a1).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
           </div>
 
-          <div v-if="filterActive(uprawnienia).length">
+          <div v-if="latestTermin(uprawnienia)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">Uprawnienia</p>
-            <p v-for="item in filterActive(uprawnienia)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(uprawnienia).end) ? 'text-red-600' : 'text-indigo-600'">
+              {{ latestTermin(uprawnienia).end }}
+              <span v-if="isExpired(latestTermin(uprawnienia).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
           </div>
 
-          <div v-if="filterActive(pbioz).length">
+          <div v-if="latestTermin(pbioz)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">PBIOZ</p>
-            <p v-for="item in filterActive(pbioz)" :key="item.id" class="text-sm font-semibold text-indigo-600">{{ item.end }}</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(pbioz).end) ? 'text-red-600' : 'text-indigo-600'">
+              {{ latestTermin(pbioz).end }}
+              <span v-if="isExpired(latestTermin(pbioz).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
           </div>
 
-          <div v-if="!hasAnyActiveTermin" class="text-xs text-gray-400 italic">Brak aktywnych terminów</div>
+          <div v-if="!hasAnyTermin" class="text-xs text-gray-400 italic">Brak terminów</div>
         </div>
       </div>
     </div>
@@ -263,13 +278,13 @@ export default {
       const funkcja = Object.values(this.funkcjas).find(f => f.id === this.form.funkcja_id);
       return funkcja ? funkcja.name : 'Nie określono';
     },
-    hasAnyActiveTermin() {
+    hasAnyTermin() {
       return (
-        this.filterActive(this.bhp).length > 0 ||
-        this.filterActive(this.lekarskie).length > 0 ||
-        this.filterActive(this.a1).length > 0 ||
-        this.filterActive(this.uprawnienia).length > 0 ||
-        this.filterActive(this.pbioz).length > 0
+        !!this.latestTermin(this.bhp) ||
+        !!this.latestTermin(this.lekarskie) ||
+        !!this.latestTermin(this.a1) ||
+        !!this.latestTermin(this.uprawnienia) ||
+        !!this.latestTermin(this.pbioz)
       )
     },
   },
@@ -307,6 +322,19 @@ export default {
       const today = moment().startOf('day')
       const itemsArray = Array.isArray(items) ? items : Object.values(items)
       return itemsArray.filter((item) => item.end && moment(item.end).isSameOrAfter(today))
+    },
+    // Najdalszy (najświeższy) termin ważności danego dokumentu — z niego wynika,
+    // czy dziś jest ważny, czy już po terminie.
+    latestTermin(items) {
+      if (!items) return null
+      const itemsArray = Array.isArray(items) ? items : Object.values(items)
+      const withEnd = itemsArray.filter((item) => item.end)
+      if (!withEnd.length) return null
+      return withEnd.reduce((best, item) => (moment(item.end).isAfter(moment(best.end)) ? item : best))
+    },
+    isExpired(date) {
+      if (!date) return false
+      return moment(date).isBefore(moment().startOf('day'))
     },
     update() {
       this.form.post(`/contacts/${this.contact.id}`, {
