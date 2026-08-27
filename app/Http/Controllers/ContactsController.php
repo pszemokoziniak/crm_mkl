@@ -233,6 +233,15 @@ class ContactsController extends Controller
 
         $contact->update($data);
 
+        // "Zwolniony" + potwierdzona archiwizacja -> przenosimy do archiwum
+        // (soft-delete + czyszczenie pobytów, jak przy usuwaniu pracownika).
+        if ($request->boolean('archive') && $contact->status_zatrudnienia === 'Zwolniony') {
+            ContactWorkDate::where('contact_id', $contact->id)->delete();
+            $contact->delete();
+
+            return Redirect::route('contacts')->with('success', 'Pracownik zwolniony i przeniesiony do archiwum.');
+        }
+
         return Redirect::back()->with('success', 'Pracownik poprawiony.');
     }
 
