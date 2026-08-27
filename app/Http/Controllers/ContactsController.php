@@ -300,14 +300,15 @@ class ContactsController extends Controller
 
     public function history(Contact $contact)
     {
-        $history = BuildingTimeSheet::with('build')
+        $history = BuildingTimeSheet::with(['build' => fn ($q) => $q->withTrashed()])
             ->where('contact_id', $contact->id)
             ->orderBy('work_day', 'desc')
             ->get()
             ->groupBy('organization_id')
             ->map(function ($group) {
+                // build bywa null (budowa usunięta z bazy) — bez guardu leciał 500.
                 return [
-                    'organization' => $group->first()->build->nazwaBud,
+                    'organization' => optional($group->first()->build)->nazwaBud ?? '— budowa usunięta —',
                     'start' => $group->min('work_day'),
                     'end' => $group->max('work_day'),
                     'hours' => $group->sum(function ($item) {
