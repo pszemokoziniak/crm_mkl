@@ -22,7 +22,7 @@ class ReportsController extends Controller
         return Inertia::render('Reports/Index');
     }
 
-    public function koniecUprawinien(Request $request)
+    public function koniecUprawinien(\Illuminate\Http\Request $request)
     {
         $today = Carbon::today();
         $todayStr = $today->toDateString();
