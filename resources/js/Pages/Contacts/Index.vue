@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head title="Contacts" />
-    <h1 class="mb-8 text-3xl font-bold">Pracownicy</h1>
+    <h1 class="mb-8 text-3xl font-bold">Pracownicy <span class="text-xl font-medium text-gray-400">({{ contacts.total }} w bazie)</span></h1>
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
       <div class="flex items-center w-full sm:w-auto">
         <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
@@ -21,6 +21,7 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="text-left font-bold border-b">
+            <th class="pb-4 pt-6 px-4 w-px whitespace-nowrap text-gray-500">Lp.</th>
             <th class="pb-4 pt-6 px-4">Nazwisko Imię</th>
             <th class="pb-4 pt-6 px-4">Stanowisko</th>
             <th class="pb-4 pt-6 px-4">Pracuje na budowie</th>
@@ -28,7 +29,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <tr v-for="(contact, index) in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+            <td class="border-t whitespace-nowrap text-gray-400 tabular-nums">
+              <div class="px-4 py-3">{{ contacts.from + index }}</div>
+            </td>
             <td class="border-t whitespace-nowrap">
               <Link class="flex items-center px-4 py-3 focus:text-indigo-500 font-medium" :href="`/contacts/${contact.id}/edit`">
                 {{ contact.last_name }} {{ contact.name }}
@@ -56,7 +60,7 @@
             </td>
           </tr>
           <tr v-if="contacts.data.length === 0">
-            <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono kontaktu</td>
+            <td class="px-6 py-4 border-t" colspan="5">Nie znaleziono kontaktu</td>
           </tr>
         </tbody>
       </table>
