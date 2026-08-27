@@ -11,6 +11,7 @@ use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
@@ -148,6 +149,44 @@ class DashboardController extends Controller
                 ->transform(fn($org) => $this->transformOrganization($org, $now));
         }
 
+        // Budowy do archiwizacji: mają pobyty istniejących pracowników, ale
+        // żaden nie jest już niezakończony (wszyscy zjechali).
+        $doArchiwizacji = Organization::query()
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))->from('contact_work_dates as cwd')
+                    ->join('contacts as c', 'c.id', '=', 'cwd.contact_id')
+                    ->whereColumn('cwd.organization_id', 'organizations.id')
+                    ->whereNull('c.deleted_at');
+            })
+            ->whereNotExists(function ($q) use ($now) {
+                $q->select(DB::raw(1))->from('contact_work_dates as cwd')
+                    ->join('contacts as c', 'c.id', '=', 'cwd.contact_id')
+                    ->whereColumn('cwd.organization_id', 'organizations.id')
+                    ->whereNull('c.deleted_at')
+                    ->where(function ($w) use ($now) {
+                        $w->whereNull('cwd.end')->orWhere('cwd.end', '>=', $now);
+                    });
+            })
+            ->orderBy('numerBud', 'desc')
+            ->get(['id', 'nazwaBud', 'numerBud'])
+            ->map(fn ($o) => ['id' => $o->id, 'nazwaBud' => $o->nazwaBud, 'numerBud' => $o->numerBud])
+            ->values();
+
+        // Pracownicy z aktualnym/przyszłym pobytem, ale bez A1 ważnego dziś.
+        $bezWaznegoA1 = Contact::query()
+            ->whereIn('id', function ($q) use ($now) {
+                $q->select('contact_id')->from('contact_work_dates')
+                    ->where(function ($w) use ($now) {
+                        $w->whereNull('end')->orWhere('end', '>=', $now);
+                    });
+            })
+            ->whereDoesntHave('a1', fn ($q) => $q->where('end', '>=', $now))
+            ->orderBy('last_name')->orderBy('first_name')
+            ->limit(100)
+            ->get(['id', 'first_name', 'last_name'])
+            ->map(fn ($c) => ['id' => $c->id, 'first_name' => $c->first_name, 'last_name' => $c->last_name])
+            ->values();
+
         $stats = [
             'pracownicy' => Contact::count(),
             'budowy' => Organization::count(),
@@ -158,6 +197,8 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed', 'my'),
             'stats' => $stats,
+            'do_archiwizacji' => $doArchiwizacji,
+            'bez_a1' => $bezWaznegoA1,
             'expiring_items' => $expiringItems,
             'organizations_user' => $organizations_user,
             'organizations_biuro' => $organizations_biuro,
