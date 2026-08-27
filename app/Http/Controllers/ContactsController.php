@@ -27,11 +27,11 @@ class ContactsController extends Controller
     public function index()
     {
         return Inertia::render('Contacts/Index', [
-            'filters' => Request::all('search', 'trashed'),
+            'filters' => Request::all('search', 'trashed', 'status'),
             'contacts' => Contact::with('funkcja')
                 ->with('organization')
                 ->orderByName()
-                ->filter(Request::only('search', 'trashed'))
+                ->filter(Request::only('search', 'trashed', 'status'))
                 ->paginate(20)
                 ->withQueryString()
                 ->through(fn ($contact) => [

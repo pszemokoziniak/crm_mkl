@@ -5,10 +5,17 @@
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
       <div class="flex items-center w-full sm:w-auto">
         <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-          <label class="block text-gray-700">Wybierz:</label>
+          <label class="block text-gray-700">Status:</label>
+          <select v-model="form.status" class="form-select mt-1 w-full">
+            <option :value="null">— wszyscy —</option>
+            <option value="dostepni">Dostępni</option>
+            <option value="na_budowie">Na budowie</option>
+          </select>
+          <label class="block text-gray-700 mt-4">Wyświetlaj:</label>
           <select v-model="form.trashed" class="form-select mt-1 w-full">
-            <option value="with">Wszystkie</option>
-            <option value="only">Usunięte</option>
+            <option :value="null">Aktualne</option>
+            <option value="only">Archiwum</option>
+            <option value="with">Wszystko</option>
           </select>
         </search-filter>
       </div>
@@ -98,6 +105,7 @@ export default {
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
+        status: this.filters.status,
       },
     }
   },
