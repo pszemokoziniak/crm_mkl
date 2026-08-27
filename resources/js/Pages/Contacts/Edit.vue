@@ -191,7 +191,7 @@
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
       <fieldset :disabled="disabled === 0">
-        <form @submit.prevent="update">
+        <form @submit.prevent="submitUpdate">
           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
             <text-input v-model="form.first_name" :error="form.errors.first_name" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />
             <text-input v-model="form.last_name" :error="form.errors.last_name" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
@@ -233,6 +233,25 @@
         </form>
       </fieldset>
     </div>
+
+    <teleport to="body">
+      <div v-if="showZwolnionyConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4" @keydown.esc.window="showZwolnionyConfirm = false">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showZwolnionyConfirm = false" />
+        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800">Pracownik zwolniony</h3>
+          </div>
+          <div class="px-6 py-4 text-sm text-gray-700">
+            Oznaczasz <span class="font-medium">{{ form.last_name }} {{ form.first_name }}</span> jako zwolnionego.
+            Czy przenieść go też do <span class="font-medium">archiwum</span>? Zniknie z aktywnej listy pracowników (dane i historia zostają).
+          </div>
+          <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" :disabled="form.processing" @click="saveWithoutArchive">Nie, zostaw w aktywnych</button>
+            <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700" :disabled="form.processing" @click="confirmArchive">Tak, do archiwum</button>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 
@@ -285,6 +304,7 @@ export default {
       disabled: 1,
       photoPreview: null,
       showAssignConfirm: false,
+      showZwolnionyConfirm: false,
       assignForm: this.$inertia.form({
         organization_id: '',
         start: '',
@@ -309,6 +329,7 @@ export default {
         ekuz: this.contact.ekuz,
         photo_path: null,
         status_zatrudnienia: this.contact.status_zatrudnienia,
+        archive: false,
       }),
     }
   },
@@ -392,13 +413,32 @@ export default {
       if (this.isExpiringSoon(date)) return 'text-orange-600'
       return 'text-indigo-600'
     },
-    update() {
+    submitUpdate() {
+      // Monit tylko gdy status WŁAŚNIE zmieniono na "Zwolniony".
+      if (this.form.status_zatrudnienia === 'Zwolniony' && this.contact.status_zatrudnienia !== 'Zwolniony') {
+        this.showZwolnionyConfirm = true
+        return
+      }
+      this.form.archive = false
+      this.doUpdate()
+    },
+    doUpdate() {
       this.form.post(`/contacts/${this.contact.id}`, {
         onSuccess: () => {
           this.form.reset('photo_path')
           this.photoPreview = null
         },
       })
+    },
+    confirmArchive() {
+      this.form.archive = true
+      this.showZwolnionyConfirm = false
+      this.doUpdate()
+    },
+    saveWithoutArchive() {
+      this.form.archive = false
+      this.showZwolnionyConfirm = false
+      this.doUpdate()
     },
     destroy() {
       if (confirm('Chcesz usunąć?')) {
