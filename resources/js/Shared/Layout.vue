@@ -5,7 +5,7 @@
       <div class="md:flex md:flex-col md:h-screen">
         <div class="md:flex md:flex-shrink-0">
           <div class="flex items-center justify-between px-6 py-4 bg-white md:flex-shrink-0 md:justify-center md:w-56 border-b">
-            <Link class="mt-1" href="/">
+            <Link class="mt-1" :href="auth.user.owner === 3 ? '/' : '/budowy'">
               <img src="/img/MKL-BAU.png" alt="logo" width="120" height="28" />
             </Link>
           </div>
