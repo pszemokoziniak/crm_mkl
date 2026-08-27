@@ -34,40 +34,45 @@
         <div class="space-y-4">
           <div v-if="latestTermin(bhp)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">BHP</p>
-            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(bhp).end) ? 'text-red-600' : 'text-indigo-600'">
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(bhp).end)">
               {{ latestTermin(bhp).end }}
+              <span v-if="isExpiringSoon(latestTermin(bhp).end)" title="Zbliża się termin — do 30 dni">🔔</span>
               <span v-if="isExpired(latestTermin(bhp).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
             </p>
           </div>
 
           <div v-if="latestTermin(lekarskie)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">Badania lekarskie</p>
-            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(lekarskie).end) ? 'text-red-600' : 'text-indigo-600'">
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(lekarskie).end)">
               {{ latestTermin(lekarskie).end }}
+              <span v-if="isExpiringSoon(latestTermin(lekarskie).end)" title="Zbliża się termin — do 30 dni">🔔</span>
               <span v-if="isExpired(latestTermin(lekarskie).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
             </p>
           </div>
 
           <div v-if="latestTermin(a1)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">A1</p>
-            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(a1).end) ? 'text-red-600' : 'text-indigo-600'">
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(a1).end)">
               {{ latestTermin(a1).end }}
+              <span v-if="isExpiringSoon(latestTermin(a1).end)" title="Zbliża się termin — do 30 dni">🔔</span>
               <span v-if="isExpired(latestTermin(a1).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
             </p>
           </div>
 
           <div v-if="latestTermin(uprawnienia)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">Uprawnienia</p>
-            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(uprawnienia).end) ? 'text-red-600' : 'text-indigo-600'">
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(uprawnienia).end)">
               {{ latestTermin(uprawnienia).end }}
+              <span v-if="isExpiringSoon(latestTermin(uprawnienia).end)" title="Zbliża się termin — do 30 dni">🔔</span>
               <span v-if="isExpired(latestTermin(uprawnienia).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
             </p>
           </div>
 
           <div v-if="latestTermin(pbioz)">
             <p class="text-[10px] text-gray-400 font-bold uppercase">PBIOZ</p>
-            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="isExpired(latestTermin(pbioz).end) ? 'text-red-600' : 'text-indigo-600'">
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(pbioz).end)">
               {{ latestTermin(pbioz).end }}
+              <span v-if="isExpiringSoon(latestTermin(pbioz).end)" title="Zbliża się termin — do 30 dni">🔔</span>
               <span v-if="isExpired(latestTermin(pbioz).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
             </p>
           </div>
@@ -335,6 +340,18 @@ export default {
     isExpired(date) {
       if (!date) return false
       return moment(date).isBefore(moment().startOf('day'))
+    },
+    // Termin ważny, ale zostało nie więcej niż 30 dni — czas na odnowienie.
+    isExpiringSoon(date) {
+      if (!date) return false
+      const today = moment().startOf('day')
+      const d = moment(date).startOf('day')
+      return d.isSameOrAfter(today) && d.diff(today, 'days') <= 30
+    },
+    terminClass(date) {
+      if (this.isExpired(date)) return 'text-red-600'
+      if (this.isExpiringSoon(date)) return 'text-orange-600'
+      return 'text-indigo-600'
     },
     update() {
       this.form.post(`/contacts/${this.contact.id}`, {
