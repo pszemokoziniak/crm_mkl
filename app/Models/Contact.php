@@ -77,7 +77,10 @@ class Contact extends Model
 
     public function scopeOrderByName($query)
     {
-        $query->orderBy('last_name')->orderBy('first_name');
+        // Kolacja polska — inaczej ż/ś/ł mieszają się z z/s/l (domyślna
+        // utf8mb4_unicode_ci traktuje je jako równe podstawowej literze).
+        $query->orderByRaw('last_name COLLATE utf8mb4_polish_ci asc')
+            ->orderByRaw('first_name COLLATE utf8mb4_polish_ci asc');
     }
 
     public function scopeFilter($query, array $filters)
