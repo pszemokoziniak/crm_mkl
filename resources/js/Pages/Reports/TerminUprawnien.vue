@@ -1,141 +1,210 @@
 <template>
   <div>
     <RaportMenu />
-    <Head title="Termin Uprawnień" />
-    <h1 class="mb-8 text-3xl font-bold">Termin uprawnień</h1>
+    <Head title="Termin uprawnień" />
+    <h1 class="mb-6 text-3xl font-bold">Termin uprawnień</h1>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-      <a v-for="(count, type) in summary" :key="type" :href="'#' + slugify(type)" class="bg-white p-4 rounded shadow hover:bg-gray-50 transition">
-        <h3 class="font-bold text-gray-700">{{ type }}</h3>
-        <p class="text-2xl font-bold mt-2" :class="count > 0 ? 'text-red-500' : 'text-green-600'">{{ count }}</p>
-        <p class="text-sm text-gray-500">upływa &lt; 30 dni</p>
-      </a>
+    <!-- Zakładki -->
+    <div class="flex gap-2 mb-6 border-b border-gray-200">
+      <button
+        type="button"
+        class="px-4 py-2 -mb-px border-b-2 font-medium text-sm"
+        :class="tab === 'koncze' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-500 hover:text-gray-700'"
+        @click="tab = 'koncze'"
+      >
+        Kończące się terminy
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 -mb-px border-b-2 font-medium text-sm flex items-center gap-2"
+        :class="tab === 'braki' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-500 hover:text-gray-700'"
+        @click="tab = 'braki'"
+      >
+        Brak dokumentów
+        <span v-if="braki.length" class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800">{{ braki.length }}</span>
+      </button>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
-      <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset" />
+    <!-- TAB: Kończące się terminy -->
+    <div v-show="tab === 'koncze'">
+      <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="text-sm text-gray-600">Okno:</label>
+          <select v-model="form.days" class="form-select text-sm py-1.5" @change="reload">
+            <option value="30">Najbliższe 30 dni</option>
+            <option value="60">Najbliższe 60 dni</option>
+            <option value="90">Najbliższe 90 dni</option>
+            <option value="all">Wszystkie ważne</option>
+          </select>
+
+          <div class="flex flex-wrap gap-1">
+            <button
+              v-for="c in categories"
+              :key="c"
+              type="button"
+              class="px-2.5 py-1 rounded-full text-xs font-medium border"
+              :class="activeCategory === c ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'"
+              @click="activeCategory = c"
+            >
+              {{ c }}
+            </button>
+          </div>
+        </div>
+        <search-filter-no-filtr v-model="form.search" class="w-full lg:max-w-xs" @reset="resetSearch" />
+      </div>
+
+      <div class="bg-white rounded-md shadow overflow-x-auto">
+        <table class="w-full whitespace-nowrap text-sm">
+          <thead>
+            <tr class="text-left font-bold border-b bg-gray-50">
+              <th class="py-4 px-6">Pracownik</th>
+              <th class="py-4 px-6">Kategoria</th>
+              <th class="py-4 px-6">Nazwa / typ</th>
+              <th class="py-4 px-6">Koniec</th>
+              <th class="py-4 px-6">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in displayed" :key="index" class="hover:bg-gray-50">
+              <td class="border-t px-6 py-3">
+                <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${item.client_id}/edit`">
+                  {{ item.last_name }} {{ item.first_name }}
+                </Link>
+              </td>
+              <td class="border-t px-6 py-3">
+                <span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700">{{ item.category }}</span>
+              </td>
+              <td class="border-t px-6 py-3 text-gray-700">{{ item.name }}</td>
+              <td class="border-t px-6 py-3 font-semibold" :class="endClass(item.end)">{{ item.end }}</td>
+              <td class="border-t px-6 py-3">
+                <span
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                  :class="statusBadge(item.end).class"
+                >
+                  {{ statusBadge(item.end).label }}
+                </span>
+              </td>
+            </tr>
+            <tr v-if="displayed.length === 0">
+              <td colspan="5" class="px-6 py-10 text-center text-gray-400">
+                Brak terminów w wybranym oknie i kategorii.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-xs text-gray-400">
+        Pokazujemy terminy przeterminowane (do 7 dni wstecz) oraz kończące się w wybranym oknie. Kliknij pracownika, aby przejść do profilu.
+      </p>
     </div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
-      <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Początek</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Koniec</th>
-        </tr>
-        <template v-for="(items, type) in groupedData" :key="type">
-          <tr :id="slugify(type)" class="bg-gray-100">
-            <td colspan="5" class="px-6 py-2 font-bold text-indigo-900">{{ type }}</td>
-          </tr>
-          <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <td :class="[checkDays(item.end) ? 'text-red-500' : '', 'border-t']">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.client_id}/edit`">
-                {{ item.last_name }} {{ item.first_name }}
-                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-              </Link>
-            </td>
-            <td :class="[checkDays(item.end) ? 'text-red-500' : '', 'border-t']">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.client_id}/edit`">
-                {{ item.name }}
-                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-              </Link>
-            </td>
-            <td :class="[checkDays(item.end) ? 'text-red-500' : '', 'border-t']">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.client_id}/edit`">
-                {{ item.start }}
-                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-              </Link>
-            </td>
-            <td :class="[checkDays(item.end) ? 'text-red-500' : '', 'border-t']">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.client_id}/edit`">
-                {{ item.end }}
-                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-              </Link>
-            </td>
-            <td class="w-px border-t">
-              <Link class="flex items-center px-4" :href="`/contacts/${item.client_id}/edit`" tabindex="-1">
-                <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-              </Link>
-            </td>
-          </tr>
-        </template>
-        <tr v-if="data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono elementów</td>
-        </tr>
-      </table>
+
+    <!-- TAB: Brak dokumentów -->
+    <div v-show="tab === 'braki'">
+      <p class="mb-4 text-sm text-gray-500">
+        Pracownicy aktualnie lub w przyszłości przypisani do budowy, którym brakuje <span class="font-medium">ważnego</span> dokumentu (badania, A1, uprawnienia, BHP).
+      </p>
+      <div class="bg-white rounded-md shadow overflow-x-auto">
+        <table class="w-full whitespace-nowrap text-sm">
+          <thead>
+            <tr class="text-left font-bold border-b bg-gray-50">
+              <th class="py-4 px-6">Pracownik</th>
+              <th class="py-4 px-6">Brakujące dokumenty</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="p in braki" :key="p.id" class="hover:bg-gray-50">
+              <td class="border-t px-6 py-3">
+                <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${p.id}/edit`">{{ p.name }}</Link>
+              </td>
+              <td class="border-t px-6 py-3">
+                <span v-for="m in p.missing" :key="m" class="inline-block mr-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">{{ m }}</span>
+              </td>
+            </tr>
+            <tr v-if="braki.length === 0">
+              <td colspan="2" class="px-6 py-10 text-center text-gray-400">
+                Wszyscy przypisani pracownicy mają komplet ważnych dokumentów.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
-import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import RaportMenu from '@/Shared/RaportMenu'
-import pickBy from 'lodash/pickBy'
-import throttle from 'lodash/throttle'
-import mapValues from 'lodash/mapValues'
-import groupBy from 'lodash/groupBy'
 import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
+import throttle from 'lodash/throttle'
 
 export default {
   components: {
-    SearchFilterNoFiltr,
     Head,
-    Icon,
     Link,
     RaportMenu,
+    SearchFilterNoFiltr,
   },
   layout: Layout,
   props: {
-    bhps: Object,
-    data: Object,
-    filters: Object,
-    userOwner: Number,
+    data: { type: Array, default: () => [] },
+    braki: { type: Array, default: () => [] },
+    filters: { type: Object, default: () => ({}) },
   },
   data() {
     return {
+      tab: 'koncze',
+      activeCategory: 'Wszystkie',
+      categories: ['Wszystkie', 'BHP', 'A1', 'Badania lekarskie', 'Uprawnienia', 'PBIOZ'],
       form: {
         search: this.filters.search,
-        trashed: this.filters.trashed,
+        days: this.filters.days || '30',
       },
     }
   },
   computed: {
-    groupedData() {
-      return groupBy(this.data, 'type')
-    },
-    summary() {
-      const s = {}
-      for (const type in this.groupedData) {
-        s[type] = this.groupedData[type].filter(item => this.checkDays(item.end)).length
-      }
-      return s
+    displayed() {
+      if (this.activeCategory === 'Wszystkie') return this.data
+      return this.data.filter((item) => item.category === this.activeCategory)
     },
   },
   watch: {
-    form: {
-      deep: true,
-      handler: throttle(function () {
-        this.$inertia.get('/reports/koniecUprawinien', pickBy(this.form), { preserveState: true })
-      }, 150),
-    },
+    'form.search': throttle(function () {
+      this.reload()
+    }, 300),
   },
   methods: {
-    checkDays(end_date){
-      var dni = Math.round(( new Date(end_date).getTime() - new Date().getTime() ) / (1000*3600*24))
-      return dni < 30
+    reload() {
+      this.$inertia.get('/reports/koniecUprawinien',
+        { search: this.form.search || undefined, days: this.form.days },
+        { preserveState: true, preserveScroll: true, replace: true })
     },
-    slugify(text) {
-      return text.toString().toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w\\-]+/g, '')
-        .replace(/\\-\\-+/g, '-')
-        .replace(/^-+/, '')
-        .replace(/-+$/, '')
+    resetSearch() {
+      this.form.search = null
     },
-    reset() {
-      this.form = mapValues(this.form, () => null)
+    daysLeft(end) {
+      if (!end) return null
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const d = new Date(end)
+      d.setHours(0, 0, 0, 0)
+      return Math.round((d - today) / 86400000)
+    },
+    endClass(end) {
+      const n = this.daysLeft(end)
+      if (n === null) return 'text-gray-700'
+      if (n < 0) return 'text-red-600'
+      if (n <= 30) return 'text-orange-600'
+      return 'text-gray-800'
+    },
+    statusBadge(end) {
+      const n = this.daysLeft(end)
+      if (n === null) return { label: '—', class: 'bg-gray-100 text-gray-600' }
+      if (n < 0) return { label: `po terminie (${-n} dni)`, class: 'bg-red-100 text-red-800' }
+      if (n === 0) return { label: 'kończy się dziś', class: 'bg-red-100 text-red-800' }
+      if (n <= 30) return { label: `🔔 za ${n} dni`, class: 'bg-orange-100 text-orange-800' }
+      return { label: `za ${n} dni`, class: 'bg-green-100 text-green-800' }
     },
   },
 }
