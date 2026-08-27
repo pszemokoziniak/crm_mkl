@@ -22,6 +22,34 @@
       </Link>
     </div>
 
+    <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="bg-white rounded-md shadow overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="font-semibold text-gray-700">Budowy do archiwizacji</h2>
+          <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="do_archiwizacji.length ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'">{{ do_archiwizacji.length }}</span>
+        </div>
+        <div class="max-h-72 overflow-y-auto">
+          <Link v-for="b in do_archiwizacji" :key="b.id" :href="`/budowy/${b.id}/edit`" class="block px-6 py-3 border-t border-gray-50 hover:bg-gray-50 text-sm">
+            <span class="text-gray-400 mr-2">{{ b.numerBud }}</span>{{ b.nazwaBud }}
+          </Link>
+          <p v-if="!do_archiwizacji.length" class="px-6 py-4 text-sm text-gray-400">Brak — żadna budowa nie jest gotowa do archiwizacji.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-md shadow overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="font-semibold text-gray-700">Pracownicy bez ważnego A1</h2>
+          <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="bez_a1.length ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">{{ bez_a1.length }}</span>
+        </div>
+        <div class="max-h-72 overflow-y-auto">
+          <Link v-for="p in bez_a1" :key="p.id" :href="`/contacts/${p.id}/a1`" class="block px-6 py-3 border-t border-gray-50 hover:bg-gray-50 text-sm">
+            {{ p.last_name }} {{ p.first_name }}
+          </Link>
+          <p v-if="!bez_a1.length" class="px-6 py-4 text-sm text-gray-400">Brak — wszyscy przypisani mają ważne A1.</p>
+        </div>
+      </div>
+    </div>
+
     <div v-if="expiring_items.length > 0" class="mb-8">
       <div class="flex items-center mb-4">
         <icon name="eligibility" class="mr-2 w-5 h-5 fill-red-600" />
@@ -210,6 +238,8 @@ export default {
   props: {
     filters: Object,
     stats: { type: Object, default: () => ({}) },
+    do_archiwizacji: { type: Array, default: () => [] },
+    bez_a1: { type: Array, default: () => [] },
     expiring_items: Array,
     organizations_user: Object,
     organizations_biuro: Object,
