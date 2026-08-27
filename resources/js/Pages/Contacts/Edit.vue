@@ -69,11 +69,68 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.first_name }} {{ form.last_name }}
     </h1>
-    <h2 class="mb-4 font-medium">
-      <span class="text-indigo-400">Obecna budowa: </span>
-      <span v-if="obecna_budowa !== 'Nie pracuje'" class="text-lg">{{ obecna_budowa.organization?.nazwaBud ?? 'budowa usunięta' }}</span>
-      <span v-if="obecna_budowa === 'Nie pracuje'" class="text-lg">Nie pracuje</span>
-    </h2>
+    <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-700">Budowy pracownika</div>
+      <div class="px-6 py-4">
+        <div v-if="przypisania.length" class="space-y-1">
+          <div v-for="p in przypisania" :key="p.id" class="flex flex-wrap items-center gap-x-3 text-sm">
+            <Link :href="`/budowy/${p.organization_id}/edit`" class="font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
+              {{ p.nazwaBud || 'budowa usunięta' }}
+            </Link>
+            <span class="text-gray-500">{{ p.start }} → {{ p.end || 'bez końca' }}</span>
+          </div>
+        </div>
+        <p v-else class="text-sm text-gray-400">Nie jest przypisany do żadnej budowy.</p>
+        <p class="mt-3 text-xs text-gray-400">
+          Aby przenieść pracownika na inną budowę lub go usunąć — wejdź w zakładkę danej budowy i popraw daty pobytu.
+        </p>
+      </div>
+
+      <div v-if="!flag" class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+        <div class="mb-3 text-sm font-medium text-gray-700">Przypisz do budowy</div>
+        <form class="flex flex-wrap items-end gap-4" @submit.prevent="openAssignConfirm">
+          <div class="w-full sm:w-64">
+            <label class="form-label">Budowa:</label>
+            <select v-model="assignForm.organization_id" class="form-select mt-1 w-full">
+              <option value="">— wybierz —</option>
+              <option v-for="o in organizations" :key="o.id" :value="o.id">{{ o.name }}</option>
+            </select>
+            <div v-if="assignForm.errors.organization_id" class="form-error">{{ assignForm.errors.organization_id }}</div>
+          </div>
+          <div class="w-full sm:w-40">
+            <label class="form-label">Od:</label>
+            <input v-model="assignForm.start" type="date" class="form-input mt-1 w-full" />
+            <div v-if="assignForm.errors.start" class="form-error">{{ assignForm.errors.start }}</div>
+          </div>
+          <div class="w-full sm:w-40">
+            <label class="form-label">Do:</label>
+            <input v-model="assignForm.end" type="date" class="form-input mt-1 w-full" />
+            <div v-if="assignForm.errors.end" class="form-error">{{ assignForm.errors.end }}</div>
+          </div>
+          <button type="submit" class="btn-indigo">Przypisz</button>
+        </form>
+      </div>
+    </div>
+
+    <teleport to="body">
+      <div v-if="showAssignConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4" @keydown.esc.window="showAssignConfirm = false">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showAssignConfirm = false" />
+        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800">Potwierdź przypisanie do budowy</h3>
+          </div>
+          <div class="px-6 py-4 text-sm text-gray-700 space-y-1">
+            <p><span class="text-gray-500">Pracownik:</span> {{ form.last_name }} {{ form.first_name }}</p>
+            <p><span class="text-gray-500">Budowa:</span> <span class="font-medium">{{ selectedBudowaName }}</span></p>
+            <p><span class="text-gray-500">Termin:</span> {{ assignForm.start }} → {{ assignForm.end }}</p>
+          </div>
+          <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="showAssignConfirm = false">Anuluj</button>
+            <button type="button" class="btn-indigo" :disabled="assignForm.processing" @click="confirmAssign">Potwierdź</button>
+          </div>
+        </div>
+      </div>
+    </teleport>
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
     <div class="bg-white rounded-md shadow overflow-hidden">
       <fieldset :disabled="disabled === 0">
@@ -160,11 +217,7 @@ export default {
     a1: Object,
     pbioz: Object,
     uprawnienia: Object,
-    obecna_budowa: {
-      type: [String, Object],
-      required: false,
-      default: null,
-    },
+    przypisania: { type: Array, default: () => [] },
     flag: Boolean,
   },
   remember: 'form',
@@ -173,6 +226,12 @@ export default {
       contactId: this.contact.id,
       disabled: 1,
       photoPreview: null,
+      showAssignConfirm: false,
+      assignForm: this.$inertia.form({
+        organization_id: '',
+        start: '',
+        end: '',
+      }),
       form: this.$inertia.form({
         first_name: this.contact.first_name,
         last_name: this.contact.last_name,
@@ -196,6 +255,10 @@ export default {
     }
   },
   computed: {
+    selectedBudowaName() {
+      const o = (this.organizations || []).find((x) => x.id === this.assignForm.organization_id)
+      return o ? o.name : '—'
+    },
     currentFunkcjaName() {
       const funkcja = Object.values(this.funkcjas).find(f => f.id === this.form.funkcja_id);
       return funkcja ? funkcja.name : 'Nie określono';
@@ -224,6 +287,21 @@ export default {
     },
   },
   methods: {
+    openAssignConfirm() {
+      // Popup pokazujemy tylko z kompletem danych; walidację reszty robi serwer.
+      if (!this.assignForm.organization_id || !this.assignForm.start || !this.assignForm.end) {
+        this.assignForm.post(`/contacts/${this.contactId}/przypisz-budowe`, { preserveScroll: true })
+        return
+      }
+      this.showAssignConfirm = true
+    },
+    confirmAssign() {
+      this.showAssignConfirm = false
+      this.assignForm.post(`/contacts/${this.contactId}/przypisz-budowe`, {
+        preserveScroll: true,
+        onSuccess: () => this.assignForm.reset(),
+      })
+    },
     filterActive(items) {
       if (!items) return []
       const today = moment().startOf('day')

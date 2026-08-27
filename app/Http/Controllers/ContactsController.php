@@ -96,15 +96,19 @@ class ContactsController extends Controller
 
     public function edit(Contact $contact)
     {
-        $obecna_budowa = ContactWorkDate::with('organization')
+        // Aktualne i przyszłe przypisania do budów (pobyty jeszcze niezakończone).
+        $przypisania = ContactWorkDate::with('organization')
             ->where('contact_id', $contact->id)
-            ->where('end', '>', Carbon::now())
-            ->where('start', '<=', Carbon::now())
-            ->first();
-
-        if (!$obecna_budowa) {
-            $obecna_budowa = 'Nie pracuje';
-        }
+            ->notFinished(Carbon::today()->toDateString())
+            ->orderBy('start')
+            ->get()
+            ->map(fn (ContactWorkDate $w) => [
+                'id' => $w->id,
+                'organization_id' => $w->organization_id,
+                'nazwaBud' => optional($w->organization)->nazwaBud,
+                'start' => $w->start,
+                'end' => $w->end,
+            ]);
 
         $flag = false;
         if (Auth::user()->owner === 3) {
@@ -167,7 +171,7 @@ class ContactsController extends Controller
             'a1' => A1::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'uprawnienia' => Uprawnienia::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'pbioz' => Pbioz::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
-            'obecna_budowa' => $obecna_budowa,
+            'przypisania' => $przypisania,
             'flag' => $flag,
             'user_owner' => Auth::user()->owner,
             'stats' => [
@@ -175,6 +179,47 @@ class ContactsController extends Controller
                 'builds_count' => $buildsCount,
             ]
         ]);
+    }
+
+    /**
+     * Przypisanie pracownika do budowy z jego profilu. Usuwanie/przenoszenie
+     * odbywa się osobno — w zakładce budowy (edycja dat), świadomie.
+     */
+    public function przypiszBudowe(Contact $contact)
+    {
+        $data = Request::validate([
+            'organization_id' => ['required', 'integer', 'exists:organizations,id'],
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date', 'after_or_equal:start'],
+        ], [
+            'required' => 'Pole jest wymagane.',
+            'after_or_equal' => 'Koniec nie może być przed początkiem.',
+        ]);
+
+        // Kolizja: pracownik nie może w tym terminie być już na innej budowie.
+        $overlap = ContactWorkDate::with('organization')
+            ->where('contact_id', $contact->id)
+            ->where('start', '<=', $data['end'])
+            ->where(function ($q) use ($data) {
+                $q->whereNull('end')->orWhere('end', '>=', $data['start']);
+            })
+            ->first();
+
+        if ($overlap) {
+            $nazwa = optional($overlap->organization)->nazwaBud ?? 'inna budowa';
+            return Redirect::back()->with('error',
+                'Pracownik jest już w tym terminie przypisany do: '.$nazwa.
+                ' ('.$overlap->start.' – '.$overlap->end.'). Najpierw popraw daty w zakładce tej budowy.');
+        }
+
+        ContactWorkDate::create([
+            'contact_id' => $contact->id,
+            'organization_id' => $data['organization_id'],
+            'start' => $data['start'],
+            'end' => $data['end'],
+        ]);
+
+        return Redirect::back()->with('success', 'Pracownik przypisany do budowy.');
     }
 
     public function update(Contact $contact, StoreContactRequest $request)

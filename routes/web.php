@@ -272,6 +272,11 @@ Route::get('contacts/{contact}/edit', [ContactsController::class, 'edit'])
     ->name('contacts.edit')
         ->middleware('auth', 'biuro-kierownik-permission');
 
+// Przypisanie pracownika do budowy z jego profilu (usuwanie tylko w zakładce budowy)
+Route::post('contacts/{contact}/przypisz-budowe', [ContactsController::class, 'przypiszBudowe'])
+    ->name('contacts.przypisz-budowe')
+    ->middleware('auth', 'biuro-permission');
+
 
 Route::post('contacts/{contact}', [ContactsController::class, 'update'])
     ->name('contacts.update')
