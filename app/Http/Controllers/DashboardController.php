@@ -6,6 +6,7 @@ use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
+use App\Models\Narzedzia;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
@@ -147,8 +148,16 @@ class DashboardController extends Controller
                 ->transform(fn($org) => $this->transformOrganization($org, $now));
         }
 
+        $stats = [
+            'pracownicy' => Contact::count(),
+            'budowy' => Organization::count(),
+            'sprzet' => Narzedzia::count(),
+            'wygasajace' => $expiringItems->count(),
+        ];
+
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed', 'my'),
+            'stats' => $stats,
             'expiring_items' => $expiringItems,
             'organizations_user' => $organizations_user,
             'organizations_biuro' => $organizations_biuro,

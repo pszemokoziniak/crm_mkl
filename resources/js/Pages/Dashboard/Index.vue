@@ -1,7 +1,26 @@
 <template>
   <div>
     <Head title="Dashboard" />
-    <h1 class="mb-8 text-3xl font-bold">Dashboard</h1>
+    <h1 class="mb-8 text-3xl font-bold">Pulpit</h1>
+
+    <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <Link href="/contacts" class="block bg-white rounded-md shadow p-5 border-l-4 border-indigo-500 hover:shadow-md transition">
+        <div class="text-3xl font-bold text-gray-900">{{ stats.pracownicy ?? 0 }}</div>
+        <div class="mt-1 text-sm text-gray-500">Pracownicy</div>
+      </Link>
+      <Link href="/budowy" class="block bg-white rounded-md shadow p-5 border-l-4 border-green-500 hover:shadow-md transition">
+        <div class="text-3xl font-bold text-gray-900">{{ stats.budowy ?? 0 }}</div>
+        <div class="mt-1 text-sm text-gray-500">Budowy (aktywne)</div>
+      </Link>
+      <Link href="/narzedzia" class="block bg-white rounded-md shadow p-5 border-l-4 border-gray-400 hover:shadow-md transition">
+        <div class="text-3xl font-bold text-gray-900">{{ stats.sprzet ?? 0 }}</div>
+        <div class="mt-1 text-sm text-gray-500">Sprzęt</div>
+      </Link>
+      <Link href="/reports/koniecUprawinien" class="block bg-white rounded-md shadow p-5 border-l-4 hover:shadow-md transition" :class="(stats.wygasajace ?? 0) > 0 ? 'border-red-500' : 'border-green-500'">
+        <div class="text-3xl font-bold" :class="(stats.wygasajace ?? 0) > 0 ? 'text-red-600' : 'text-gray-900'">{{ stats.wygasajace ?? 0 }}</div>
+        <div class="mt-1 text-sm text-gray-500">Wygasające terminy (30 dni)</div>
+      </Link>
+    </div>
 
     <div v-if="expiring_items.length > 0" class="mb-8">
       <div class="flex items-center mb-4">
@@ -190,6 +209,7 @@ export default {
   layout: Layout,
   props: {
     filters: Object,
+    stats: { type: Object, default: () => ({}) },
     expiring_items: Array,
     organizations_user: Object,
     organizations_biuro: Object,
