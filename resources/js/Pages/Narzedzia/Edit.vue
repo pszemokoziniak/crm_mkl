@@ -50,7 +50,7 @@
                     iloscMagazyn > 0 ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'
                   ]">
                     <label :class="['block text-sm font-medium mb-1', iloscMagazyn > 0 ? 'text-green-600' : 'text-red-600']">
-                      W magazynie
+                      Dostępny
                     </label>
                     <div :class="['text-2xl font-bold', iloscMagazyn > 0 ? 'text-green-800' : 'text-red-800']">
                       {{ iloscMagazyn }}
