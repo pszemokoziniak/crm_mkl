@@ -27,6 +27,17 @@
             <span v-if="item.poziom" class="text-gray-500 ml-1">- {{ item.poziom }}</span>
           </div>
         </div>
+        <div class="p-2 space-y-1 mt-3">
+          <span class="p-4 font-bold text-gray-700 uppercase text-xs tracking-wider">Kontakt:</span>
+          <div v-if="form.phone" class="text-sm">📞 <a :href="`tel:${form.phone}`" class="text-indigo-600 hover:underline">{{ form.phone }}</a></div>
+          <div v-if="form.email" class="text-sm break-all">✉️ <a :href="`mailto:${form.email}`" class="text-indigo-600 hover:underline">{{ form.email }}</a></div>
+          <div v-if="!form.phone && !form.email" class="text-sm text-gray-400">brak</div>
+        </div>
+        <div class="p-2 space-y-1 mt-3">
+          <span class="p-4 font-bold text-gray-700 uppercase text-xs tracking-wider">Statystyki:</span>
+          <div class="text-sm text-gray-700">Godziny: <span class="font-semibold">{{ stats.total_hours ?? 0 }}</span></div>
+          <div class="text-sm text-gray-700">Budów: <span class="font-semibold">{{ stats.builds_count ?? 0 }}</span></div>
+        </div>
       </div>
       <div class="col-span-1 p-4 bg-gray-50 border-l">
         <h2 class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3 border-b pb-2">Ważne terminy:</h2>
@@ -73,6 +84,33 @@
               {{ latestTermin(pbioz).end }}
               <span v-if="isExpiringSoon(latestTermin(pbioz).end)" title="Zbliża się termin — do 30 dni">🔔</span>
               <span v-if="isExpired(latestTermin(pbioz).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
+          </div>
+
+          <div v-if="form.work_end">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">Umowa (koniec)</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(form.work_end)">
+              {{ form.work_end }}
+              <span v-if="isExpiringSoon(form.work_end)" title="Zbliża się termin — do 30 dni">🔔</span>
+              <span v-if="isExpired(form.work_end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
+          </div>
+
+          <div v-if="form.idCard_date">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">Dowód osobisty</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(form.idCard_date)">
+              {{ form.idCard_date }}
+              <span v-if="isExpiringSoon(form.idCard_date)" title="Zbliża się termin — do 30 dni">🔔</span>
+              <span v-if="isExpired(form.idCard_date)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+            </p>
+          </div>
+
+          <div v-if="form.ekuz">
+            <p class="text-[10px] text-gray-400 font-bold uppercase">EKUZ</p>
+            <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(form.ekuz)">
+              {{ form.ekuz }}
+              <span v-if="isExpiringSoon(form.ekuz)" title="Zbliża się termin — do 30 dni">🔔</span>
+              <span v-if="isExpired(form.ekuz)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
             </p>
           </div>
 
@@ -237,6 +275,7 @@ export default {
     pbioz: Object,
     uprawnienia: Object,
     przypisania: { type: Array, default: () => [] },
+    stats: { type: Object, default: () => ({}) },
     flag: Boolean,
   },
   remember: 'form',
@@ -288,7 +327,8 @@ export default {
         !!this.latestTermin(this.lekarskie) ||
         !!this.latestTermin(this.a1) ||
         !!this.latestTermin(this.uprawnienia) ||
-        !!this.latestTermin(this.pbioz)
+        !!this.latestTermin(this.pbioz) ||
+        !!this.form.work_end || !!this.form.idCard_date || !!this.form.ekuz
       )
     },
   },
