@@ -99,6 +99,20 @@ class Contact extends Model
             } elseif ($trashed === 'only') {
                 $query->onlyTrashed();
             }
+        })->when($filters['status'] ?? null, function ($query, $status) {
+            // "Na budowie" = pobyt aktywny dziś (start <= dziś <= end), jak w
+            // kolumnie "Pracuje na budowie". "Dostępni" = odwrotność.
+            $today = now()->toDateString();
+            $activeSub = function ($q) use ($today) {
+                $q->select('contact_id')->from('contact_work_dates')
+                    ->where('start', '<=', $today)
+                    ->where('end', '>=', $today);
+            };
+            if ($status === 'na_budowie') {
+                $query->whereIn('id', $activeSub);
+            } elseif ($status === 'dostepni') {
+                $query->whereNotIn('id', $activeSub);
+            }
         });
     }
 }
