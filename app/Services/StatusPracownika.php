@@ -19,7 +19,8 @@ use Carbon\Carbon;
 class StatusPracownika
 {
     /**
-     * @return array{typ: string, label: string, budowa: ?string, do: ?string, kod: ?string}
+     * @return array{typ: string, label: string, budowa: ?string, do: ?string, kod: ?string,
+     *               budowa_do: ?string, ostatni_pobyt_do: ?string}
      */
     public function dla(Contact $contact, ?string $dzien = null): array
     {
@@ -31,11 +32,18 @@ class StatusPracownika
             ? $contact->holidays->first(fn (Holiday $h) => $this->obejmuje($h->start, $h->end, $dzien))
             : $contact->holidays()->with('shiftStatus')->coveringDate($dzien)->first();
 
-        $pobyt = $contact->relationLoaded('workDates')
-            ? $contact->workDates->first(fn (ContactWorkDate $w) => $this->obejmuje($w->start, $w->end, $dzien))
-            : $contact->workDates()->with('organization')->activeOn($dzien)->first();
+        $pobyty = $contact->relationLoaded('workDates')
+            ? $contact->workDates
+            : $contact->workDates()->with('organization')->get();
 
+        $pobyt = $pobyty->first(fn (ContactWorkDate $w) => $this->obejmuje($w->start, $w->end, $dzien));
         $budowa = $pobyt ? optional($pobyt->organization)->nazwaBud : null;
+
+        // Gdy nikogo nie ma na budowie dzisiaj — kiedy skończył ostatnio.
+        $ostatniPobyt = $pobyt ? null : $pobyty
+            ->filter(fn (ContactWorkDate $w) => $w->end !== null && $w->end < $dzien)
+            ->sortByDesc('end')
+            ->first();
 
         if ($nieobecnosc) {
             return [
@@ -44,6 +52,9 @@ class StatusPracownika
                 'kod' => $nieobecnosc->shiftStatus->code ?? null,
                 'do' => $nieobecnosc->end,
                 'budowa' => $budowa,
+                // Koniec pobytu na budowie to inna data niż koniec nieobecności.
+                'budowa_do' => $pobyt ? $pobyt->end : null,
+                'ostatni_pobyt_do' => optional($ostatniPobyt)->end,
             ];
         }
 
@@ -54,6 +65,8 @@ class StatusPracownika
                 'kod' => null,
                 'do' => $pobyt->end,
                 'budowa' => $budowa,
+                'budowa_do' => $pobyt->end,
+                'ostatni_pobyt_do' => null,
             ];
         }
 
@@ -63,6 +76,8 @@ class StatusPracownika
             'kod' => null,
             'do' => null,
             'budowa' => null,
+            'budowa_do' => null,
+            'ostatni_pobyt_do' => optional($ostatniPobyt)->end,
         ];
     }
 
@@ -77,7 +92,8 @@ class StatusPracownika
 
         return [
             'holidays' => fn ($query) => $query->with('shiftStatus')->coveringDate($dzien),
-            'workDates' => fn ($query) => $query->with('organization')->activeOn($dzien),
+            // Bez zawężania do dziś — potrzebny też ostatni zakończony pobyt.
+            'workDates' => fn ($query) => $query->with('organization'),
         ];
     }
 

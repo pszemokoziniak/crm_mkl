@@ -176,6 +176,51 @@ class NieobecnosciTest extends TestCase
         ]);
     }
 
+    public function test_kolumna_pokazuje_koniec_obecnego_pobytu(): void
+    {
+        $pracownik = $this->pracownik();
+        $this->pobyt($pracownik, '2026-09-01', '2026-10-31');
+
+        $status = app(StatusPracownika::class)->dla($pracownik);
+
+        $this->assertSame('2026-10-31', $status['budowa_do']);
+        $this->assertNull($status['ostatni_pobyt_do']);
+    }
+
+    public function test_bez_obecnego_pobytu_kolumna_podaje_ostatni_zakonczony(): void
+    {
+        $pracownik = $this->pracownik();
+        $this->pobyt($pracownik, '2024-05-06', '2024-07-20');
+        $this->pobyt($pracownik, '2024-08-01', '2024-09-30');
+
+        $status = app(StatusPracownika::class)->dla($pracownik);
+
+        $this->assertNull($status['budowa_do']);
+        // Najpóźniej zakończony, nie pierwszy z brzegu.
+        $this->assertSame('2024-09-30', $status['ostatni_pobyt_do']);
+    }
+
+    public function test_urlop_nie_zasłania_daty_konca_pobytu_na_budowie(): void
+    {
+        $pracownik = $this->pracownik();
+        $this->pobyt($pracownik, '2026-09-01', '2026-10-31');
+        $this->nieobecnosc($pracownik, $this->urlopId, '2026-09-15', '2026-09-25');
+
+        $status = app(StatusPracownika::class)->dla($pracownik);
+
+        // Plakietka mówi o urlopie, kolumna o budowie — dwie różne daty.
+        $this->assertSame('2026-09-25', $status['do']);
+        $this->assertSame('2026-10-31', $status['budowa_do']);
+    }
+
+    public function test_pracownik_nigdy_nieprzypisany_ma_puste_daty(): void
+    {
+        $status = app(StatusPracownika::class)->dla($this->pracownik());
+
+        $this->assertNull($status['budowa_do']);
+        $this->assertNull($status['ostatni_pobyt_do']);
+    }
+
     private function pracownik(string $nazwisko = 'Adamczyk'): Contact
     {
         return Contact::create([

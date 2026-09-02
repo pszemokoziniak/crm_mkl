@@ -32,6 +32,7 @@
             <th class="pb-4 pt-6 px-4">Nazwisko Imię</th>
             <th class="pb-4 pt-6 px-4">Stanowisko</th>
             <th class="pb-4 pt-6 px-4">Obecnie</th>
+            <th class="pb-4 pt-6 px-4">Koniec pobytu na budowie</th>
             <th class="pb-4 pt-6 px-4" />
           </tr>
         </thead>
@@ -60,6 +61,18 @@
                 </div>
               </Link>
             </td>
+            <td class="border-t whitespace-nowrap">
+              <Link class="flex items-center px-4 py-3" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
+                <!-- Data z aktualnego pobytu; gdy pracownika nigdzie nie ma — kiedy skończył ostatnio. -->
+                <span v-if="contact.pracuje.budowa_do" class="tabular-nums text-gray-700">
+                  {{ contact.pracuje.budowa_do }}
+                </span>
+                <span v-else-if="contact.pracuje.ostatni_pobyt_do" class="tabular-nums text-xs text-gray-400">
+                  ostatnio {{ contact.pracuje.ostatni_pobyt_do }}
+                </span>
+                <span v-else class="text-gray-300">—</span>
+              </Link>
+            </td>
             <td class="w-px border-t">
               <Link class="flex items-center px-4" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
                 <icon name="cheveron-right" class="block w-5 h-5 fill-gray-400" />
@@ -67,7 +80,7 @@
             </td>
           </tr>
           <tr v-if="contacts.data.length === 0">
-            <td class="px-6 py-4 border-t" colspan="5">Nie znaleziono kontaktu</td>
+            <td class="px-6 py-4 border-t" colspan="6">Nie znaleziono kontaktu</td>
           </tr>
         </tbody>
       </table>
