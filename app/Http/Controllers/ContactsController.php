@@ -54,12 +54,7 @@ class ContactsController extends Controller
     {
 
         return Inertia::render('Contacts/Create', [
-            'organizations' => Auth::user()->account
-                ->organizations()
-                ->orderBy('name')
-                ->get()
-                ->map
-                ->only('id', 'name'),
+            'organizations' => $this->budowyDoPrzypisania(),
             'accounts' => Auth::user()->account
                 ->accounts()
                 ->map
@@ -145,11 +140,7 @@ class ContactsController extends Controller
                 'deleted_at' => $contact->deleted_at,
                 'status_zatrudnienia' => $contact->status_zatrudnienia,
             ],
-            'organizations' => Auth::user()->account->organizations()
-                ->orderBy('name')
-                ->get()
-                ->map
-                ->only('id', 'name'),
+            'organizations' => $this->budowyDoPrzypisania(),
                 'accounts' => Auth::user()->account
                 ->accounts()
                 ->map
@@ -185,6 +176,22 @@ class ContactsController extends Controller
      * Przypisanie pracownika do budowy z jego profilu. Usuwanie/przenoszenie
      * odbywa się osobno — w zakładce budowy (edycja dat), świadomie.
      */
+    /**
+     * Budowy do wyboru przy przypisywaniu pracownika.
+     * Bez filtra po koncie: budowy zapisują się z account_id = 0
+     * (OrganizationsController@store), a użytkownicy mają account_id = 1,
+     * więc filtrowanie po koncie zwracało pustą listę.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function budowyDoPrzypisania()
+    {
+        return Organization::orderBy('nazwaBud')
+            ->get(['id', 'name', 'nazwaBud'])
+            ->map
+            ->only('id', 'name', 'nazwaBud');
+    }
+
     public function przypiszBudowe(Contact $contact)
     {
         $data = Request::validate([
