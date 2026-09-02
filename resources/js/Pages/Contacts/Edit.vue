@@ -150,7 +150,7 @@
             <label class="form-label">Budowa:</label>
             <select v-model="assignForm.organization_id" class="form-select mt-1 w-full">
               <option value="">— wybierz —</option>
-              <option v-for="o in organizations" :key="o.id" :value="o.id">{{ o.name }}</option>
+              <option v-for="o in organizations" :key="o.id" :value="o.id">{{ o.nazwaBud || o.name }}</option>
             </select>
             <div v-if="assignForm.errors.organization_id" class="form-error">{{ assignForm.errors.organization_id }}</div>
           </div>
@@ -336,7 +336,7 @@ export default {
   computed: {
     selectedBudowaName() {
       const o = (this.organizations || []).find((x) => x.id === this.assignForm.organization_id)
-      return o ? o.name : '—'
+      return o ? (o.nazwaBud || o.name) : '—'
     },
     currentFunkcjaName() {
       const funkcja = Object.values(this.funkcjas).find(f => f.id === this.form.funkcja_id);
