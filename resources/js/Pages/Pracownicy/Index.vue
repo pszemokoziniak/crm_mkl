@@ -53,7 +53,12 @@
           <!-- Pobyt na tej budowie — to co wcześniej trzeba było wyczytać z dat -->
           <td v-if="item.contact" class="border-t">
             <div class="px-6 py-4">
-              <span v-if="item.on_site" class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 border border-green-200 rounded-full">
+              <!-- Nieobecność ma pierwszeństwo: pracownik nadal należy do budowy,
+                   ale dziś go na niej nie ma. -->
+              <span v-if="item.on_site && item.nieobecnosc" class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-yellow-800 bg-yellow-100 border border-yellow-200 rounded-full">
+                {{ item.nieobecnosc }}
+              </span>
+              <span v-else-if="item.on_site" class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 border border-green-200 rounded-full">
                 Pracuje
               </span>
               <span v-else class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-full">

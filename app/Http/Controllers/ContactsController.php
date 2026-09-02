@@ -15,6 +15,7 @@ use App\Models\Jezyk;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
+use App\Services\StatusPracownika;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -24,12 +25,14 @@ use Inertia\Inertia;
 
 class ContactsController extends Controller
 {
-    public function index()
+    public function index(StatusPracownika $statusPracownika)
     {
         return Inertia::render('Contacts/Index', [
             'filters' => Request::all('search', 'trashed', 'status'),
             'contacts' => Contact::with('funkcja')
                 ->with('organization')
+                // Pobyty i nieobecności z dzisiaj — jednym zapytaniem na całą stronę.
+                ->with($statusPracownika->relacjeDoListy())
                 ->orderByName()
                 ->filter(Request::only('search', 'trashed', 'status'))
                 ->paginate(20)
@@ -45,7 +48,7 @@ class ContactsController extends Controller
                     'funkcja' => $contact->funkcja,
                     'budowa' => $contact->organization,
                     'a1' => A1::where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
-                    'pracuje' => $this->findPresentBuild($contact->id),
+                    'pracuje' => $statusPracownika->dla($contact),
                 ]),
         ]);
     }
@@ -89,7 +92,7 @@ class ContactsController extends Controller
         return Redirect::route('contacts')->with('success', 'Pracownik stworzony');
     }
 
-    public function edit(Contact $contact)
+    public function edit(Contact $contact, StatusPracownika $statusPracownika)
     {
         // Aktualne i przyszłe przypisania do budów (pobyty jeszcze niezakończone).
         $przypisania = ContactWorkDate::with('organization')
@@ -163,6 +166,7 @@ class ContactsController extends Controller
             'uprawnienia' => Uprawnienia::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'pbioz' => Pbioz::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'przypisania' => $przypisania,
+            'status' => $statusPracownika->dla($contact),
             'flag' => $flag,
             'user_owner' => Auth::user()->owner,
             'stats' => [
@@ -293,25 +297,6 @@ class ContactsController extends Controller
         $data->organization_id = null;
         $data->save();
         return Redirect::back()->with('success', 'Pracownik usunięty.');
-    }
-
-    public function findPresentBuild($id) {
-
-        $dateToday = Carbon::today()->format('Y-m-d');
-        $data = ContactWorkDate::with('organization')
-            ->where('contact_id', $id)
-            ->where(function ($query) use ($dateToday){
-                $query->where('start', '<=', $dateToday);
-            })
-            ->where(function ($query) use ($dateToday){
-                $query->where('end', '>=', $dateToday);
-            })
-            ->latest()->get()->pluck('organization.nazwaBud')->toArray();
-
-        if(!$data) {
-            return "Nie pracuje";
-        }
-        return $data[0];
     }
 
     public function history(Contact $contact)

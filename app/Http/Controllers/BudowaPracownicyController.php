@@ -46,6 +46,9 @@ class BudowaPracownicyController extends Controller
                     $query->withTrashed();
                 }])
                 ->with('contact.funkcja')
+                // Nieobecności z dzisiaj — pracownik może być na budowie i na L4 naraz.
+                ->with(['contact.holidays' => fn ($query) => $query->with('shiftStatus')
+                    ->coveringDate(Carbon::today()->toDateString())])
                 ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
                 ->where('contact_work_dates.organization_id', $organization->id)
                 ->orderBy('contacts.last_name')
@@ -63,6 +66,8 @@ class BudowaPracownicyController extends Controller
                     // status zatrudnienia pracownika w firmie.
                     'on_site' => $contactworkdate->end === null
                         || Carbon::parse($contactworkdate->end)->toDateString() >= Carbon::today()->toDateString(),
+                    // Powód nieobecności, jeśli akurat dziś go nie ma na budowie.
+                    'nieobecnosc' => optional(optional($contactworkdate->contact)->holidays->first())->label,
                 ]),
             'user_owner' => Auth::user()->owner,
         ]);

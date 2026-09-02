@@ -127,7 +127,14 @@
       {{ form.first_name }} {{ form.last_name }}
     </h1>
     <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-700">Budowy pracownika</div>
+      <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-100">
+        <span class="font-semibold text-gray-700">Budowy pracownika</span>
+        <!-- Co pracownik robi dzisiaj: budowa, urlop/zwolnienie albo nic. -->
+        <span class="flex items-center gap-2">
+          <span class="text-xs text-gray-400 uppercase tracking-wider">Obecnie:</span>
+          <status-pracownika :status="status" />
+        </span>
+      </div>
       <div class="px-6 py-4">
         <div v-if="przypisania.length" class="space-y-1">
           <div v-for="p in przypisania" :key="p.id" class="flex flex-wrap items-center gap-x-3 text-sm">
@@ -262,6 +269,7 @@ import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
+import StatusPracownika from '@/Shared/StatusPracownika'
 import WorkerMenu from '@/Shared/WorkerMenu'
 import FileInput from '@/Shared/FileInput'
 import DeleteButton from '@/Shared/DeleteButton'
@@ -270,6 +278,7 @@ import moment from 'moment'
 
 export default {
   components: {
+    StatusPracownika,
     Head,
     Link,
     LoadingButton,
@@ -294,6 +303,7 @@ export default {
     pbioz: Object,
     uprawnienia: Object,
     przypisania: { type: Array, default: () => [] },
+    status: { type: Object, default: () => ({ typ: 'brak', label: 'Nie pracuje' }) },
     stats: { type: Object, default: () => ({}) },
     flag: Boolean,
   },

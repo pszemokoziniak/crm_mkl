@@ -26,6 +26,7 @@ class StoreHolidayRequest extends FormRequest
         return [
             'start' => 'required | date | before_or_equal:end',
             'end' => 'required | date | after_or_equal:start',
+            'shift_status_id' => 'required | integer | exists:shift_status,id',
         ];
     }
 
@@ -41,6 +42,7 @@ class StoreHolidayRequest extends FormRequest
         return [
             'start' => 'Start',
             'end' => 'Koniec',
+            'shift_status_id' => 'Powód',
         ];
     }
 }

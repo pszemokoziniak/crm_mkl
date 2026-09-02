@@ -65,6 +65,18 @@ class Contact extends Model
         return $this->hasOne(Organization::class);
     }
 
+    /** Pobyty na budowach. */
+    public function workDates(): HasMany
+    {
+        return $this->hasMany(ContactWorkDate::class);
+    }
+
+    /** Nieobecności — urlopy, zwolnienia itd. */
+    public function holidays(): HasMany
+    {
+        return $this->hasMany(Holiday::class);
+    }
+
     public function documents(): HasMany
     {
         return $this->hasMany(CtnDocument::class);
