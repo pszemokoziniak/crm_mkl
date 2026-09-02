@@ -25,6 +25,7 @@ class StorePosRequest extends FormRequest
     {
         return [
             'name' =>'required|min:3|unique:funkcjas,name',
+            'kierownictwo' => 'boolean',
         ];
     }
 

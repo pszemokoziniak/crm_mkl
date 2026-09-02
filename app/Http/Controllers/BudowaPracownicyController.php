@@ -19,6 +19,11 @@ use Inertia\Inertia;
 
 class BudowaPracownicyController extends Controller
 {
+    /**
+     * Stanowiska, które mogą być na kilku budowach naraz — nie blokuje ich
+     * sprawdzanie kolizji przy przypisywaniu pracowników.
+     * Uwaga: to inna lista niż kierownictwo budowy (znacznik przy funkcji).
+     */
     private const MULTI_SITE_FUNKCJA_IDS = [
         Funkcja::KIEROWNIK,
         Funkcja::INZYNIER,
@@ -243,19 +248,23 @@ class BudowaPracownicyController extends Controller
 
     public function management(Organization $organization)
     {
+        // Które stanowiska liczą się jako kierownictwo — znacznik przy funkcji
+        // w Ustawieniach, nie lista zaszyta w kodzie.
+        $funkcjeKierownictwa = Funkcja::kierownictwoIds();
+
         $management = DB::table('contact_work_dates', 'cwd')
             ->select('cwd.id', 'cwd.contact_id', 'contacts.first_name', 'contacts.last_name', 'cwd.start', 'cwd.end', 'funkcjas.name')
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $organization->id)
-            ->whereIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
+            ->whereIn('contacts.funkcja_id', $funkcjeKierownictwa)
             ->orderBy('last_name')
             ->get();
 
         $specialists = Contact::query()
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->select(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'funkcjas.name as fn_name'])
-            ->whereIn('contacts.funkcja_id', self::MULTI_SITE_FUNKCJA_IDS)
+            ->whereIn('contacts.funkcja_id', $funkcjeKierownictwa)
             ->where('contacts.status_zatrudnienia', '!=', Contact::STATUS_ZWOLNIONY)
             ->orderBy('last_name')
             ->get();

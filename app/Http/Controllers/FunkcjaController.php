@@ -31,6 +31,7 @@ class FunkcjaController extends Controller
             'funkcja' => [
                 'id' => $funkcja->id,
                 'name' => $funkcja->name,
+                'kierownictwo' => (bool) $funkcja->kierownictwo,
                 'deleted_at' => $funkcja->deleted_at,
             ],
         ]);
@@ -56,6 +57,7 @@ class FunkcjaController extends Controller
         $funkcja->update(
             Request::validate([
                 'name' => ['required', 'max:50'],
+                'kierownictwo' => ['boolean'],
             ])
         );
 
