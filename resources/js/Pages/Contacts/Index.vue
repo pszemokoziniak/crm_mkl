@@ -31,7 +31,7 @@
             <th class="pb-4 pt-6 px-4 w-px whitespace-nowrap text-gray-500">Lp.</th>
             <th class="pb-4 pt-6 px-4">Nazwisko Imię</th>
             <th class="pb-4 pt-6 px-4">Stanowisko</th>
-            <th class="pb-4 pt-6 px-4">Pracuje na budowie</th>
+            <th class="pb-4 pt-6 px-4">Obecnie</th>
             <th class="pb-4 pt-6 px-4" />
           </tr>
         </thead>
@@ -56,7 +56,7 @@
             <td class="border-t">
               <Link class="flex items-center px-4 py-3" :href="`/contacts/${contact.id}/edit`" tabindex="-1">
                 <div v-if="contact.pracuje" class="max-w-[300px]">
-                  {{ contact.pracuje }}
+                  <status-pracownika :status="contact.pracuje" />
                 </div>
               </Link>
             </td>
@@ -79,6 +79,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
+import StatusPracownika from '@/Shared/StatusPracownika'
 import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
@@ -88,6 +89,7 @@ import SearchFilter from '@/Shared/SearchFilter'
 
 export default {
   components: {
+    StatusPracownika,
     Head,
     Icon,
     Link,

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Head title="Urlopy" />
+    <Head title="Nieobecności" />
     <div>
       <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
     </div>
@@ -9,7 +9,8 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.first_name }} {{ contact.last_name }}
     </h1>
-    <h1 class="mb-8 text-2xl font-bold">Urlopy</h1>
+    <h1 class="mb-2 text-2xl font-bold">Nieobecności</h1>
+    <p class="mb-6 text-sm text-gray-500">Urlopy, zwolnienia i inne powody, dla których pracownika nie ma na budowie.</p>
     <div class="flex items-center justify-between mb-6">
       <Link class="btn-indigo" :href="`/contacts/${contact.id}/holiday/create`">
         <span>Dodaj</span>
@@ -18,10 +19,18 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Początek urlopu</th>
-          <th class="pb-4 pt-6 px-6">Koniec urlopu</th>
+          <th class="pb-4 pt-6 px-6">Powód</th>
+          <th class="pb-4 pt-6 px-6">Od</th>
+          <th class="pb-4 pt-6 px-6">Do</th>
         </tr>
         <tr v-for="item in holiday" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
+              <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-yellow-800 bg-yellow-100 border border-yellow-200 rounded-full">
+                {{ item.powod || 'nie podano' }}
+              </span>
+            </Link>
+          </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
               {{ item.start }}
@@ -41,7 +50,7 @@
           </td>
         </tr>
         <tr v-if="holiday.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono</td>
+          <td class="px-6 py-4 border-t" colspan="4">Brak wpisanych nieobecności</td>
         </tr>
       </table>
     </div>

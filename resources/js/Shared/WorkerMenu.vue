@@ -37,7 +37,7 @@
             <div :class="isUrl('a1') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">A1</div>
           </Link>
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/holiday`">
-            <div :class="isUrl('holiday') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Urlopy</div>
+            <div :class="isUrl('holiday') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Nieobecności</div>
           </Link>
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/history`">
             <div :class="isUrl('history') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Historia</div>
