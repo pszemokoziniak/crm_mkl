@@ -11,6 +11,12 @@
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwa" />
+          <div class="pb-8 pr-6 w-full">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input v-model="form.kierownictwo" type="checkbox" class="form-checkbox" />
+              <span>Stanowisko kierownicze — może być wybrane w zakładce Kierownictwo budowy</span>
+            </label>
+          </div>
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="funkcja.id !== 1" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -45,6 +51,7 @@ export default {
       form: this.$inertia.form({
         id: this.funkcja.id,
         name: this.funkcja.name,
+        kierownictwo: Boolean(this.funkcja.kierownictwo),
       }),
     }
   },

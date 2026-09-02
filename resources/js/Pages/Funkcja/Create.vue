@@ -9,6 +9,12 @@
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
+          <div class="pb-8 pr-6 w-full">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input v-model="form.kierownictwo" type="checkbox" class="form-checkbox" />
+              <span>Stanowisko kierownicze — może być wybrane w zakładce Kierownictwo budowy</span>
+            </label>
+          </div>
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj</loading-button>
@@ -37,6 +43,7 @@ export default {
     return {
       form: this.$inertia.form({
         name: '',
+        kierownictwo: false,
       }),
     }
   },
