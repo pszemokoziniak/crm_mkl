@@ -107,7 +107,46 @@ class ZmianyKadroweController extends Controller
             'obsluzyl' => $z->obsluzylUser ? trim($z->obsluzylUser->first_name.' '.$z->obsluzylUser->last_name) : null,
             'obsluzono' => $z->handled_at?->format('d.m.Y H:i'),
             'uwagi' => $z->uwagi,
+            'link_aneks' => $this->linkDoAneksu($z),
         ];
+    }
+
+    /**
+     * Adres formularza aneksu z wypełnionymi danymi tej zmiany — kadry nie
+     * muszą przepisywać budowy ani terminu.
+     */
+    private function linkDoAneksu(ZmianaKadrowa $z): ?string
+    {
+        if (! $z->contact_id) {
+            return null;
+        }
+
+        $budowa = optional($z->budowaDo)->nazwaBud ?: optional($z->budowaZ)->nazwaBud;
+        $od = $z->new_start ?: $z->old_start;
+        $do = $z->new_end ?: $z->old_end;
+
+        $parametry = array_filter([
+            'rodzaj' => 'aneks',
+            'budowa' => $budowa,
+            'od' => optional($od)->format('Y-m-d'),
+            'do' => optional($do)->format('Y-m-d'),
+            'uwagi' => $this->opisZmiany($z),
+        ]);
+
+        return '/contacts/'.$z->contact_id.'/umowa?'.http_build_query($parametry);
+    }
+
+    /** Jedno zdanie do pola "uwagi" w dokumencie. */
+    private function opisZmiany(ZmianaKadrowa $z): string
+    {
+        $skad = optional($z->budowaZ)->nazwaBud;
+        $dokad = optional($z->budowaDo)->nazwaBud;
+
+        if ($z->typ === ZmianaKadrowa::TYP_PRZENIESIENIE && $skad && $dokad) {
+            return 'Przeniesienie z budowy '.$skad.' na budowę '.$dokad.'.';
+        }
+
+        return $z->typLabel().($dokad ? ' — '.$dokad : ($skad ? ' — '.$skad : ''));
     }
 
     /** Jedno zdanie opisujące całą paczkę, np. "Przeniesienie 6 osób: A → B". */

@@ -280,6 +280,42 @@ class ZmianyKadroweTest extends TestCase
         $this->assertStringContainsString('wcześniejsza niż początek', session('error'));
     }
 
+    public function test_wpis_niesie_link_do_aneksu_z_danymi_przeniesienia(): void
+    {
+        $this->actingAs($this->montaz);
+        $pobyt = $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');
+        $pobyt->update(['end' => '2026-09-14']);
+        $this->pobyt($this->budowaB, '2026-09-15', '2026-10-31');
+
+        $this->actingAs($this->kadry)
+            ->get('/zmiany-kadrowe')
+            ->assertOk()
+            ->assertInertia(function (Assert $page) {
+                $link = $page->toArray()['props']['paczki'][0]['zmiany'][0]['link_aneks'];
+
+                // Kadry nie przepisują ręcznie budowy ani terminu.
+                $this->assertStringContainsString('/contacts/'.$this->pracownik->id.'/umowa', $link);
+                $this->assertStringContainsString('rodzaj=aneks', $link);
+                $this->assertStringContainsString('od=2026-09-15', $link);
+                $this->assertStringContainsString('do=2026-10-31', $link);
+                $this->assertStringContainsString(urlencode('Budowa B'), $link);
+            });
+    }
+
+    public function test_formularz_umowy_przyjmuje_dane_z_adresu(): void
+    {
+        $this->actingAs($this->kadry)
+            ->get('/contacts/'.$this->pracownik->id.'/umowa?rodzaj=aneks&budowa=Budowa+B&od=2026-09-15&do=2026-10-31')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Umowy/Formularz')
+                ->where('domyslne.rodzaj', 'aneks')
+                ->where('domyslne.budowa', 'Budowa B')
+                ->where('domyslne.od', '2026-09-15')
+                ->where('domyslne.do', '2026-10-31')
+            );
+    }
+
     private function user(string $email): User
     {
         return User::factory()->create([

@@ -93,6 +93,14 @@
               </span>
             </td>
             <td class="px-6 py-3 text-right whitespace-nowrap">
+              <!-- Aneks z wypełnioną budową i terminem tej zmiany. -->
+              <a
+                v-if="zmiana.link_aneks"
+                :href="zmiana.link_aneks"
+                class="text-xs text-gray-700 hover:underline mr-3"
+              >
+                Generuj aneks
+              </a>
               <button
                 v-if="zmiana.status === 'nowa'"
                 type="button"

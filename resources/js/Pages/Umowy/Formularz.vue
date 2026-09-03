@@ -92,7 +92,7 @@ export default {
         miejsce: this.domyslne.miejsce,
         data_zawarcia: this.domyslne.data_zawarcia,
         warunki: '',
-        uwagi: '',
+        uwagi: this.domyslne.uwagi || '',
       },
     }
   },

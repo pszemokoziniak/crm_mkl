@@ -44,14 +44,17 @@ class UmowyController extends Controller
                 'value' => $value,
                 'label' => $label,
             ])->values(),
+            // Parametry z adresu mają pierwszeństwo — tak wchodzi się tu
+            // z rejestru zmian kadrowych, z danymi konkretnego przeniesienia.
             'domyslne' => [
-                'rodzaj' => $pobyt ? 'aneks' : 'umowa',
-                'budowa' => optional(optional($pobyt)->organization)->nazwaBud,
-                'od' => optional($pobyt)->start ?? Carbon::today()->toDateString(),
-                'do' => optional($pobyt)->end,
+                'rodzaj' => Request::query('rodzaj') ?: ($pobyt ? 'aneks' : 'umowa'),
+                'budowa' => Request::query('budowa') ?: optional(optional($pobyt)->organization)->nazwaBud,
+                'od' => Request::query('od') ?: (optional($pobyt)->start ?? Carbon::today()->toDateString()),
+                'do' => Request::query('do') ?: optional($pobyt)->end,
                 'miejsce' => 'Grudziądz',
                 'data_zawarcia' => Carbon::today()->toDateString(),
-                'stanowisko' => optional($contact->funkcja)->name,
+                'stanowisko' => Request::query('stanowisko') ?: optional($contact->funkcja)->name,
+                'uwagi' => Request::query('uwagi'),
             ],
             'budowy' => Organization::orderBy('nazwaBud')->get(['id', 'nazwaBud'])->map->only('id', 'nazwaBud'),
         ]);
