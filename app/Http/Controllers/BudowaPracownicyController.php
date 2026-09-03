@@ -269,10 +269,24 @@ class BudowaPracownicyController extends Controller
             ->orderBy('last_name')
             ->get();
 
+        // Pobyty osób z listy — okienko potwierdzenia ostrzega, gdy termin
+        // nakłada się na inną budowę.
+        $pobyty = ContactWorkDate::with('organization')
+            ->whereIn('contact_id', $specialists->pluck('id'))
+            ->orderBy('start')
+            ->get()
+            ->groupBy('contact_id')
+            ->map(fn ($grupa) => $grupa->map(fn (ContactWorkDate $w) => [
+                'nazwaBud' => optional($w->organization)->nazwaBud,
+                'start' => $w->start,
+                'end' => $w->end,
+            ])->values());
+
         return Inertia::render('Pracownicy/Kierownictwo', [
             'organization' => $organization,
             'management' => $management,
             'specialists' => $specialists,
+            'pobyty' => $pobyty,
         ]);
     }
 
@@ -283,6 +297,27 @@ class BudowaPracownicyController extends Controller
             'start' => ['required', 'date'],
             'end' => ['required', 'date', 'after_or_equal:start'],
         ]);
+
+        $contact = Contact::with('funkcja')->find(Request::get('contact_id'));
+
+        // Ta sama reguła co przy przypisywaniu z karty pracownika: kilka budów
+        // naraz tylko dla stanowisk kierowniczych. Wcześniej ta ścieżka nie
+        // sprawdzała kolizji w ogóle.
+        $overlap = ContactWorkDate::with('organization')
+            ->where('contact_id', $contact->id)
+            ->where('start', '<=', Request::get('end'))
+            ->where(function ($query) {
+                $query->whereNull('end')->orWhere('end', '>=', Request::get('start'));
+            })
+            ->first();
+
+        if ($overlap && ! optional($contact->funkcja)->kierownictwo) {
+            $nazwa = optional($overlap->organization)->nazwaBud ?? 'inna budowa';
+
+            return Redirect::back()->with('error',
+                'Pracownik jest już w tym terminie przypisany do: '.$nazwa.
+                ' ('.$overlap->start.' – '.$overlap->end.'). Najpierw popraw daty w zakładce tamtej budowy.');
+        }
 
         ContactWorkDate::create([
             'organization_id' => $organization->id,
