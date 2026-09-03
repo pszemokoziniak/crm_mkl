@@ -1,6 +1,14 @@
-{{-- Szablon umowy/aneksu. Ten sam plik obsługuje podgląd do druku i plik .doc,
-     dlatego układ opiera się na tabelach i prostym CSS — Word nie rozumie
-     flexboxa ani gridu, a musi otworzyć ten dokument bez rozjazdów. --}}
+{{-- Szablon umowy/aneksu — jeden plik dla podglądu (PDF z drukowania) i .doc.
+     Style są wpisane przy elementach, a tabele mają atrybuty cellpadding
+     i bgcolor: Word oraz OpenOffice gubią większość reguł z arkusza, więc
+     arkusz zostawiamy tylko dla przeglądarki (marginesy strony, pasek druku). --}}
+@php
+    $granat = '#1f2a44';
+    $szary  = '#6b7280';
+    $linia  = '#d5d9e2';
+    $serif  = '"Times New Roman", Georgia, serif';
+    $sans   = 'Arial, Helvetica, sans-serif';
+@endphp
 <!doctype html>
 <html lang="pl">
 <head>
@@ -9,74 +17,7 @@
     <title>{{ $tytul }}</title>
     <style>
         @page { size: A4; margin: 18mm 16mm; }
-
-        body {
-            font-family: "Times New Roman", Georgia, serif;
-            font-size: 11.5pt;
-            line-height: 1.55;
-            color: #111;
-            margin: 0;
-        }
-
-        .arkusz { max-width: 180mm; margin: 0 auto; padding: 10mm 0; }
-
-        /* Nagłówek firmowy */
-        .firma { width: 100%; border-collapse: collapse; margin-bottom: 7mm; }
-        .firma td { vertical-align: bottom; padding: 0 0 2.5mm; border-bottom: 2px solid #1f2a44; }
-        .firma .nazwa {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 15pt; font-weight: bold; letter-spacing: 1px; color: #1f2a44;
-        }
-        .firma .podpis-firmy { font-family: Arial, Helvetica, sans-serif; font-size: 8.5pt; color: #555; letter-spacing: .5px; }
-        .firma .data { text-align: right; font-size: 10.5pt; color: #333; white-space: nowrap; }
-
-        /* Tytuł dokumentu */
-        h1 {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 15pt; font-weight: bold; letter-spacing: 2px;
-            text-align: center; text-transform: uppercase;
-            margin: 9mm 0 2mm;
-        }
-        .podtytul { text-align: center; font-size: 10pt; color: #666; margin-bottom: 8mm; }
-
-        /* Strony umowy */
-        .strony { width: 100%; border-collapse: collapse; margin-bottom: 7mm; }
-        .strony td { width: 50%; vertical-align: top; padding: 3mm 4mm; border: 1px solid #d5d9e2; background: #fafbfc; }
-        .strony .rola {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 8pt; letter-spacing: 1px; text-transform: uppercase; color: #6b7280;
-            display: block; margin-bottom: 1.5mm;
-        }
-        .strony .kto { font-size: 12pt; font-weight: bold; }
-        .strony .szczegol { font-size: 10pt; color: #444; }
-
-        /* Paragrafy */
-        .paragraf { margin-bottom: 6mm; }
-        .paragraf h2 {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 10.5pt; letter-spacing: 1px; text-transform: uppercase; color: #1f2a44;
-            margin: 0 0 2mm; padding-bottom: 1mm; border-bottom: 1px solid #d5d9e2;
-        }
-        .paragraf p { margin: 0 0 2mm; text-align: justify; }
-
-        /* Tabela warunków */
-        table.dane { width: 100%; border-collapse: collapse; margin: 3mm 0 0; }
-        table.dane td { padding: 2.5mm 3mm; border-bottom: 1px solid #e3e6ec; vertical-align: top; }
-        table.dane tr:first-child td { border-top: 1px solid #e3e6ec; }
-        table.dane td.etykieta {
-            width: 45%;
-            font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: #6b7280;
-        }
-        table.dane td.wartosc { font-weight: bold; }
-
-        /* Podpisy */
-        .podpisy { width: 100%; margin-top: 18mm; border-collapse: collapse; }
-        .podpisy td { width: 50%; text-align: center; padding: 0 6mm; vertical-align: bottom; }
-        .podpisy .linia {
-            border-top: 1px dotted #333; padding-top: 2mm;
-            font-family: Arial, Helvetica, sans-serif; font-size: 8.5pt; letter-spacing: .5px; color: #555;
-        }
-
+        body { margin: 0; }
         .pasek-druku {
             position: fixed; top: 0; left: 0; right: 0;
             background: #1f2a44; color: #fff; padding: 8px 16px; text-align: center;
@@ -86,18 +27,10 @@
             margin-left: 12px; padding: 5px 14px; border: 0; border-radius: 4px;
             background: #fff; color: #1f2a44; font-weight: bold; cursor: pointer;
         }
-        .z-paskiem { padding-top: 46px; }
-
-        @media print {
-            .pasek-druku { display: none; }
-            .z-paskiem { padding-top: 0; }
-            .arkusz { padding: 0; max-width: none; }
-            .paragraf { page-break-inside: avoid; }
-            .podpisy { page-break-inside: avoid; }
-        }
+        @media print { .pasek-druku { display: none; } .arkusz { padding-top: 0 !important; } }
     </style>
 </head>
-<body class="{{ $pokazPasek ? 'z-paskiem' : '' }}">
+<body style="font-family: {{ $serif }}; font-size: 11.5pt; color: #111;">
 
 @if($pokazPasek)
     <div class="pasek-druku">
@@ -106,73 +39,90 @@
     </div>
 @endif
 
-<div class="arkusz">
-    <table class="firma">
+<div class="arkusz" style="max-width: 700px; margin: 0 auto; padding-top: {{ $pokazPasek ? '56px' : '0' }};">
+
+    {{-- Nagłówek: logo po lewej, data po prawej, pod spodem kreska --}}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-            <td>
-                {{-- Logo jako dane w dokumencie; bez pliku zostaje sama nazwa. --}}
+            <td width="55%" valign="bottom" style="padding-bottom: 6px;">
                 @if($logo)
-                    <img src="{{ $logo }}" width="170" height="40" alt="{{ $pracodawca }}" style="display:block; margin-bottom:1.5mm;">
-                    <span class="podpis-firmy">Dokumentacja kadrowa</span>
+                    <img src="{{ $logo }}" width="150" height="35" alt="{{ $pracodawca }}" style="display:block;">
                 @else
-                    <span class="nazwa">{{ $pracodawca }}</span><br>
-                    <span class="podpis-firmy">Dokumentacja kadrowa</span>
+                    <span style="font-family: {{ $sans }}; font-size: 15pt; font-weight: bold; color: {{ $granat }};">{{ $pracodawca }}</span>
                 @endif
             </td>
-            <td class="data">{{ $miejsce }}, dnia {{ $dataZawarcia }}</td>
+            <td width="45%" valign="bottom" align="right" style="padding-bottom: 6px; font-size: 10.5pt; color: #333;">
+                {{ $miejsce }}, dnia {{ $dataZawarcia }}
+            </td>
         </tr>
+        <tr><td colspan="2" bgcolor="{{ $granat }}" style="height:2px; line-height:2px; font-size:1px;">&nbsp;</td></tr>
     </table>
 
-    <h1>{{ $tytul }}</h1>
-    <div class="podtytul">{{ $wstep }}</div>
+    {{-- Tytuł --}}
+    <p style="font-family: {{ $sans }}; font-size: 15pt; font-weight: bold; text-align: center; color: #111; margin: 26px 0 6px;">
+        {{ mb_strtoupper($tytul, 'UTF-8') }}
+    </p>
+    <p style="text-align: center; font-size: 10pt; color: {{ $szary }}; margin: 0 0 24px;">{{ $wstep }}</p>
 
-    <table class="strony">
+    {{-- Strony umowy --}}
+    <table width="100%" cellpadding="10" cellspacing="0" border="0" style="margin-bottom: 22px;">
         <tr>
-            <td>
-                <span class="rola">Pracodawca</span>
-                <span class="kto">{{ $pracodawca }}</span>
+            <td width="50%" valign="top" bgcolor="#fafbfc" style="border: 1px solid {{ $linia }};">
+                <span style="font-family: {{ $sans }}; font-size: 8pt; color: {{ $szary }};">PRACODAWCA</span><br>
+                <span style="font-size: 12pt; font-weight: bold;">{{ $pracodawca }}</span>
             </td>
-            <td>
-                <span class="rola">Pracownik</span>
-                <span class="kto">{{ $pracownik['imie_nazwisko'] }}</span><br>
-                @if($pracownik['pesel'])
-                    <span class="szczegol">PESEL {{ $pracownik['pesel'] }}</span><br>
-                @endif
-                @if($pracownik['adres'])
-                    <span class="szczegol">{{ $pracownik['adres'] }}</span>
-                @endif
+            <td width="50%" valign="top" bgcolor="#fafbfc" style="border: 1px solid {{ $linia }};">
+                <span style="font-family: {{ $sans }}; font-size: 8pt; color: {{ $szary }};">PRACOWNIK</span><br>
+                <span style="font-size: 12pt; font-weight: bold;">{{ $pracownik['imie_nazwisko'] }}</span>
+                @if($pracownik['pesel'])<br><span style="font-size: 10pt; color: #444;">PESEL {{ $pracownik['pesel'] }}</span>@endif
+                @if($pracownik['adres'])<br><span style="font-size: 10pt; color: #444;">{{ $pracownik['adres'] }}</span>@endif
             </td>
         </tr>
     </table>
 
-    <div class="paragraf">
-        <h2>§ 1. Warunki zatrudnienia</h2>
-        <table class="dane">
-            <tr><td class="etykieta">Stanowisko</td><td class="wartosc">{{ $stanowisko ?: '—' }}</td></tr>
-            <tr><td class="etykieta">Miejsce wykonywania pracy (budowa)</td><td class="wartosc">{{ $budowa ?: '—' }}</td></tr>
-            <tr><td class="etykieta">Okres</td><td class="wartosc">od {{ $od }} do {{ $do }}</td></tr>
-            @if($wynagrodzenie)
-                <tr><td class="etykieta">Wynagrodzenie</td><td class="wartosc">{{ $wynagrodzenie }}</td></tr>
-            @endif
-        </table>
-    </div>
+    {{-- § 1 --}}
+    <p style="font-family: {{ $sans }}; font-size: 10.5pt; font-weight: bold; color: {{ $granat }}; margin: 0 0 4px;">§ 1. WARUNKI ZATRUDNIENIA</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="{{ $linia }}" style="height:1px; line-height:1px; font-size:1px;">&nbsp;</td></tr></table>
 
-    <div class="paragraf">
-        <h2>§ 2. Pozostałe warunki</h2>
-        <p>{{ $pozostaleWarunki }}</p>
-    </div>
+    <table width="100%" cellpadding="7" cellspacing="0" border="0" style="margin: 0 0 20px;">
+        <tr>
+            <td width="45%" style="border-bottom: 1px solid #e3e6ec; font-family: {{ $sans }}; font-size: 9.5pt; color: {{ $szary }};">Stanowisko</td>
+            <td style="border-bottom: 1px solid #e3e6ec; font-weight: bold;">{{ $stanowisko ?: '—' }}</td>
+        </tr>
+        <tr>
+            <td style="border-bottom: 1px solid #e3e6ec; font-family: {{ $sans }}; font-size: 9.5pt; color: {{ $szary }};">Miejsce wykonywania pracy (budowa)</td>
+            <td style="border-bottom: 1px solid #e3e6ec; font-weight: bold;">{{ $budowa ?: '—' }}</td>
+        </tr>
+        <tr>
+            <td style="border-bottom: 1px solid #e3e6ec; font-family: {{ $sans }}; font-size: 9.5pt; color: {{ $szary }};">Okres</td>
+            <td style="border-bottom: 1px solid #e3e6ec; font-weight: bold;">od {{ $od }} do {{ $do }}</td>
+        </tr>
+        @if($wynagrodzenie)
+            <tr>
+                <td style="border-bottom: 1px solid #e3e6ec; font-family: {{ $sans }}; font-size: 9.5pt; color: {{ $szary }};">Wynagrodzenie</td>
+                <td style="border-bottom: 1px solid #e3e6ec; font-weight: bold;">{{ $wynagrodzenie }}</td>
+            </tr>
+        @endif
+    </table>
 
+    {{-- § 2 --}}
+    <p style="font-family: {{ $sans }}; font-size: 10.5pt; font-weight: bold; color: {{ $granat }}; margin: 0 0 4px;">§ 2. POZOSTAŁE WARUNKI</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="{{ $linia }}" style="height:1px; line-height:1px; font-size:1px;">&nbsp;</td></tr></table>
+    <p style="margin: 8px 0 20px; text-align: justify; line-height: 1.5;">{{ $pozostaleWarunki }}</p>
+
+    {{-- § 3 --}}
     @if($uwagi)
-        <div class="paragraf">
-            <h2>§ 3. Uwagi</h2>
-            <p>{{ $uwagi }}</p>
-        </div>
+        <p style="font-family: {{ $sans }}; font-size: 10.5pt; font-weight: bold; color: {{ $granat }}; margin: 0 0 4px;">§ 3. UWAGI</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="{{ $linia }}" style="height:1px; line-height:1px; font-size:1px;">&nbsp;</td></tr></table>
+        <p style="margin: 8px 0 20px; text-align: justify; line-height: 1.5;">{{ $uwagi }}</p>
     @endif
 
-    <table class="podpisy">
+    {{-- Podpisy --}}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 70px;">
         <tr>
-            <td><div class="linia">podpis pracodawcy</div></td>
-            <td><div class="linia">podpis pracownika</div></td>
+            <td width="42%" style="border-top: 1px solid #333; padding-top: 6px; text-align: center; font-family: {{ $sans }}; font-size: 8.5pt; color: #555;">podpis pracodawcy</td>
+            <td width="16%">&nbsp;</td>
+            <td width="42%" style="border-top: 1px solid #333; padding-top: 6px; text-align: center; font-family: {{ $sans }}; font-size: 8.5pt; color: #555;">podpis pracownika</td>
         </tr>
     </table>
 
