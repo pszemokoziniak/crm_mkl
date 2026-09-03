@@ -72,7 +72,9 @@ class UmowyController extends Controller
     {
         $nazwa = Str::slug($this->dane($contact)['tytul'].'-'.$contact->last_name.'-'.$contact->first_name).'.doc';
 
-        return response("\xEF\xBB\xBF".$this->render($contact, false, true))
+        // Bez BOM: edytor rozpoznaje kodowanie po meta http-equiv w nagłówku,
+        // a same bajty znacznika wyświetlał jako "ï»¿" na początku dokumentu.
+        return response($this->render($contact, false, true))
             ->header('Content-Type', 'application/msword; charset=utf-8')
             ->header('Content-Disposition', 'attachment; filename="'.$nazwa.'"');
     }
