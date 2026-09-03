@@ -187,10 +187,25 @@
             <p><span class="text-gray-500">Pracownik:</span> {{ form.last_name }} {{ form.first_name }}</p>
             <p><span class="text-gray-500">Budowa:</span> <span class="font-medium">{{ selectedBudowaName }}</span></p>
             <p><span class="text-gray-500">Termin:</span> {{ assignForm.start }} → {{ assignForm.end }}</p>
+
+            <!-- Ten sam termin na innej budowie: kierownictwo może, reszta nie. -->
+            <div v-if="kolidujacePobyty.length" class="mt-3 p-3 text-red-700 bg-red-50 border border-red-200 rounded space-y-1">
+              <p class="font-semibold">Uwaga — w tym samym czasie pracownik jest już na budowie:</p>
+              <p v-for="(pobyt, i) in kolidujacePobyty" :key="i">
+                <span class="font-semibold">{{ pobyt.nazwaBud || 'budowa usunięta' }}</span>
+                — od {{ pobyt.start }} do {{ pobyt.end || 'bez końca' }}
+              </p>
+              <p v-if="czyKierownictwo" class="text-xs">
+                Stanowisko kierownicze może obsługiwać kilka budów naraz — jeśli to celowe, potwierdź.
+              </p>
+              <p v-else class="text-xs font-semibold">
+                Tego przypisania nie da się zapisać. Najpierw popraw daty pobytu w zakładce tamtej budowy.
+              </p>
+            </div>
           </div>
           <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
             <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="showAssignConfirm = false">Anuluj</button>
-            <button type="button" class="btn-indigo" :disabled="assignForm.processing" @click="confirmAssign">Potwierdź</button>
+            <button type="button" class="btn-indigo disabled:opacity-50 disabled:cursor-not-allowed" :disabled="assignForm.processing || zablokowane" @click="confirmAssign">Potwierdź</button>
           </div>
         </div>
       </div>
@@ -304,6 +319,8 @@ export default {
     uprawnienia: Object,
     przypisania: { type: Array, default: () => [] },
     status: { type: Object, default: () => ({ typ: 'brak', label: 'Nie pracuje' }) },
+    wszystkiePobyty: { type: Array, default: () => [] },
+    czyKierownictwo: { type: Boolean, default: false },
     stats: { type: Object, default: () => ({}) },
     flag: Boolean,
   },
@@ -344,6 +361,20 @@ export default {
     }
   },
   computed: {
+    /** Pobyty na innych budowach zachodzące na wybrany termin. */
+    kolidujacePobyty() {
+      if (!this.assignForm.start || !this.assignForm.end) {
+        return []
+      }
+
+      return this.wszystkiePobyty.filter(
+        (p) => p.start <= this.assignForm.end && (!p.end || p.end >= this.assignForm.start)
+      )
+    },
+    /** Niekierownicze stanowisko z kolizją — serwer i tak odmówi. */
+    zablokowane() {
+      return this.kolidujacePobyty.length > 0 && !this.czyKierownictwo
+    },
     selectedBudowaName() {
       const o = (this.organizations || []).find((x) => x.id === this.assignForm.organization_id)
       return o ? (o.nazwaBud || o.name) : '—'

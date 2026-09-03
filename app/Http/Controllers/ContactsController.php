@@ -121,6 +121,21 @@ class ContactsController extends Controller
         });
         $buildsCount = $timeSheets->pluck('organization_id')->unique()->count();
 
+        // Do ostrzeżenia w okienku potwierdzenia: wszystkie pobyty, także zakończone,
+        // bo przypisywać można też wstecz.
+        $wszystkiePobyty = ContactWorkDate::with('organization')
+            ->where('contact_id', $contact->id)
+            ->orderBy('start')
+            ->get()
+            ->map(fn (ContactWorkDate $w) => [
+                'nazwaBud' => optional($w->organization)->nazwaBud,
+                'start' => $w->start,
+                'end' => $w->end,
+            ]);
+
+        // Stanowiska kierownicze mogą być na dwóch budowach naraz — reszta nie.
+        $czyKierownictwo = (bool) optional($contact->funkcja)->kierownictwo;
+
         return Inertia::render('Contacts/Edit', [
             'contact' => [
                 'id' => $contact->id,
@@ -167,6 +182,8 @@ class ContactsController extends Controller
             'pbioz' => Pbioz::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'przypisania' => $przypisania,
             'status' => $statusPracownika->dla($contact),
+            'wszystkiePobyty' => $wszystkiePobyty,
+            'czyKierownictwo' => $czyKierownictwo,
             'flag' => $flag,
             'user_owner' => Auth::user()->owner,
             'stats' => [
@@ -216,8 +233,12 @@ class ContactsController extends Controller
             })
             ->first();
 
-        if ($overlap) {
+        // Kierownictwo (kierownik, inżynier, koordynator, BHP...) może obsługiwać
+        // dwie budowy naraz — decyzja biura. Pozostałych chronimy przed pomyłką
+        // w grafiku, bo monter nie będzie w dwóch miejscach jednocześnie.
+        if ($overlap && ! optional($contact->funkcja)->kierownictwo) {
             $nazwa = optional($overlap->organization)->nazwaBud ?? 'inna budowa';
+
             return Redirect::back()->with('error',
                 'Pracownik jest już w tym terminie przypisany do: '.$nazwa.
                 ' ('.$overlap->start.' – '.$overlap->end.'). Najpierw popraw daty w zakładce tej budowy.');
