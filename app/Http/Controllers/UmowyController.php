@@ -63,7 +63,7 @@ class UmowyController extends Controller
     /** Podgląd gotowy do druku — z niego użytkownik zapisuje PDF. */
     public function podglad(Contact $contact): Response
     {
-        return response($this->render($contact))
+        return response($this->render($contact, true))
             ->header('Content-Type', 'text/html; charset=utf-8');
     }
 
@@ -77,9 +77,9 @@ class UmowyController extends Controller
             ->header('Content-Disposition', 'attachment; filename="'.$nazwa.'"');
     }
 
-    private function render(Contact $contact): string
+    private function render(Contact $contact, bool $pokazPasek = false): string
     {
-        return view('umowy.umowa', $this->dane($contact))->render();
+        return view('umowy.umowa', $this->dane($contact) + ['pokazPasek' => $pokazPasek])->render();
     }
 
     /**
