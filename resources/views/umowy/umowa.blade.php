@@ -5,6 +5,7 @@
 <html lang="pl">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>{{ $tytul }}</title>
     <style>
         @page { size: A4; margin: 18mm 16mm; }

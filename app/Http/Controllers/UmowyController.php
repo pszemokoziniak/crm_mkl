@@ -72,14 +72,19 @@ class UmowyController extends Controller
     {
         $nazwa = Str::slug($this->dane($contact)['tytul'].'-'.$contact->last_name.'-'.$contact->first_name).'.doc';
 
-        return response($this->render($contact))
+        return response("\xEF\xBB\xBF".$this->render($contact, false, true))
             ->header('Content-Type', 'application/msword; charset=utf-8')
             ->header('Content-Disposition', 'attachment; filename="'.$nazwa.'"');
     }
 
-    private function render(Contact $contact, bool $pokazPasek = false): string
+    private function render(Contact $contact, bool $pokazPasek = false, bool $doWorda = false): string
     {
-        return view('umowy.umowa', $this->dane($contact) + ['pokazPasek' => $pokazPasek])->render();
+        // ltrim: bez pustych linii na starcie edytory rozpoznają plik jako HTML.
+        return ltrim(view('umowy.umowa', $this->dane($contact) + [
+            'pokazPasek' => $pokazPasek,
+            'logo' => $this->logo($doWorda),
+            'doWorda' => $doWorda,
+        ])->render());
     }
 
     /**
@@ -114,28 +119,25 @@ class UmowyController extends Controller
                 ?: 'Pozostałe warunki umowy pozostają bez zmian. W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu pracy.',
             'uwagi' => Request::query('uwagi'),
             'wygenerowano' => Carbon::now()->format('d.m.Y H:i'),
-            'logo' => $this->logo(),
         ];
     }
 
     /**
-     * Logo wklejone w dokument jako dane, a nie odnośnik — inaczej znikałoby
-     * w pliku .doc wysłanym mailem albo otwartym bez internetu.
-     * Gdy pliku nie ma, szablon pokazuje samą nazwę firmy.
+     * W podglądzie logo wklejamy jako dane — zawsze się pokaże, także bez sieci.
+     * Do Worda idzie zwykły odnośnik, bo edytory tekstu nie rozumieją base64
+     * i pokazują w jego miejscu ramkę z surowym napisem "data:image...".
      */
-    private function logo(): ?string
+    private function logo(bool $doWorda): ?string
     {
-        static $logo = false;
-
-        if ($logo !== false) {
-            return $logo;
-        }
-
         $sciezka = public_path('img/MKL-BAU.png');
 
-        return $logo = is_file($sciezka)
-            ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($sciezka))
-            : null;
+        if (! is_file($sciezka)) {
+            return null;
+        }
+
+        return $doWorda
+            ? url('/img/MKL-BAU.png')
+            : 'data:image/png;base64,'.base64_encode((string) file_get_contents($sciezka));
     }
 
     private function wstep(string $rodzaj): string
