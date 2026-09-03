@@ -128,7 +128,9 @@ class UmowyController extends Controller
     {
         $dzis = Carbon::today()->toDateString();
 
-        return ContactWorkDate::with('organization')
+        // withTrashed: budowa może być już zarchiwizowana, a jej nazwa i tak
+        // powinna trafić do dokumentu.
+        return ContactWorkDate::with(['organization' => fn ($query) => $query->withTrashed()])
             ->where('contact_id', $contact->id)
             ->orderByRaw('CASE WHEN start <= ? AND (end IS NULL OR end >= ?) THEN 0 ELSE 1 END', [$dzis, $dzis])
             ->orderByDesc('start')
