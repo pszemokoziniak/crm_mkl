@@ -135,8 +135,10 @@ class UmowyController extends Controller
             return null;
         }
 
+        // Adres z konfiguracji, nie z bieżącego żądania — plik trafia do Worda
+        // i musi wskazywać na serwer, a nie na localhost.
         return $doWorda
-            ? url('/img/MKL-BAU.png')
+            ? rtrim((string) config('app.url'), '/').'/img/MKL-BAU.png'
             : 'data:image/png;base64,'.base64_encode((string) file_get_contents($sciezka));
     }
 
