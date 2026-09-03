@@ -42,6 +42,9 @@
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/history`">
             <div :class="isUrl('history') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Historia</div>
           </Link>
+          <Link v-if="userOwner !== 3" class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/umowa`">
+            <div :class="isUrl('umowa') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Umowa</div>
+          </Link>
         </div>
       </div>
     </nav>
