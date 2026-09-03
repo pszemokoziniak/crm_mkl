@@ -32,6 +32,7 @@ use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
 use App\Http\Controllers\UprawnieniaTypController;
+use App\Http\Controllers\UmowyController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ZadaniaController;
 use App\Http\Controllers\ZmianyKadroweController;
@@ -1206,6 +1207,21 @@ Route::post('notifications/{id}/read', [NotificationController::class, 'read'])
 Route::post('notifications/read-all', [NotificationController::class, 'readAll'])
     ->name('notifications.readAll')
     ->middleware('auth');
+
+
+// Umowy i aneksy
+
+Route::get('contacts/{contact}/umowa', [UmowyController::class, 'formularz'])
+    ->name('umowy.formularz')
+    ->middleware('auth', 'biuro-permission');
+
+Route::get('contacts/{contact}/umowa/podglad', [UmowyController::class, 'podglad'])
+    ->name('umowy.podglad')
+    ->middleware('auth', 'biuro-permission');
+
+Route::get('contacts/{contact}/umowa/doc', [UmowyController::class, 'doc'])
+    ->name('umowy.doc')
+    ->middleware('auth', 'biuro-permission');
 
 
 // Zmiany kadrowe — skrzynka dla kadr (dział HR = uprawnienia biuro)
