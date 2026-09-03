@@ -71,9 +71,10 @@ class RejestrZmianKadrowych
                 : ZmianaKadrowa::TYP_WYDLUZENIE;
         }
 
+        // Tylko budowa "z" — pole "do" zostaje puste, bo to ono decyduje,
+        // czy wpis da się jeszcze skleić z nowym pobytem w przeniesienie.
         $this->zapisz($pobyt->contact_id, $typ, [
             'organization_from_id' => $pobyt->organization_id,
-            'organization_to_id' => $pobyt->organization_id,
             'old_start' => $staryStart,
             'old_end' => $staryKoniec,
             'new_start' => $pobyt->start,

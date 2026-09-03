@@ -35,7 +35,7 @@ class ZmianyKadroweController extends Controller
             ->map(fn ($grupa) => [
                 'paczka' => $grupa->first()['paczka'],
                 'zmiany' => $grupa->values(),
-                'osob' => $grupa->count(),
+                'osob' => $grupa->pluck('contact_id')->unique()->count(),
                 'autor' => $grupa->first()['autor'],
                 'kiedy' => $grupa->first()['kiedy'],
                 'nieobsluzonych' => $grupa->where('status', '!=', ZmianaKadrowa::STATUS_GOTOWA)->count(),
