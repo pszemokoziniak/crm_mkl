@@ -204,6 +204,82 @@ class ZmianyKadroweTest extends TestCase
             );
     }
 
+    public function test_zbiorcze_skrocenie_ustawia_date_wszystkim_zaznaczonym(): void
+    {
+        $this->actingAs($this->montaz);
+
+        $pobyty = collect(range(1, 3))->map(function ($i) {
+            $pracownik = Contact::create([
+                'account_id' => $this->accountId,
+                'first_name' => 'Pracownik'.$i,
+                'last_name' => 'Skrocony'.$i,
+            ]);
+
+            return ContactWorkDate::create([
+                'contact_id' => $pracownik->id,
+                'organization_id' => $this->budowaA->id,
+                'start' => '2026-09-01',
+                'end' => '2026-09-30',
+            ]);
+        });
+
+        ZmianaKadrowa::query()->delete();
+
+        $this->put('/pracownicy/'.$this->budowaA->id.'/data-konca', [
+            'ids' => $pobyty->pluck('id')->all(),
+            'end' => '2026-09-14',
+        ])->assertRedirect();
+
+        foreach ($pobyty as $pobyt) {
+            $this->assertSame('2026-09-14', $pobyt->fresh()->end);
+        }
+
+        // Skrócenia trafiają do rejestru tak samo jak przy poprawianiu pojedynczo.
+        $this->assertSame(3, ZmianaKadrowa::where('typ', ZmianaKadrowa::TYP_SKROCENIE)->count());
+        $this->assertSame(1, ZmianaKadrowa::distinct()->count('paczka'));
+    }
+
+    public function test_zbiorcze_skrocenie_nie_rusza_pobytow_z_innej_budowy(): void
+    {
+        $this->actingAs($this->montaz);
+
+        $naA = $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');
+        $innyPracownik = Contact::create([
+            'account_id' => $this->accountId,
+            'first_name' => 'Obcy',
+            'last_name' => 'Pracownik',
+        ]);
+        $naB = ContactWorkDate::create([
+            'contact_id' => $innyPracownik->id,
+            'organization_id' => $this->budowaB->id,
+            'start' => '2026-09-01',
+            'end' => '2026-09-30',
+        ]);
+
+        $this->put('/pracownicy/'.$this->budowaA->id.'/data-konca', [
+            'ids' => [$naA->id, $naB->id],
+            'end' => '2026-09-14',
+        ])->assertRedirect();
+
+        $this->assertSame('2026-09-14', $naA->fresh()->end);
+        // Pobyt z budowy B nie mógł zostać ruszony przez akcję budowy A.
+        $this->assertSame('2026-09-30', $naB->fresh()->end);
+    }
+
+    public function test_data_konca_przed_poczatkiem_jest_odrzucana(): void
+    {
+        $this->actingAs($this->montaz);
+        $pobyt = $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');
+
+        $this->put('/pracownicy/'.$this->budowaA->id.'/data-konca', [
+            'ids' => [$pobyt->id],
+            'end' => '2026-08-15',
+        ])->assertRedirect();
+
+        $this->assertSame('2026-09-30', $pobyt->fresh()->end);
+        $this->assertStringContainsString('wcześniejsza niż początek', session('error'));
+    }
+
     private function user(string $email): User
     {
         return User::factory()->create([
