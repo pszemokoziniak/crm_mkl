@@ -19,6 +19,12 @@
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
+      <Link class="group flex items-center py-3" href="/zmiany-kadrowe">
+        <icon name="zmiany" class="mr-2 w-4 h-4" :class="isUrl('zmiany-kadrowe') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <div :class="isUrl('zmiany-kadrowe') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Zmiany kadrowe</div>
+      </Link>
+    </div>
+    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/contacts">
         <icon name="users" class="mr-2 w-4 h-4" :class="isUrl('contacts') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('contacts') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Pracownicy</div>

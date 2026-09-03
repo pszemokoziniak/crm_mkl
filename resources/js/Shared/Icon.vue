@@ -74,6 +74,9 @@
   <svg v-else-if="name === 'zadania'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
     <path d="M5 2h10a2 2 0 0 1 2 2v14l-3-2-2 2-2-2-2 2-3-2V4a2 2 0 0 1 2-2zm1 4v2h8V6H6zm0 4v2h8v-2H6zm0 4v2h5v-2H6z" />
   </svg>
+  <svg v-else-if="name === 'zmiany'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path d="M8 3l4 4-4 4V8H2V6h6V3zm4 14l-4-4 4-4v3h6v2h-6v3z" />
+  </svg>
   <svg v-else-if="name === 'bell'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
     <path d="M10 20a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2zm8-4H2v-2l2-1V8a6 6 0 1 1 12 0v5l2 1v2z" />
   </svg>

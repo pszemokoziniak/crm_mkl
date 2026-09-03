@@ -34,6 +34,7 @@ use App\Http\Controllers\UprawnieniaController;
 use App\Http\Controllers\UprawnieniaTypController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ZadaniaController;
+use App\Http\Controllers\ZmianyKadroweController;
 use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\FunkcjaController;
@@ -1200,6 +1201,17 @@ Route::post('notifications/{id}/read', [NotificationController::class, 'read'])
 Route::post('notifications/read-all', [NotificationController::class, 'readAll'])
     ->name('notifications.readAll')
     ->middleware('auth');
+
+
+// Zmiany kadrowe — skrzynka dla kadr (dział HR = uprawnienia biuro)
+
+Route::get('zmiany-kadrowe', [ZmianyKadroweController::class, 'index'])
+    ->name('zmiany-kadrowe')
+    ->middleware('auth', 'biuro-permission');
+
+Route::put('zmiany-kadrowe', [ZmianyKadroweController::class, 'update'])
+    ->name('zmiany-kadrowe.update')
+    ->middleware('auth', 'biuro-permission');
 
 
 // Images
