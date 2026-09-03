@@ -11,6 +11,7 @@ use App\Models\BuildingTimeSheet;
 use App\Models\Funkcja;
 use App\Models\Organization;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -161,6 +162,54 @@ class BudowaPracownicyController extends Controller
             ])
         );
         return Redirect::route('pracownicy.index', $contactWorkDate->organization_id)->with('success', 'Poprawiono.');
+    }
+
+    /**
+     * Zbiorcze skrócenie (albo wydłużenie) pobytu — jednym ruchem dla całej
+     * ekipy przenoszonej na inną budowę. Zapis idzie przez model, więc rejestr
+     * zmian kadrowych dostaje wpisy tak samo jak przy poprawianiu pojedynczo.
+     */
+    public function zbiorczaDataKonca(Organization $organization): RedirectResponse
+    {
+        $dane = Request::validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+            'end' => ['required', 'date'],
+        ], [
+            'ids.required' => 'Nie zaznaczono nikogo.',
+            'end.required' => 'Podaj datę końca pobytu.',
+        ]);
+
+        $pobyty = ContactWorkDate::with('contact')
+            ->where('organization_id', $organization->id)
+            ->whereIn('id', $dane['ids'])
+            ->get();
+
+        if ($pobyty->isEmpty()) {
+            return Redirect::back()->with('error', 'Nie znaleziono zaznaczonych pobytów na tej budowie.');
+        }
+
+        // Data końca przed początkiem pobytu to błąd, a nie skrócenie.
+        $zaWczesnie = $pobyty->filter(fn (ContactWorkDate $p) => $p->start > $dane['end']);
+
+        if ($zaWczesnie->isNotEmpty()) {
+            $nazwiska = $zaWczesnie
+                ->map(fn (ContactWorkDate $p) => optional($p->contact)->last_name.' (od '.$p->start.')')
+                ->implode(', ');
+
+            return Redirect::back()->with('error',
+                'Data końca jest wcześniejsza niż początek pobytu: '.$nazwiska.'. Popraw datę albo odznacz te osoby.');
+        }
+
+        DB::transaction(function () use ($pobyty, $dane) {
+            foreach ($pobyty as $pobyt) {
+                $pobyt->update(['end' => $dane['end']]);
+            }
+        });
+
+        return Redirect::back()->with('success',
+            'Ustawiono koniec pobytu ('.$dane['end'].') dla '.$pobyty->count().' '
+            .($pobyty->count() === 1 ? 'osoby' : 'osób').'.');
     }
 
     public function destroy(ContactWorkDate $contactWorkDate)

@@ -461,6 +461,11 @@ Route::get('pracownicy/{organization}', [BudowaPracownicyController::class, 'ind
         ->middleware('auth', 'biuro-kierownik-permission');
 
 
+// Zbiorcze skrócenie pobytu — przy przenoszeniu ekipy na inną budowę.
+Route::put('pracownicy/{organization}/data-konca', [BudowaPracownicyController::class, 'zbiorczaDataKonca'])
+    ->name('pracownicy.data-konca')
+    ->middleware('auth', 'biuro-permission');
+
 Route::put('pracownicy/{contactWorkDate}', [BudowaPracownicyController::class, 'update'])
     ->name('pracownicy.update')
         ->middleware('auth', 'biuro-permission');
