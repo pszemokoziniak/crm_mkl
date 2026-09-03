@@ -114,7 +114,28 @@ class UmowyController extends Controller
                 ?: 'Pozostałe warunki umowy pozostają bez zmian. W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu pracy.',
             'uwagi' => Request::query('uwagi'),
             'wygenerowano' => Carbon::now()->format('d.m.Y H:i'),
+            'logo' => $this->logo(),
         ];
+    }
+
+    /**
+     * Logo wklejone w dokument jako dane, a nie odnośnik — inaczej znikałoby
+     * w pliku .doc wysłanym mailem albo otwartym bez internetu.
+     * Gdy pliku nie ma, szablon pokazuje samą nazwę firmy.
+     */
+    private function logo(): ?string
+    {
+        static $logo = false;
+
+        if ($logo !== false) {
+            return $logo;
+        }
+
+        $sciezka = public_path('img/MKL-BAU.png');
+
+        return $logo = is_file($sciezka)
+            ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($sciezka))
+            : null;
     }
 
     private function wstep(string $rodzaj): string

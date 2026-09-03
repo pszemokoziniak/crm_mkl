@@ -76,11 +76,6 @@
             font-family: Arial, Helvetica, sans-serif; font-size: 8.5pt; letter-spacing: .5px; color: #555;
         }
 
-        .stopka {
-            margin-top: 10mm; padding-top: 2mm; border-top: 1px solid #e3e6ec;
-            font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #8a8f98;
-        }
-
         .pasek-druku {
             position: fixed; top: 0; left: 0; right: 0;
             background: #1f2a44; color: #fff; padding: 8px 16px; text-align: center;
@@ -114,8 +109,14 @@
     <table class="firma">
         <tr>
             <td>
-                <span class="nazwa">{{ $pracodawca }}</span><br>
-                <span class="podpis-firmy">Dokumentacja kadrowa</span>
+                {{-- Logo jako dane w dokumencie; bez pliku zostaje sama nazwa. --}}
+                @if($logo)
+                    <img src="{{ $logo }}" width="170" height="40" alt="{{ $pracodawca }}" style="display:block; margin-bottom:1.5mm;">
+                    <span class="podpis-firmy">Dokumentacja kadrowa</span>
+                @else
+                    <span class="nazwa">{{ $pracodawca }}</span><br>
+                    <span class="podpis-firmy">Dokumentacja kadrowa</span>
+                @endif
             </td>
             <td class="data">{{ $miejsce }}, dnia {{ $dataZawarcia }}</td>
         </tr>
@@ -174,7 +175,6 @@
         </tr>
     </table>
 
-    <div class="stopka">Dokument wygenerowany z systemu HRM {{ $wygenerowano }}.</div>
 </div>
 </body>
 </html>
