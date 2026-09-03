@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
+use App\Models\ZmianaKadrowa;
 use App\Models\ContactWorkDate;
 use App\Models\Narzedzia;
 use App\Models\Organization;
@@ -194,8 +195,36 @@ class DashboardController extends Controller
             'wygasajace' => $expiringItems->count(),
         ];
 
+        // Zmiany pobytów czekające na kadry — dział HR to uprawnienia biuro.
+        $zmianyKadrowe = collect();
+
+        if (in_array($user->owner, [1, 2], true)) {
+            $zmianyKadrowe = ZmianaKadrowa::with(['contact', 'budowaZ', 'budowaDo'])
+                ->nieobsluzone()
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get()
+                ->map(fn (ZmianaKadrowa $z) => [
+                    'id' => $z->id,
+                    'pracownik' => $z->contact
+                        ? trim($z->contact->last_name.' '.$z->contact->first_name)
+                        : 'pracownik usunięty',
+                    'typ_label' => $z->typLabel(),
+                    'budowa_z' => optional($z->budowaZ)->nazwaBud,
+                    'budowa_do' => optional($z->budowaDo)->nazwaBud,
+                    'nowy_termin' => $z->new_start
+                        ? $z->new_start->format('Y-m-d').' → '.optional($z->new_end)->format('Y-m-d')
+                        : null,
+                    'kiedy' => $z->created_at?->format('d.m.Y H:i'),
+                ]);
+        }
+
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed', 'my'),
+            'zmiany_kadrowe' => $zmianyKadrowe,
+            'zmiany_kadrowe_licznik' => in_array($user->owner, [1, 2], true)
+                ? ZmianaKadrowa::nieobsluzone()->count()
+                : 0,
             'stats' => $stats,
             'do_archiwizacji' => $doArchiwizacji,
             'bez_a1' => $bezWaznegoA1,

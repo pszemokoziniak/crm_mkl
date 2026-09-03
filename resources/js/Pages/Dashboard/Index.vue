@@ -22,6 +22,34 @@
       </Link>
     </div>
 
+    <!-- Przeniesienia pracowników czekające na aneksy — widok dla biura/kadr. -->
+    <div v-if="zmiany_kadrowe.length" class="mb-8 bg-white rounded-md shadow overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="font-semibold text-gray-700">Zmiany pobytów do obsłużenia przez kadry</h2>
+        <span class="text-sm font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">{{ zmiany_kadrowe_licznik }}</span>
+      </div>
+      <div>
+        <Link
+          v-for="z in zmiany_kadrowe"
+          :key="z.id"
+          href="/zmiany-kadrowe"
+          class="flex flex-wrap items-baseline gap-x-2 px-6 py-3 border-t border-gray-50 hover:bg-gray-50 text-sm"
+        >
+          <span class="font-medium text-gray-800">{{ z.pracownik }}</span>
+          <span class="text-gray-500">{{ z.typ_label }}</span>
+          <span v-if="z.budowa_z && z.budowa_do && z.budowa_z !== z.budowa_do" class="text-gray-500">
+            {{ z.budowa_z }} → {{ z.budowa_do }}
+          </span>
+          <span v-else-if="z.budowa_do" class="text-gray-500">{{ z.budowa_do }}</span>
+          <span v-if="z.nowy_termin" class="text-gray-400">{{ z.nowy_termin }}</span>
+          <span class="ml-auto text-xs text-gray-400">{{ z.kiedy }}</span>
+        </Link>
+        <Link href="/zmiany-kadrowe" class="block px-6 py-3 border-t border-gray-50 text-sm text-indigo-600 hover:bg-gray-50">
+          Zobacz wszystkie zmiany kadrowe →
+        </Link>
+      </div>
+    </div>
+
     <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div class="bg-white rounded-md shadow overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -239,6 +267,8 @@ export default {
     filters: Object,
     stats: { type: Object, default: () => ({}) },
     do_archiwizacji: { type: Array, default: () => [] },
+    zmiany_kadrowe: { type: Array, default: () => [] },
+    zmiany_kadrowe_licznik: { type: Number, default: 0 },
     bez_a1: { type: Array, default: () => [] },
     expiring_items: Array,
     organizations_user: Object,
