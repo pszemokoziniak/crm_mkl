@@ -38,8 +38,8 @@ class PowiazanieUserPracownikTest extends TestCase
 
     public function test_biuro_laczy_uzytkownika_z_pracownikiem(): void
     {
-        $biuro = $this->user(2, 'biuro@example.com');
-        $kierownik = $this->user(3, 'kierownik@example.com');
+        $biuro = $this->user(2, 'biuro@mkl.pl');
+        $kierownik = $this->user(3, 'kierownik@mkl.pl');
         $pracownik = $this->pracownik('Kaczmarski', 'Sylwester');
 
         $this->actingAs($biuro)
@@ -56,8 +56,8 @@ class PowiazanieUserPracownikTest extends TestCase
 
     public function test_zmiana_powiazania_zdejmuje_poprzednie(): void
     {
-        $biuro = $this->user(2, 'biuro@example.com');
-        $konto = $this->user(3, 'kierownik@example.com');
+        $biuro = $this->user(2, 'biuro@mkl.pl');
+        $konto = $this->user(3, 'kierownik@mkl.pl');
 
         $stary = $this->pracownik('Poprzedni', 'Jan');
         $stary->update(['user_id' => $konto->id]);
@@ -77,7 +77,7 @@ class PowiazanieUserPracownikTest extends TestCase
 
     public function test_kierownik_nie_powiaze_konta_z_pracownikiem(): void
     {
-        $kierownik = $this->user(3, 'kierownik@example.com');
+        $kierownik = $this->user(3, 'kierownik@mkl.pl');
         $pracownik = $this->pracownik('Kaczmarski', 'Sylwester');
 
         // Własny profil kierownik może edytować, ale powiązania już nie ruszy.
@@ -94,8 +94,8 @@ class PowiazanieUserPracownikTest extends TestCase
 
     public function test_profil_podaje_liste_pracownikow_do_polaczenia(): void
     {
-        $biuro = $this->user(2, 'biuro@example.com');
-        $konto = $this->user(3, 'kierownik@example.com');
+        $biuro = $this->user(2, 'biuro@mkl.pl');
+        $konto = $this->user(3, 'kierownik@mkl.pl');
 
         $this->pracownik('Wolny', 'Kierownik');
         $this->pracownik('Zajety', 'Kierownik')->update(['user_id' => $biuro->id]);

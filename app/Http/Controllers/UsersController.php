@@ -43,12 +43,33 @@ class UsersController extends Controller
         return Inertia::render('Users/Create');
     }
 
+    /**
+     * Konta zakładamy tylko na firmowych adresach — logowanie do HRM
+     * ma być powiązane z pocztą firmową, nie z prywatną skrzynką.
+     */
+    private const DOMENA_FIRMOWA = '@mkl.pl';
+
+    /**
+     * Adres na małe litery, żeby "Jan.Kowalski@MKL.PL" nie zakładał
+     * drugiego konta obok "jan.kowalski@mkl.pl" i przechodził sprawdzenie domeny.
+     */
+    private function znormalizujEmail(): void
+    {
+        $email = Request::get('email');
+
+        if (is_string($email)) {
+            Request::merge(['email' => mb_strtolower(trim($email))]);
+        }
+    }
+
     public function store()
     {
+        $this->znormalizujEmail();
+
         Request::validate([
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
-            'email' => ['required', 'max:50', 'email', Rule::unique('users')],
+            'email' => ['required', 'max:50', 'email', 'ends_with:'.self::DOMENA_FIRMOWA, Rule::unique('users')],
             'owner' => ['required', 'max:10'],
             'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
@@ -57,6 +78,7 @@ class UsersController extends Controller
                 'required'  => 'Pole jest wymagane.',
                 'unique' => 'Nazwa użyta',
                 'numeric' => 'Pole attribute może zawierać tylko cyfry',
+                'email.ends_with' => 'Adres musi być w domenie '.self::DOMENA_FIRMOWA,
             ]
         );
 
@@ -142,10 +164,12 @@ class UsersController extends Controller
             return Redirect::back()->with('error', 'Updating the Super Admin user is not allowed.');
         }
 
+        $this->znormalizujEmail();
+
         Request::validate([
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
-            'email' => ['required', 'max:50', 'email', Rule::unique('users')->ignore($user->id)],
+            'email' => ['required', 'max:50', 'email', 'ends_with:'.self::DOMENA_FIRMOWA, Rule::unique('users')->ignore($user->id)],
             'password' => [
                 'nullable',
                 'min:8',
@@ -161,6 +185,7 @@ class UsersController extends Controller
             'numeric' => 'Pole :attribute może zawierać tylko cyfry',
             'password.regex' => 'Hasło musi zawierać dużą literę, znak specjalny, cyfrę',
             'password.min' => 'Hasło musi zawierać 8 znaków',
+            'email.ends_with' => 'Adres musi być w domenie '.self::DOMENA_FIRMOWA,
         ]
         );
 
