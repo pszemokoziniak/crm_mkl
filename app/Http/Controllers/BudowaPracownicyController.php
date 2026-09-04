@@ -36,6 +36,7 @@ class BudowaPracownicyController extends Controller
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $id)
+            ->whereNull('cwd.deleted_at')
             ->orderBy('last_name')
             ->get();
         return $workers;
@@ -105,6 +106,7 @@ class BudowaPracownicyController extends Controller
 
         // Walidacja dla zwykłych pracowników (nie mogą być nigdzie zajęci)
         $busyGlobalIds = DB::table('contact_work_dates')
+            ->whereNull('deleted_at')
             ->whereIn('contact_id', $toAssign)
             ->where('start', '<=', $end)
             ->where('end', '>=', $start)
@@ -248,6 +250,7 @@ class BudowaPracownicyController extends Controller
     {
         // 1) Globalnie zajęci (dla zwykłych pracowników)
         $busyGlobalIds = DB::table('contact_work_dates')
+            ->whereNull('deleted_at')
             ->where('start', '<=', $end)
             ->where('end', '>=', $start)
             ->distinct()
@@ -306,6 +309,7 @@ class BudowaPracownicyController extends Controller
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $organization->id)
+            ->whereNull('cwd.deleted_at')
             ->whereIn('contacts.funkcja_id', $funkcjeKierownictwa)
             ->orderBy('last_name')
             ->get();

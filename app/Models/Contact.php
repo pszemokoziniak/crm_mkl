@@ -136,6 +136,7 @@ class Contact extends Model
             $today = now()->toDateString();
             $activeSub = function ($q) use ($today) {
                 $q->select('contact_id')->from('contact_work_dates')
+                    ->whereNull('deleted_at')
                     ->where('start', '<=', $today)
                     ->where('end', '>=', $today);
             };

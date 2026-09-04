@@ -22,6 +22,7 @@ class ToolWorkDatesController extends Controller
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
             ->where('cwd.organization_id', $id)
+            ->whereNull('cwd.deleted_at')
             ->orderBy('last_name')
             ->get();
 

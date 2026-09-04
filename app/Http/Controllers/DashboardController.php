@@ -80,6 +80,7 @@ class DashboardController extends Controller
                 $query->whereIn('contacts.id', function($q) use ($myOrgIds, $user, $now) {
                     $q->select('contact_id')
                       ->from('contact_work_dates')
+                      ->whereNull('deleted_at')
                       ->whereDate('start', '<=', $now)
                       ->where(function ($q2) use ($now) {
                           $q2->whereNull('end')->orWhereDate('end', '>=', $now);
@@ -157,12 +158,14 @@ class DashboardController extends Controller
                 $q->select(DB::raw(1))->from('contact_work_dates as cwd')
                     ->join('contacts as c', 'c.id', '=', 'cwd.contact_id')
                     ->whereColumn('cwd.organization_id', 'organizations.id')
+                    ->whereNull('cwd.deleted_at')
                     ->whereNull('c.deleted_at');
             })
             ->whereNotExists(function ($q) use ($now) {
                 $q->select(DB::raw(1))->from('contact_work_dates as cwd')
                     ->join('contacts as c', 'c.id', '=', 'cwd.contact_id')
                     ->whereColumn('cwd.organization_id', 'organizations.id')
+                    ->whereNull('cwd.deleted_at')
                     ->whereNull('c.deleted_at')
                     ->where(function ($w) use ($now) {
                         $w->whereNull('cwd.end')->orWhere('cwd.end', '>=', $now);
@@ -177,6 +180,7 @@ class DashboardController extends Controller
         $bezWaznegoA1 = Contact::query()
             ->whereIn('id', function ($q) use ($now) {
                 $q->select('contact_id')->from('contact_work_dates')
+                    ->whereNull('deleted_at')
                     ->where(function ($w) use ($now) {
                         $w->whereNull('end')->orWhere('end', '>=', $now);
                     });
