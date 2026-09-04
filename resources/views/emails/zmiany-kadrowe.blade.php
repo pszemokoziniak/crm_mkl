@@ -13,6 +13,16 @@
                 <tr>
                     <td style="padding:24px 28px 8px 28px;">
                         <div style="font-size:18px; font-weight:bold; color:#1f2a44;">Zmiany kadrowe do obsłużenia</div>
+                        <div style="padding-top:10px; font-size:14px; line-height:20px;">
+                            @php $ile = $zmiany->pluck('contact_id')->unique()->count(); @endphp
+                            W zakładce <strong>Zmiany kadrowe</strong>
+                            @if ($ile === 1)
+                                czeka zmiana pobytu jednej osoby
+                            @else
+                                czekają zmiany pobytu {{ $ile }} osób
+                            @endif
+                            — do przygotowania aneksy do umów.
+                        </div>
                         <div style="padding-top:6px; font-size:13px; color:#6b7280;">
                             Wprowadził(a): {{ $autor }}
                         </div>
