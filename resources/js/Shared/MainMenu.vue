@@ -1,5 +1,12 @@
 <template>
   <div>
+    <!-- To samo miejsce, co po kliknięciu w logo — tylko widoczne w menu. -->
+    <div class="mb-4">
+      <Link class="group flex items-center py-3" href="/">
+        <icon name="home" class="mr-2 w-4 h-4" :class="isUrl('') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <div :class="isUrl('') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Home</div>
+      </Link>
+    </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro || $page.props.permissions.kierownik" class="mb-4">
       <Link class="group flex items-center py-3" href="/budowy">
         <icon name="office" class="mr-2 w-4 h-4" :class="isUrl('budowy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
