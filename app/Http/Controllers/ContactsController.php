@@ -27,7 +27,29 @@ class ContactsController extends Controller
 {
     public function index(StatusPracownika $statusPracownika)
     {
+        return $this->listaOsob($statusPracownika, false, 'Pracownicy', '/contacts');
+    }
+
+    /**
+     * Kierownictwo — ta sama lista i te same filtry, tylko inny zbiór osób.
+     * O tym, kto tu trafia, decyduje znacznik przy stanowisku w Ustawieniach,
+     * więc nowe stanowisko da się przypisać do jednej albo drugiej zakładki
+     * bez zmiany w kodzie.
+     */
+    public function kierownicy(StatusPracownika $statusPracownika)
+    {
+        return $this->listaOsob($statusPracownika, true, 'Kierownicy i inżynierowie', '/kierownicy');
+    }
+
+    private function listaOsob(
+        StatusPracownika $statusPracownika,
+        bool $kierownictwo,
+        string $naglowek,
+        string $adresListy
+    ) {
         return Inertia::render('Contacts/Index', [
+            'naglowek' => $naglowek,
+            'adresListy' => $adresListy,
             'filters' => Request::all('search', 'trashed', 'status'),
             'contacts' => Contact::with('funkcja')
                 ->with('organization')
@@ -35,6 +57,7 @@ class ContactsController extends Controller
                 ->with($statusPracownika->relacjeDoListy())
                 // Najnowsze A1 — jednym zapytaniem na stronę, nie na wiersz.
                 ->with(['a1' => fn ($query) => $query->orderByDesc('end')])
+                ->kierownictwo($kierownictwo)
                 ->orderByName()
                 ->filter(Request::only('search', 'trashed', 'status'))
                 ->paginate(20)
