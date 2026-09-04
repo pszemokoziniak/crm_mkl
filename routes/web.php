@@ -259,6 +259,10 @@ Route::get('contacts', [ContactsController::class, 'index'])
     ->name('contacts')
         ->middleware('auth', 'biuro-permission');
 
+Route::get('kierownicy', [ContactsController::class, 'kierownicy'])
+    ->name('kierownicy')
+        ->middleware('auth', 'biuro-permission');
+
 
 Route::get('contacts/create', [ContactsController::class, 'create'])
     ->name('contacts.create')

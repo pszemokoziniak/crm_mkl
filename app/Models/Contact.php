@@ -95,6 +95,25 @@ class Contact extends Model
             ->orderByRaw('first_name COLLATE utf8mb4_polish_ci asc');
     }
 
+    /**
+     * Podział pracowników na dwie listy: kierownictwo (stanowiska oznaczone
+     * w słowniku /funkcja) i pozostali. Kto nie ma stanowiska, trafia do
+     * zwykłych pracowników — inaczej zniknąłby z obu list.
+     */
+    public function scopeKierownictwo($query, bool $tylkoKierownictwo)
+    {
+        $stanowiska = Funkcja::kierownictwoIds();
+
+        if ($tylkoKierownictwo) {
+            return $query->whereIn('funkcja_id', $stanowiska);
+        }
+
+        return $query->where(function ($q) use ($stanowiska) {
+            $q->whereNotIn('funkcja_id', $stanowiska)
+                ->orWhereNull('funkcja_id');
+        });
+    }
+
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {

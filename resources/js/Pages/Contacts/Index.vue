@@ -1,7 +1,7 @@
 <template>
   <div>
-    <Head title="Contacts" />
-    <h1 class="mb-8 text-3xl font-bold">Pracownicy <span class="text-xl font-medium text-gray-400">({{ contacts.total }} w bazie)</span></h1>
+    <Head :title="naglowek" />
+    <h1 class="mb-8 text-3xl font-bold">{{ naglowek }} <span class="text-xl font-medium text-gray-400">({{ contacts.total }} w bazie)</span></h1>
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
       <div class="flex items-center w-full sm:w-auto">
         <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
@@ -114,6 +114,10 @@ export default {
     filters: Object,
     contactAccount: Object,
     contacts: Object,
+    // Ta sama lista obsługuje Pracowników i Kierownictwo — różni je
+    // tylko nagłówek i adres, pod który wracają filtry.
+    naglowek: { type: String, default: 'Pracownicy' },
+    adresListy: { type: String, default: '/contacts' },
   },
   data() {
     return {
@@ -128,7 +132,7 @@ export default {
     form: {
       deep: true,
       handler: throttle(function () {
-        this.$inertia.get('/contacts', pickBy(this.form), { preserveState: true })
+        this.$inertia.get(this.adresListy, pickBy(this.form), { preserveState: true })
       }, 150),
     },
   },
