@@ -3,23 +3,35 @@
     <Head title="Dashboard" />
     <h1 class="mb-8 text-3xl font-bold">Pulpit</h1>
 
-    <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-      <Link href="/contacts" class="block bg-white rounded-md shadow p-5 border-l-4 border-indigo-500 hover:shadow-md transition">
+    <!-- Kierownik nie wchodzi do Pracowników, Sprzętu ani raportu terminów,
+         więc jego kafelki są liczbami bez odnośnika (albo ich nie ma). -->
+    <div class="mb-8 grid grid-cols-2 gap-4" :class="kierownik ? 'sm:grid-cols-3' : 'sm:grid-cols-4'">
+      <component
+        :is="kierownik ? 'div' : 'Link'"
+        :href="kierownik ? null : '/contacts'"
+        class="block bg-white rounded-md shadow p-5 border-l-4 border-indigo-500"
+        :class="kierownik ? '' : 'hover:shadow-md transition'"
+      >
         <div class="text-3xl font-bold text-gray-900">{{ stats.pracownicy ?? 0 }}</div>
-        <div class="mt-1 text-sm text-gray-500">Pracownicy</div>
-      </Link>
+        <div class="mt-1 text-sm text-gray-500">{{ kierownik ? 'Pracownicy na Twoich budowach' : 'Pracownicy' }}</div>
+      </component>
       <Link href="/budowy" class="block bg-white rounded-md shadow p-5 border-l-4 border-green-500 hover:shadow-md transition">
         <div class="text-3xl font-bold text-gray-900">{{ stats.budowy ?? 0 }}</div>
-        <div class="mt-1 text-sm text-gray-500">Budowy (aktywne)</div>
+        <div class="mt-1 text-sm text-gray-500">{{ kierownik ? 'Twoje budowy' : 'Budowy (aktywne)' }}</div>
       </Link>
-      <Link href="/narzedzia" class="block bg-white rounded-md shadow p-5 border-l-4 border-gray-400 hover:shadow-md transition">
+      <Link v-if="!kierownik" href="/narzedzia" class="block bg-white rounded-md shadow p-5 border-l-4 border-gray-400 hover:shadow-md transition">
         <div class="text-3xl font-bold text-gray-900">{{ stats.sprzet ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">Sprzęt</div>
       </Link>
-      <Link href="/reports/koniecUprawinien" class="block bg-white rounded-md shadow p-5 border-l-4 hover:shadow-md transition" :class="(stats.wygasajace ?? 0) > 0 ? 'border-red-500' : 'border-green-500'">
+      <component
+        :is="kierownik ? 'div' : 'Link'"
+        :href="kierownik ? null : '/reports/koniecUprawinien'"
+        class="block bg-white rounded-md shadow p-5 border-l-4"
+        :class="[(stats.wygasajace ?? 0) > 0 ? 'border-red-500' : 'border-green-500', kierownik ? '' : 'hover:shadow-md transition']"
+      >
         <div class="text-3xl font-bold" :class="(stats.wygasajace ?? 0) > 0 ? 'text-red-600' : 'text-gray-900'">{{ stats.wygasajace ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">Wygasające terminy (30 dni)</div>
-      </Link>
+      </component>
     </div>
 
     <!-- Przeniesienia pracowników czekające na aneksy — widok dla biura/kadr. -->
@@ -50,8 +62,8 @@
       </div>
     </div>
 
-    <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="mb-8 grid grid-cols-1 gap-6" :class="kierownik ? '' : 'lg:grid-cols-2'">
+      <div v-if="!kierownik" class="bg-white rounded-md shadow overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">Budowy do archiwizacji</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="do_archiwizacji.length ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'">{{ do_archiwizacji.length }}</span>
@@ -66,7 +78,7 @@
 
       <div class="bg-white rounded-md shadow overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 class="font-semibold text-gray-700">Pracownicy bez ważnego A1</h2>
+          <h2 class="font-semibold text-gray-700">{{ kierownik ? 'Twoi pracownicy bez ważnego A1' : 'Pracownicy bez ważnego A1' }}</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="bez_a1.length ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">{{ bez_a1.length }}</span>
         </div>
         <div class="max-h-72 overflow-y-auto">
@@ -284,6 +296,12 @@ export default {
         trashed: this.filters.trashed,
       },
     }
+  },
+  computed: {
+    // user_owner niesie rolę pod indeksem 1 — tak jak w reszcie tego widoku.
+    kierownik() {
+      return this.user_owner[1] === 3
+    },
   },
   watch: {
     form: {

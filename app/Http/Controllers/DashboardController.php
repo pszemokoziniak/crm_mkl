@@ -22,11 +22,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Kierownik nie ma dashboardu — jego jedynym widokiem jest lista budów.
-        if ($user->owner === 3) {
-            return redirect('/budowy');
-        }
-
         $contact = Contact::where('user_id', $user->id)
             ->orWhere(function($query) use ($user) {
                 $query->where('first_name', $user->first_name)
@@ -154,7 +149,8 @@ class DashboardController extends Controller
         // Budowy do archiwizacji: mają pobyty istniejących pracowników, ale
         // żaden nie jest już niezakończony (wszyscy zjechali).
         // Warsztat nigdy się nie kończy, więc nie ma go po co archiwizować.
-        $doArchiwizacji = Organization::query()
+        // Archiwizacja to decyzja biura, więc kierownik tej listy nie dostaje.
+        $doArchiwizacji = $user->isKierownik() ? collect() : Organization::query()
             ->tylkoBudowy()
             ->whereExists(function ($q) {
                 $q->select(DB::raw(1))->from('contact_work_dates as cwd')
@@ -180,12 +176,17 @@ class DashboardController extends Controller
 
         // Pracownicy z aktualnym/przyszłym pobytem, ale bez A1 ważnego dziś.
         $bezWaznegoA1 = Contact::query()
-            ->whereIn('id', function ($q) use ($now) {
+            ->whereIn('id', function ($q) use ($now, $user, $myOrgIds) {
                 $q->select('contact_id')->from('contact_work_dates')
                     ->whereNull('deleted_at')
                     ->where(function ($w) use ($now) {
                         $w->whereNull('end')->orWhere('end', '>=', $now);
                     });
+
+                // Kierownik odpowiada za swoje budowy — cudzych ludzi nie ogląda.
+                if ($user->isKierownik()) {
+                    $q->whereIn('organization_id', $myOrgIds);
+                }
             })
             ->whereDoesntHave('a1', fn ($q) => $q->where('end', '>=', $now))
             ->orderBy('last_name')->orderBy('first_name')
@@ -194,12 +195,29 @@ class DashboardController extends Controller
             ->map(fn ($c) => ['id' => $c->id, 'first_name' => $c->first_name, 'last_name' => $c->last_name])
             ->values();
 
-        $stats = [
-            'pracownicy' => Contact::count(),
-            'budowy' => Organization::tylkoBudowy()->count(),
-            'sprzet' => Narzedzia::count(),
-            'wygasajace' => $expiringItems->count(),
-        ];
+        // Kierownik liczy swoje budowy i swoich ludzi; sprzętu nie prowadzi,
+        // więc tego kafelka nie dostaje.
+        $stats = $user->isKierownik()
+            ? [
+                'pracownicy' => ContactWorkDate::query()
+                    ->whereIn('organization_id', $myOrgIds)
+                    ->activeOn($now)
+                    ->whereHas('contact')
+                    ->distinct()
+                    ->count('contact_id'),
+                'budowy' => Organization::tylkoBudowy()
+                    ->whereIn('id', $myOrgIds)
+                    ->whereNull('deleted_at')
+                    ->count(),
+                'sprzet' => null,
+                'wygasajace' => $expiringItems->count(),
+            ]
+            : [
+                'pracownicy' => Contact::count(),
+                'budowy' => Organization::tylkoBudowy()->count(),
+                'sprzet' => Narzedzia::count(),
+                'wygasajace' => $expiringItems->count(),
+            ];
 
         // Zmiany pobytów czekające na kadry — dział HR to uprawnienia biuro.
         $zmianyKadrowe = collect();
