@@ -58,7 +58,8 @@ class PrognozaController extends Controller
         $years = $this->getCalendarYears($currentYear);
         $months = $this->getCalendarMonths($currentYear);
 
-        $buildings = Organization::get()->map->only(['id', 'nazwaBud']);
+        // Warsztaty nie są budowami — obsady się dla nich nie planuje.
+        $buildings = Organization::tylkoBudowy()->get()->map->only(['id', 'nazwaBud']);
 
         // isset($_GET['building']) ? $building = $_GET['building'] : $building = 'all';
 
@@ -200,7 +201,7 @@ class PrognozaController extends Controller
 
     function getUrlBuildParams($id)
     {
-        return Organization::when($id !== 'all', function ($query) use ($id) {
+        return Organization::tylkoBudowy()->when($id !== 'all', function ($query) use ($id) {
             $query->where('id', $id);
         })->get()->map->only(['id', 'nazwaBud'])->all();
     }
@@ -270,7 +271,7 @@ class PrognozaController extends Controller
 
     function getBuildings(): array
     {
-        return Organization::get()->map->only(['id', 'nazwaBud']);
+        return Organization::tylkoBudowy()->get()->map->only(['id', 'nazwaBud']);
     }
 
     function prepareTable()

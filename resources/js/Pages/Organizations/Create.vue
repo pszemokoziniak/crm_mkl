@@ -17,6 +17,17 @@
             <option value="TAK">TAK</option>
             <option value="NIE">NIE</option>
           </select-input>
+          <!-- Warsztat prowadzimy jak budowę (przypisania, godziny),
+               ale nie liczy się do obsady budów ani do prognozy. -->
+          <select-input
+            v-model="form.warsztat"
+            :error="form.errors.warsztat"
+            class="pb-8 pr-6 w-full lg:w-1/2"
+            label="Rodzaj"
+          >
+            <option :value="false">Budowa</option>
+            <option :value="true">Warsztat (nie budowa)</option>
+          </select-input>
           <!-- Pracownicy ze stanowiskiem "Kierownik Projektu" (słownik /funkcja) -->
           <select-input
             v-model="form.kierownik_projektu_id"
@@ -78,6 +89,7 @@ export default {
         inzynier_id: null,
         zaklad: null,
         kierownik_projektu_id: null,
+        warsztat: false,
         country_id: null,
         addressBud: null,
         addressKwat: null,

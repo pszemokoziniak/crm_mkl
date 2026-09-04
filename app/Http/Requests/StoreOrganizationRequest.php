@@ -33,6 +33,7 @@ class StoreOrganizationRequest extends FormRequest
             'inzynier_id' => 'nullable | max:50',
             'zaklad' => 'nullable | max:500',
             'kierownik_projektu_id' => ['nullable', 'integer', 'exists:contacts,id'],
+            'warsztat' => ['boolean'],
             'country_id' => 'required',
             'addressBud' => 'nullable | max:2500',
             'addressKwat' => 'nullable | max:2500',

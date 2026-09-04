@@ -140,6 +140,7 @@ class OrganizationsController extends Controller
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
                     'kierownicy' => $organization->kierownicy_names ?: null,
                     'inzynierowie' => $organization->inzynierowie_names ?: null,
+                    'warsztat' => (bool) $organization->warsztat,
                     'kierownik_projektu' => $organization->kierownikProjektu
                         ? trim($organization->kierownikProjektu->last_name.' '.$organization->kierownikProjektu->first_name)
                         : null,
@@ -238,6 +239,7 @@ class OrganizationsController extends Controller
         $org->city = $req->city;
         $org->zaklad = $req->zaklad;
         $org->kierownik_projektu_id = $req->kierownik_projektu_id;
+        $org->warsztat = $req->boolean('warsztat');
         $org->country_id = $req->country_id;
         $org->addressBud = $req->addressBud;
         $org->addressKwat = $req->addressKwat;
@@ -311,6 +313,7 @@ class OrganizationsController extends Controller
                 'inzynier_id' => $organization->inzynier_id,
                 'zaklad' => $organization->zaklad,
                 'kierownik_projektu_id' => $organization->kierownik_projektu_id,
+                'warsztat' => (bool) $organization->warsztat,
                 'country_id' => $organization->country_id,
                 'addressBud' => $organization->addressBud,
                 'addressKwat' => $organization->addressKwat,
@@ -374,6 +377,7 @@ class OrganizationsController extends Controller
                 'inzynier_id' => ['nullable', 'max:25'],
                 'zaklad' => ['nullable', 'max:2000'],
                 'kierownik_projektu_id' => ['nullable', 'integer', 'exists:contacts,id'],
+                'warsztat' => ['boolean'],
                 'country_id' => ['nullable', 'max:25'],
                 'addressBud' => ['nullable', 'max:2000'],
                 'addressKwat' => ['nullable', 'max:2500'],

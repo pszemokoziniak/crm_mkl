@@ -14,6 +14,20 @@ class Organization extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $casts = [
+        'warsztat' => 'boolean',
+    ];
+
+    /**
+     * Same budowy, bez warsztatów — do liczenia "ile mamy budów"
+     * i do planowania obsady. Do przypisywania pracowników warsztaty
+     * są potrzebne, więc tam tego zawężenia nie stosujemy.
+     */
+    public function scopeTylkoBudowy($query)
+    {
+        return $query->where('warsztat', false);
+    }
+
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where($field ?? 'id', $value)->withTrashed()->firstOrFail();
