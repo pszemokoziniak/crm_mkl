@@ -69,6 +69,46 @@ class RestoreArchivedTest extends TestCase
             ->assertOk();
     }
 
+    public function test_przywrocony_pracownik_przestaje_byc_zwolniony(): void
+    {
+        $contact = $this->zarchiwizowanyPracownik(Contact::STATUS_ZWOLNIONY);
+
+        $this->actingAs($this->user(2))
+            ->put('/contacts/'.$contact->id.'/restore')
+            ->assertRedirect();
+
+        $contact->refresh();
+
+        $this->assertNull($contact->deleted_at);
+        $this->assertSame(Contact::STATUS_AKTYWNY, $contact->status_zatrudnienia);
+    }
+
+    public function test_przywrocenie_nie_rusza_innego_statusu(): void
+    {
+        // Do archiwum trafia się przez "Zwolniony", ale gdyby kogoś usunięto
+        // w trakcie urlopu, przywrócenie nie ma mu tego statusu zabierać.
+        $contact = $this->zarchiwizowanyPracownik(Contact::STATUS_URLOP);
+
+        $this->actingAs($this->user(2))
+            ->put('/contacts/'.$contact->id.'/restore')
+            ->assertRedirect();
+
+        $this->assertSame(Contact::STATUS_URLOP, $contact->fresh()->status_zatrudnienia);
+    }
+
+    public function test_przywrocony_pracownik_wraca_na_liste(): void
+    {
+        $contact = $this->zarchiwizowanyPracownik(Contact::STATUS_ZWOLNIONY);
+        $biuro = $this->user(2);
+
+        $this->actingAs($biuro)->put('/contacts/'.$contact->id.'/restore');
+
+        $odpowiedz = $this->actingAs($biuro)->get('/contacts');
+        $nazwiska = collect($odpowiedz->viewData('page')['props']['contacts']['data'])->pluck('last_name');
+
+        $this->assertContains('Ambroziak', $nazwiska);
+    }
+
     private function user(int $owner): User
     {
         return User::factory()->create([
@@ -79,12 +119,13 @@ class RestoreArchivedTest extends TestCase
         ]);
     }
 
-    private function zarchiwizowanyPracownik(): Contact
+    private function zarchiwizowanyPracownik(?string $status = null): Contact
     {
         $contact = Contact::create([
             'account_id' => $this->accountId,
             'first_name' => 'Mateusz',
             'last_name' => 'Ambroziak',
+            'status_zatrudnienia' => $status ?? Contact::STATUS_ZWOLNIONY,
         ]);
 
         $contact->delete();

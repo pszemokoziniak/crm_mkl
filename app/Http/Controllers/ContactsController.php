@@ -316,6 +316,13 @@ class ContactsController extends Controller
     {
         $contact->restore();
 
+        // Do archiwum trafia się przez "Zwolniony", więc przywrócenie bez
+        // zdjęcia tego statusu zostawiało pracownika czynnego, ale opisanego
+        // jako zwolniony — i wypadał z list, na których powinien być.
+        if ($contact->status_zatrudnienia === Contact::STATUS_ZWOLNIONY) {
+            $contact->update(['status_zatrudnienia' => Contact::STATUS_AKTYWNY]);
+        }
+
         return Redirect::back()->with('success', 'Pracownik przywrócony.');
     }
 
