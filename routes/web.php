@@ -9,6 +9,7 @@ use App\Http\Controllers\BhpTypController;
 use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
+use App\Http\Controllers\PodszywanieController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumentyTypController;
@@ -66,6 +67,16 @@ Route::post('login', [AuthenticatedSessionController::class, 'store'])
 
 Route::delete('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
+
+// Wejście administratora na cudze konto (do sprawdzania widoku danej osoby)
+Route::post('users/{user}/wejdz-jako', [PodszywanieController::class, 'wejdz'])
+    ->name('podszywanie.wejdz')
+    ->middleware('auth', 'admin-permission');
+
+// Powrót — dostępny z konta, na które admin wszedł, więc bez wymogu roli.
+Route::post('wroc-do-siebie', [PodszywanieController::class, 'wroc'])
+    ->name('podszywanie.wroc')
+    ->middleware('auth');
 
 Route::get('password/expired', [AuthenticatedSessionController::class, 'expired'])
     ->name('password.expired')

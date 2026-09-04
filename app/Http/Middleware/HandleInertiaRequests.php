@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\PodszywanieController;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -59,6 +60,15 @@ class HandleInertiaRequests extends Middleware
                 ];
             },
             'permissions' => auth()->user()->permissions ?? [],
+            // Pasek "pracujesz jako…" — żeby admin nie zapomniał, że siedzi
+            // na cudzym koncie.
+            'podszywanie' => function () use ($request) {
+                if (! $request->user() || ! $request->session()->has(PodszywanieController::KLUCZ_SESJI)) {
+                    return null;
+                }
+
+                return ['kto' => $request->user()->name];
+            },
             // Dzwonek w nagłówku — wywołania @ i przypisania zgłoszeń.
             'notifications' => function () use ($request) {
                 if (! $request->user()) {

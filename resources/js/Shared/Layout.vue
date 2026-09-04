@@ -1,6 +1,13 @@
 <template>
   <div>
     <div id="dropdown" />
+    <!-- Widoczny pasek, żeby nie dało się zapomnieć, że to cudze konto. -->
+    <div v-if="$page.props.podszywanie" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-sm text-yellow-900 bg-yellow-300">
+      <span>Pracujesz jako <strong>{{ $page.props.podszywanie.kto }}</strong></span>
+      <Link href="/wroc-do-siebie" method="post" as="button" type="button" class="font-semibold underline hover:text-yellow-700">
+        Wróć na swoje konto
+      </Link>
+    </div>
     <div class="md:flex md:flex-col">
       <div class="md:flex md:flex-col md:h-screen">
         <div class="md:flex md:flex-shrink-0">
