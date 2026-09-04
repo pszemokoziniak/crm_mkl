@@ -49,6 +49,7 @@ class User extends Authenticatable
     protected $casts = [
         'owner' => 'integer',
         'email_verified_at' => 'datetime',
+        'powiadomienia_kadrowe' => 'boolean',
     ];
 
     public function resolveRouteBinding($value, $field = null)

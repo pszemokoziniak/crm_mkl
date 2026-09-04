@@ -42,6 +42,7 @@ class ZmianaKadrowa extends Model
         'handled_by',
         'handled_at',
         'uwagi',
+        'mail_wyslany_at',
     ];
 
     protected $casts = [
@@ -50,6 +51,7 @@ class ZmianaKadrowa extends Model
         'new_start' => 'date:Y-m-d',
         'new_end' => 'date:Y-m-d',
         'handled_at' => 'datetime',
+        'mail_wyslany_at' => 'datetime',
     ];
 
     public function contact(): BelongsTo

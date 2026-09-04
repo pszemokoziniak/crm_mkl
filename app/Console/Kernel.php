@@ -15,7 +15,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Kadry dostają e-mail dopiero, gdy paczka zmian przestanie rosnąć,
+        // więc sprawdzamy co pięć minut zamiast wysyłać przy zapisie.
+        $schedule->command('kadry:powiadom-mailem')
+            ->everyFiveMinutes()
+            ->withoutOverlapping();
     }
 
     /**
