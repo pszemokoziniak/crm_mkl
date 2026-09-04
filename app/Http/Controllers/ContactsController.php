@@ -314,9 +314,42 @@ class ContactsController extends Controller
 
     public function restore(Contact $contact)
     {
+        $zarchiwizowany = $contact->deleted_at;
+
         $contact->restore();
 
+        // Do archiwum trafia się przez "Zwolniony", więc przywrócenie bez
+        // zdjęcia tego statusu zostawiało pracownika czynnego, ale opisanego
+        // jako zwolniony — i wypadał z list, na których powinien być.
+        if ($contact->status_zatrudnienia === Contact::STATUS_ZWOLNIONY) {
+            $contact->update(['status_zatrudnienia' => Contact::STATUS_AKTYWNY]);
+        }
+
+        $this->przywrocPobyty($contact, $zarchiwizowany);
+
         return Redirect::back()->with('success', 'Pracownik przywrócony.');
+    }
+
+    /**
+     * Historia pobytów na budowach wraca razem z pracownikiem. Bierzemy
+     * tylko te, które zniknęły przy archiwizacji — pobyty skasowane wcześniej,
+     * ręcznie w zakładce budowy, mają zostać skasowane.
+     */
+    private function przywrocPobyty(Contact $contact, ?Carbon $zarchiwizowany): void
+    {
+        if (! $zarchiwizowany) {
+            return;
+        }
+
+        // Pobyty kasuje się tuż przed samym pracownikiem, więc znaczniki czasu
+        // różnią się o ułamek chwili — stąd minuta zapasu w obie strony.
+        ContactWorkDate::onlyTrashed()
+            ->where('contact_id', $contact->id)
+            ->whereBetween('deleted_at', [
+                $zarchiwizowany->copy()->subMinute(),
+                $zarchiwizowany->copy()->addMinute(),
+            ])
+            ->restore();
     }
 
     public function storePracownik(Request $request, Organization $organization)

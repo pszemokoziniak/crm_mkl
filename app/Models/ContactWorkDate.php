@@ -7,9 +7,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContactWorkDate extends Model
 {
+    // Pobyt znika razem z pracownikiem i razem z nim wraca — stąd soft delete.
+    // Zapytania pisane przez DB::table() muszą same odfiltrować deleted_at.
+    use SoftDeletes;
+
     protected $table = 'contact_work_dates';
 
     protected $fillable = [

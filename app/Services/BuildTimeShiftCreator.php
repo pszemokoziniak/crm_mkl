@@ -185,6 +185,7 @@ class BuildTimeShiftCreator
         $query = DB::table('contact_work_dates', 'cwd')
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->where('cwd.organization_id', $build)
+            ->whereNull('cwd.deleted_at')
 //             @TODO to review data - workers on build
 //            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
 //            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'))
