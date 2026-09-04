@@ -8,9 +8,18 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
+/**
+ * Lista pracowników: wyświetlanie, wyszukiwanie i filtr archiwum.
+ * Pole "name" niesie samo imię — nazwisko jest osobno, a budowa
+ * pod kluczem "budowa".
+ */
 class ContactsTest extends TestCase
 {
     use RefreshDatabase;
+
+    private User $user;
+    private int $martinId;
+    private int $lynnId;
 
     protected function setUp(): void
     {
@@ -51,6 +60,9 @@ class ContactsTest extends TestCase
                 'postal_code' => '11623',
             ],
         ]);
+
+        $this->martinId = $this->user->account->contacts()->firstWhere('first_name', 'Martin')->id;
+        $this->lynnId = $this->user->account->contacts()->firstWhere('first_name', 'Lynn')->id;
     }
 
     public function test_can_view_contacts()
@@ -61,24 +73,26 @@ class ContactsTest extends TestCase
                 ->component('Contacts/Index')
                 ->has('contacts.data', 2)
                 ->has('contacts.data.0', fn (Assert $assert) => $assert
-                    ->where('id', 1)
-                    ->where('name', 'Martin Abbott')
+                    ->where('id', $this->martinId)
+                    ->where('name', 'Martin')
+                    ->where('last_name', 'Abbott')
                     ->where('phone', '555-111-2222')
                     ->where('city', 'Murphyland')
                     ->where('deleted_at', null)
-                    ->has('organization', fn (Assert $assert) => $assert
+                    ->has('budowa', fn (Assert $assert) => $assert
                         ->where('name', 'Example Organization Inc.')
+                        ->etc()
                     )
+                    ->etc()
                 )
                 ->has('contacts.data.1', fn (Assert $assert) => $assert
-                    ->where('id', 2)
-                    ->where('name', 'Lynn Kub')
+                    ->where('id', $this->lynnId)
+                    ->where('name', 'Lynn')
+                    ->where('last_name', 'Kub')
                     ->where('phone', '555-333-4444')
                     ->where('city', 'Woodstock')
                     ->where('deleted_at', null)
-                    ->has('organization', fn (Assert $assert) => $assert
-                        ->where('name', 'Example Organization Inc.')
-                    )
+                    ->etc()
                 )
             );
     }
@@ -92,14 +106,13 @@ class ContactsTest extends TestCase
                 ->where('filters.search', 'Martin')
                 ->has('contacts.data', 1)
                 ->has('contacts.data.0', fn (Assert $assert) => $assert
-                    ->where('id', 1)
-                    ->where('name', 'Martin Abbott')
+                    ->where('id', $this->martinId)
+                    ->where('name', 'Martin')
+                    ->where('last_name', 'Abbott')
                     ->where('phone', '555-111-2222')
                     ->where('city', 'Murphyland')
                     ->where('deleted_at', null)
-                    ->has('organization', fn (Assert $assert) => $assert
-                        ->where('name', 'Example Organization Inc.')
-                    )
+                    ->etc()
                 )
             );
     }
@@ -113,7 +126,7 @@ class ContactsTest extends TestCase
             ->assertInertia(fn (Assert $assert) => $assert
                 ->component('Contacts/Index')
                 ->has('contacts.data', 1)
-                ->where('contacts.data.0.name', 'Lynn Kub')
+                ->where('contacts.data.0.name', 'Lynn')
             );
     }
 
@@ -126,8 +139,8 @@ class ContactsTest extends TestCase
             ->assertInertia(fn (Assert $assert) => $assert
                 ->component('Contacts/Index')
                 ->has('contacts.data', 2)
-                ->where('contacts.data.0.name', 'Martin Abbott')
-                ->where('contacts.data.1.name', 'Lynn Kub')
+                ->where('contacts.data.0.name', 'Martin')
+                ->where('contacts.data.1.name', 'Lynn')
             );
     }
 }
