@@ -9,7 +9,12 @@
           <div class="mt-6 mx-auto w-24 border-b-2" />
           <text-input type="password" v-model="form.password" :error="form.errors.password" class="mt-6" label="Nowe hasło"/>
         </div>
-        <div class="flex px-10 py-4 bg-gray-100 border-t border-gray-100">
+        <div class="flex items-center px-10 py-4 bg-gray-100 border-t border-gray-100">
+          <!-- Bez tego użytkownik nie ma jak wrócić do logowania: / i /login
+               odsyłają go z powrotem na ten ekran. -->
+          <Link class="text-sm text-gray-600 hover:text-gray-900 underline" href="/logout" method="delete" as="button" type="button">
+            Wyloguj i zaloguj się na inne konto
+          </Link>
           <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zmień hasło</loading-button>
         </div>
       </form>
@@ -18,7 +23,7 @@
 </template>
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/inertia-vue3'
 import Logo from '@/Shared/Logo'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
@@ -26,6 +31,7 @@ import LoadingButton from '@/Shared/LoadingButton'
 export default {
   components: {
     Head,
+    Link,
     LoadingButton,
     Logo,
     TextInput,
