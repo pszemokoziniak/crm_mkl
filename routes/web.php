@@ -826,37 +826,37 @@ Route::put('position/{account}/restore', [AccountsController::class, 'restore'])
 
 Route::get('funkcja', [FunkcjaController::class, 'index'])
     ->name('funkcja')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 
 Route::get('funkcja/create', [FunkcjaController::class, 'create'])
     ->name('funkcja.create')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 
 Route::post('funkcja', [FunkcjaController::class, 'store'])
     ->name('funkcja.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 
 Route::get('funkcja/{funkcja}/edit', [FunkcjaController::class, 'edit'])
     ->name('funkcja.edit')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 
 Route::put('funkcja/{funkcja}', [FunkcjaController::class, 'update'])
     ->name('funkcja.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 
 Route::delete('funkcja/{funkcja}', [FunkcjaController::class, 'destroy'])
     ->name('funkcja.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 
 Route::put('funkcja/{account}/restore', [FunkcjaController::class, 'restore'])
     ->name('funkcja.restore')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 
 // Dokumenty Typ
