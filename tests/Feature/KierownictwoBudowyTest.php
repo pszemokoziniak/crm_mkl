@@ -110,7 +110,15 @@ class KierownictwoBudowyTest extends TestCase
             ->get('/budowy/'.$this->budowa->id.'/kierownictwo')
             ->assertInertia(fn (Assert $page) => $page->has('specialists', 0));
 
-        $this->actingAs($this->biuro)
+        // Ustawienia → Stanowiska są pod adminem, biuro tam nie wejdzie.
+        $admin = User::factory()->create([
+            'account_id' => $this->accountId,
+            'email' => 'admin@example.com',
+            'owner' => 1,
+            'active' => 1,
+        ]);
+
+        $this->actingAs($admin)
             ->put('/funkcja/'.$funkcja->id, ['name' => $funkcja->name, 'kierownictwo' => true])
             ->assertRedirect();
 

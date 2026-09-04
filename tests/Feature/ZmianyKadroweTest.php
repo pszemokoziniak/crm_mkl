@@ -131,8 +131,9 @@ class ZmianyKadroweTest extends TestCase
 
     public function test_skrzynka_grupuje_i_opisuje_paczke(): void
     {
-        $this->actingAs($this->montaz);
         $pobyt = $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');
+
+        $this->actingAs($this->montaz);
         $pobyt->update(['end' => '2026-09-14']);
         $this->pobyt($this->budowaB, '2026-09-15', '2026-10-31');
 
@@ -282,8 +283,9 @@ class ZmianyKadroweTest extends TestCase
 
     public function test_wpis_niesie_link_do_aneksu_z_danymi_przeniesienia(): void
     {
-        $this->actingAs($this->montaz);
         $pobyt = $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');
+
+        $this->actingAs($this->montaz);
         $pobyt->update(['end' => '2026-09-14']);
         $this->pobyt($this->budowaB, '2026-09-15', '2026-10-31');
 
@@ -323,6 +325,8 @@ class ZmianyKadroweTest extends TestCase
             'email' => $email,
             'owner' => 2,
             'active' => 1,
+            // Bez daty zmiany hasła middleware odsyła z pulpitu na ekran zmiany hasła.
+            'password_changed_at' => now(),
         ]);
     }
 

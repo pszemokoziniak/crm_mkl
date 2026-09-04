@@ -33,6 +33,8 @@ class ContactsController extends Controller
                 ->with('organization')
                 // Pobyty i nieobecności z dzisiaj — jednym zapytaniem na całą stronę.
                 ->with($statusPracownika->relacjeDoListy())
+                // Najnowsze A1 — jednym zapytaniem na stronę, nie na wiersz.
+                ->with(['a1' => fn ($query) => $query->orderByDesc('end')])
                 ->orderByName()
                 ->filter(Request::only('search', 'trashed', 'status'))
                 ->paginate(20)
@@ -47,7 +49,7 @@ class ContactsController extends Controller
                     'deleted_at' => $contact->deleted_at,
                     'funkcja' => $contact->funkcja,
                     'budowa' => $contact->organization,
-                    'a1' => A1::where('contact_id', $contact->id)->orderBy('end', 'desc')->first(),
+                    'a1' => $contact->a1->first(),
                     'pracuje' => $statusPracownika->dla($contact),
                 ]),
         ]);
