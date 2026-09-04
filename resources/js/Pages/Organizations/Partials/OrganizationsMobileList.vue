@@ -38,6 +38,10 @@
           <span class="text-gray-500">Inżynierowie:</span> {{ organization.inzynierowie }}
         </div>
 
+        <div v-if="organization.kierownik_projektu">
+          <span class="text-gray-500">Kierownik projektu:</span> {{ organization.kierownik_projektu }}
+        </div>
+
         <div class="pt-2">
           <span class="text-gray-500 mr-2">Aktywni pracownicy:</span>
           <span

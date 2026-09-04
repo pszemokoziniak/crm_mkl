@@ -44,6 +44,19 @@
             <option value="TAK">TAK</option>
             <option value="NIE">NIE</option>
           </select-input>
+          <text-input
+            v-model="form.kierownik_projektu"
+            :error="form.errors.kierownik_projektu"
+            :disabled="flag"
+            class="pb-8 pr-6 w-full lg:w-1/2"
+            label="Kierownik projektu (osoba odpowiedzialna za kontrakt)"
+            list="lista-kierownikow-projektu"
+            placeholder="imię i nazwisko"
+          />
+          <!-- Podpowiedzi z nazwisk już użytych na innych budowach -->
+          <datalist id="lista-kierownikow-projektu">
+            <option v-for="osoba in kierownicyProjektow" :key="osoba" :value="osoba" />
+          </datalist>
           <select-input v-model="form.country_id" :error="form.errors.country_id" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
@@ -95,6 +108,7 @@ export default {
   props: {
     organization: Object,
     krajTyps: Object,
+    kierownicyProjektow: { type: Array, default: () => [] },
     kierownikBud: Object,
     user_owner: Number,
     flag: Boolean,
@@ -119,6 +133,7 @@ export default {
         city: this.organization.city,
         kierownikBud_id: this.organization.kierownikBud_id,
         zaklad: this.organization.zaklad,
+        kierownik_projektu: this.organization.kierownik_projektu,
         country_id: this.organization.country_id,
         addressBud: this.organization.addressBud,
         addressKwat: this.organization.addressKwat,

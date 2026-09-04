@@ -27,6 +27,9 @@
           <!-- Inżynierowie -->
           <th class="pb-4 pt-6 px-4 lg:table-cell">Inżynierowie</th>
 
+          <!-- Kierownik projektu — wpisywany ręcznie, to nie pracownik z bazy -->
+          <th class="hidden pb-4 pt-6 px-4 xl:table-cell">Kierownik projektu</th>
+
           <!-- Pracownicy -->
           <th class="pb-4 pt-6 px-4 cursor-pointer select-none" colspan="2" @click="emitSort('active_workers_count')">
             Pracownicy
@@ -93,6 +96,14 @@
             </Link>
           </td>
 
+          <!-- Kierownik projektu -->
+          <td class="hidden border-t xl:table-cell">
+            <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
+              <span v-if="organization.kierownik_projektu" class="text-gray-700 text-xs">{{ organization.kierownik_projektu }}</span>
+              <span v-else class="text-gray-300 text-xs">—</span>
+            </Link>
+          </td>
+
           <!-- Pracownicy -->
           <td class="border-t whitespace-nowrap">
             <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
@@ -111,7 +122,7 @@
         </tr>
 
         <tr v-if="organizations.length === 0">
-          <td class="px-6 py-4 border-t" colspan="6">Brak danych.</td>
+          <td class="px-6 py-4 border-t" colspan="8">Brak danych.</td>
         </tr>
       </tbody>
     </table>
