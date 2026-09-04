@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\PodszywanieController;
 use App\Models\User;
 use Carbon\Carbon;
 use Closure;
@@ -20,7 +21,12 @@ class PasswordExpired
      */
     public function handle(Request $request, Closure $next)
     {
-//        $user = User::select('password_changed_at')->where('email', $request->email)->first();
+        // Administrator wszedł na cudze konto tylko po to, żeby zobaczyć
+        // co ta osoba widzi — nie zmienia jej hasła i nie może przez to
+        // utknąć na ekranie wymuszonej zmiany.
+        if ($request->session()->has(PodszywanieController::KLUCZ_SESJI)) {
+            return $next($request);
+        }
 
         if (Auth::user()->password_changed_at === null) {
             return redirect()->route('password.expired');

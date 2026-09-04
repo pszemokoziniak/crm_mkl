@@ -30,6 +30,7 @@
           <th class="pb-4 pt-6 px-6">Email</th>
           <th class="pb-4 pt-6 px-6">Uprawnienia</th>
           <th class="pb-4 pt-6 px-6">Logowanie</th>
+          <th class="pb-4 pt-6 px-6" />
         </tr>
         <tr v-for="user in users" :key="user.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -56,6 +57,19 @@
               {{ user.login_time }}
             </Link>
           </td>
+          <td class="border-t">
+            <!-- Wejście na cudze konto — do sprawdzenia, co dana osoba widzi. -->
+            <Link
+              v-if="$page.props.permissions.admin && !$page.props.podszywanie && !user.deleted_at && user.id !== $page.props.auth.user.id"
+              :href="`/users/${user.id}/wejdz-jako`"
+              method="post"
+              as="button"
+              type="button"
+              class="px-6 py-4 text-indigo-600 hover:text-indigo-800 whitespace-nowrap"
+            >
+              Wejdź jako
+            </Link>
+          </td>
           <td class="w-px border-t">
             <Link class="flex items-center px-4" :href="`/users/${user.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
@@ -63,7 +77,7 @@
           </td>
         </tr>
         <tr v-if="users.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono użykownika</td>
+          <td class="px-6 py-4 border-t" colspan="6">Nie znaleziono użykownika</td>
         </tr>
       </table>
     </div>
