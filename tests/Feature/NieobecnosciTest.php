@@ -221,6 +221,39 @@ class NieobecnosciTest extends TestCase
         $this->assertNull($status['ostatni_pobyt_do']);
     }
 
+    public function test_slownik_zawiera_urlopy_rodzicielskie(): void
+    {
+        $pracownik = $this->pracownik();
+
+        $odpowiedz = $this->actingAs($this->biuro)->get('/contacts/'.$pracownik->id.'/holiday/create');
+        $odpowiedz->assertOk();
+
+        $powody = collect($odpowiedz->viewData('page')['props']['powody'])->pluck('title');
+
+        $this->assertContains('Urlop ojcowski', $powody);
+        $this->assertContains('Urlop macierzyński', $powody);
+    }
+
+    public function test_mozna_zapisac_urlop_ojcowski(): void
+    {
+        $pracownik = $this->pracownik();
+        $powodId = ShiftStatus::where('title', 'Urlop ojcowski')->value('id');
+
+        $this->actingAs($this->biuro)
+            ->post('/holiday/'.$pracownik->id, [
+                'contact_id' => $pracownik->id,
+                'shift_status_id' => $powodId,
+                'start' => '2026-10-01',
+                'end' => '2026-10-14',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('holidays', [
+            'contact_id' => $pracownik->id,
+            'shift_status_id' => $powodId,
+        ]);
+    }
+
     private function pracownik(string $nazwisko = 'Adamczyk'): Contact
     {
         return Contact::create([
