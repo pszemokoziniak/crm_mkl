@@ -41,6 +41,11 @@
             <option :value="null">— nie łącz —</option>
             <option v-for="item in contacts" :key="item.id" :value="item.id">{{item.last_name}} {{item.first_name}}</option>
           </select-input>
+          <!-- Kto ma dostawać e-maile o zmianach kadrowych — ustawia biuro/admin. -->
+          <select-input v-if="isOffice" v-model="form.powiadomienia_kadrowe" :error="form.errors.powiadomienia_kadrowe" class="pb-8 pr-6 w-full lg:w-1/2" label="E-mail o zmianach kadrowych">
+            <option :value="false">nie wysyłaj</option>
+            <option :value="true">wysyłaj na adres konta</option>
+          </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
         </div>
         <div v-if="user_owner === 1" class="px-8 py-4 bg-gray-50 border-t border-gray-100">
@@ -95,6 +100,7 @@ export default {
         email: this.user.email,
         password: '',
         owner: this.user.owner,
+        powiadomienia_kadrowe: this.user.powiadomienia_kadrowe,
         photo: null,
         contact_id: this.user.contact_id,
       }),

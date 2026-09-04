@@ -148,6 +148,7 @@ class UsersController extends Controller
                 'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 60, 'h' => 60, 'fit' => 'crop']) : null,
                 'deleted_at' => $user->deleted_at,
                 'active' => $user->active,
+                'powiadomienia_kadrowe' => (bool) $user->powiadomienia_kadrowe,
             ],
             'contacts' => Contact::query()
                 ->whereIn('funkcja_id', [1,6])
@@ -178,6 +179,7 @@ class UsersController extends Controller
 //            'owner' => ['nullable'],
             'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
+            'powiadomienia_kadrowe' => ['boolean'],
         ],
         [
             'required'  => 'Pole jest wymagane.',
@@ -195,6 +197,10 @@ class UsersController extends Controller
         $fields = ['first_name', 'last_name', 'email'];
         if ($isOffice) {
             $fields[] = 'owner';
+
+            // Kto dostaje e-maile o zmianach kadrowych — ustawia biuro/admin,
+            // żeby dało się kogoś dopisać bez zmiany w kodzie.
+            $user->update(['powiadomienia_kadrowe' => Request::boolean('powiadomienia_kadrowe')]);
         }
         $user->update(Request::only($fields));
 
