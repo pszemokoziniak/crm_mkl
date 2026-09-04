@@ -153,7 +153,9 @@ class DashboardController extends Controller
 
         // Budowy do archiwizacji: mają pobyty istniejących pracowników, ale
         // żaden nie jest już niezakończony (wszyscy zjechali).
+        // Warsztat nigdy się nie kończy, więc nie ma go po co archiwizować.
         $doArchiwizacji = Organization::query()
+            ->tylkoBudowy()
             ->whereExists(function ($q) {
                 $q->select(DB::raw(1))->from('contact_work_dates as cwd')
                     ->join('contacts as c', 'c.id', '=', 'cwd.contact_id')
@@ -194,7 +196,7 @@ class DashboardController extends Controller
 
         $stats = [
             'pracownicy' => Contact::count(),
-            'budowy' => Organization::count(),
+            'budowy' => Organization::tylkoBudowy()->count(),
             'sprzet' => Narzedzia::count(),
             'wygasajace' => $expiringItems->count(),
         ];

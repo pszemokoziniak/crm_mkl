@@ -53,6 +53,12 @@
               <span v-if="organization.is_active" class="flex-shrink-0 mr-2" title="Aktywna budowa" aria-label="Aktywna budowa">🟢</span>
               <span v-else-if="!canOpen(organization)" class="flex-shrink-0 mr-2" title="Budowa zamknięta — tylko podgląd" aria-label="Budowa zamknięta">🔒</span>
               {{ organization.nazwaBud }}
+                <span
+                  v-if="organization.warsztat"
+                  class="ml-2 px-2 py-0.5 text-[10px] font-semibold text-indigo-800 bg-indigo-100 border border-indigo-200 rounded-full"
+                >
+                  warsztat
+                </span>
               <Icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               <!-- Wszyscy pracownicy zakończyli pobyt — budowę można zarchiwizować. -->
               <span
