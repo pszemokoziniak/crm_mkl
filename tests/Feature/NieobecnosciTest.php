@@ -221,7 +221,7 @@ class NieobecnosciTest extends TestCase
         $this->assertNull($status['ostatni_pobyt_do']);
     }
 
-    public function test_slownik_zawiera_urlopy_rodzicielskie(): void
+    public function test_slownik_zawiera_nowe_powody_nieobecnosci(): void
     {
         $pracownik = $this->pracownik();
 
@@ -232,6 +232,7 @@ class NieobecnosciTest extends TestCase
 
         $this->assertContains('Urlop ojcowski', $powody);
         $this->assertContains('Urlop macierzyński', $powody);
+        $this->assertContains('Świadczenie rehabilitacyjne', $powody);
     }
 
     public function test_mozna_zapisac_urlop_ojcowski(): void
