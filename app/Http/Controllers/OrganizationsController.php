@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Models\Contact;
+use App\Models\Funkcja;
 use App\Models\ContactWorkDate;
 use App\Models\JezykTyp;
 use App\Models\KrajTyp;
@@ -128,6 +129,7 @@ class OrganizationsController extends Controller
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed', 'sort', 'direction'),
             'organizations' => $query
+                ->with('kierownikProjektu')
                 ->paginate(20)
                 ->withQueryString()
                 ->through(fn ($organization) => [
@@ -138,7 +140,9 @@ class OrganizationsController extends Controller
                     'country' => $organization->krajTyp ? $organization->krajTyp : null,
                     'kierownicy' => $organization->kierownicy_names ?: null,
                     'inzynierowie' => $organization->inzynierowie_names ?: null,
-                    'kierownik_projektu' => $organization->kierownik_projektu,
+                    'kierownik_projektu' => $organization->kierownikProjektu
+                        ? trim($organization->kierownikProjektu->last_name.' '.$organization->kierownikProjektu->first_name)
+                        : null,
                     'active_workers_count' => (int) ($organization->active_workers_count ?? 0),
                     'is_active' => (bool) ($organization->is_active_for_me ?? false),
                     // Budowa, na której wszyscy zakończyli pobyt — kandydat do archiwum.
@@ -150,19 +154,33 @@ class OrganizationsController extends Controller
     }
 
     /**
-     * Nazwiska kierowników projektu wpisane wcześniej — podpowiadamy je,
-     * żeby ta sama osoba nie trafiała do bazy na trzy różne sposoby.
+     * Pracownicy ze stanowiskiem "Kierownik Projektu" — opcje do wyboru
+     * opiekuna kontraktu. Zwolnionych nie proponujemy, ale osobę już
+     * przypisaną do tej budowy zostawiamy na liście, żeby edycja
+     * formularza jej po cichu nie skasowała.
      *
-     * @return array<int, string>
+     * @return array<int, array{id: int, name: string}>
      */
-    private function kierownicyProjektow(): array
+    private function kierownicyProjektow(?int $wybranyId = null): array
     {
-        return Organization::query()
-            ->whereNotNull('kierownik_projektu')
-            ->where('kierownik_projektu', '!=', '')
-            ->distinct()
-            ->orderBy('kierownik_projektu')
-            ->pluck('kierownik_projektu')
+        $funkcjaId = Funkcja::kierownikProjektuId();
+
+        return Contact::query()
+            ->where(function ($query) use ($funkcjaId, $wybranyId) {
+                $query->where('funkcja_id', $funkcjaId)
+                    ->where('status_zatrudnienia', '!=', Contact::STATUS_ZWOLNIONY);
+
+                if ($wybranyId) {
+                    $query->orWhere('id', $wybranyId);
+                }
+            })
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get(['id', 'first_name', 'last_name'])
+            ->map(fn (Contact $osoba) => [
+                'id' => $osoba->id,
+                'name' => trim($osoba->last_name.' '.$osoba->first_name),
+            ])
             ->all();
     }
 
@@ -219,7 +237,7 @@ class OrganizationsController extends Controller
         $org->numerBud = $req->numerBud;
         $org->city = $req->city;
         $org->zaklad = $req->zaklad;
-        $org->kierownik_projektu = $req->kierownik_projektu;
+        $org->kierownik_projektu_id = $req->kierownik_projektu_id;
         $org->country_id = $req->country_id;
         $org->addressBud = $req->addressBud;
         $org->addressKwat = $req->addressKwat;
@@ -292,7 +310,7 @@ class OrganizationsController extends Controller
                 'kierownikBud_id' => $organization->kierownikBud_id,
                 'inzynier_id' => $organization->inzynier_id,
                 'zaklad' => $organization->zaklad,
-                'kierownik_projektu' => $organization->kierownik_projektu,
+                'kierownik_projektu_id' => $organization->kierownik_projektu_id,
                 'country_id' => $organization->country_id,
                 'addressBud' => $organization->addressBud,
                 'addressKwat' => $organization->addressKwat,
@@ -312,7 +330,7 @@ class OrganizationsController extends Controller
                 ])
                 ->values(),
             'krajTyps' => KrajTyp::orderByName()->get(),
-            'kierownicyProjektow' => $this->kierownicyProjektow(),
+            'kierownicyProjektow' => $this->kierownicyProjektow($organization->kierownik_projektu_id),
             'kierownikBud' => Contact::with('user')
                 ->with('funkcja')
                 ->where('funkcja_id', 1)
@@ -355,7 +373,7 @@ class OrganizationsController extends Controller
                 'kierownikBud_id' => ['nullable', 'max:25'],
                 'inzynier_id' => ['nullable', 'max:25'],
                 'zaklad' => ['nullable', 'max:2000'],
-                'kierownik_projektu' => ['nullable', 'max:100'],
+                'kierownik_projektu_id' => ['nullable', 'integer', 'exists:contacts,id'],
                 'country_id' => ['nullable', 'max:25'],
                 'addressBud' => ['nullable', 'max:2000'],
                 'addressKwat' => ['nullable', 'max:2500'],
