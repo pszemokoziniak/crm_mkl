@@ -17,18 +17,16 @@
             <option value="TAK">TAK</option>
             <option value="NIE">NIE</option>
           </select-input>
-          <text-input
-            v-model="form.kierownik_projektu"
-            :error="form.errors.kierownik_projektu"
+          <!-- Pracownicy ze stanowiskiem "Kierownik Projektu" (słownik /funkcja) -->
+          <select-input
+            v-model="form.kierownik_projektu_id"
+            :error="form.errors.kierownik_projektu_id"
             class="pb-8 pr-6 w-full lg:w-1/2"
-            label="Kierownik projektu (osoba odpowiedzialna za kontrakt)"
-            list="lista-kierownikow-projektu"
-            placeholder="imię i nazwisko"
-          />
-          <!-- Podpowiedzi z nazwisk już użytych na innych budowach -->
-          <datalist id="lista-kierownikow-projektu">
-            <option v-for="osoba in kierownicyProjektow" :key="osoba" :value="osoba" />
-          </datalist>
+            label="Kierownik projektu"
+          >
+            <option :value="null">—</option>
+            <option v-for="osoba in kierownicyProjektow" :key="osoba.id" :value="osoba.id">{{ osoba.name }}</option>
+          </select-input>
           <select-input v-model="form.country_id" :error="form.errors.country_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Kraj Budowy">
             <option v-for="item in krajTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
@@ -79,7 +77,7 @@ export default {
         kierownikBud_id: null,
         inzynier_id: null,
         zaklad: null,
-        kierownik_projektu: '',
+        kierownik_projektu_id: null,
         country_id: null,
         addressBud: null,
         addressKwat: null,

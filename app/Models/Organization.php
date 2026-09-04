@@ -38,6 +38,12 @@ class Organization extends Model
     {
         return $this->belongsTo(KrajTyp::class, 'country_id','id');
     }
+    /** Kierownik projektu — opiekun kontraktu, wybierany z pracowników. */
+    public function kierownikProjektu()
+    {
+        return $this->belongsTo(Contact::class, 'kierownik_projektu_id')->withTrashed();
+    }
+
     public function kierownik()
     {
         return $this->belongsTo(Contact::class, 'kierownikBud_id','id');
