@@ -16,20 +16,26 @@
             <option value="__new__">+ Nowy typ…</option>
           </select-input>
           <text-input v-if="form.narzedzia_typ_id === '__new__'" v-model="form.new_typ_name" :error="form.errors.new_typ_name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa nowego typu" />
-          <!-- Kategoria decyduje, pod czym model stanie w magazynie
-               (np. Kontener 9m pod "Kontener"). Puste = osobna pozycja. -->
-          <text-input
+          <!-- Lista już używanych kategorii + możliwość wpisania nowej,
+               tak samo jak przy wyborze typu sprzętu. -->
+          <select-input
             v-if="form.narzedzia_typ_id === '__new__'"
-            v-model="form.new_typ_kategoria"
+            v-model="form.new_typ_kategoria_wybor"
+            class="pb-8 pr-6 w-full lg:w-1/1"
+            label="Kategoria (grupuje modele w magazynie)"
+          >
+            <option value="">— bez kategorii —</option>
+            <option v-for="k in kategorie" :key="k" :value="k">{{ k }}</option>
+            <option value="__new__">+ Nowa kategoria…</option>
+          </select-input>
+          <text-input
+            v-if="form.narzedzia_typ_id === '__new__' && form.new_typ_kategoria_wybor === '__new__'"
+            v-model="form.new_typ_kategoria_nowa"
             :error="form.errors.new_typ_kategoria"
-            class="pb-8 pr-6 w-full lg:w-3/4"
-            label="Kategoria nowego typu (np. Kontener, Manitou)"
-            list="lista-kategorii-sprzetu"
-            placeholder="puste = bez kategorii"
+            class="pb-8 pr-6 w-full lg:w-1/1"
+            label="Nazwa nowej kategorii"
+            placeholder="np. Żuraw"
           />
-          <datalist id="lista-kategorii-sprzetu">
-            <option v-for="k in kategorie" :key="k" :value="k" />
-          </datalist>
           <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
@@ -84,11 +90,23 @@ export default {
         narzedzia_typ_id: '',
         new_typ_name: '',
         new_typ_kategoria: '',
+        new_typ_kategoria_wybor: '',
+        new_typ_kategoria_nowa: '',
         ilosc_all: 0,
         photos: [],
         documents: [],
       }),
     }
+  },
+  watch: {
+    'form.new_typ_kategoria_wybor': function (wybor) {
+      this.form.new_typ_kategoria = wybor === '__new__' ? this.form.new_typ_kategoria_nowa : wybor
+    },
+    'form.new_typ_kategoria_nowa': function (nazwa) {
+      if (this.form.new_typ_kategoria_wybor === '__new__') {
+        this.form.new_typ_kategoria = nazwa
+      }
+    },
   },
   methods: {
     store() {
