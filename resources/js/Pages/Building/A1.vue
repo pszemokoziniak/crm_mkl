@@ -1,11 +1,7 @@
 <template>
   <Head title="A1" />
   <BudMenu :bud-id="build" />
-  <h1 class="mb-8 text-3xl font-bold">
-    <Link class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
-    <span class="text-indigo-400 font-medium">/</span>
-    {{ buildDetails.nazwaBud }}
-  </h1>
+  <budowa-naglowek :bud-id="buildDetails.id" :nazwa="buildDetails.nazwaBud" tytul="A1" />
   <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-6">
     <h1 class="text-3xl font-bold">A1</h1>
     <span v-if="orgCountry" class="text-gray-500">kraj budowy: <span class="font-semibold text-gray-700">{{ orgCountry }}</span></span>
@@ -106,6 +102,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Layout from '@/Shared/Layout'
 import BudMenu from '@/Shared/BudMenu.vue'
 import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
@@ -115,6 +112,7 @@ import mapValues from 'lodash/mapValues'
 
 export default {
   components: {
+    BudowaNaglowek,
     Head,
     Link,
     BudMenu,

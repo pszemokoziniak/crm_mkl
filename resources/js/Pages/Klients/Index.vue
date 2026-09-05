@@ -2,7 +2,19 @@
   <div>
     <BudMenu :budId="budId" />
     <Head title="Klient" />
-    <h1 class="mb-8 text-3xl font-bold">Klient</h1>
+    <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Dane klienta" />
+    <!-- Klient budowy jest wpisany w jej karcie; tabela niżej to osoby
+         kontaktowe po jego stronie, wypełniane osobno. -->
+    <div class="mb-6 p-4 bg-white rounded-md shadow">
+      <div class="text-xs uppercase tracking-wider text-gray-500">Klient tej budowy</div>
+      <div class="mt-1 text-xl font-semibold text-gray-900">{{ organization.klient || 'nie wpisano' }}</div>
+      <Link :href="`/budowy/${organization.id}/edit`" class="mt-1 inline-block text-sm text-indigo-600 hover:underline">
+        Zmień w karcie budowy
+      </Link>
+    </div>
+
+    <h2 class="mb-2 font-semibold text-gray-700">Osoby kontaktowe</h2>
+
     <div v-if="!$page.props.permissions.kierownik" class="flex items-center justify-between mb-6">
       <Link class="btn-indigo" :href="`/budowy/${budId}/klient/create`">
         <span>Dodaj</span>
@@ -53,6 +65,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Icon from '@/Shared/Icon'
 import BudMenu from '@/Shared/BudMenu'
 import pickBy from 'lodash/pickBy'
@@ -63,6 +76,7 @@ import mapValues from 'lodash/mapValues'
 
 export default {
   components: {
+    BudowaNaglowek,
     Head,
     Icon,
     Link,
@@ -75,6 +89,7 @@ export default {
     organizations: Object,
     klients: Object,
     budId: Number,
+    organization: { type: Object, default: () => ({}) },
   },
   data() {
     return {

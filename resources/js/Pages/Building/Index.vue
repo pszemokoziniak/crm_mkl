@@ -1,12 +1,7 @@
 <template>
   <Head title="KCP" />
   <BudMenu :bud-id="build" />
-  <h1 class="mb-8 text-3xl font-bold">
-    <Link v-if="user_owner !== 3" class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
-    <Link v-else class="text-indigo-400 hover:text-indigo-600" href="/">Dashboard</Link>
-    <span class="text-indigo-400 font-medium">/</span>
-    {{ buildDetails.nazwaBud }}
-  </h1>
+  <budowa-naglowek :bud-id="buildDetails.id" :nazwa="buildDetails.nazwaBud" tytul="KCP budowy" />
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
     <a target="_self" :href="excelUrl()" class="btn-indigo inline-flex items-center px-4 py-2 rounded">
@@ -143,6 +138,7 @@
 
 <script>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Layout from '@/Shared/Layout'
 import moment from 'moment'
 import axios from 'axios'
@@ -161,6 +157,7 @@ const DEFAULT_RANGES = {
 
 export default {
   components: {
+    BudowaNaglowek,
     Link,
     DocumentDownloadIcon,
     BudMenu,

@@ -143,7 +143,8 @@ class BuildingTimeSheet extends Controller
     private function getBuildHeaders(int $buildId): mixed
     {
         return DB::table('organizations', 'o')
-            ->select('o.nazwaBud', 'o.numerBud')
+            // id potrzebne w nagłówku, żeby dało się wrócić do karty budowy
+            ->select('o.id', 'o.nazwaBud', 'o.numerBud')
             ->where('o.id', $buildId)
             ->first();
     }

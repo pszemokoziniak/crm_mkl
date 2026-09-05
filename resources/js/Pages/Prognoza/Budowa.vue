@@ -2,11 +2,7 @@
   <div>
     <Head title="Prognoza pracowników" />
     <BudMenu :bud-id="build" />
-    <h1 class="mb-2 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/organizations">Budowa</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ buildDetails.nazwaBud }}
-    </h1>
+    <budowa-naglowek :bud-id="buildDetails.id" :nazwa="buildDetails.nazwaBud" tytul="Prognoza" />
     <h2 class="mb-8 text-xl font-semibold text-gray-700">Prognoza pracowników — zapotrzebowanie tygodniowe</h2>
 
     <div v-if="rows.length" class="mb-8 bg-white rounded-md shadow p-4">
@@ -119,6 +115,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Layout from '@/Shared/Layout'
 import BudMenu from '@/Shared/BudMenu.vue'
 import LoadingButton from '@/Shared/LoadingButton'
@@ -126,6 +123,7 @@ import ChartComponent from '@/Pages/Prognoza/ChartComponent.vue'
 
 export default {
   components: {
+    BudowaNaglowek,
     Head,
     Link,
     BudMenu,

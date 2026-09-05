@@ -2,7 +2,7 @@
   <div>
     <Head title="Budowa" />
     <BudMenu :budId="organization_id" />
-    <h1 class="mb-2 text-2xl font-bold sm:text-3xl">Budowa Pracownicy</h1>
+    <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Pracownicy na budowie" />
     <p class="mb-6 text-sm text-gray-500">
       Na budowie obecnie: <span class="font-bold text-gray-700">{{ naBudowie }}</span>
       z {{ contactworkdates.data.length }} wpisów na tej stronie.
@@ -127,6 +127,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import BudMenu from '@/Shared/BudMenu.vue'
@@ -138,6 +139,7 @@ import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
 
 export default {
   components: {
+    BudowaNaglowek,
     SearchFilterNoFiltr,
     Head,
     Icon,
@@ -148,6 +150,7 @@ export default {
   props: {
     contactworkdates: Object,
     organization_id: Number,
+    organization: { type: Object, default: () => ({}) },
     filters: Object,
     user_owner: Number,
     // contact_work_dates: Object,

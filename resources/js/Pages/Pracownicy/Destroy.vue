@@ -2,11 +2,7 @@
 <!--  <Head :title="form.name" />-->
   <BudMenu :budId="budId" />
   <form @submit.prevent="store">
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">{{organization.name}}</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      <p class="text-base mt-3">Usuń pracownika z budowy</p>
-    </h1>
+    <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Usuń pracownika z budowy" />
     <div class="mt-6 bg-white rounded shadow overflow-x-auto">
       <div class="rounded overflow-hidden shadow-lg">
         <div class="px-6 py-4 w-100">
@@ -44,6 +40,7 @@
 
 <script>
 import { Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
@@ -52,6 +49,7 @@ import BudMenu from '@/Shared/BudMenu'
 
 export default {
   components: {
+    BudowaNaglowek,
     LoadingButton,
     TextInput,
     Link,

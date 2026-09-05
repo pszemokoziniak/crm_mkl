@@ -1,11 +1,7 @@
 <template>
   <Head :title="organization.name" />
   <BudMenu :bud-id="budId" />
-  <h1 class="mb-8 text-3xl font-bold">
-    <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">{{ organization.name }}</Link>
-    <span class="text-indigo-400 font-medium">/</span>
-    <p class="text-base">Zarządzanie pracownikami</p>
-  </h1>
+  <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Zarządzanie pracownikami" />
 
   <!-- Tabs Navigation -->
   <div class="mb-6 border-b border-gray-200">
@@ -80,6 +76,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
@@ -90,6 +87,7 @@ import FreeContactsList from '@/Pages/Pracownicy/FreeContactsList'
 
 export default {
   components: {
+    BudowaNaglowek,
     Head,
     FreeContactsList,
     Icon,
