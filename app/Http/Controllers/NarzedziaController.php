@@ -60,6 +60,34 @@ class NarzedziaController extends Controller
         ]);
     }
 
+    /**
+     * Rzeczywisty limit wielkości pliku, jaki przyjmie serwer. Bierzemy
+     * najmniejszą z wartości PHP — walidacja aplikacji obiecywała 10 MB,
+     * a serwer odrzucał wszystko powyżej 2 MB, przez co zapis milczał.
+     */
+    public static function limitPlikuMb(): int
+    {
+        $doBajtow = function (string $wartosc): int {
+            $wartosc = trim($wartosc);
+            $jednostka = strtolower(substr($wartosc, -1));
+            $liczba = (int) $wartosc;
+
+            return match ($jednostka) {
+                'g' => $liczba * 1024 * 1024 * 1024,
+                'm' => $liczba * 1024 * 1024,
+                'k' => $liczba * 1024,
+                default => $liczba,
+            };
+        };
+
+        $limity = array_filter([
+            $doBajtow((string) ini_get('upload_max_filesize')),
+            $doBajtow((string) ini_get('post_max_size')),
+        ]);
+
+        return max(1, (int) floor(min($limity) / 1024 / 1024));
+    }
+
     /** Czy pobyt trwa, dopiero się zacznie, czy już się skończył. */
     private function stanPobytu(ToolWorkDate $pobyt, string $dzis): string
     {
@@ -157,6 +185,7 @@ class NarzedziaController extends Controller
         return Inertia::render('Narzedzia/Edit', [
             'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name', 'kategoria']),
             'kategorie' => NarzedziaTyp::kategorie(),
+            'limitPlikuMb' => self::limitPlikuMb(),
             'narzedzia' => [
                 'id' => $narzedzia->id,
                 'name' => $narzedzia->name,
@@ -295,6 +324,7 @@ class NarzedziaController extends Controller
         return Inertia('Narzedzia/Create', [
             'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name', 'kategoria']),
             'kategorie' => NarzedziaTyp::kategorie(),
+            'limitPlikuMb' => self::limitPlikuMb(),
         ]);
     }
 

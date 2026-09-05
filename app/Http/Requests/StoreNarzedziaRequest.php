@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Controllers\NarzedziaController;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreNarzedziaRequest extends FormRequest
@@ -29,8 +30,10 @@ class StoreNarzedziaRequest extends FormRequest
             'numer_seryjny' =>'nullable',
             'waznosc_badan' =>'nullable|date',
             'ilosc_all' =>'nullable|numeric',
-            'photos.*' => 'nullable|image|max:5120',
-            'documents.*' => 'nullable|file|max:10240',
+            // Limit z konfiguracji serwera — wcześniej obiecywaliśmy 5 i 10 MB,
+            // a PHP odrzucał wszystko powyżej swojego upload_max_filesize.
+            'photos.*' => 'nullable|image|max:'.(NarzedziaController::limitPlikuMb() * 1024),
+            'documents.*' => 'nullable|file|max:'.(NarzedziaController::limitPlikuMb() * 1024),
         ];
     }
 
