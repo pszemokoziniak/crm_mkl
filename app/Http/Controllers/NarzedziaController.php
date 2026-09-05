@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
+use Carbon\Carbon;
 use App\Models\Narzedzia;
 use App\Models\NarzedziaTyp;
+use App\Models\Organization;
 use App\Models\ToolFile;
 use App\Models\ToolWorkDate;
 use App\Services\DocumentService;
@@ -35,35 +37,202 @@ class NarzedziaController extends Controller
                 $tool->save();
             });
 
+        $dzis = Carbon::today()->toDateString();
+
+        $sztuki = Narzedzia::filter(Request::only('search', 'trashed', 'wyswietlaj'))
+            ->with([
+                'typ',
+                // Zdjęcia i przypisania jednym zapytaniem — miniaturka ani budowa
+                // nie mogą kosztować zapytania na każdy wiersz.
+                'files' => fn ($query) => $query->where('type', 'photo')->orderBy('id'),
+                'toolWorkDates.organization',
+            ])
+            ->orderBy('numer_seryjny')
+            ->get();
+
         return Inertia::render('Narzedzia/Index', [
             'filters' => Request::all('search', 'trashed', 'wyswietlaj'),
-            'narzedzia' => Narzedzia::filter(request()->only('search', 'trashed', 'wyswietlaj'))
-                // Zdjęcia dociągamy jednym zapytaniem — miniaturka na liście
-                // nie może kosztować zapytania na każdy wiersz.
-                ->with(['files' => fn ($query) => $query->where('type', 'photo')->orderBy('id')])
-                // Na których budowach jest sprzęt — jednym zapytaniem, bez N+1.
-                ->with(['toolWorkDates.organization'])
-                ->paginate(20)
-                ->withQueryString()
-                ->through(fn (Narzedzia $narzedzia) => [
-                    'id' => $narzedzia->id,
-                    'name' => $narzedzia->name,
-                    'numer_seryjny' => $narzedzia->numer_seryjny,
-                    'ilosc_all' => $narzedzia->ilosc_all,
-                    'ilosc_budowa' => $narzedzia->ilosc_budowa,
-                    'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
-                    'deleted_at' => $narzedzia->deleted_at ?? null,
-                    'photo' => $this->thumbnailUrl($narzedzia),
-                    'budowy' => $narzedzia->toolWorkDates
-                        ->filter(fn ($t) => (int) $t->narzedzia_nb > 0 && $t->organization)
-                        ->map(fn ($t) => [
-                            'id' => $t->organization->id,
-                            'nazwaBud' => $t->organization->nazwaBud,
-                            'qty' => (int) $t->narzedzia_nb,
-                        ])
-                        ->values(),
+            'grupy' => $this->pogrupuj($sztuki, $dzis),
+            'budowy' => Organization::whereNull('deleted_at')
+                ->orderBy('nazwaBud')
+                ->get(['id', 'nazwaBud', 'warsztat'])
+                ->map(fn (Organization $o) => [
+                    'id' => $o->id,
+                    'nazwaBud' => $o->nazwaBud,
+                    'warsztat' => (bool) $o->warsztat,
                 ]),
         ]);
+    }
+
+    /**
+     * Jeden wiersz na rodzaj sprzętu, w środku pojedyncze sztuki.
+     * Rodzaj bierzemy ze słownika typów; gdy sprzęt go nie ma, grupujemy
+     * po nazwie, żeby nie wypadł z listy.
+     *
+     * @param  \Illuminate\Support\Collection<int, Narzedzia>  $sztuki
+     * @return array<int, array<string, mixed>>
+     */
+    private function pogrupuj($sztuki, string $dzis): array
+    {
+        return $sztuki
+            ->groupBy(fn (Narzedzia $n) => $n->typ ? 'typ:'.$n->typ->id : 'nazwa:'.$n->name)
+            ->map(function ($grupa, $klucz) use ($dzis) {
+                $pierwsza = $grupa->first();
+
+                $opisane = $grupa->map(fn (Narzedzia $n) => $this->opiszSztuke($n, $dzis))->values();
+
+                return [
+                    'klucz' => $klucz,
+                    'nazwa' => $pierwsza->typ ? $pierwsza->typ->name : $pierwsza->name,
+                    'photo' => $this->thumbnailUrl($grupa->first(fn (Narzedzia $n) => $n->files->isNotEmpty()) ?? $pierwsza),
+                    'sztuk' => $opisane->count(),
+                    'na_budowie' => $opisane->where('budowa', '!=', null)->count(),
+                    'dostepne' => $opisane->whereNull('budowa')->count(),
+                    // Ile sztuk ma nieważne albo kończące się badania — żeby było
+                    // widać na zwiniętym wierszu, bez rozwijania grupy.
+                    'badania_uwaga' => $opisane->whereIn('badania_status', ['po_terminie', 'wkrotce'])->count(),
+                    'sztuki' => $opisane,
+                ];
+            })
+            ->sortBy('nazwa', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function opiszSztuke(Narzedzia $narzedzia, string $dzis): array
+    {
+        // Sprzęt jest na budowie, dopóki przypisanie się nie skończyło.
+        // Stare wpisy nie mają dat — traktujemy je jako trwające.
+        $pobyt = $narzedzia->toolWorkDates
+            ->filter(fn (ToolWorkDate $t) => (int) $t->narzedzia_nb > 0 && $t->organization)
+            ->first(fn (ToolWorkDate $t) => $t->end === null || (string) $t->end >= $dzis);
+
+        return [
+            'id' => $narzedzia->id,
+            'numer_seryjny' => $narzedzia->numer_seryjny ?: null,
+            'waznosc_badan' => $this->dataBadan($narzedzia),
+            'badania_status' => $this->statusBadan($narzedzia, $dzis),
+            'photo' => $this->thumbnailUrl($narzedzia),
+            'budowa' => $pobyt ? [
+                'przypisanie_id' => $pobyt->id,
+                'id' => $pobyt->organization->id,
+                'nazwaBud' => $pobyt->organization->nazwaBud,
+                'do' => $pobyt->end ? (string) $pobyt->end : null,
+            ] : null,
+        ];
+    }
+
+    /**
+     * Część dat badań to śmieci z importu (rok 9999 albo -0001) — takie
+     * traktujemy jak brak daty, zamiast straszyć nimi na liście.
+     */
+    private function dataBadan(Narzedzia $narzedzia): ?string
+    {
+        $data = $narzedzia->waznosc_badan;
+
+        if (! $data || $data->year < 2000 || $data->year > 2100) {
+            return null;
+        }
+
+        return $data->format('Y-m-d');
+    }
+
+    private function statusBadan(Narzedzia $narzedzia, string $dzis): ?string
+    {
+        $data = $this->dataBadan($narzedzia);
+
+        if (! $data) {
+            return 'brak';
+        }
+
+        if ($data < $dzis) {
+            return 'po_terminie';
+        }
+
+        return $data <= Carbon::parse($dzis)->addDays(30)->toDateString() ? 'wkrotce' : 'wazne';
+    }
+
+    /**
+     * Wydanie sprzętu na budowę wprost z listy magazynu: zaznaczone sztuki,
+     * jedna budowa, jeden termin. Zajętych nie ruszamy — najpierw trzeba je
+     * zdjąć z poprzedniej budowy.
+     */
+    public function przypisz(): RedirectResponse
+    {
+        $dane = Request::validate([
+            'narzedzia_ids' => ['required', 'array', 'min:1'],
+            'narzedzia_ids.*' => ['integer', 'exists:narzedzias,id'],
+            'organization_id' => ['required', 'integer', 'exists:organizations,id'],
+            'start' => ['required', 'date'],
+            'end' => ['nullable', 'date', 'after_or_equal:start'],
+        ], [
+            'narzedzia_ids.required' => 'Zaznacz co najmniej jedną sztukę.',
+            'organization_id.required' => 'Wybierz budowę.',
+            'start.required' => 'Podaj datę od.',
+            'end.after_or_equal' => 'Data do nie może być wcześniejsza niż data od.',
+        ]);
+
+        $dzis = Carbon::today()->toDateString();
+        $zajete = [];
+        $wydane = 0;
+
+        foreach (Narzedzia::whereIn('id', $dane['narzedzia_ids'])->with('toolWorkDates')->get() as $narzedzie) {
+            $naBudowie = $narzedzie->toolWorkDates
+                ->filter(fn (ToolWorkDate $t) => (int) $t->narzedzia_nb > 0)
+                ->first(fn (ToolWorkDate $t) => $t->end === null || (string) $t->end >= $dzis);
+
+            if ($naBudowie) {
+                $zajete[] = trim($narzedzie->name.' '.($narzedzie->numer_seryjny ?: ''));
+                continue;
+            }
+
+            ToolWorkDate::create([
+                'narzedzia_id' => $narzedzie->id,
+                'organization_id' => $dane['organization_id'],
+                'narzedzia_nb' => 1,
+                'start' => $dane['start'],
+                'end' => $dane['end'] ?? null,
+            ]);
+
+            // Licznik magazynowy trzymamy zgodny ze starym widokiem sprzętu
+            // w karcie budowy — obie drogi mają pokazywać to samo.
+            $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + 1;
+            $narzedzie->save();
+
+            $wydane++;
+        }
+
+        if ($wydane === 0) {
+            return Redirect::route('narzedzia')
+                ->with('error', 'Nic nie wydano — zaznaczony sprzęt jest już na budowie.');
+        }
+
+        $komunikat = 'Wydano na budowę: '.$wydane.' '.($wydane === 1 ? 'sztukę' : 'szt.').'.';
+
+        if ($zajete) {
+            return Redirect::route('narzedzia')
+                ->with('error', $komunikat.' Pominięto (już na budowie): '.implode(', ', $zajete));
+        }
+
+        return Redirect::route('narzedzia')->with('success', $komunikat);
+    }
+
+    /** Zdjęcie sprzętu z budowy — powrót do magazynu. */
+    public function zdejmij(ToolWorkDate $toolWorkDate): RedirectResponse
+    {
+        $narzedzie = Narzedzia::find($toolWorkDate->narzedzia_id);
+
+        if ($narzedzie) {
+            $narzedzie->ilosc_budowa = max(0, ($narzedzie->ilosc_budowa ?? 0) - (int) $toolWorkDate->narzedzia_nb);
+            $narzedzie->save();
+        }
+
+        $toolWorkDate->delete();
+
+        return Redirect::route('narzedzia')->with('success', 'Sprzęt wrócił do magazynu.');
     }
 
     /** Miniaturka pierwszego zdjęcia sprzętu — skalowana przez Glide. */

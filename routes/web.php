@@ -321,6 +321,15 @@ Route::get('narzedzia', [NarzedziaController::class, 'index'])
         ->middleware('auth', 'biuro-permission');
 
 
+// Wydanie sprzętu na budowę i powrót do magazynu — wprost z listy magazynu.
+Route::post('narzedzia/przypisz', [NarzedziaController::class, 'przypisz'])
+    ->name('narzedzia.przypisz')
+    ->middleware('auth', 'biuro-permission');
+
+Route::delete('narzedzia/przypisanie/{toolWorkDate}', [NarzedziaController::class, 'zdejmij'])
+    ->name('narzedzia.zdejmij')
+    ->middleware('auth', 'biuro-permission');
+
 Route::get('narzedzia/create', [NarzedziaController::class, 'create'])
     ->name('narzedzia.create')
         ->middleware('auth', 'biuro-permission');
