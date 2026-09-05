@@ -7,6 +7,12 @@
       Na budowie obecnie: <span class="font-bold text-gray-700">{{ naBudowie }}</span>
       z {{ contactworkdates.data.length }} wpisów na tej stronie.
       <span v-if="zakonczone > 0">Pozostałe {{ zakonczone }} to zakończone pobyty — zostają jako historia.</span>
+      <span v-if="sortowanie.sort === 'nazwisko'" class="block mt-1">
+        Sortowanie po nazwisku: najpierw obecni na budowie, pod nimi ci, którzy zjechali.
+      </span>
+      <span v-else-if="sortowanie.sort === 'data'" class="block mt-1">
+        Sortowanie po terminie zjazdu z budowy; pobyty bez daty końca na końcu listy.
+      </span>
     </p>
     <div class="flex flex-col items-stretch gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
       <search-filter-no-filtr v-model="form.search" class="w-full sm:max-w-md" @reset="reset">
@@ -47,9 +53,21 @@
             <th v-if="mozeEdytowac" class="py-4 px-3 w-px">
               <input type="checkbox" class="form-checkbox" :checked="wszystkieZaznaczone" @change="przelaczWszystkie" />
             </th>
-            <th class="py-4 px-4">Nazwisko Imię</th>
-            <th class="py-4 px-4">Czas pracy</th>
-            <th class="py-4 px-4">Stanowisko</th>
+            <th class="py-4 px-4">
+              <button type="button" class="font-bold hover:text-indigo-600" @click="sortuj('nazwisko')">
+                Nazwisko Imię<span class="ml-1 text-xs text-gray-400">{{ strzalka('nazwisko') }}</span>
+              </button>
+            </th>
+            <th class="py-4 px-4">
+              <button type="button" class="font-bold hover:text-indigo-600" @click="sortuj('data')">
+                Czas pracy<span class="ml-1 text-xs text-gray-400">{{ strzalka('data') }}</span>
+              </button>
+            </th>
+            <th class="py-4 px-4">
+              <button type="button" class="font-bold hover:text-indigo-600" @click="sortuj('stanowisko')">
+                Stanowisko<span class="ml-1 text-xs text-gray-400">{{ strzalka('stanowisko') }}</span>
+              </button>
+            </th>
             <th class="py-4 px-4">Na budowie</th>
             <th v-if="mozeEdytowac" class="py-4 px-4" />
           </tr>
@@ -151,6 +169,7 @@ export default {
     contactworkdates: Object,
     organization_id: Number,
     organization: { type: Object, default: () => ({}) },
+    sortowanie: { type: Object, default: () => ({ sort: 'nazwisko', direction: 'asc' }) },
     filters: Object,
     user_owner: Number,
     // contact_work_dates: Object,
@@ -184,11 +203,30 @@ export default {
     form: {
       deep: true,
       handler: throttle(function () {
-        this.$inertia.get('/pracownicy/'+ this.organization_id, pickBy(this.form), { preserveState: true })
+        // Szukanie nie może gubić wybranego sortowania.
+        this.$inertia.get(
+          '/pracownicy/' + this.organization_id,
+          { ...pickBy(this.form), sort: this.sortowanie.sort, direction: this.sortowanie.direction },
+          { preserveState: true }
+        )
       }, 150),
     },
   },
   methods: {
+    // Kliknięcie w tę samą kolumnę odwraca kierunek, w inną — zaczyna od A do Z.
+    sortuj(kolumna) {
+      const kierunek = this.sortowanie.sort === kolumna && this.sortowanie.direction === 'asc' ? 'desc' : 'asc'
+
+      this.$inertia.get(
+        `/pracownicy/${this.organization_id}`,
+        { ...pickBy(this.form), sort: kolumna, direction: kierunek },
+        { preserveState: true, preserveScroll: true }
+      )
+    },
+    strzalka(kolumna) {
+      if (this.sortowanie.sort !== kolumna) return ''
+      return this.sortowanie.direction === 'asc' ? '▲' : '▼'
+    },
     /** Nieobecność ma pierwszeństwo: pracownik należy do budowy, ale dziś go nie ma. */
     etykietaStatusu(item) {
       if (item.on_site && item.nieobecnosc) {

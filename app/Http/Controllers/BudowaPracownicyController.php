@@ -43,14 +43,56 @@ class BudowaPracownicyController extends Controller
         return $workers;
     }
 
+    /**
+     * Sortowanie listy pracowników budowy. Nazwisko trzyma osobno tych, którzy
+     * są na budowie, i tych, którzy już zjechali — inaczej jedni przeplatają
+     * się z drugimi i nie widać, kto właściwie tam jest.
+     */
+    /** @return array{sort: string, direction: string} */
+    private function wybraneSortowanie(): array
+    {
+        $sort = Request::input('sort', 'nazwisko');
+
+        return [
+            'sort' => in_array($sort, ['nazwisko', 'data', 'stanowisko'], true) ? $sort : 'nazwisko',
+            'direction' => Request::input('direction') === 'desc' ? 'desc' : 'asc',
+        ];
+    }
+
+    private function sortowanie($query, string $dzis): void
+    {
+        ['sort' => $sort, 'direction' => $kierunek] = $this->wybraneSortowanie();
+
+        // Czy pobyt jeszcze trwa — po tym dzielimy listę na dwie grupy.
+        $naBudowie = '(contact_work_dates.end IS NULL OR contact_work_dates.end >= ?)';
+
+        if ($sort === 'data') {
+            // Pobyty bez daty końca nie mają terminu zjazdu — na koniec listy.
+            $query->orderByRaw('contact_work_dates.end IS NULL asc')
+                ->orderBy('contact_work_dates.end', $kierunek)
+                ->orderByRaw('contacts.last_name COLLATE utf8mb4_polish_ci asc');
+        } elseif ($sort === 'stanowisko') {
+            $query->leftJoin('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
+                ->orderByRaw('funkcjas.name COLLATE utf8mb4_polish_ci '.$kierunek)
+                ->orderByRaw($naBudowie.' desc', [$dzis])
+                ->orderByRaw('contacts.last_name COLLATE utf8mb4_polish_ci asc');
+        } else {
+            $query->orderByRaw($naBudowie.' desc', [$dzis])
+                ->orderByRaw('contacts.last_name COLLATE utf8mb4_polish_ci '.$kierunek)
+                ->orderByRaw('contacts.first_name COLLATE utf8mb4_polish_ci '.$kierunek);
+        }
+    }
+
     public function index(Organization $organization)
     {
+        $dzis = Carbon::today()->toDateString();
 
         return Inertia::render('Pracownicy/Index', [
             // Nagłówek podstrony potrzebuje nazwy budowy, nie samego id.
             'organization' => ['id' => $organization->id, 'nazwaBud' => $organization->nazwaBud],
             'organization_id' => $organization->id,
             'filters' => Request::all('search', 'trashed'),
+            'sortowanie' => $this->wybraneSortowanie(),
             'contactworkdates' => ContactWorkDate::with('organization')
                 ->with(['contact' => function ($query) {
                     $query->withTrashed();
@@ -61,7 +103,7 @@ class BudowaPracownicyController extends Controller
                     ->coveringDate(Carbon::today()->toDateString())])
                 ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
                 ->where('contact_work_dates.organization_id', $organization->id)
-                ->orderBy('contacts.last_name')
+                ->tap(fn ($query) => $this->sortowanie($query, $dzis))
                 ->select('contact_work_dates.*') // Select only columns from contact_work_dates table
                 ->filter(Request::only('search', 'trashed'))
                 ->paginate(100)
