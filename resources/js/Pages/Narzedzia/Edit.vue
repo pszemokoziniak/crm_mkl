@@ -132,7 +132,7 @@
               >
                 Usuń sprzęt
               </delete-button>
-              <loading-button :loading="form.processing" class="btn-indigo ml-auto" type="submit">Zapisz zmiany</loading-button>
+              <loading-button :loading="form.processing" class="btn-indigo ml-auto" :disabled="zaDuzePliki.length > 0" type="submit">Zapisz zmiany</loading-button>
             </div>
           </form>
         </div>
@@ -191,6 +191,7 @@ export default {
   },
   layout: Layout,
   props: {
+    limitPlikuMb: { type: Number, default: 2 },
     kategorie: { type: Array, default: () => [] },
     narzedzia: Object,
     photos: Array,
@@ -217,6 +218,16 @@ export default {
     }
   },
   computed: {
+    // Pliki większe niż limit serwera — sprawdzamy w przeglądarce, bo taki
+    // formularz nie dociera nawet do walidacji i zapis kończy się ciszą.
+    zaDuzePliki() {
+      const limit = this.limitPlikuMb * 1024 * 1024
+      const wszystkie = [...(this.form.photos || []), ...(this.form.documents || [])]
+
+      return wszystkie
+        .filter((p) => p && !p.deleted && p.size > limit)
+        .map((p) => `${p.name} (${(p.size / 1024 / 1024).toFixed(1)} MB)`)
+    },
   },
   watch: {
     'form.new_typ_kategoria_wybor': function (wybor) {

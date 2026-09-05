@@ -46,8 +46,15 @@
             <dropzone v-model="form.documents" :extensions="['pdf', 'xls', 'xlsx', 'doc', 'docx', '']" />
           </div>
         </div>
+        <!-- Serwer odrzuca zbyt duże pliki, zanim dojdzie do zapisu — mówimy
+             o tym wprost, zamiast pozwolić, żeby przycisk nic nie robił. -->
+        <div v-if="zaDuzePliki.length" class="px-8 pb-4 text-sm text-red-600">
+          Za duże pliki (limit {{ limitPlikuMb }} MB na plik):
+          <span v-for="(p, i) in zaDuzePliki" :key="i">{{ i ? ', ' : '' }}{{ p }}</span>.
+          Usuń je albo zmniejsz, inaczej zapis się nie powiedzie.
+        </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj Sprzęt</loading-button>
+          <loading-button :loading="form.processing" class="btn-indigo" :disabled="zaDuzePliki.length > 0" type="submit">Dodaj Sprzęt</loading-button>
         </div>
       </form>
     </div>
@@ -77,6 +84,7 @@ export default {
   },
   layout: Layout,
   props: {
+    limitPlikuMb: { type: Number, default: 2 },
     kategorie: { type: Array, default: () => [] },
     organizations: Array,
     typy: { type: Array, default: () => [] },
@@ -106,6 +114,18 @@ export default {
       if (this.form.new_typ_kategoria_wybor === '__new__') {
         this.form.new_typ_kategoria = nazwa
       }
+    },
+  },
+  computed: {
+    // Pliki większe niż limit serwera — sprawdzamy w przeglądarce, bo taki
+    // formularz nie dociera nawet do walidacji i zapis kończy się ciszą.
+    zaDuzePliki() {
+      const limit = this.limitPlikuMb * 1024 * 1024
+      const wszystkie = [...(this.form.photos || []), ...(this.form.documents || [])]
+
+      return wszystkie
+        .filter((p) => p && !p.deleted && p.size > limit)
+        .map((p) => `${p.name} (${(p.size / 1024 / 1024).toFixed(1)} MB)`)
     },
   },
   methods: {
