@@ -156,10 +156,13 @@ class ArchiwizacjaBudowyTest extends TestCase
             ->get('/pracownicy/'.$budowa->id)
             ->assertOk()
             ->assertInertia(function (Assert $page) {
-                $wpisy = collect($page->toArray()['props']['contactworkdates']['data']);
+                // Szukamy po nazwisku, nie po pozycji — lista trzyma teraz
+                // obecnych na budowie przed tymi, którzy zjechali.
+                $wpisy = collect($page->toArray()['props']['contactworkdates']['data'])
+                    ->keyBy(fn ($w) => $w['contact']['last_name']);
 
-                $this->assertFalse($wpisy->firstWhere('end', '2024-09-30')['on_site']);
-                $this->assertTrue($wpisy->last()['on_site']);
+                $this->assertFalse($wpisy['Chojecki']['on_site']);
+                $this->assertTrue($wpisy['Nowak']['on_site']);
             });
     }
 
