@@ -11,6 +11,19 @@
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa" />
+          <!-- Kategoria zbiera modele w magazynie: "Kontener" obejmie
+               Kontener 3m i 6m. Puste = typ stoi w magazynie osobno. -->
+          <text-input
+            v-model="form.kategoria"
+            :error="form.errors.kategoria"
+            class="pb-8 pr-6 w-full lg:w-1/1"
+            label="Kategoria (np. Kontener, Manitou)"
+            list="lista-kategorii-sprzetu"
+            placeholder="puste = bez kategorii"
+          />
+          <datalist id="lista-kategorii-sprzetu">
+            <option v-for="k in kategorie" :key="k" :value="k" />
+          </datalist>
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!narzedziaTyp.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -38,6 +51,7 @@ export default {
   },
   layout: Layout,
   props: {
+    kategorie: { type: Array, default: () => [] },
     narzedziaTyp: Object,
   },
   remember: 'form',
@@ -46,6 +60,7 @@ export default {
       form: this.$inertia.form({
         id: this.narzedziaTyp.id,
         name: this.narzedziaTyp.name,
+        kategoria: this.narzedziaTyp.kategoria,
       }),
     }
   },

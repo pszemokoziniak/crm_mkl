@@ -13,7 +13,9 @@ class NarzedziaTypController extends Controller
 {
     public function index()
     {
-        $narzedziaTyp = NarzedziaTyp::orderBy('name')->get();
+        // Kategoria najpierw — w magazynie typy i tak wiszą pod nią.
+        $narzedziaTyp = NarzedziaTyp::orderBy('kategoria')->orderBy('name')->get();
+
         return Inertia('NarzedziaTyp/Index', [
             'narzedziaTyp' => $narzedziaTyp,
         ]);
@@ -25,8 +27,10 @@ class NarzedziaTypController extends Controller
             'narzedziaTyp' => [
                 'id' => $narzedziaTyp->id,
                 'name' => $narzedziaTyp->name,
+                'kategoria' => $narzedziaTyp->kategoria,
                 'deleted_at' => $narzedziaTyp->deleted_at,
             ],
+            'kategorie' => NarzedziaTyp::kategorie(),
         ]);
     }
     public function update(NarzedziaTyp $narzedziaTyp)
@@ -34,6 +38,7 @@ class NarzedziaTypController extends Controller
         $narzedziaTyp->update(
             \Illuminate\Support\Facades\Request::validate([
                 'name' => ['required', 'max:100'],
+                'kategoria' => ['nullable', 'max:100'],
             ])
         );
         return Redirect::route('narzedziaTyp')->with('success', 'Poprawiono.');
@@ -52,11 +57,15 @@ class NarzedziaTypController extends Controller
     }
     public function create()
     {
-        return Inertia('NarzedziaTyp/Create');
+        return Inertia('NarzedziaTyp/Create', [
+            'kategorie' => NarzedziaTyp::kategorie(),
+        ]);
     }
     public function store(StoreNarzedziaRequest $req)
     {
-        NarzedziaTyp::create($req->validated());
+        NarzedziaTyp::create($req->validated() + [
+            'kategoria' => \Illuminate\Support\Facades\Request::input('kategoria') ?: null,
+        ]);
         return Redirect::route('narzedziaTyp')->with('success', 'Zapisano.');
     }
 }
