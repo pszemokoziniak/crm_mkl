@@ -2,11 +2,7 @@
   <div>
     <Head title="Narzędzia" />
     <BudMenu :bud-id="organization.id" />
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">{{ organization.name }}</Link>
-      <span class="text-indigo-400 font-medium"> / </span>
-      Narzędzia na budowie
-    </h1>
+    <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Sprzęt na budowie" />
     <div class="flex items-center justify-between mb-6">
       <search-filter-no-filtr v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset" />
       <Link v-if="!$page.props.permissions.kierownik" class="btn-indigo" :href="`/budowy/${organization.id}/narzedzia/create`">
@@ -97,6 +93,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Icon from '@/Shared/Icon.vue'
 import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout.vue'
@@ -109,6 +106,7 @@ import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
 
 export default {
   components: {
+    BudowaNaglowek,
     BudMenu,
     Head,
     Icon,

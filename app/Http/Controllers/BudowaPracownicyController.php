@@ -47,6 +47,8 @@ class BudowaPracownicyController extends Controller
     {
 
         return Inertia::render('Pracownicy/Index', [
+            // Nagłówek podstrony potrzebuje nazwy budowy, nie samego id.
+            'organization' => ['id' => $organization->id, 'nazwaBud' => $organization->nazwaBud],
             'organization_id' => $organization->id,
             'filters' => Request::all('search', 'trashed'),
             'contactworkdates' => ContactWorkDate::with('organization')

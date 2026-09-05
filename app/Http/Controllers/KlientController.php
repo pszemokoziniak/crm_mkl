@@ -20,7 +20,17 @@ class KlientController extends Controller
         $budId = $organization->id;
         $klients = Klient::where('organization_id', $organization->id)->get();
 
-        return Inertia('Klients/Index', compact('klients', 'budId'));
+        return Inertia('Klients/Index', [
+            'klients' => $klients,
+            'budId' => $budId,
+            'organization' => [
+                'id' => $organization->id,
+                'nazwaBud' => $organization->nazwaBud,
+                // Klient budowy wpisany w jej karcie — to on jest źródłem prawdy,
+                // a tabela poniżej to osoby kontaktowe po jego stronie.
+                'klient' => $organization->name,
+            ],
+        ]);
 
     }
     // public function create()

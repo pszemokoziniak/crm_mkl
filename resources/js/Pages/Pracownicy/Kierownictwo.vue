@@ -2,7 +2,7 @@
   <div>
     <Head title="Kierownictwo budowy" />
     <BudMenu :budId="organization.id" />
-    <h1 class="mb-8 text-3xl font-bold">Kierownictwo budowy</h1>
+    <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Kierownictwo budowy" />
 
     <div v-if="!$page.props.permissions.kierownik" class="max-w bg-white rounded-md shadow overflow-hidden mb-8">
       <h3 class="p-4 text-xl font-medium">Dodaj Kierownika / Inżyniera</h3>
@@ -95,6 +95,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Layout from '@/Shared/Layout'
 import BudMenu from '@/Shared/BudMenu'
 import DateInput from '@/Shared/DateInput'
@@ -102,6 +103,7 @@ import LoadingButton from '@/Shared/LoadingButton'
 
 export default {
   components: {
+    BudowaNaglowek,
     Head,
     Link,
     BudMenu,

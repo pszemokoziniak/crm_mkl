@@ -2,10 +2,7 @@
   <div>
     <Head title="Klient" />
     <BudMenu :budId="budId" />
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">Klient</Link>
-      <span class="text-indigo-400 font-medium">/</span> Dodaj
-    </h1>
+    <budowa-naglowek :bud-id="budId" nazwa="" tytul="Dodaj osobę kontaktową" />
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -29,6 +26,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
@@ -37,6 +35,7 @@ import BudMenu from '@/Shared/BudMenu'
 
 export default {
   components: {
+    BudowaNaglowek,
     Head,
     Link,
     LoadingButton,

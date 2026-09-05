@@ -1,11 +1,7 @@
 <template>
   <div>
     <BudMenu :budId="organization.id" />
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/budowy">{{ organization.name }}</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      <p class="text-base">Sprzęt na budowie</p>
-    </h1>
+    <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Sprzęt na budowie" />
 
     <!-- Pasek wydania — pojawia się dopiero, gdy coś jest zaznaczone. -->
     <div v-if="zaznaczone.length" class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-md">
@@ -152,12 +148,14 @@
 
 <script>
 import { Link } from '@inertiajs/inertia-vue3'
+import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Layout from '@/Shared/Layout'
 import BudMenu from '@/Shared/BudMenu'
 import DeleteButton from '@/Shared/DeleteButton.vue'
 
 export default {
   components: {
+    BudowaNaglowek,
     Link,
     BudMenu,
     DeleteButton,
