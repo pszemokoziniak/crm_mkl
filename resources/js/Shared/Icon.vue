@@ -2,29 +2,29 @@
   <svg v-if="name === 'cheveron-down'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
   <svg v-else-if="name === 'cheveron-right'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="12.95 10.707 13.657 10 8 4.343 6.586 5.757 10.828 10 6.586 14.243 8 15.657 12.95 10.707" /></svg>
   <svg v-else-if="name === 'dashboard'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm-5.6-4.29a9.95 9.95 0 0 1 11.2 0 8 8 0 1 0-11.2 0zm6.12-7.64l3.02-3.02 1.41 1.41-3.02 3.02a2 2 0 1 1-1.41-1.41z" /></svg>
-  <svg v-else-if="name === 'home'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M8 20H3V10H0L10 0l10 10h-3v10h-5v-6H8v6z" /></svg>
-  <svg v-else-if="name === 'office'" v-bind="$attrs" width="100" height="100" viewBox="0 0 100 100"><path fill-rule="evenodd" d="M7 0h86v100H57.108V88.418H42.892V100H7V0zm9 64h11v15H16V64zm57 0h11v15H73V64zm-19 0h11v15H54V64zm-19 0h11v15H35V64zM16 37h11v15H16V37zm57 0h11v15H73V37zm-19 0h11v15H54V37zm-19 0h11v15H35V37zM16 11h11v15H16V11zm57 0h11v15H73V11zm-19 0h11v15H54V11zm-19 0h11v15H35V11z" /></svg>
+  <svg v-else-if="name === 'home'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="-1.36 -1.36 22.73 22.73"><path d="M8 20H3V10H0L10 0l10 10h-3v10h-5v-6H8v6z" /></svg>
+  <svg v-else-if="name === 'office'" v-bind="$attrs" viewBox="-6.82 -6.82 113.64 113.64"><path fill-rule="evenodd" d="M7 0h86v100H57.108V88.418H42.892V100H7V0zm9 64h11v15H16V64zm57 0h11v15H73V64zm-19 0h11v15H54V64zm-19 0h11v15H35V64zM16 37h11v15H16V37zm57 0h11v15H73V37zm-19 0h11v15H54V37zm-19 0h11v15H35V37zM16 11h11v15H16V11zm57 0h11v15H73V11zm-19 0h11v15H54V11zm-19 0h11v15H35V11z" /></svg>
   <svg v-else-if="name === 'printer'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M4 16H0V6h20v10h-4v4H4v-4zm2-4v6h8v-6H6zM4 0h12v5H4V0zM2 8v2h2V8H2zm4 0v2h2V8H6z" /></svg>
   <svg v-else-if="name === 'trash'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z" /></svg>
-  <svg v-else-if="name === 'users'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M7 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1c2.15 0 4.2.4 6.1 1.09L12 16h-1.25L10 20H4l-.75-4H2L.9 10.09A17.93 17.93 0 0 1 7 9zm8.31.17c1.32.18 2.59.48 3.8.92L18 16h-1.25L16 20h-3.96l.37-2h1.25l1.65-8.83zM13 0a4 4 0 1 1-1.33 7.76 5.96 5.96 0 0 0 0-7.52C12.1.1 12.53 0 13 0z" /></svg>
-  <svg v-else-if="name === 'tools'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+  <svg v-else-if="name === 'users'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="-1.36 -1.36 22.73 22.73"><path d="M7 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1c2.15 0 4.2.4 6.1 1.09L12 16h-1.25L10 20H4l-.75-4H2L.9 10.09A17.93 17.93 0 0 1 7 9zm8.31.17c1.32.18 2.59.48 3.8.92L18 16h-1.25L16 20h-3.96l.37-2h1.25l1.65-8.83zM13 0a4 4 0 1 1-1.33 7.76 5.96 5.96 0 0 0 0-7.52C12.1.1 12.53 0 13 0z" /></svg>
+  <svg v-else-if="name === 'tools'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="3.11 2.11 14.77 14.77" fill="currentColor">
     <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
   </svg>
 
-  <svg v-else-if="name === 'eligibility'" v-bind="$attrs" viewBox="-0.8 -0.8 17.60 17.60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg v-else-if="name === 'eligibility'" v-bind="$attrs" viewBox="-1.09 -1.09 18.18 18.18" xmlns="http://www.w3.org/2000/svg">
     <g id="SVGRepo_bgCarrier" stroke-width="0" />
     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
-    <g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16ZM7 3V8.41421L10.2929 11.7071L11.7071 10.2929L9 7.58579V3H7Z" fill="#7986CB" /> </g>
+    <g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16ZM7 3V8.41421L10.2929 11.7071L11.7071 10.2929L9 7.58579V3H7Z" /> </g>
   </svg>
 
-  <svg v-else-if="name === 'monthlyReport'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+  <svg v-else-if="name === 'monthlyReport'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="2.05 0.55 15.91 15.91" fill="currentColor">
     <path d="M6 2a1 1 0 000 2h8a1 1 0 100-2H6zM3 6a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2H3zm1 9a1 1 0 011-1h2a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 110 2h6a1 1 0 110-2h-6z" />
   </svg>
 
-  <svg v-else-if="name === 'forecast-workers'" v-bind="$attrs" viewBox="0 0 16 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <svg v-else-if="name === 'forecast-workers'" v-bind="$attrs" viewBox="0.05 0.05 15.91 15.91" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
     <g id="SVGRepo_bgCarrier" stroke-width="0" />
-    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.44800000000000006"> <path d="M15 1H1V7H3.38197L4.88196 4L7.11803 4L10 9.76393L11.382 7H15V1Z" fill="#7986CB" /> <path d="M15 9H12.618L11.118 12L8.88197 12L6 6.23607L4.61803 9H1V15H15V9Z" fill="#7986CB" /> </g>
-    <g id="SVGRepo_iconCarrier"> <path d="M15 1H1V7H3.38197L4.88196 4L7.11803 4L10 9.76393L11.382 7H15V1Z" fill="#7986CB" /> <path d="M15 9H12.618L11.118 12L8.88197 12L6 6.23607L4.61803 9H1V15H15V9Z" fill="#7986CB" /> </g>
+    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.44800000000000006"> <path d="M15 1H1V7H3.38197L4.88196 4L7.11803 4L10 9.76393L11.382 7H15V1Z" /> <path d="M15 9H12.618L11.118 12L8.88197 12L6 6.23607L4.61803 9H1V15H15V9Z" /> </g>
+    <g id="SVGRepo_iconCarrier"> <path d="M15 1H1V7H3.38197L4.88196 4L7.11803 4L10 9.76393L11.382 7H15V1Z" /> <path d="M15 9H12.618L11.118 12L8.88197 12L6 6.23607L4.61803 9H1V15H15V9Z" /> </g>
   </svg>
 
   <svg v-else-if="name === 'dot'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-dot" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -39,7 +39,7 @@
     <path d="M6.66 15.66l-3.32 -3.32a1.25 1.25 0 0 1 .42 -2.044l3.24 -1.296l6 -6l3 3l-6 6l-1.296 3.24a1.25 1.25 0 0 1 -2.044 .42z" />
   </svg>
 
-  <svg v-else-if="name === 'sprzet2'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 318.15 318.15" class="text-indigo-300 " style="enable-background:new 0 0 318.15 318.15;" xml:space="preserve">
+  <svg v-else-if="name === 'sprzet2'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="-21.51 -21.69 361.53 361.53" xml:space="preserve">
     <path
       d="M232.015,112.306c1-1.226,2.021-2.484,3.088-3.789c-0.992-0.991-1.983-1.983-2.976-2.976
       c3.532-3.567,7.097-7.17,10.716-10.836c-7.638-7.635-11.451-11.449-19.092-19.092c-3.666,3.62-7.268,7.184-10.836,10.716
@@ -72,10 +72,14 @@
   <svg v-else-if="name === 'zablokuj'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" width="11.967" height="11.967" viewBox="0 0 11.967 11.967">
     <path id="Icon_metro-blocked" data-name="Icon metro-blocked" d="M12.785,3.681a5.983,5.983,0,1,0,1.752,4.231,5.944,5.944,0,0,0-1.752-4.231Zm.257,4.231a4.463,4.463,0,0,1-.831,2.6L5.955,4.255a4.485,4.485,0,0,1,7.086,3.657Zm-8.975,0a4.463,4.463,0,0,1,.831-2.6l6.255,6.255A4.486,4.486,0,0,1,4.067,7.911Z" transform="translate(-2.571 -1.928)" fill="#d5233f" />
   </svg>
-  <svg v-else-if="name === 'zadania'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <svg v-else-if="name === 'zadania'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="1.91 0.91 18.18 18.18">
     <path d="M5 2h10a2 2 0 0 1 2 2v14l-3-2-2 2-2-2-2 2-3-2V4a2 2 0 0 1 2-2zm1 4v2h8V6H6zm0 4v2h8v-2H6zm0 4v2h5v-2H6z" />
   </svg>
-  <svg v-else-if="name === 'zmiany'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <!-- Kierownictwo: gwiazda, żeby odróżnić ich od zwykłych pracowników. -->
+  <svg v-else-if="name === 'kierownictwo'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="-0.64 -1.56 21.28 21.28">
+    <path d="M10.00 0.40 L12.41 6.68 L19.13 7.03 L13.90 11.27 L15.64 17.77 L10.00 14.10 L4.36 17.77 L6.10 11.27 L0.87 7.03 L7.59 6.68 Z" />
+  </svg>
+  <svg v-else-if="name === 'zmiany'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0.91 0.91 18.18 18.18">
     <path d="M8 3l4 4-4 4V8H2V6h6V3zm4 14l-4-4 4-4v3h6v2h-6v3z" />
   </svg>
   <svg v-else-if="name === 'bell'" v-bind="$attrs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

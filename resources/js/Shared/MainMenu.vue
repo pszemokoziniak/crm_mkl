@@ -39,7 +39,7 @@
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/kierownicy">
-        <icon name="users" class="mr-2 w-4 h-4" :class="isUrl('kierownicy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="kierownictwo" class="mr-2 w-4 h-4" :class="isUrl('kierownicy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('kierownicy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Kierownicy / Inżynierowie</div>
       </Link>
     </div>
