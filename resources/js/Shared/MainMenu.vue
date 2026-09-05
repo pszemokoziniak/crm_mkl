@@ -3,67 +3,67 @@
     <!-- To samo miejsce, co po kliknięciu w logo — tylko widoczne w menu. -->
     <div class="mb-4">
       <Link class="group flex items-center py-3" href="/">
-        <icon name="home" class="mr-2 w-4 h-4" :class="isUrl('') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="home" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Home</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro || $page.props.permissions.kierownik" class="mb-4">
       <Link class="group flex items-center py-3" href="/budowy">
-        <icon name="office" class="mr-2 w-4 h-4" :class="isUrl('budowy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="office" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('budowy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('budowy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Budowy</div>
       </Link>
     </div>
     <div class="mb-4">
       <Link class="group flex items-center py-3" href="/zadania">
-        <icon name="zadania" class="mr-2 w-4 h-4" :class="isUrl('zadania') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="zadania" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('zadania') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('zadania') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Zadania</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/narzedzia">
-        <icon name="sprzet2" class="mr-2 w-4 h-4" :class="isUrl('narzedzia') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="sprzet2" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('narzedzia') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('narzedzia') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Sprzęt</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/zmiany-kadrowe">
-        <icon name="zmiany" class="mr-2 w-4 h-4" :class="isUrl('zmiany-kadrowe') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="zmiany" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('zmiany-kadrowe') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('zmiany-kadrowe') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Zmiany kadrowe</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/contacts">
-        <icon name="users" class="mr-2 w-4 h-4" :class="isUrl('contacts') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="users" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('contacts') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('contacts') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Pracownicy</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/kierownicy">
-        <icon name="kierownictwo" class="mr-2 w-4 h-4" :class="isUrl('kierownicy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="kierownictwo" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('kierownicy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('kierownicy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Kierownicy / Inżynierowie</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/reports/koniecUprawinien">
-        <icon name="eligibility" class="mr-2 w-4 h-4" :class="isUrl('reports') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="eligibility" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('reports') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('reports') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Termin uprawnień</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/tools">
-        <icon name="tools" class="mr-2 w-4 h-4" :class="isUrl('tools') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="tools" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('tools') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('tools') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Ustawienia</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/prognoza">
-        <icon name="forecast-workers" class="mr-2 w-4 h-4" :class="isUrl('prognoza') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="forecast-workers" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('prognoza') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('prognoza') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Prognoza pracowników</div>
       </Link>
     </div>
     <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
       <Link class="group flex items-center py-3" href="/building/time-sheet/month-report">
-        <icon name="monthlyReport" class="mr-2 w-4 h-4" :class="isUrl('month-report') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
+        <icon name="monthlyReport" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('month-report') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
         <div :class="isUrl('month-report') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Raport miesięczny</div>
       </Link>
     </div>
