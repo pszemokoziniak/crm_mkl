@@ -62,6 +62,8 @@ class MagazynSprzetu
                     'dostepne' => $modele->sum('dostepne'),
                     'na_budowie' => $modele->sum('na_budowie'),
                     'badania_uwaga' => $modele->sum('badania_uwaga'),
+                    'badania_po_terminie' => $modele->sum('badania_po_terminie'),
+                    'badania_wkrotce' => $modele->sum('badania_wkrotce'),
                     'modele' => $modele,
                 ];
             })
@@ -171,6 +173,9 @@ class MagazynSprzetu
             'sztuk' => $opisane->count(),
             'na_budowie' => $opisane->where('budowa', '!=', null)->count(),
             'dostepne' => $opisane->whereNull('budowa')->count(),
+            // Rozdzielone, bo "po terminie" i "kończy się" to dwie różne pilności.
+            'badania_po_terminie' => $opisane->where('badania_status', 'po_terminie')->count(),
+            'badania_wkrotce' => $opisane->where('badania_status', 'wkrotce')->count(),
             'badania_uwaga' => $opisane->whereIn('badania_status', ['po_terminie', 'wkrotce'])->count(),
             'sztuki' => $opisane,
         ];

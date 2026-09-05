@@ -144,13 +144,24 @@ class MagazynSprzetuTest extends TestCase
         $this->assertSame('brak', $sztuka['badania_status']);
     }
 
-    public function test_grupa_liczy_sztuki_z_nieaktualnymi_badaniami(): void
+    public function test_grupa_rozdziela_badania_po_terminie_i_koncsace_sie(): void
     {
         $this->sztuka($this->kontener6, 'SN-1', now()->subMonth()->toDateString());
         $this->sztuka($this->kontener6, 'SN-2', now()->addDays(10)->toDateString());
         $this->sztuka($this->kontener6, 'SN-3', now()->addYear()->toDateString());
+        // Bez daty nie liczy się do żadnej z grup — inaczej sygnał utonąłby
+        // w sprzęcie, któremu daty nigdy nie wpisano.
+        $this->sztuka($this->kontener6, 'SN-4', '9999-12-31');
 
-        $this->assertSame(2, $this->model('Kontener 6m')['badania_uwaga']);
+        $model = $this->model('Kontener 6m');
+
+        $this->assertSame(1, $model['badania_po_terminie']);
+        $this->assertSame(1, $model['badania_wkrotce']);
+        $this->assertSame(2, $model['badania_uwaga']);
+
+        $kategoria = collect($this->grupy())->firstWhere('nazwa', 'Kontener');
+        $this->assertSame(1, $kategoria['badania_po_terminie']);
+        $this->assertSame(1, $kategoria['badania_wkrotce']);
     }
 
     public function test_wydanie_sprzetu_na_budowe(): void
