@@ -97,8 +97,9 @@
                 </span>
               </td>
               <td class="px-6 py-3">
-                <span v-if="grupa.badania_uwaga > 0" class="text-xs text-red-700">{{ grupa.badania_uwaga }} do sprawdzenia</span>
-                <span v-else class="text-gray-300 text-xs">-</span>
+                <span v-if="grupa.badania_po_terminie" class="text-xs text-red-700">{{ grupa.badania_po_terminie }} po terminie</span>
+                <span v-if="grupa.badania_wkrotce" class="text-xs text-orange-700" :class="grupa.badania_po_terminie ? 'ml-2' : ''">{{ grupa.badania_wkrotce }} kończy się</span>
+                <span v-if="!grupa.badania_uwaga" class="text-gray-300 text-xs">-</span>
               </td>
               <td class="px-6 py-3 text-right text-xs text-gray-400">
                 {{ rozwiniete.includes(grupa.klucz) ? 'zwiń' : 'pokaż sztuki' }}

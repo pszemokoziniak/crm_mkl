@@ -101,10 +101,13 @@
                 <span v-else class="text-gray-300 text-xs">-</span>
               </td>
               <td class="px-6 py-4">
-                <span v-if="grupa.badania_uwaga > 0" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-                  {{ grupa.badania_uwaga }} do sprawdzenia
+                <span v-if="grupa.badania_po_terminie" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200" title="Sztuki, którym minął termin badań technicznych">
+                  {{ grupa.badania_po_terminie }} po terminie
                 </span>
-                <span v-else class="text-gray-300 text-xs">-</span>
+                <span v-if="grupa.badania_wkrotce" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200" :class="grupa.badania_po_terminie ? 'ml-1' : ''" title="Badania kończą się w ciągu 30 dni">
+                  {{ grupa.badania_wkrotce }} kończy się
+                </span>
+                <span v-if="!grupa.badania_uwaga" class="text-gray-300 text-xs">-</span>
               </td>
               <td class="px-6 py-4 text-right text-gray-400">
                 {{ rozwiniete.includes(grupa.klucz) ? 'zwiń' : (grupa.ma_modele ? 'pokaż modele' : 'pokaż sztuki') }}
@@ -130,8 +133,10 @@
                     </button>
                   </td>
                   <td class="px-6 py-3 text-center text-sm text-gray-700">{{ model.na_budowie || '-' }}</td>
-                  <td class="px-6 py-3 text-sm" :class="model.badania_uwaga > 0 ? 'text-red-700' : 'text-gray-300'">
-                    {{ model.badania_uwaga > 0 ? model.badania_uwaga + ' do sprawdzenia' : '-' }}
+                  <td class="px-6 py-3 text-sm">
+                    <span v-if="model.badania_po_terminie" class="text-red-700">{{ model.badania_po_terminie }} po terminie</span>
+                    <span v-if="model.badania_wkrotce" class="text-orange-700" :class="model.badania_po_terminie ? 'ml-2' : ''">{{ model.badania_wkrotce }} kończy się</span>
+                    <span v-if="!model.badania_uwaga" class="text-gray-300">-</span>
                   </td>
                   <td class="px-6 py-3 text-right text-xs text-gray-400">
                     {{ rozwiniete.includes(grupa.klucz + '/' + model.klucz) ? 'zwiń' : 'pokaż sztuki' }}
