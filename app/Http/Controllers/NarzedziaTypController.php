@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreNarzedziaRequest;
 use App\Http\Requests\StorePosRequest;
 use App\Models\NarzedziaTyp;
 use Illuminate\Http\Request;
@@ -61,10 +60,21 @@ class NarzedziaTypController extends Controller
             'kategorie' => NarzedziaTyp::kategorie(),
         ]);
     }
-    public function store(StoreNarzedziaRequest $req)
+    public function store()
     {
-        NarzedziaTyp::create($req->validated() + [
-            'kategoria' => \Illuminate\Support\Facades\Request::input('kategoria') ?: null,
+        // Własna walidacja: słownik typów nie ma nic wspólnego z formularzem
+        // sprzętu, a wspólny StoreNarzedziaRequest wymagał tu wskazania typu
+        // i przez to nie dawał założyć żadnego.
+        $dane = \Illuminate\Support\Facades\Request::validate([
+            'name' => ['required', 'max:100'],
+            'kategoria' => ['nullable', 'max:100'],
+        ], [
+            'name.required' => 'Podaj nazwę typu.',
+        ]);
+
+        NarzedziaTyp::create([
+            'name' => $dane['name'],
+            'kategoria' => $dane['kategoria'] ?: null,
         ]);
         return Redirect::route('narzedziaTyp')->with('success', 'Zapisano.');
     }

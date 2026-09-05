@@ -287,7 +287,8 @@ class NarzedziaController extends Controller
     public function edit(Narzedzia $narzedzia): Response
     {
         return Inertia::render('Narzedzia/Edit', [
-            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name']),
+            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name', 'kategoria']),
+            'kategorie' => NarzedziaTyp::kategorie(),
             'narzedzia' => [
                 'id' => $narzedzia->id,
                 'name' => $narzedzia->name,
@@ -353,12 +354,17 @@ class NarzedziaController extends Controller
         $data = Request::validate([
             'narzedzia_typ_id' => ['nullable', 'integer', 'exists:narzedzia_typs,id'],
             'new_typ_name' => ['nullable', 'string', 'max:100'],
+            'new_typ_kategoria' => ['nullable', 'string', 'max:100'],
             'numer_seryjny' => ['nullable'],
             'waznosc_badan' => ['nullable', 'date'],
             'ilosc_all' => ['nullable', 'numeric'],
         ]);
 
-        [$typId, $typName] = $this->resolveTyp($data['narzedzia_typ_id'] ?? null, $data['new_typ_name'] ?? null);
+        [$typId, $typName] = $this->resolveTyp(
+            $data['narzedzia_typ_id'] ?? null,
+            $data['new_typ_name'] ?? null,
+            $data['new_typ_kategoria'] ?? null
+        );
 
         try {
             $narzedzia->update([
@@ -414,16 +420,25 @@ class NarzedziaController extends Controller
     public function create(): Response
     {
         return Inertia('Narzedzia/Create', [
-            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name']),
+            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name', 'kategoria']),
+            'kategorie' => NarzedziaTyp::kategorie(),
         ]);
     }
 
     /** Wspólne: ustal typ (istniejący lub nowy) i zwróć [id, nazwa]. */
-    private function resolveTyp($typId, $newName): array
+    private function resolveTyp($typId, $newName, $kategoria = null): array
     {
         $newName = trim((string) $newName);
         if ($newName !== '') {
             $typ = NarzedziaTyp::firstOrCreate(['name' => $newName]);
+
+            // Kategoria dopisywana przy zakładaniu typu z formularza sprzętu —
+            // bez niej nowy model stanąłby w magazynie osobno, obok swoich.
+            $kategoria = trim((string) $kategoria);
+            if ($kategoria !== '' && ! $typ->kategoria) {
+                $typ->update(['kategoria' => $kategoria]);
+            }
+
             return [$typ->id, $typ->name];
         }
         $typ = $typId ? NarzedziaTyp::find($typId) : null;
@@ -435,19 +450,25 @@ class NarzedziaController extends Controller
         DocumentService $documentService
     ): RedirectResponse
     {
+        [$typId, $typName] = $this->resolveTyp(
+            $request->get('narzedzia_typ_id'),
+            $request->get('new_typ_name'),
+            $request->get('new_typ_kategoria')
+        );
+
+        /** @var Narzedzia $tool */
+        $tool = Narzedzia::create([
+            'narzedzia_typ_id' => $typId,
+            'name' => $typName,
+            'numer_seryjny' => $request->get('numer_seryjny'),
+            'waznosc_badan' => $request->get('waznosc_badan') ?: null,
+            'ilosc_all' => $request->get('ilosc_all'),
+            'ilosc_budowa' => 0,
+        ]);
+
+        // Sam sprzęt zapisujemy poza try — inaczej błąd zapisu meldował się
+        // jako "nie udało się dodać plików" i chował prawdziwą przyczynę.
         try {
-            [$typId, $typName] = $this->resolveTyp($request->get('narzedzia_typ_id'), $request->get('new_typ_name'));
-
-            /** @var Narzedzia $tool */
-            $tool = Narzedzia::create([
-                'narzedzia_typ_id' => $typId,
-                'name' => $typName,
-                'numer_seryjny' => $request->get('numer_seryjny'),
-                'waznosc_badan' => $request->get('waznosc_badan'),
-                'ilosc_all' => $request->get('ilosc_all'),
-                'ilosc_budowa' => 0,
-            ]);
-
             foreach (Request::file('photos') ?? [] as $file) {
                 $documentService->storeToolFile($file, $tool->id, 'photo');
             }
