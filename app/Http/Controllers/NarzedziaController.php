@@ -60,6 +60,20 @@ class NarzedziaController extends Controller
         ]);
     }
 
+    /** Czy pobyt trwa, dopiero się zacznie, czy już się skończył. */
+    private function stanPobytu(ToolWorkDate $pobyt, string $dzis): string
+    {
+        if ($pobyt->end !== null && (string) $pobyt->end < $dzis) {
+            return 'zakonczony';
+        }
+
+        if ($pobyt->start !== null && (string) $pobyt->start > $dzis) {
+            return 'zaplanowany';
+        }
+
+        return 'trwa';
+    }
+
     /**
      * Wydanie sprzętu na budowę wprost z listy magazynu: zaznaczone sztuki,
      * jedna budowa, jeden termin. Zajętych nie ruszamy — najpierw trzeba je
@@ -136,8 +150,10 @@ class NarzedziaController extends Controller
         return Redirect::route('narzedzia')->with('success', 'Sprzęt wrócił do magazynu.');
     }
 
-    public function edit(Narzedzia $narzedzia): Response
+    public function edit(Narzedzia $narzedzia, MagazynSprzetu $magazyn): Response
     {
+        $dzis = Carbon::today()->toDateString();
+        $narzedzia->load($magazyn->relacje());
         return Inertia::render('Narzedzia/Edit', [
             'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name', 'kategoria']),
             'kategorie' => NarzedziaTyp::kategorie(),
@@ -150,14 +166,19 @@ class NarzedziaController extends Controller
                 'ilosc_all' => $narzedzia->ilosc_all,
                 'ilosc_budowa' => $narzedzia->ilosc_budowa,
                 'ilosc_magazyn' => $narzedzia->ilosc_magazyn,
-                'budowy' => $narzedzia->toolWorkDates()
-                    ->with('organization')
-                    ->get()
-                    ->filter(fn ($t) => (int) $t->narzedzia_nb > 0 && $t->organization)
-                    ->map(fn ($t) => [
-                        'id' => $t->organization->id,
-                        'nazwaBud' => $t->organization->nazwaBud,
-                        'qty' => (int) $t->narzedzia_nb,
+                // Gdzie sztuka jest teraz — null oznacza magazyn.
+                'gdzie_jest' => $magazyn->sztuka($narzedzia, $dzis)['budowa'],
+                'badania_status' => $magazyn->statusBadan($narzedzia, $dzis),
+                // Cała historia pobytów, od najnowszego.
+                'pobyty' => $narzedzia->toolWorkDates
+                    ->sortByDesc(fn (ToolWorkDate $t) => (string) ($t->start ?: ''))
+                    ->map(fn (ToolWorkDate $t) => [
+                        'id' => $t->id,
+                        'budowa_id' => optional($t->organization)->id,
+                        'nazwaBud' => optional($t->organization)->nazwaBud ?? 'budowa usunięta',
+                        'od' => $t->start ? (string) $t->start : null,
+                        'do' => $t->end ? (string) $t->end : null,
+                        'stan' => $this->stanPobytu($t, $dzis),
                     ])
                     ->values(),
             ],

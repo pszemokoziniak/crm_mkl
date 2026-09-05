@@ -46,44 +46,71 @@
               </div>
 
               <div class="border-t border-gray-100 pt-8 mb-8">
-                <h3 class="text-lg font-semibold mb-4 text-gray-700">Zarządzanie ilością</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Łącznie sztuk</label>
-                    <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="w-full" />
-                    <p class="mt-1 text-xs text-gray-400">Całkowita ilość w firmie</p>
-                  </div>
+                <h3 class="text-lg font-semibold mb-4 text-gray-700">Gdzie jest ten sprzęt</h3>
 
-                  <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
-                    <label class="block text-sm font-medium text-indigo-600 mb-1">Na budowach</label>
-                    <div class="text-2xl font-bold text-indigo-800">{{ narzedzia.ilosc_budowa }}</div>
-                    <p class="mt-1 text-xs text-indigo-400">Aktualnie przypisane</p>
-                    <div v-if="narzedzia.budowy && narzedzia.budowy.length" class="mt-2 flex flex-col gap-0.5 text-xs leading-tight border-t border-indigo-100 pt-2">
-                      <Link v-for="(b, i) in narzedzia.budowy" :key="i" :href="`/budowy/${b.id}/edit`" class="truncate text-indigo-700 hover:text-indigo-900 hover:underline">
-                        {{ b.nazwaBud }}<span v-if="b.qty > 1" class="text-indigo-400"> ({{ b.qty }})</span>
+                <div
+                  class="p-4 rounded-lg border"
+                  :class="narzedzia.gdzie_jest ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'"
+                >
+                  <template v-if="narzedzia.gdzie_jest">
+                    <div class="text-sm text-orange-700">Na budowie</div>
+                    <div class="mt-1 text-xl font-bold text-orange-900">
+                      <Link :href="`/budowy/${narzedzia.gdzie_jest.id}/edit`" class="hover:underline">
+                        {{ narzedzia.gdzie_jest.nazwaBud }}
                       </Link>
                     </div>
-                  </div>
-
-                  <div :class="[
-                    'p-4 rounded-lg border',
-                    iloscMagazyn > 0 ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'
-                  ]">
-                    <label :class="['block text-sm font-medium mb-1', iloscMagazyn > 0 ? 'text-green-600' : 'text-red-600']">
-                      Dostępny
-                    </label>
-                    <div :class="['text-2xl font-bold', iloscMagazyn > 0 ? 'text-green-800' : 'text-red-800']">
-                      {{ iloscMagazyn }}
+                    <div class="mt-1 text-sm text-orange-800">
+                      od {{ narzedzia.gdzie_jest.od || '—' }}
+                      <span v-if="narzedzia.gdzie_jest.do">do {{ narzedzia.gdzie_jest.do }}</span>
+                      <span v-else class="text-orange-600">— bez daty końca</span>
                     </div>
-                    <p :class="['mt-1 text-xs', iloscMagazyn > 0 ? 'text-green-400' : 'text-red-400']">
-                      Dostępne do wydania
-                    </p>
-                  </div>
+                    <Link
+                      :href="`/narzedzia/przypisanie/${narzedzia.gdzie_jest.przypisanie_id}`"
+                      method="delete"
+                      as="button"
+                      type="button"
+                      class="mt-3 text-sm text-orange-800 underline hover:text-orange-900"
+                    >
+                      Zdejmij z budowy
+                    </Link>
+                  </template>
+                  <template v-else>
+                    <div class="text-sm text-green-700">Stan</div>
+                    <div class="mt-1 text-xl font-bold text-green-900">W magazynie</div>
+                    <div class="mt-1 text-sm text-green-800">Sprzęt jest wolny — można go wydać na budowę.</div>
+                  </template>
                 </div>
-                <div v-if="iloscMagazyn < 0" class="mt-4 p-3 bg-red-100 text-red-700 text-sm rounded border border-red-200 flex items-center">
-                  <icon name="trash" class="w-4 h-4 mr-2 fill-current" />
-                  Uwaga: Ilość na budowach przekracza ilość całkowitą! Sprawdź stany.
-                </div>
+
+                <!-- Historia: kiedy i gdzie ten egzemplarz stał. -->
+                <h4 class="mt-6 mb-2 text-sm font-semibold text-gray-600">Historia pobytów</h4>
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="text-left text-xs uppercase tracking-wider text-gray-500 border-b border-gray-200">
+                      <th class="py-2 pr-4">Budowa</th>
+                      <th class="py-2 pr-4">Od</th>
+                      <th class="py-2 pr-4">Do</th>
+                      <th class="py-2">Stan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="pobyt in narzedzia.pobyty" :key="pobyt.id" class="border-b border-gray-100">
+                      <td class="py-2 pr-4">
+                        <Link v-if="pobyt.budowa_id" :href="`/budowy/${pobyt.budowa_id}/edit`" class="text-indigo-600 hover:underline">
+                          {{ pobyt.nazwaBud }}
+                        </Link>
+                        <span v-else class="text-gray-400">{{ pobyt.nazwaBud }}</span>
+                      </td>
+                      <td class="py-2 pr-4 text-gray-700">{{ pobyt.od || '—' }}</td>
+                      <td class="py-2 pr-4 text-gray-700">{{ pobyt.do || 'bez daty końca' }}</td>
+                      <td class="py-2">
+                        <span :class="klasaStanu(pobyt.stan)">{{ opisStanu(pobyt.stan) }}</span>
+                      </td>
+                    </tr>
+                    <tr v-if="!narzedzia.pobyty.length">
+                      <td colspan="4" class="py-4 text-gray-400">Ten sprzęt nie był jeszcze wydany na żadną budowę.</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
 
               <div class="border-t border-gray-100 pt-8">
@@ -140,7 +167,6 @@
 import {Head, Link} from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
-import NumberInput from '@/Shared/NumberInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import DateInput from '@/Shared/DateInput.vue'
@@ -158,7 +184,6 @@ export default {
     Link,
     LoadingButton,
     TextInput,
-    NumberInput,
     TrashedMessage,
     Dropzone,
     DeleteButton,
@@ -192,9 +217,6 @@ export default {
     }
   },
   computed: {
-    iloscMagazyn() {
-      return (parseInt(this.form.ilosc_all) || 0) - (parseInt(this.narzedzia.ilosc_budowa) || 0)
-    },
   },
   watch: {
     'form.new_typ_kategoria_wybor': function (wybor) {
@@ -207,6 +229,16 @@ export default {
     },
   },
   methods: {
+    opisStanu(stan) {
+      if (stan === 'trwa') return 'trwa'
+      if (stan === 'zaplanowany') return 'zaplanowany'
+      return 'zakończony'
+    },
+    klasaStanu(stan) {
+      if (stan === 'trwa') return 'text-orange-700 font-semibold'
+      if (stan === 'zaplanowany') return 'text-indigo-600'
+      return 'text-gray-400'
+    },
     update() {
       this.form
         .transform((data) => ({
