@@ -106,30 +106,37 @@
             </tr>
 
             <template v-if="rozwiniete.includes(grupa.klucz)">
-              <tr v-for="model in grupa.modele" :key="model.klucz">
-                <td colspan="4" class="px-6 py-3 bg-gray-50">
-                  <div v-if="grupa.ma_modele" class="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
-                    {{ model.nazwa }}
-                    <span class="text-xs text-gray-400">{{ model.dostepne }} wolnych</span>
-                  </div>
-                  <table class="w-full text-sm">
-                    <tbody>
-                      <tr v-for="sztuka in model.sztuki" :key="sztuka.id" class="border-t border-gray-200">
-                        <td class="py-2 pr-4 w-8">
-                          <input v-model="zaznaczone" type="checkbox" :value="sztuka.id" />
-                        </td>
-                        <td class="py-2 pr-4 font-medium text-gray-800">{{ sztuka.numer_seryjny || '—' }}</td>
-                        <td class="py-2 pr-4">
-                          <span :class="klasaBadan(sztuka.badania_status)">{{ sztuka.waznosc_badan || 'brak daty' }}</span>
-                        </td>
-                        <td class="py-2 text-right">
-                          <Link :href="`/narzedzia/${sztuka.id}/edit`" class="text-indigo-600 hover:underline">Karta sprzętu</Link>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
+              <template v-for="model in grupa.modele" :key="model.klucz">
+                <!-- Wiersz modelu i wiersze sztuk trzymamy w tej samej tabeli,
+                     żeby daty badań stały pod nagłówkiem "Badania". -->
+                <tr v-if="grupa.ma_modele" class="bg-gray-50">
+                  <td class="pl-12 pr-6 py-2 text-sm font-medium text-gray-700">{{ model.nazwa }}</td>
+                  <td class="px-6 py-2 text-center text-sm text-gray-500">
+                    {{ model.dostepne }} wolnych
+                    <button type="button" class="ml-2 text-xs text-indigo-600 hover:underline" @click="zaznaczModel(model)">
+                      {{ wszystkieZaznaczone(model) ? 'odznacz' : 'zaznacz' }}
+                    </button>
+                  </td>
+                  <td class="px-6 py-2" />
+                  <td class="px-6 py-2" />
+                </tr>
+
+                <tr v-for="sztuka in model.sztuki" :key="sztuka.id" class="hover:bg-gray-50">
+                  <td class="pl-12 pr-6 py-2">
+                    <label class="flex items-center cursor-pointer">
+                      <input v-model="zaznaczone" type="checkbox" :value="sztuka.id" class="mr-3" />
+                      <span class="font-medium text-gray-800">{{ sztuka.numer_seryjny || '—' }}</span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-2" />
+                  <td class="px-6 py-2 text-sm">
+                    <span :class="klasaBadan(sztuka.badania_status)">{{ sztuka.waznosc_badan || 'brak daty' }}</span>
+                  </td>
+                  <td class="px-6 py-2 text-right">
+                    <Link :href="`/narzedzia/${sztuka.id}/edit`" class="text-indigo-600 hover:underline text-sm">Karta sprzętu</Link>
+                  </td>
+                </tr>
+              </template>
             </template>
           </template>
 
@@ -201,6 +208,21 @@ export default {
     },
   },
   methods: {
+    dostepneWModelu(model) {
+      return model.sztuki.map((s) => s.id)
+    },
+    wszystkieZaznaczone(model) {
+      const ids = this.dostepneWModelu(model)
+      return ids.length > 0 && ids.every((id) => this.zaznaczone.includes(id))
+    },
+    zaznaczModel(model) {
+      const ids = this.dostepneWModelu(model)
+      if (this.wszystkieZaznaczone(model)) {
+        this.zaznaczone = this.zaznaczone.filter((id) => !ids.includes(id))
+      } else {
+        this.zaznaczone = [...new Set([...this.zaznaczone, ...ids])]
+      }
+    },
     przelacz(klucz) {
       const i = this.rozwiniete.indexOf(klucz)
       if (i === -1) {
