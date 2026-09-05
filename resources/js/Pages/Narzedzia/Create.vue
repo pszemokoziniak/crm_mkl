@@ -16,6 +16,20 @@
             <option value="__new__">+ Nowy typ…</option>
           </select-input>
           <text-input v-if="form.narzedzia_typ_id === '__new__'" v-model="form.new_typ_name" :error="form.errors.new_typ_name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa nowego typu" />
+          <!-- Kategoria decyduje, pod czym model stanie w magazynie
+               (np. Kontener 9m pod "Kontener"). Puste = osobna pozycja. -->
+          <text-input
+            v-if="form.narzedzia_typ_id === '__new__'"
+            v-model="form.new_typ_kategoria"
+            :error="form.errors.new_typ_kategoria"
+            class="pb-8 pr-6 w-full lg:w-3/4"
+            label="Kategoria nowego typu (np. Kontener, Manitou)"
+            list="lista-kategorii-sprzetu"
+            placeholder="puste = bez kategorii"
+          />
+          <datalist id="lista-kategorii-sprzetu">
+            <option v-for="k in kategorie" :key="k" :value="k" />
+          </datalist>
           <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
@@ -57,6 +71,7 @@ export default {
   },
   layout: Layout,
   props: {
+    kategorie: { type: Array, default: () => [] },
     organizations: Array,
     typy: { type: Array, default: () => [] },
   },
@@ -68,6 +83,7 @@ export default {
         waznosc_badan: new Date().toISOString().substr(0, 10),
         narzedzia_typ_id: '',
         new_typ_name: '',
+        new_typ_kategoria: '',
         ilosc_all: 0,
         photos: [],
         documents: [],
