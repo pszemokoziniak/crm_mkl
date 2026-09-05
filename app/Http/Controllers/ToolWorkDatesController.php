@@ -9,6 +9,8 @@ use App\Models\ContactWorkDate;
 use App\Models\Narzedzia;
 use App\Models\Organization;
 use App\Models\ToolWorkDate;
+use App\Services\MagazynSprzetu;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -56,6 +58,9 @@ class ToolWorkDatesController extends Controller
                         'narzedzia_nb' => $item->narzedzia_nb,
                         'numer_seryjny' => optional($item->narzedzia)->numer_seryjny ?: '-',
                         'waznosc_badan' => $badaniaData,
+                        // Termin pobytu sprzętu na budowie — od kiedy tu stoi.
+                        'od' => $item->start ? (string) $item->start : null,
+                        'do' => $item->end ? (string) $item->end : null,
                     ];
                 }),
             ];
@@ -67,96 +72,106 @@ class ToolWorkDatesController extends Controller
             'groupedTools' => $groupedTools,
         ]);
     }
-    public function create(Organization $organization) {
+    public function create(Organization $organization, MagazynSprzetu $magazyn)
+    {
+        $dzis = Carbon::today()->toDateString();
 
-        // Tylko sprzęt realnie dostępny w magazynie (ilosc_all - ilosc_budowa > 0).
-        // Liczymy z kolumn, żeby nie zależeć od ewentualnie nieświeżej ilosc_magazyn.
-        $toolsFree = Narzedzia::whereRaw('(COALESCE(ilosc_all, 0) - COALESCE(ilosc_budowa, 0)) > 0')
-            ->orderBy('name')
+        // Wolne sztuki, czyli takie bez trwającego przypisania. Liczymy je
+        // z przypisań, nie z licznika w kolumnie — licznik nie wie o tym,
+        // że pobyt sprzętu na budowie mógł się już skończyć.
+        $wolne = Narzedzia::with($magazyn->relacje())
+            ->orderBy('numer_seryjny')
             ->get()
-            ->map(function ($tool) {
-                return [
-                    'id' => $tool->id,
-                    'name' => $tool->name,
-                    'ilosc_all' => $tool->ilosc_all ?? 0,
-                    // Akcesor zwraca ilosc_all - ilosc_budowa (zawsze poprawnie).
-                    'ilosc_magazyn' => $tool->ilosc_magazyn,
-                ];
-            });
-
+            ->filter(fn (Narzedzia $n) => ! $magazyn->trwajacePrzypisanie($n, $dzis));
 
         return Inertia::render('NarzedziaBudowa/Create', [
-            'toolsFree' => $toolsFree,
             'organization' => $organization,
-            'toolsOnBuild' => ToolWorkDate::with('narzedzia')
-                ->where('organization_id', $organization->id)
-                ->filter(\Illuminate\Support\Facades\Request::only('search', 'trashed'))
-                ->paginate(100)
-                ->withQueryString()
-                ->through(fn ($item) => [
-                    'id' => $item->id,
-                    'organization_id' => $item->organization_id,
-                    'narzedzia_nb' => $item->narzedzia_nb,
-                    'narzedzia' => $item->narzedzia,
-                ]),
+            'grupy' => $magazyn->grupy($wolne, $dzis),
+            'naBudowie' => $this->sprzetBudowy($organization, $magazyn, $dzis),
         ]);
     }
-    public function store(Request $request, Organization $organization)
+
+    /**
+     * Sprzęt stojący na tej budowie — z numerem seryjnym, badaniami i terminem.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function sprzetBudowy(Organization $organization, MagazynSprzetu $magazyn, string $dzis): array
     {
-        $checkedValues = $request->checkedValues ?? [];
-        $ilosci = $request->ilosc ?? [];
-        $ograniczone = []; // sprzęt, gdzie chciano więcej niż jest w magazynie
+        return ToolWorkDate::with(['narzedzia.typ', 'narzedzia.files'])
+            ->where('organization_id', $organization->id)
+            ->filter(\Illuminate\Support\Facades\Request::only('search', 'trashed'))
+            ->get()
+            ->map(function (ToolWorkDate $wpis) use ($magazyn, $dzis) {
+                $narzedzie = $wpis->narzedzia;
 
-        foreach ($checkedValues as $toolId) {
-            $narzedzie = Narzedzia::find((int) $toolId);
-            if (! $narzedzie) {
+                return [
+                    'id' => $wpis->id,
+                    'narzedzia_id' => $wpis->narzedzia_id,
+                    'nazwa' => $narzedzie ? $narzedzie->name : null,
+                    'numer_seryjny' => $narzedzie ? ($narzedzie->numer_seryjny ?: null) : null,
+                    'waznosc_badan' => $narzedzie ? $magazyn->dataBadan($narzedzie) : null,
+                    'badania_status' => $narzedzie ? $magazyn->statusBadan($narzedzie, $dzis) : null,
+                    'od' => $wpis->start ? (string) $wpis->start : null,
+                    'do' => $wpis->end ? (string) $wpis->end : null,
+                    'zakonczony' => $wpis->end !== null && (string) $wpis->end < $dzis,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    public function store(Request $request, Organization $organization, MagazynSprzetu $magazyn)
+    {
+        $dane = $request->validate([
+            'narzedzia_ids' => ['required', 'array', 'min:1'],
+            'narzedzia_ids.*' => ['integer', 'exists:narzedzias,id'],
+            'start' => ['required', 'date'],
+            'end' => ['nullable', 'date', 'after_or_equal:start'],
+        ], [
+            'narzedzia_ids.required' => 'Zaznacz co najmniej jedną sztukę.',
+            'start.required' => 'Podaj datę od.',
+            'end.after_or_equal' => 'Data do nie może być wcześniejsza niż data od.',
+        ]);
+
+        $dzis = Carbon::today()->toDateString();
+        $zajete = [];
+        $wydane = 0;
+
+        foreach (Narzedzia::whereIn('id', $dane['narzedzia_ids'])->with('toolWorkDates')->get() as $narzedzie) {
+            // Ktoś mógł wydać tę sztukę, zanim ten formularz został wysłany.
+            if ($magazyn->trwajacePrzypisanie($narzedzie, $dzis)) {
+                $zajete[] = trim($narzedzie->name.' '.($narzedzie->numer_seryjny ?: ''));
                 continue;
             }
 
-            // Realnie dostępne w magazynie teraz.
-            $dostepne = ($narzedzie->ilosc_all ?? 0) - ($narzedzie->ilosc_budowa ?? 0);
-            if ($dostepne <= 0) {
-                $ograniczone[] = $narzedzie->name.' (brak w magazynie)';
-                continue;
-            }
+            ToolWorkDate::create([
+                'narzedzia_id' => $narzedzie->id,
+                'organization_id' => $organization->id,
+                'narzedzia_nb' => 1,
+                'start' => $dane['start'],
+                'end' => $dane['end'] ?? null,
+            ]);
 
-            $chciane = isset($ilosci[$toolId]) && (int) $ilosci[$toolId] > 0
-                ? (int) $ilosci[$toolId]
-                : 1;
-
-            // Nie wydajemy więcej, niż jest — magazyn nie może zejść poniżej zera.
-            $doDodania = min($chciane, $dostepne);
-            if ($chciane > $dostepne) {
-                $ograniczone[] = $narzedzie->name.' (dodano '.$doDodania.' z '.$chciane.')';
-            }
-
-            $toolOnBuild = ToolWorkDate::where('organization_id', $organization->id)
-                ->where('narzedzia_id', (int) $toolId)
-                ->first();
-
-            if ($toolOnBuild) {
-                $toolOnBuild->narzedzia_nb += $doDodania;
-                $toolOnBuild->save();
-            } else {
-                ToolWorkDate::create([
-                    'narzedzia_id' => (int) $toolId,
-                    'organization_id' => $organization->id,
-                    'narzedzia_nb' => $doDodania,
-                ]);
-            }
-
-            // Ustawiamy tylko ilosc_budowa — hook w modelu przeliczy ilosc_magazyn.
-            $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + $doDodania;
+            $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + 1;
             $narzedzie->save();
+
+            $wydane++;
         }
 
         $redirect = Redirect::route('budowy.narzedzia', $organization->id);
 
-        if (! empty($ograniczone)) {
-            return $redirect->with('error', 'Ograniczono do stanu magazynu: '.implode(', ', $ograniczone));
+        if ($wydane === 0) {
+            return $redirect->with('error', 'Nic nie wydano — zaznaczony sprzęt jest już na budowie.');
         }
 
-        return $redirect->with('success', 'Sprzęt dodany');
+        $komunikat = 'Wydano na budowę: '.$wydane.' '.($wydane === 1 ? 'sztukę' : 'szt.').'.';
+
+        if ($zajete) {
+            return $redirect->with('error', $komunikat.' Pominięto (już na budowie): '.implode(', ', $zajete));
+        }
+
+        return $redirect->with('success', $komunikat);
     }
 
     public function edit(Organization $organization, ToolWorkDate $narzedzia)
