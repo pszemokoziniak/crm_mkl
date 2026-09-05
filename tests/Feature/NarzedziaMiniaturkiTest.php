@@ -46,10 +46,11 @@ class NarzedziaMiniaturkiTest extends TestCase
             ->get('/narzedzia')
             ->assertOk()
             ->assertInertia(function (Assert $page) use ($narzedzie) {
-                $wiersz = $page->toArray()['props']['narzedzia']['data'][0];
+                // Lista jest zgrupowana po rodzaju — miniaturka wisi przy grupie.
+                $grupa = $page->toArray()['props']['grupy'][0];
 
-                $this->assertStringContainsString('tools/'.$narzedzie->id.'/pierwsze.jpg', urldecode($wiersz['photo']));
-                $this->assertStringContainsString('w=96', $wiersz['photo']);
+                $this->assertStringContainsString('tools/'.$narzedzie->id.'/pierwsze.jpg', urldecode($grupa['photo']));
+                $this->assertStringContainsString('w=96', $grupa['photo']);
             });
     }
 
@@ -62,8 +63,9 @@ class NarzedziaMiniaturkiTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Narzedzia/Index')
-                ->where('narzedzia.data.0.photo', null)
-                ->where('narzedzia.data.0.name', 'Młotek')
+                ->where('grupy.0.photo', null)
+                ->where('grupy.0.nazwa', 'Młotek')
+                ->etc()
             );
     }
 
