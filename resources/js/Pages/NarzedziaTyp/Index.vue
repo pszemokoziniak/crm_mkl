@@ -16,6 +16,9 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/narzedziaTyp/${item.id}/edit`">
               {{ item.name }}
+              <span v-if="item.kategoria" class="ml-2 px-2 py-0.5 text-[10px] font-semibold text-indigo-800 bg-indigo-100 border border-indigo-200 rounded-full">
+                {{ item.kategoria }}
+              </span>
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>

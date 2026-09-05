@@ -65,9 +65,9 @@ class NarzedziaController extends Controller
     }
 
     /**
-     * Jeden wiersz na rodzaj sprzętu, w środku pojedyncze sztuki.
-     * Rodzaj bierzemy ze słownika typów; gdy sprzęt go nie ma, grupujemy
-     * po nazwie, żeby nie wypadł z listy.
+     * Dwa poziomy: kategoria (np. "Kontener") zbiera modele (Kontener 3m,
+     * Kontener 6m), a te — pojedyncze sztuki. Sprzęt bez kategorii pokazuje
+     * się wprost jako swój model, bez zbędnego poziomu.
      *
      * @param  \Illuminate\Support\Collection<int, Narzedzia>  $sztuki
      * @return array<int, array<string, mixed>>
@@ -75,28 +75,60 @@ class NarzedziaController extends Controller
     private function pogrupuj($sztuki, string $dzis): array
     {
         return $sztuki
-            ->groupBy(fn (Narzedzia $n) => $n->typ ? 'typ:'.$n->typ->id : 'nazwa:'.$n->name)
-            ->map(function ($grupa, $klucz) use ($dzis) {
-                $pierwsza = $grupa->first();
+            ->groupBy(fn (Narzedzia $n) => optional($n->typ)->kategoria ?: 'model:'.$this->nazwaModelu($n))
+            ->map(function ($wKategorii, $klucz) use ($dzis) {
+                $modele = $wKategorii
+                    ->groupBy(fn (Narzedzia $n) => $this->nazwaModelu($n))
+                    ->map(fn ($grupa, $nazwa) => $this->opiszModel($grupa, $nazwa, $dzis))
+                    ->sortBy('nazwa', SORT_NATURAL | SORT_FLAG_CASE)
+                    ->values();
 
-                $opisane = $grupa->map(fn (Narzedzia $n) => $this->opiszSztuke($n, $dzis))->values();
+                $bezKategorii = str_starts_with((string) $klucz, 'model:');
 
                 return [
-                    'klucz' => $klucz,
-                    'nazwa' => $pierwsza->typ ? $pierwsza->typ->name : $pierwsza->name,
-                    'photo' => $this->thumbnailUrl($grupa->first(fn (Narzedzia $n) => $n->files->isNotEmpty()) ?? $pierwsza),
-                    'sztuk' => $opisane->count(),
-                    'na_budowie' => $opisane->where('budowa', '!=', null)->count(),
-                    'dostepne' => $opisane->whereNull('budowa')->count(),
-                    // Ile sztuk ma nieważne albo kończące się badania — żeby było
-                    // widać na zwiniętym wierszu, bez rozwijania grupy.
-                    'badania_uwaga' => $opisane->whereIn('badania_status', ['po_terminie', 'wkrotce'])->count(),
-                    'sztuki' => $opisane,
+                    'klucz' => (string) $klucz,
+                    'nazwa' => $bezKategorii ? $modele->first()['nazwa'] : (string) $klucz,
+                    // Jeden model bez kategorii nie potrzebuje poziomu pośredniego.
+                    'ma_modele' => ! $bezKategorii,
+                    'photo' => $modele->firstWhere('photo', '!=', null)['photo'] ?? null,
+                    'sztuk' => $modele->sum('sztuk'),
+                    'dostepne' => $modele->sum('dostepne'),
+                    'na_budowie' => $modele->sum('na_budowie'),
+                    'badania_uwaga' => $modele->sum('badania_uwaga'),
+                    'modele' => $modele,
                 ];
             })
             ->sortBy('nazwa', SORT_NATURAL | SORT_FLAG_CASE)
             ->values()
             ->all();
+    }
+
+    /** Model to wpis ze słownika typów; bez niego zostaje nazwa sprzętu. */
+    private function nazwaModelu(Narzedzia $narzedzia): string
+    {
+        return optional($narzedzia->typ)->name ?: (string) $narzedzia->name;
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, Narzedzia>  $grupa
+     * @return array<string, mixed>
+     */
+    private function opiszModel($grupa, string $nazwa, string $dzis): array
+    {
+        $opisane = $grupa->map(fn (Narzedzia $n) => $this->opiszSztuke($n, $dzis))->values();
+
+        return [
+            'klucz' => 'model:'.$nazwa,
+            'nazwa' => $nazwa,
+            'photo' => $this->thumbnailUrl($grupa->first(fn (Narzedzia $n) => $n->files->isNotEmpty()) ?? $grupa->first()),
+            'sztuk' => $opisane->count(),
+            'na_budowie' => $opisane->where('budowa', '!=', null)->count(),
+            'dostepne' => $opisane->whereNull('budowa')->count(),
+            // Ile sztuk ma nieważne albo kończące się badania — żeby było
+            // widać na zwiniętym wierszu, bez rozwijania.
+            'badania_uwaga' => $opisane->whereIn('badania_status', ['po_terminie', 'wkrotce'])->count(),
+            'sztuki' => $opisane,
+        ];
     }
 
     /**

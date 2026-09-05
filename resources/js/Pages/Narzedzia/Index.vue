@@ -57,7 +57,7 @@
       <table class="w-full">
         <thead>
           <tr class="text-left font-bold bg-gray-50 border-b border-gray-100">
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Rodzaj sprzętu</th>
+            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Sprzęt</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Sztuk</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Dostępne</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Na budowach</th>
@@ -67,6 +67,7 @@
         </thead>
         <tbody class="divide-y divide-gray-100">
           <template v-for="grupa in grupy" :key="grupa.klucz">
+            <!-- Poziom 1: kategoria (Kontener, Manitou) albo pojedynczy model. -->
             <tr class="hover:bg-gray-50 transition-colors cursor-pointer" @click="przelacz(grupa.klucz)">
               <td class="px-6 py-4">
                 <div class="flex items-center font-medium text-gray-900">
@@ -75,6 +76,7 @@
                     <icon name="sprzet2" class="w-5 h-5 fill-gray-300" />
                   </span>
                   {{ grupa.nazwa }}
+                  <span v-if="grupa.ma_modele" class="ml-2 text-xs text-gray-400">{{ grupa.modele.length }} modele</span>
                 </div>
               </td>
               <td class="px-6 py-4 text-center">
@@ -105,60 +107,78 @@
                 <span v-else class="text-gray-300 text-xs">-</span>
               </td>
               <td class="px-6 py-4 text-right text-gray-400">
-                {{ rozwiniete.includes(grupa.klucz) ? 'zwiń' : 'pokaż sztuki' }}
+                {{ rozwiniete.includes(grupa.klucz) ? 'zwiń' : (grupa.ma_modele ? 'pokaż modele' : 'pokaż sztuki') }}
               </td>
             </tr>
 
-            <tr v-if="rozwiniete.includes(grupa.klucz)" :key="grupa.klucz + '-sztuki'">
-              <td colspan="6" class="px-6 py-4 bg-gray-50">
-                <table class="w-full text-sm">
-                  <thead>
-                    <tr class="text-left text-xs uppercase tracking-wider text-gray-500">
-                      <th class="pb-2 pr-4 w-8">
-                        <input type="checkbox" :checked="wszystkieZaznaczone(grupa)" @change="zaznaczGrupe(grupa, $event)" />
-                      </th>
-                      <th class="pb-2 pr-4">Numer seryjny</th>
-                      <th class="pb-2 pr-4">Badania techniczne</th>
-                      <th class="pb-2 pr-4">Gdzie jest</th>
-                      <th class="pb-2" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="sztuka in grupa.sztuki" :key="sztuka.id" class="border-t border-gray-200">
-                      <td class="py-2 pr-4">
-                        <input v-if="!sztuka.budowa" v-model="zaznaczone" type="checkbox" :value="sztuka.id" />
-                      </td>
-                      <td class="py-2 pr-4 font-medium text-gray-800">{{ sztuka.numer_seryjny || '—' }}</td>
-                      <td class="py-2 pr-4">
-                        <span :class="klasaBadan(sztuka.badania_status)">
-                          {{ sztuka.waznosc_badan || 'brak daty' }}
-                        </span>
-                      </td>
-                      <td class="py-2 pr-4">
-                        <span v-if="sztuka.budowa">
-                          <Link :href="`/budowy/${sztuka.budowa.id}/edit`" class="text-indigo-600 hover:underline">{{ sztuka.budowa.nazwaBud }}</Link>
-                          <span v-if="sztuka.budowa.do" class="text-gray-400"> do {{ sztuka.budowa.do }}</span>
-                        </span>
-                        <span v-else class="text-green-700">magazyn</span>
-                      </td>
-                      <td class="py-2 text-right whitespace-nowrap">
-                        <Link
-                          v-if="sztuka.budowa"
-                          :href="`/narzedzia/przypisanie/${sztuka.budowa.przypisanie_id}`"
-                          method="delete"
-                          as="button"
-                          type="button"
-                          class="text-gray-500 hover:text-gray-800 underline mr-4"
-                        >
-                          Zdejmij z budowy
-                        </Link>
-                        <Link :href="`/narzedzia/${sztuka.id}/edit`" class="text-indigo-600 hover:underline">Karta sprzętu</Link>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
+            <!-- Poziom 2: modele w kategorii; bez kategorii od razu sztuki. -->
+            <template v-if="rozwiniete.includes(grupa.klucz)">
+              <template v-for="model in grupa.modele" :key="model.klucz">
+                <tr v-if="grupa.ma_modele" class="bg-gray-50 cursor-pointer hover:bg-gray-100" @click="przelacz(grupa.klucz + '/' + model.klucz)">
+                  <td class="pl-16 pr-6 py-3 font-medium text-gray-700">{{ model.nazwa }}</td>
+                  <td class="px-6 py-3 text-center text-sm text-gray-700">{{ model.sztuk }}</td>
+                  <td class="px-6 py-3 text-center text-sm" :class="model.dostepne > 0 ? 'text-green-700' : 'text-red-700'">{{ model.dostepne }}</td>
+                  <td class="px-6 py-3 text-center text-sm text-gray-700">{{ model.na_budowie || '-' }}</td>
+                  <td class="px-6 py-3 text-sm" :class="model.badania_uwaga > 0 ? 'text-red-700' : 'text-gray-300'">
+                    {{ model.badania_uwaga > 0 ? model.badania_uwaga + ' do sprawdzenia' : '-' }}
+                  </td>
+                  <td class="px-6 py-3 text-right text-xs text-gray-400">
+                    {{ rozwiniete.includes(grupa.klucz + '/' + model.klucz) ? 'zwiń' : 'pokaż sztuki' }}
+                  </td>
+                </tr>
+
+                <tr v-if="!grupa.ma_modele || rozwiniete.includes(grupa.klucz + '/' + model.klucz)" :key="model.klucz + '-sztuki'">
+                  <td colspan="6" class="px-6 py-4 bg-white border-l-4 border-indigo-100">
+                    <table class="w-full text-sm">
+                      <thead>
+                        <tr class="text-left text-xs uppercase tracking-wider text-gray-500">
+                          <th class="pb-2 pr-4 w-8">
+                            <input type="checkbox" :checked="wszystkieZaznaczone(model)" @change="zaznaczModel(model, $event)" />
+                          </th>
+                          <th class="pb-2 pr-4">Numer seryjny</th>
+                          <th class="pb-2 pr-4">Badania techniczne</th>
+                          <th class="pb-2 pr-4">Gdzie jest</th>
+                          <th class="pb-2" />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="sztuka in model.sztuki" :key="sztuka.id" class="border-t border-gray-200">
+                          <td class="py-2 pr-4">
+                            <input v-if="!sztuka.budowa" v-model="zaznaczone" type="checkbox" :value="sztuka.id" />
+                          </td>
+                          <td class="py-2 pr-4 font-medium text-gray-800">{{ sztuka.numer_seryjny || '—' }}</td>
+                          <td class="py-2 pr-4">
+                            <span :class="klasaBadan(sztuka.badania_status)">
+                              {{ sztuka.waznosc_badan || 'brak daty' }}
+                            </span>
+                          </td>
+                          <td class="py-2 pr-4">
+                            <span v-if="sztuka.budowa">
+                              <Link :href="`/budowy/${sztuka.budowa.id}/edit`" class="text-indigo-600 hover:underline">{{ sztuka.budowa.nazwaBud }}</Link>
+                              <span v-if="sztuka.budowa.do" class="text-gray-400"> do {{ sztuka.budowa.do }}</span>
+                            </span>
+                            <span v-else class="text-green-700">magazyn</span>
+                          </td>
+                          <td class="py-2 text-right whitespace-nowrap">
+                            <Link
+                              v-if="sztuka.budowa"
+                              :href="`/narzedzia/przypisanie/${sztuka.budowa.przypisanie_id}`"
+                              method="delete"
+                              as="button"
+                              type="button"
+                              class="text-gray-500 hover:text-gray-800 underline mr-4"
+                            >
+                              Zdejmij z budowy
+                            </Link>
+                            <Link :href="`/narzedzia/${sztuka.id}/edit`" class="text-indigo-600 hover:underline">Karta sprzętu</Link>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </template>
+            </template>
           </template>
 
           <tr v-if="grupy.length === 0">
@@ -237,15 +257,15 @@ export default {
     },
     // Zaznaczyć da się tylko to, co jest w magazynie — sprzęt z budowy
     // trzeba najpierw zdjąć.
-    dostepneWGrupie(grupa) {
-      return grupa.sztuki.filter((s) => !s.budowa).map((s) => s.id)
+    dostepneWModelu(model) {
+      return model.sztuki.filter((s) => !s.budowa).map((s) => s.id)
     },
-    wszystkieZaznaczone(grupa) {
-      const dostepne = this.dostepneWGrupie(grupa)
+    wszystkieZaznaczone(model) {
+      const dostepne = this.dostepneWModelu(model)
       return dostepne.length > 0 && dostepne.every((id) => this.zaznaczone.includes(id))
     },
-    zaznaczGrupe(grupa, event) {
-      const dostepne = this.dostepneWGrupie(grupa)
+    zaznaczModel(model, event) {
+      const dostepne = this.dostepneWModelu(model)
       if (event.target.checked) {
         this.zaznaczone = [...new Set([...this.zaznaczone, ...dostepne])]
       } else {

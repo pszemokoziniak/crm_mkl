@@ -40,8 +40,8 @@ class MagazynSprzetuTest extends TestCase
             'password_changed_at' => now()->toDateTimeString(),
         ]);
 
-        $this->kontener6 = NarzedziaTyp::create(['name' => 'Kontener 6m']);
-        $this->kontener3 = NarzedziaTyp::create(['name' => 'Kontener 3m']);
+        $this->kontener6 = NarzedziaTyp::create(['name' => 'Kontener 6m', 'kategoria' => 'Kontener']);
+        $this->kontener3 = NarzedziaTyp::create(['name' => 'Kontener 3m', 'kategoria' => 'Kontener']);
 
         $this->budowa = Organization::create([
             'account_id' => 0, 'name' => 'Valmet', 'nazwaBud' => '504_Valmet Ortofta',
@@ -68,7 +68,27 @@ class MagazynSprzetuTest extends TestCase
         return $odpowiedz->viewData('page')['props']['grupy'];
     }
 
-    public function test_sprzet_laczy_sie_w_rodzaje_z_liczba_sztuk(): void
+    /** @return array<string, mixed> */
+    private function model(string $nazwa): array
+    {
+        foreach ($this->grupy() as $grupa) {
+            foreach ($grupa['modele'] as $model) {
+                if ($model['nazwa'] === $nazwa) {
+                    return $model;
+                }
+            }
+        }
+
+        $this->fail('Nie ma modelu '.$nazwa.' na liście.');
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function sztukiModelu(string $nazwa): array
+    {
+        return $this->model($nazwa)['sztuki'];
+    }
+
+    public function test_kategoria_zbiera_modele_i_sumuje_sztuki(): void
     {
         $this->sztuka($this->kontener6, 'A1');
         $this->sztuka($this->kontener6, 'A2');
@@ -76,22 +96,38 @@ class MagazynSprzetuTest extends TestCase
 
         $grupy = collect($this->grupy());
 
-        $this->assertCount(2, $grupy);
+        // Jeden wiersz "Kontener", w środku dwa modele.
+        $this->assertCount(1, $grupy);
 
-        $k3 = $grupy->firstWhere('nazwa', 'Kontener 3m');
-        $k6 = $grupy->firstWhere('nazwa', 'Kontener 6m');
+        $kontener = $grupy->first();
+        $this->assertSame('Kontener', $kontener['nazwa']);
+        $this->assertTrue($kontener['ma_modele']);
+        $this->assertSame(3, $kontener['sztuk']);
+        $this->assertSame(3, $kontener['dostepne']);
 
-        $this->assertSame(2, $k6['sztuk']);
-        $this->assertSame(2, $k6['dostepne']);
-        $this->assertSame(0, $k6['na_budowie']);
-        $this->assertSame(1, $k3['sztuk']);
+        $modele = collect($kontener['modele']);
+        $this->assertSame(2, $modele->firstWhere('nazwa', 'Kontener 6m')['sztuk']);
+        $this->assertSame(1, $modele->firstWhere('nazwa', 'Kontener 3m')['sztuk']);
+    }
+
+    public function test_sprzet_bez_kategorii_stoi_osobno(): void
+    {
+        $jlg = NarzedziaTyp::create(['name' => 'JLG X20J Plus']);
+        $this->sztuka($jlg, 'J1');
+        $this->sztuka($this->kontener6, 'A1');
+
+        $grupy = collect($this->grupy());
+
+        $bezKategorii = $grupy->firstWhere('nazwa', 'JLG X20J Plus');
+        $this->assertFalse($bezKategorii['ma_modele']);
+        $this->assertSame(1, $bezKategorii['sztuk']);
     }
 
     public function test_grupa_pokazuje_pojedyncze_sztuki(): void
     {
         $this->sztuka($this->kontener6, 'SN-111', '2027-05-31');
 
-        $sztuki = collect($this->grupy())->firstWhere('nazwa', 'Kontener 6m')['sztuki'];
+        $sztuki = $this->sztukiModelu('Kontener 6m');
 
         $this->assertSame('SN-111', $sztuki[0]['numer_seryjny']);
         $this->assertSame('2027-05-31', $sztuki[0]['waznosc_badan']);
@@ -102,7 +138,7 @@ class MagazynSprzetuTest extends TestCase
     {
         $this->sztuka($this->kontener6, 'SN-222', '9999-12-31');
 
-        $sztuka = collect($this->grupy())->firstWhere('nazwa', 'Kontener 6m')['sztuki'][0];
+        $sztuka = $this->sztukiModelu('Kontener 6m')[0];
 
         $this->assertNull($sztuka['waznosc_badan']);
         $this->assertSame('brak', $sztuka['badania_status']);
@@ -114,9 +150,7 @@ class MagazynSprzetuTest extends TestCase
         $this->sztuka($this->kontener6, 'SN-2', now()->addDays(10)->toDateString());
         $this->sztuka($this->kontener6, 'SN-3', now()->addYear()->toDateString());
 
-        $grupa = collect($this->grupy())->firstWhere('nazwa', 'Kontener 6m');
-
-        $this->assertSame(2, $grupa['badania_uwaga']);
+        $this->assertSame(2, $this->model('Kontener 6m')['badania_uwaga']);
     }
 
     public function test_wydanie_sprzetu_na_budowe(): void
@@ -136,9 +170,9 @@ class MagazynSprzetuTest extends TestCase
         $this->assertSame(2, ToolWorkDate::where('organization_id', $this->budowa->id)->count());
         $this->assertSame(1, $a->fresh()->ilosc_budowa);
 
-        $grupa = collect($this->grupy())->firstWhere('nazwa', 'Kontener 6m');
-        $this->assertSame(2, $grupa['na_budowie']);
-        $this->assertSame(0, $grupa['dostepne']);
+        $model = $this->model('Kontener 6m');
+        $this->assertSame(2, $model['na_budowie']);
+        $this->assertSame(0, $model['dostepne']);
     }
 
     public function test_sprzet_juz_na_budowie_nie_idzie_drugi_raz(): void
@@ -182,8 +216,7 @@ class MagazynSprzetuTest extends TestCase
         $this->assertSame(0, ToolWorkDate::count());
         $this->assertSame(0, $a->fresh()->ilosc_budowa);
 
-        $grupa = collect($this->grupy())->firstWhere('nazwa', 'Kontener 6m');
-        $this->assertSame(1, $grupa['dostepne']);
+        $this->assertSame(1, $this->model('Kontener 6m')['dostepne']);
     }
 
     public function test_zakonczone_przypisanie_zwalnia_sprzet(): void
@@ -198,10 +231,10 @@ class MagazynSprzetuTest extends TestCase
             'end' => '2025-06-30',
         ]);
 
-        $grupa = collect($this->grupy())->firstWhere('nazwa', 'Kontener 6m');
+        $model = $this->model('Kontener 6m');
 
-        $this->assertSame(1, $grupa['dostepne']);
-        $this->assertSame(0, $grupa['na_budowie']);
+        $this->assertSame(1, $model['dostepne']);
+        $this->assertSame(0, $model['na_budowie']);
     }
 
     public function test_data_do_nie_moze_byc_wczesniejsza(): void
