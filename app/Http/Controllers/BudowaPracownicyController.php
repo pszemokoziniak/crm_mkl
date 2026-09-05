@@ -10,6 +10,7 @@ use App\Models\ContactWorkDate;
 use App\Models\BuildingTimeSheet;
 use App\Models\Funkcja;
 use App\Models\Organization;
+use App\Services\KolizjaPobytu;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -343,7 +344,7 @@ class BudowaPracownicyController extends Controller
         ]);
     }
 
-    public function storeManagement(Organization $organization)
+    public function storeManagement(Organization $organization, KolizjaPobytu $kolizja)
     {
         Request::validate([
             'contact_id' => ['required', 'exists:contacts,id'],
@@ -353,23 +354,11 @@ class BudowaPracownicyController extends Controller
 
         $contact = Contact::with('funkcja')->find(Request::get('contact_id'));
 
-        // Ta sama reguła co przy przypisywaniu z karty pracownika: kilka budów
-        // naraz tylko dla stanowisk kierowniczych. Wcześniej ta ścieżka nie
-        // sprawdzała kolizji w ogóle.
-        $overlap = ContactWorkDate::with('organization')
-            ->where('contact_id', $contact->id)
-            ->where('start', '<=', Request::get('end'))
-            ->where(function ($query) {
-                $query->whereNull('end')->orWhere('end', '>=', Request::get('start'));
-            })
-            ->first();
+        // Ta sama reguła co przy przypisywaniu z karty pracownika.
+        $blad = $kolizja->komunikat($contact, (int) $organization->id, Request::get('start'), Request::get('end'));
 
-        if ($overlap && ! optional($contact->funkcja)->kierownictwo) {
-            $nazwa = optional($overlap->organization)->nazwaBud ?? 'inna budowa';
-
-            return Redirect::back()->with('error',
-                'Pracownik jest już w tym terminie przypisany do: '.$nazwa.
-                ' ('.$overlap->start.' – '.$overlap->end.'). Najpierw popraw daty w zakładce tamtej budowy.');
+        if ($blad) {
+            return Redirect::back()->with('error', $blad);
         }
 
         ContactWorkDate::create([

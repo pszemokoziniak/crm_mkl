@@ -15,6 +15,7 @@ use App\Models\Jezyk;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
+use App\Services\KolizjaPobytu;
 use App\Services\StatusPracownika;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -238,7 +239,7 @@ class ContactsController extends Controller
             ->only('id', 'name', 'nazwaBud');
     }
 
-    public function przypiszBudowe(Contact $contact)
+    public function przypiszBudowe(Contact $contact, KolizjaPobytu $kolizja)
     {
         $data = Request::validate([
             'organization_id' => ['required', 'integer', 'exists:organizations,id'],
@@ -249,24 +250,11 @@ class ContactsController extends Controller
             'after_or_equal' => 'Koniec nie może być przed początkiem.',
         ]);
 
-        // Kolizja: pracownik nie może w tym terminie być już na innej budowie.
-        $overlap = ContactWorkDate::with('organization')
-            ->where('contact_id', $contact->id)
-            ->where('start', '<=', $data['end'])
-            ->where(function ($q) use ($data) {
-                $q->whereNull('end')->orWhere('end', '>=', $data['start']);
-            })
-            ->first();
+        // Kolizja terminów — jedna reguła dla obu dróg przypisania.
+        $blad = $kolizja->komunikat($contact, (int) $data['organization_id'], $data['start'], $data['end']);
 
-        // Kierownictwo (kierownik, inżynier, koordynator, BHP...) może obsługiwać
-        // dwie budowy naraz — decyzja biura. Pozostałych chronimy przed pomyłką
-        // w grafiku, bo monter nie będzie w dwóch miejscach jednocześnie.
-        if ($overlap && ! optional($contact->funkcja)->kierownictwo) {
-            $nazwa = optional($overlap->organization)->nazwaBud ?? 'inna budowa';
-
-            return Redirect::back()->with('error',
-                'Pracownik jest już w tym terminie przypisany do: '.$nazwa.
-                ' ('.$overlap->start.' – '.$overlap->end.'). Najpierw popraw daty w zakładce tej budowy.');
+        if ($blad) {
+            return Redirect::back()->with('error', $blad);
         }
 
         ContactWorkDate::create([
