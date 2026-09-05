@@ -47,6 +47,10 @@
                     S/N:
                     <span class="font-medium text-gray-800">{{ item.numer_seryjny && item.numer_seryjny !== '-' ? item.numer_seryjny : '—' }}</span>
                   </span>
+                  <span class="text-gray-500">
+                    Termin:
+                    <span class="font-medium text-gray-800">{{ item.od || '—' }}<span v-if="item.do"> – {{ item.do }}</span></span>
+                  </span>
                   <span class="inline-flex items-center gap-1.5 text-gray-500">
                     Badania:
                     <span v-if="!item.waznosc_badan" class="text-gray-400">brak daty</span>

@@ -12,6 +12,7 @@ use App\Models\Organization;
 use App\Models\ToolFile;
 use App\Models\ToolWorkDate;
 use App\Services\DocumentService;
+use App\Services\MagazynSprzetu;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
@@ -25,7 +26,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class NarzedziaController extends Controller
 {
-    public function index(): Response
+    public function index(MagazynSprzetu $magazyn): Response
     {
         // Cicha naprawa: znajdź rekordy gdzie suma się nie zgadza i je zaktualizuj
         Narzedzia::query()
@@ -39,20 +40,15 @@ class NarzedziaController extends Controller
 
         $dzis = Carbon::today()->toDateString();
 
+        // Relacje z serwisu — inaczej opis każdej sztuki kosztowałby zapytania.
         $sztuki = Narzedzia::filter(Request::only('search', 'trashed', 'wyswietlaj'))
-            ->with([
-                'typ',
-                // Zdjęcia i przypisania jednym zapytaniem — miniaturka ani budowa
-                // nie mogą kosztować zapytania na każdy wiersz.
-                'files' => fn ($query) => $query->where('type', 'photo')->orderBy('id'),
-                'toolWorkDates.organization',
-            ])
+            ->with($magazyn->relacje())
             ->orderBy('numer_seryjny')
             ->get();
 
         return Inertia::render('Narzedzia/Index', [
             'filters' => Request::all('search', 'trashed', 'wyswietlaj'),
-            'grupy' => $this->pogrupuj($sztuki, $dzis),
+            'grupy' => $magazyn->grupy($sztuki, $dzis),
             'budowy' => Organization::whereNull('deleted_at')
                 ->orderBy('nazwaBud')
                 ->get(['id', 'nazwaBud', 'warsztat'])
@@ -65,134 +61,11 @@ class NarzedziaController extends Controller
     }
 
     /**
-     * Dwa poziomy: kategoria (np. "Kontener") zbiera modele (Kontener 3m,
-     * Kontener 6m), a te — pojedyncze sztuki. Sprzęt bez kategorii pokazuje
-     * się wprost jako swój model, bez zbędnego poziomu.
-     *
-     * @param  \Illuminate\Support\Collection<int, Narzedzia>  $sztuki
-     * @return array<int, array<string, mixed>>
-     */
-    private function pogrupuj($sztuki, string $dzis): array
-    {
-        return $sztuki
-            ->groupBy(fn (Narzedzia $n) => optional($n->typ)->kategoria ?: 'model:'.$this->nazwaModelu($n))
-            ->map(function ($wKategorii, $klucz) use ($dzis) {
-                $modele = $wKategorii
-                    ->groupBy(fn (Narzedzia $n) => $this->nazwaModelu($n))
-                    ->map(fn ($grupa, $nazwa) => $this->opiszModel($grupa, $nazwa, $dzis))
-                    ->sortBy('nazwa', SORT_NATURAL | SORT_FLAG_CASE)
-                    ->values();
-
-                $bezKategorii = str_starts_with((string) $klucz, 'model:');
-
-                return [
-                    'klucz' => (string) $klucz,
-                    'nazwa' => $bezKategorii ? $modele->first()['nazwa'] : (string) $klucz,
-                    // Jeden model bez kategorii nie potrzebuje poziomu pośredniego.
-                    'ma_modele' => ! $bezKategorii,
-                    'photo' => $modele->firstWhere('photo', '!=', null)['photo'] ?? null,
-                    'sztuk' => $modele->sum('sztuk'),
-                    'dostepne' => $modele->sum('dostepne'),
-                    'na_budowie' => $modele->sum('na_budowie'),
-                    'badania_uwaga' => $modele->sum('badania_uwaga'),
-                    'modele' => $modele,
-                ];
-            })
-            ->sortBy('nazwa', SORT_NATURAL | SORT_FLAG_CASE)
-            ->values()
-            ->all();
-    }
-
-    /** Model to wpis ze słownika typów; bez niego zostaje nazwa sprzętu. */
-    private function nazwaModelu(Narzedzia $narzedzia): string
-    {
-        return optional($narzedzia->typ)->name ?: (string) $narzedzia->name;
-    }
-
-    /**
-     * @param  \Illuminate\Support\Collection<int, Narzedzia>  $grupa
-     * @return array<string, mixed>
-     */
-    private function opiszModel($grupa, string $nazwa, string $dzis): array
-    {
-        $opisane = $grupa->map(fn (Narzedzia $n) => $this->opiszSztuke($n, $dzis))->values();
-
-        return [
-            'klucz' => 'model:'.$nazwa,
-            'nazwa' => $nazwa,
-            'photo' => $this->thumbnailUrl($grupa->first(fn (Narzedzia $n) => $n->files->isNotEmpty()) ?? $grupa->first()),
-            'sztuk' => $opisane->count(),
-            'na_budowie' => $opisane->where('budowa', '!=', null)->count(),
-            'dostepne' => $opisane->whereNull('budowa')->count(),
-            // Ile sztuk ma nieważne albo kończące się badania — żeby było
-            // widać na zwiniętym wierszu, bez rozwijania.
-            'badania_uwaga' => $opisane->whereIn('badania_status', ['po_terminie', 'wkrotce'])->count(),
-            'sztuki' => $opisane,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function opiszSztuke(Narzedzia $narzedzia, string $dzis): array
-    {
-        // Sprzęt jest na budowie, dopóki przypisanie się nie skończyło.
-        // Stare wpisy nie mają dat — traktujemy je jako trwające.
-        $pobyt = $narzedzia->toolWorkDates
-            ->filter(fn (ToolWorkDate $t) => (int) $t->narzedzia_nb > 0 && $t->organization)
-            ->first(fn (ToolWorkDate $t) => $t->end === null || (string) $t->end >= $dzis);
-
-        return [
-            'id' => $narzedzia->id,
-            'numer_seryjny' => $narzedzia->numer_seryjny ?: null,
-            'waznosc_badan' => $this->dataBadan($narzedzia),
-            'badania_status' => $this->statusBadan($narzedzia, $dzis),
-            'photo' => $this->thumbnailUrl($narzedzia),
-            'budowa' => $pobyt ? [
-                'przypisanie_id' => $pobyt->id,
-                'id' => $pobyt->organization->id,
-                'nazwaBud' => $pobyt->organization->nazwaBud,
-                'do' => $pobyt->end ? (string) $pobyt->end : null,
-            ] : null,
-        ];
-    }
-
-    /**
-     * Część dat badań to śmieci z importu (rok 9999 albo -0001) — takie
-     * traktujemy jak brak daty, zamiast straszyć nimi na liście.
-     */
-    private function dataBadan(Narzedzia $narzedzia): ?string
-    {
-        $data = $narzedzia->waznosc_badan;
-
-        if (! $data || $data->year < 2000 || $data->year > 2100) {
-            return null;
-        }
-
-        return $data->format('Y-m-d');
-    }
-
-    private function statusBadan(Narzedzia $narzedzia, string $dzis): ?string
-    {
-        $data = $this->dataBadan($narzedzia);
-
-        if (! $data) {
-            return 'brak';
-        }
-
-        if ($data < $dzis) {
-            return 'po_terminie';
-        }
-
-        return $data <= Carbon::parse($dzis)->addDays(30)->toDateString() ? 'wkrotce' : 'wazne';
-    }
-
-    /**
      * Wydanie sprzętu na budowę wprost z listy magazynu: zaznaczone sztuki,
      * jedna budowa, jeden termin. Zajętych nie ruszamy — najpierw trzeba je
      * zdjąć z poprzedniej budowy.
      */
-    public function przypisz(): RedirectResponse
+    public function przypisz(MagazynSprzetu $magazyn): RedirectResponse
     {
         $dane = Request::validate([
             'narzedzia_ids' => ['required', 'array', 'min:1'],
@@ -212,11 +85,7 @@ class NarzedziaController extends Controller
         $wydane = 0;
 
         foreach (Narzedzia::whereIn('id', $dane['narzedzia_ids'])->with('toolWorkDates')->get() as $narzedzie) {
-            $naBudowie = $narzedzie->toolWorkDates
-                ->filter(fn (ToolWorkDate $t) => (int) $t->narzedzia_nb > 0)
-                ->first(fn (ToolWorkDate $t) => $t->end === null || (string) $t->end >= $dzis);
-
-            if ($naBudowie) {
+            if ($magazyn->trwajacePrzypisanie($narzedzie, $dzis)) {
                 $zajete[] = trim($narzedzie->name.' '.($narzedzie->numer_seryjny ?: ''));
                 continue;
             }
@@ -265,23 +134,6 @@ class NarzedziaController extends Controller
         $toolWorkDate->delete();
 
         return Redirect::route('narzedzia')->with('success', 'Sprzęt wrócił do magazynu.');
-    }
-
-    /** Miniaturka pierwszego zdjęcia sprzętu — skalowana przez Glide. */
-    private function thumbnailUrl(Narzedzia $narzedzia): ?string
-    {
-        $photo = $narzedzia->files->first();
-
-        if (! $photo) {
-            return null;
-        }
-
-        return URL::route('image', [
-            'path' => DocumentService::toolFilePath($narzedzia->id, $photo->filename),
-            'w' => 96,
-            'h' => 96,
-            'fit' => 'crop',
-        ]);
     }
 
     public function edit(Narzedzia $narzedzia): Response
