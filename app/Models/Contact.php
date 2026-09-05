@@ -122,6 +122,14 @@ class Contact extends Model
                     ->orWhere('last_name', 'like', '%'.$search.'%')
                     ->orWhereHas('funkcja', function ($query) use ($search) {
                         $query->where('name', 'like', '%'.$search.'%');
+                    })
+                    // Szukanie po budowie — po nazwie albo po numerze. Bierzemy
+                    // wszystkie pobyty, także zakończone: kolumna "Koniec pobytu"
+                    // i tak pokazuje byłych, a zawężenie do obecnych daje filtr
+                    // Status → "Na budowie".
+                    ->orWhereHas('workDates.organization', function ($query) use ($search) {
+                        $query->where('nazwaBud', 'like', '%'.$search.'%')
+                            ->orWhere('numerBud', 'like', '%'.$search.'%');
                     });
             });
         })->when($filters['trashed'] ?? null, function ($query, $trashed) {
