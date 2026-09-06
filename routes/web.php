@@ -9,6 +9,7 @@ use App\Http\Controllers\BhpTypController;
 use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
+use App\Http\Controllers\BazaWiedzyController;
 use App\Http\Controllers\LogowaniaController;
 use App\Http\Controllers\PodszywanieController;
 use App\Http\Controllers\CtnDocumentsController;
@@ -1358,3 +1359,34 @@ Route::post('country/{country}/feasts', [FeastsController::class, 'store'])
 Route::delete('country/{country}/feasts/{feast}/delete', [FeastsController::class, 'delete'])
     ->name('country_feasts.delete')
     ->middleware('auth');
+
+
+// Baza wiedzy — czyta każdy zalogowany, pisze administrator.
+// "create" przed "{artykul}", inaczej Laravel wziąłby je za identyfikator.
+Route::get('baza-wiedzy', [BazaWiedzyController::class, 'index'])
+    ->name('bazaWiedzy')
+        ->middleware('auth');
+
+Route::get('baza-wiedzy/create', [BazaWiedzyController::class, 'create'])
+    ->name('bazaWiedzy.create')
+        ->middleware('auth', 'admin-permission');
+
+Route::post('baza-wiedzy', [BazaWiedzyController::class, 'store'])
+    ->name('bazaWiedzy.store')
+        ->middleware('auth', 'admin-permission');
+
+Route::get('baza-wiedzy/{artykul}', [BazaWiedzyController::class, 'show'])
+    ->name('bazaWiedzy.show')
+        ->middleware('auth');
+
+Route::get('baza-wiedzy/{artykul}/edit', [BazaWiedzyController::class, 'edit'])
+    ->name('bazaWiedzy.edit')
+        ->middleware('auth', 'admin-permission');
+
+Route::put('baza-wiedzy/{artykul}', [BazaWiedzyController::class, 'update'])
+    ->name('bazaWiedzy.update')
+        ->middleware('auth', 'admin-permission');
+
+Route::delete('baza-wiedzy/{artykul}', [BazaWiedzyController::class, 'destroy'])
+    ->name('bazaWiedzy.destroy')
+        ->middleware('auth', 'admin-permission');
