@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\A1;
 use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
 use App\Models\ZmianaKadrowa;
 use App\Models\ContactWorkDate;
+use App\Models\Holiday;
 use App\Models\Narzedzia;
 use App\Models\Organization;
 use App\Models\Pbioz;
@@ -182,8 +184,16 @@ class DashboardController extends Controller
             ->values();
 
         // Pracownicy z aktualnym/przyszłym pobytem, ale bez A1 ważnego dziś.
+        // Rozdzielamy dwa różne przypadki: ktoś nie ma wpisu w ogóle (zadanie
+        // dla kadr) i komuś A1 wygasło (zadanie do odnowienia). Wrzucone do
+        // jednego worka wyglądały jak fałszywy alarm i przestawano je czytać.
         $bezWaznegoA1 = Contact::query()
-            ->whereIn('id', function ($q) use ($now, $user, $myOrgIds) {
+            ->select(['contacts.id', 'contacts.first_name', 'contacts.last_name'])
+            ->addSelect(['ostatni_a1' => A1::query()
+                ->selectRaw('MAX(a1_s.end)')
+                ->whereColumn('a1_s.contact_id', 'contacts.id'),
+            ])
+            ->whereIn('contacts.id', function ($q) use ($now, $user, $myOrgIds) {
                 $q->select('contact_id')->from('contact_work_dates')
                     ->whereNull('deleted_at')
                     ->where(function ($w) use ($now) {
@@ -198,9 +208,45 @@ class DashboardController extends Controller
             ->whereDoesntHave('a1', fn ($q) => $q->where('end', '>=', $now))
             ->orderBy('last_name')->orderBy('first_name')
             ->limit(100)
-            ->get(['id', 'first_name', 'last_name'])
-            ->map(fn ($c) => ['id' => $c->id, 'first_name' => $c->first_name, 'last_name' => $c->last_name])
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'first_name' => $c->first_name,
+                'last_name' => $c->last_name,
+                'ostatni_a1' => $c->ostatni_a1,
+            ])
             ->values();
+
+        // Kto dziś nie stawi się na budowie — z tego kierownik układa plan dnia.
+        // Biuro widzi nieobecności na liście pracowników, więc dostaje to tylko on.
+        $nieobecniDzis = collect();
+
+        if ($user->isKierownik()) {
+            $nieobecniDzis = Holiday::with('shiftStatus')
+                ->join('contacts', 'contacts.id', '=', 'holidays.contact_id')
+                ->whereNull('contacts.deleted_at')
+                ->coveringDate($now)
+                ->whereIn('contacts.id', function ($q) use ($now, $myOrgIds) {
+                    $q->select('contact_id')->from('contact_work_dates')
+                        ->whereNull('deleted_at')
+                        ->whereIn('organization_id', $myOrgIds)
+                        ->whereDate('start', '<=', $now)
+                        ->where(function ($w) use ($now) {
+                            $w->whereNull('end')->orWhereDate('end', '>=', $now);
+                        });
+                })
+                ->orderBy('contacts.last_name')->orderBy('contacts.first_name')
+                ->select('holidays.*', 'contacts.first_name', 'contacts.last_name')
+                ->get()
+                ->map(fn (Holiday $h) => [
+                    'id' => $h->id,
+                    'contact_id' => $h->contact_id,
+                    'pracownik' => trim($h->last_name.' '.$h->first_name),
+                    'powod' => $h->label,
+                    'do' => $h->end,
+                ])
+                ->values();
+        }
 
         // Kierownik liczy swoje budowy i swoich ludzi; sprzętu nie prowadzi,
         // więc tego kafelka nie dostaje.
@@ -259,6 +305,7 @@ class DashboardController extends Controller
             'stats' => $stats,
             'do_archiwizacji' => $doArchiwizacji,
             'bez_a1' => $bezWaznegoA1,
+            'nieobecni_dzis' => $nieobecniDzis,
             'expiring_items' => $expiringItems,
             'organizations_user' => $organizations_user,
             'organizations_biuro' => $organizations_biuro,

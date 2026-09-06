@@ -7,10 +7,12 @@ use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
+use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -37,6 +39,29 @@ class ReportsController extends Controller
         $windowEnd = $all ? $today->copy()->addYears(50)->toDateString()
                           : $today->copy()->addDays($days)->toDateString();
 
+        // Kierownik dostał ten raport, ale tylko dla ludzi ze swoich budów —
+        // ten sam zakres, co licznik "wygasające terminy" na jego pulpicie.
+        $user = Auth::user();
+        $moiPracownicy = null;
+
+        if ($user && $user->isKierownik()) {
+            $moiPracownicy = ContactWorkDate::query()
+                ->whereIn('organization_id', Organization::managedBy($user->contactId())->pluck('id'))
+                ->where(function ($q) use ($todayStr) {
+                    $q->whereNull('end')->orWhere('end', '>=', $todayStr);
+                })
+                ->pluck('contact_id')->unique()->values();
+        }
+
+        // Zawężenie do "moich" ludzi; dla biura przepuszcza zapytanie bez zmian.
+        $moje = function ($query) use ($moiPracownicy) {
+            if ($moiPracownicy !== null) {
+                $query->whereIn('contacts.id', $moiPracownicy);
+            }
+
+            return $query;
+        };
+
         // Wspólne: pobyt tylko istniejących (nieusuniętych) pracowników.
         $rows = collect();
 
@@ -54,31 +79,31 @@ class ReportsController extends Controller
             }
         };
 
-        $push(Bhp::join('contacts', 'bhps.contact_id', '=', 'contacts.id')
+        $push($moje(Bhp::join('contacts', 'bhps.contact_id', '=', 'contacts.id'))
             ->join('bhp_typs', 'bhps.bhpTyp_id', '=', 'bhp_typs.id')
             ->whereNull('contacts.deleted_at')
             ->whereBetween('bhps.end', [$graceStart, $windowEnd])
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'bhp_typs.name', 'bhps.start', 'bhps.end']), 'BHP');
 
-        $push(A1::join('contacts', 'a1_s.contact_id', '=', 'contacts.id')
+        $push($moje(A1::join('contacts', 'a1_s.contact_id', '=', 'contacts.id'))
             ->whereNull('contacts.deleted_at')
             ->whereBetween('a1_s.end', [$graceStart, $windowEnd])
             ->selectRaw("contacts.id, contacts.first_name, contacts.last_name, 'A1' as name, a1_s.start, a1_s.end")
             ->get(), 'A1');
 
-        $push(Badania::join('contacts', 'badanias.contact_id', '=', 'contacts.id')
+        $push($moje(Badania::join('contacts', 'badanias.contact_id', '=', 'contacts.id'))
             ->join('badania_typs', 'badanias.badaniaTyp_id', '=', 'badania_typs.id')
             ->whereNull('contacts.deleted_at')
             ->whereBetween('badanias.end', [$graceStart, $windowEnd])
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'badania_typs.name', 'badanias.start', 'badanias.end']), 'Badania lekarskie');
 
-        $push(Uprawnienia::join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
+        $push($moje(Uprawnienia::join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id'))
             ->join('uprawnienia_typs', 'uprawnienias.uprawnieniaTyp_id', '=', 'uprawnienia_typs.id')
             ->whereNull('contacts.deleted_at')
             ->whereBetween('uprawnienias.end', [$graceStart, $windowEnd])
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'uprawnienia_typs.name', 'uprawnienias.start', 'uprawnienias.end']), 'Uprawnienia');
 
-        $push(Pbioz::join('contacts', 'pbiozs.contact_id', '=', 'contacts.id')
+        $push($moje(Pbioz::join('contacts', 'pbiozs.contact_id', '=', 'contacts.id'))
             ->whereNull('contacts.deleted_at')
             ->whereBetween('pbiozs.end', [$graceStart, $windowEnd])
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'pbiozs.name', 'pbiozs.start', 'pbiozs.end']), 'PBIOZ');
@@ -97,7 +122,7 @@ class ReportsController extends Controller
 
         // Brak dokumentów: pracownicy z aktualnym/przyszłym pobytem, którzy nie
         // mają WAŻNEGO (end >= dziś) dokumentu w danej kategorii.
-        $assignedIds = ContactWorkDate::query()
+        $assignedIds = $moiPracownicy !== null ? $moiPracownicy : ContactWorkDate::query()
             ->where(function ($q) use ($todayStr) {
                 $q->whereNull('end')->orWhere('end', '>=', $todayStr);
             })

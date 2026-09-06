@@ -3,8 +3,9 @@
     <Head title="Dashboard" />
     <h1 class="mb-8 text-3xl font-bold">Pulpit</h1>
 
-    <!-- Kierownik nie wchodzi do Pracowników, Sprzętu ani raportu terminów,
-         więc jego kafelki są liczbami bez odnośnika (albo ich nie ma). -->
+    <!-- Kierownik nie wchodzi do Pracowników ani Sprzętu, więc te kafelki są
+         u niego liczbą bez odnośnika (albo ich nie ma). Raport terminów ma
+         już wersję zawężoną do jego budów, więc tam wchodzi. -->
     <div class="mb-8 grid grid-cols-2 gap-4" :class="kierownik ? 'sm:grid-cols-3' : 'sm:grid-cols-4'">
       <component
         :is="kierownik ? 'div' : 'Link'"
@@ -23,15 +24,14 @@
         <div class="text-3xl font-bold text-gray-900">{{ stats.sprzet ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">Sprzęt</div>
       </Link>
-      <component
-        :is="kierownik ? 'div' : 'Link'"
-        :href="kierownik ? null : '/reports/koniecUprawinien'"
-        class="block bg-white rounded-md shadow p-5 border-l-4"
-        :class="[(stats.wygasajace ?? 0) > 0 ? 'border-red-500' : 'border-green-500', kierownik ? '' : 'hover:shadow-md transition']"
+      <Link
+        href="/reports/koniecUprawinien"
+        class="block bg-white rounded-md shadow p-5 border-l-4 hover:shadow-md transition"
+        :class="(stats.wygasajace ?? 0) > 0 ? 'border-red-500' : 'border-green-500'"
       >
         <div class="text-3xl font-bold" :class="(stats.wygasajace ?? 0) > 0 ? 'text-red-600' : 'text-gray-900'">{{ stats.wygasajace ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">Wygasające terminy (30 dni)</div>
-      </component>
+      </Link>
     </div>
 
     <!-- Przeniesienia pracowników czekające na aneksy — widok dla biura/kadr. -->
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <div class="mb-8 grid grid-cols-1 gap-6" :class="kierownik ? '' : 'lg:grid-cols-2'">
+    <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div v-if="!kierownik" class="bg-white rounded-md shadow overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">Budowy do archiwizacji</h2>
@@ -76,16 +76,50 @@
         </div>
       </div>
 
+      <!-- Urlop albo zwolnienie zmienia kierownikowi plan dnia, więc widzi to
+           od razu po wejściu, bez klikania po kartotekach. -->
+      <div v-if="kierownik" class="bg-white rounded-md shadow overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="font-semibold text-gray-700">Nieobecni dziś</h2>
+          <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="nieobecni_dzis.length ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'">{{ nieobecni_dzis.length }}</span>
+        </div>
+        <div class="max-h-72 overflow-y-auto">
+          <Link
+            v-for="n in nieobecni_dzis"
+            :key="n.id"
+            :href="`/contacts/${n.contact_id}/holiday`"
+            class="flex items-baseline justify-between gap-3 px-6 py-2 border-t border-gray-50 hover:bg-gray-50 text-sm"
+          >
+            <span>{{ n.pracownik }}</span>
+            <span class="text-xs text-gray-500 whitespace-nowrap">
+              {{ n.powod }}<template v-if="n.do"> — do {{ n.do }}</template>
+            </span>
+          </Link>
+          <p v-if="!nieobecni_dzis.length" class="px-6 py-4 text-sm text-gray-400">Nikt — dziś wszyscy Twoi ludzie są dostępni.</p>
+        </div>
+      </div>
+
       <div class="bg-white rounded-md shadow overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">{{ kierownik ? 'Twoi pracownicy bez ważnego A1' : 'Pracownicy bez ważnego A1' }}</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="bez_a1.length ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">{{ bez_a1.length }}</span>
         </div>
+        <p v-if="bez_a1.length" class="px-6 pt-3 text-xs text-gray-500">
+          {{ licznikA1.wygasle }} z wygasłym A1, {{ licznikA1.brak }} bez żadnego wpisu.
+        </p>
         <!-- Lista bywa długa i spychała resztę pulpitu poza ekran, więc
              domyślnie pokazujemy kilka nazwisk. -->
         <div>
-          <Link v-for="p in widoczneBezA1" :key="p.id" :href="`/contacts/${p.id}/a1`" class="block px-6 py-2 border-t border-gray-50 hover:bg-gray-50 text-sm">
-            {{ p.last_name }} {{ p.first_name }}
+          <Link
+            v-for="p in widoczneBezA1"
+            :key="p.id"
+            :href="`/contacts/${p.id}/a1`"
+            class="flex items-baseline justify-between gap-3 px-6 py-2 border-t border-gray-50 hover:bg-gray-50 text-sm"
+          >
+            <span>{{ p.last_name }} {{ p.first_name }}</span>
+            <span class="text-xs whitespace-nowrap" :class="p.ostatni_a1 ? 'text-orange-700' : 'text-gray-400'">
+              {{ p.ostatni_a1 ? `wygasło ${p.ostatni_a1}` : 'brak wpisu' }}
+            </span>
           </Link>
           <button
             v-if="bez_a1.length > 5"
@@ -206,9 +240,11 @@
                 </div>
               </Link>
             </td>
+            <!-- Wpisywanie godzin to codzienna czynność kierownika, a dotąd
+                 nic na pulpicie nie mówiło, że wiersz prowadzi właśnie tam. -->
             <td class="w-px border-t">
-              <Link class="flex items-center px-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
-                <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
+              <Link class="flex items-center px-4 py-4" :href="`/building/${item.id}/time-sheet`">
+                <span class="whitespace-nowrap rounded bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700">Wpisz godziny</span>
               </Link>
             </td>
           </tr>
@@ -299,6 +335,7 @@ export default {
     zmiany_kadrowe: { type: Array, default: () => [] },
     zmiany_kadrowe_licznik: { type: Number, default: 0 },
     bez_a1: { type: Array, default: () => [] },
+    nieobecni_dzis: { type: Array, default: () => [] },
     expiring_items: Array,
     organizations_user: Object,
     organizations_biuro: Object,
@@ -322,6 +359,13 @@ export default {
     },
     widoczneBezA1() {
       return this.wszystkieBezA1 ? this.bez_a1 : this.bez_a1.slice(0, 5)
+    },
+    // Brak wpisu to zadanie dla kadr, wygasłe A1 — do odnowienia. Bez tego
+    // podziału cała lista wyglądała jak jeden fałszywy alarm.
+    licznikA1() {
+      const wygasle = this.bez_a1.filter((p) => p.ostatni_a1).length
+
+      return { wygasle, brak: this.bez_a1.length - wygasle }
     },
   },
   watch: {
