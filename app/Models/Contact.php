@@ -151,7 +151,15 @@ class Contact extends Model
             if ($status === 'na_budowie') {
                 $query->whereIn('id', $activeSub);
             } elseif ($status === 'dostepni') {
-                $query->whereNotIn('id', $activeSub);
+                // "Dostępny" ma znaczyć "można go wysłać na budowę", więc poza
+                // wolnym terminem liczy się też to, że nadal pracuje w firmie.
+                // Inaczej zwolniony figurował tu jako dostępny, a przy
+                // przypisywaniu do budowy nie było go na liście.
+                $query->whereNotIn('id', $activeSub)
+                    ->where(function ($q) {
+                        $q->whereNull('status_zatrudnienia')
+                            ->orWhere('status_zatrudnienia', '!=', self::STATUS_ZWOLNIONY);
+                    });
             }
         });
     }
