@@ -149,7 +149,7 @@ class PowtorneprzypisanieTest extends TestCase
         $this->assertStringContainsString('już przypisany do tej budowy', session('error'));
     }
 
-    public function test_zarchiwizowana_budowa_w_komunikacie_nie_straszy(): void
+    public function test_zarchiwizowana_budowa_jest_w_komunikacie_nazwana(): void
     {
         $c = $this->pracownik($this->monter);
         $this->pobyt($c, $this->budowaA, '2026-09-01', '2026-12-22');
@@ -158,6 +158,7 @@ class PowtorneprzypisanieTest extends TestCase
 
         $this->przypisz($c, $this->budowaB, '2026-10-01', '2026-11-30');
 
-        $this->assertStringContainsString('już usunięta', session('error'));
+        // Nazwa zostaje — samo "usunięta" nie mówiło, o którą budowę chodzi.
+        $this->assertStringContainsString('Berkes Lachendorf (w archiwum)', session('error'));
     }
 }

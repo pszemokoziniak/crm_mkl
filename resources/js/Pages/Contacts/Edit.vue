@@ -138,8 +138,14 @@
       <div class="px-6 py-4">
         <div v-if="przypisania.length" class="space-y-1">
           <div v-for="p in przypisania" :key="p.id" class="flex flex-wrap items-center gap-x-3 text-sm">
-            <Link :href="`/budowy/${p.organization_id}/edit`" class="font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
-              {{ p.nazwaBud || 'budowa usunięta' }}
+            <!-- Budowa w archiwum zachowuje nazwę, ale bez odnośnika —
+                 to zapis historyczny, nie miejsce, do którego się wchodzi. -->
+            <span v-if="p.budowa_w_archiwum" class="font-medium text-gray-500">
+              {{ p.nazwaBud || 'budowa usunięta z bazy' }}
+              <span class="text-xs font-normal text-gray-400">(w archiwum)</span>
+            </span>
+            <Link v-else :href="`/budowy/${p.organization_id}/edit`" class="font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
+              {{ p.nazwaBud || 'budowa usunięta z bazy' }}
             </Link>
             <span class="text-gray-500">{{ p.start }} → {{ p.end || 'bez końca' }}</span>
           </div>
@@ -192,7 +198,8 @@
             <div v-if="kolidujacePobyty.length" class="mt-3 p-3 text-red-700 bg-red-50 border border-red-200 rounded space-y-1">
               <p class="font-semibold">Uwaga — w tym samym czasie pracownik jest już na budowie:</p>
               <p v-for="(pobyt, i) in kolidujacePobyty" :key="i">
-                <span class="font-semibold">{{ pobyt.nazwaBud || 'budowa usunięta' }}</span>
+                <span class="font-semibold">{{ pobyt.nazwaBud || 'budowa usunięta z bazy' }}</span>
+                <span v-if="pobyt.budowa_w_archiwum" class="text-xs text-gray-400">(w archiwum)</span>
                 — od {{ pobyt.start }} do {{ pobyt.end || 'bez końca' }}
               </p>
               <p v-if="czyKierownictwo" class="text-xs">
