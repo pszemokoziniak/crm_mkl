@@ -65,7 +65,9 @@ class PbiozController extends Controller
     public function create(Contact $contact)
     {
         $contact_id = $contact->id;
-        return Inertia('Pbioz/Create', compact('contact_id'));
+        return Inertia('Pbioz/Create', compact('contact_id') + [
+            'pracownik' => $this->danePracownika($contact),
+        ]);
     }
 
     public function store(StorePbiozRequest $req, $contact_id)

@@ -65,7 +65,9 @@ class A1Controller extends Controller
         $contact_id = $contact->id;
         $countries = KrajTyp::orderByName()->get();
 //        $a1s   = A1::all();
-        return Inertia('A1/Create', compact('contact_id', 'countries'));
+        return Inertia('A1/Create', compact('contact_id', 'countries') + [
+            'pracownik' => $this->danePracownika($contact),
+        ]);
     }
 
     public function store(StoreA1Request $req, $contact_id)

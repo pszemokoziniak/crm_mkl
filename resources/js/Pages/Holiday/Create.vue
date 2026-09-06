@@ -1,10 +1,8 @@
 <template>
   <div>
     <Head title="Dodaj nieobecność" />
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" :href="`/contacts/${contact_id}/holiday`">Nieobecności</Link>
-      <span class="text-indigo-400 font-medium">/</span> Dodaj
-    </h1>
+    <worker-menu :contact-id="contact_id" />
+    <pracownik-naglowek :contact-id="pracownik ? pracownik.id : contact_id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Nieobecności — dodaj" />
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store()">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -36,6 +34,8 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import PracownikNaglowek from '@/Shared/PracownikNaglowek'
+import WorkerMenu from '@/Shared/WorkerMenu'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
@@ -43,6 +43,8 @@ import LoadingButton from '@/Shared/LoadingButton'
 
 export default {
   components: {
+    PracownikNaglowek,
+    WorkerMenu,
     Head,
     Link,
     LoadingButton,
@@ -51,6 +53,7 @@ export default {
   },
   layout: Layout,
   props: {
+    pracownik: { type: Object, default: null },
     contact_id: Number,
     powody: { type: Array, default: () => [] },
     pobyty: { type: Array, default: () => [] },

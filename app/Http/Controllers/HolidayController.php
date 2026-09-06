@@ -38,6 +38,8 @@ class HolidayController extends Controller
         $contact_id = $contact->id;
 
         return Inertia('Holiday/Create', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'contact_id' => $contact_id,
             'powody' => $this->powody(),
             // Do ostrzeżenia o kolizji: pobyty pracownika na budowach.

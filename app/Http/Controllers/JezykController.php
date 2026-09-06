@@ -61,7 +61,9 @@ class JezykController extends Controller
     {
         $contact_id = $contact->id;
         $jezykTyps = JezykTyp::all();
-        return Inertia('Jezyk/Create', compact('contact_id', 'jezykTyps'));
+        return Inertia('Jezyk/Create', compact('contact_id', 'jezykTyps') + [
+            'pracownik' => $this->danePracownika($contact),
+        ]);
     }
 
     public function store(StoreJezykRequest $req, $contact_id)

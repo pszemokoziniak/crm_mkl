@@ -27,7 +27,7 @@
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/uprawnienia`">
             <div :class="isUrl('uprawnienia') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Uprawnienia</div>
           </Link>
-          <Link v-if="userOwner !== 3" class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/documents`">
+          <Link v-if="rola !== 3" class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/documents`">
             <div :class="isUrl('documents') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Dokumenty</div>
           </Link>
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/jezyk`">
@@ -42,7 +42,7 @@
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/history`">
             <div :class="isUrl('history') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Historia</div>
           </Link>
-          <Link v-if="userOwner !== 3" class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/umowa`">
+          <Link v-if="rola !== 3" class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/umowa`">
             <div :class="isUrl('umowa') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Umowa</div>
           </Link>
         </div>
@@ -63,6 +63,14 @@ export default {
     contactId:Number,
     uprawnienia: Object,
     userOwner:Number,
+  },
+  computed: {
+    // Rola bywa podana wprost, a bywa, że strona jej nie przekazuje —
+    // wtedy bierzemy ją z danych zalogowanego użytkownika, żeby kierownik
+    // nie zobaczył pozycji, do których i tak nie ma dostępu.
+    rola() {
+      return this.userOwner ?? this.$page.props.auth?.user?.owner
+    },
   },
   methods: {
     isUrl(...urls) {
