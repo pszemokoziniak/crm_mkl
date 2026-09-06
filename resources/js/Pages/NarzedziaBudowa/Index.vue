@@ -14,7 +14,8 @@
         <thead>
           <tr class="text-left font-bold bg-gray-50 border-b border-gray-100">
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Nazwa sprzętu / Szczegóły</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Łączna ilość</th>
+            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Sztuk</th>
+            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Badania techniczne</th>
             <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-right">Akcje</th>
           </tr>
         </thead>
@@ -33,47 +34,47 @@
                   {{ group.total_qty }}
                 </span>
               </td>
+              <td class="px-6 py-3">
+                <span v-if="doSprawdzenia(group) > 0" class="text-xs font-semibold text-red-700">
+                  {{ doSprawdzenia(group) }} do sprawdzenia
+                </span>
+              </td>
               <td class="px-6 py-3" />
             </tr>
             <!-- Wiersze szczegółowe (poszczególne egzemplarze) -->
             <tr v-for="item in group.items" :key="item.id" class="hover:bg-gray-50 transition-colors">
-              <td class="px-12 py-3">
-                <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
-                  <span class="text-gray-500">
-                    S/N:
-                    <span class="font-medium text-gray-800">{{ item.numer_seryjny && item.numer_seryjny !== '-' ? item.numer_seryjny : '—' }}</span>
-                  </span>
-                  <span class="text-gray-500">
-                    Termin:
-                    <span class="font-medium text-gray-800">{{ item.od || '—' }}<span v-if="item.do"> – {{ item.do }}</span></span>
-                  </span>
-                  <span class="inline-flex items-center gap-1.5 text-gray-500">
-                    Badania:
-                    <span v-if="!item.waznosc_badan" class="text-gray-400">brak daty</span>
-                    <span
-                      v-else
-                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
-                      :class="isExpired(item.waznosc_badan) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'"
-                    >
-                      {{ item.waznosc_badan }}
-                      <span v-if="isExpired(item.waznosc_badan)" class="ml-1">· po terminie</span>
-                    </span>
-                  </span>
-                </div>
+              <td class="px-12 py-3 text-sm">
+                <span class="text-gray-500">S/N:</span>
+                <span class="font-medium text-gray-800">{{ item.numer_seryjny && item.numer_seryjny !== '-' ? item.numer_seryjny : '—' }}</span>
+                <span class="ml-4 text-gray-500">na budowie:</span>
+                <span class="text-gray-700">{{ item.od || '—' }}<span v-if="item.do"> – {{ item.do }}</span></span>
               </td>
-              <td class="px-6 py-3 text-center text-sm text-gray-500">
-                ilość: {{ item.narzedzia_nb }}
+              <td class="px-6 py-3 text-center text-sm text-gray-500">1 szt.</td>
+              <td class="px-6 py-3 text-sm">
+                <!-- Termin badań rzuca się w oczy, gdy minął albo mija. -->
+                <span :class="klasaBadan(item.badania_status)">
+                  {{ item.waznosc_badan || 'brak daty' }}
+                </span>
+                <span v-if="item.badania_status === 'po_terminie'" class="ml-1 text-xs font-semibold text-red-700">po terminie</span>
+                <span v-else-if="item.badania_status === 'wkrotce'" class="ml-1 text-xs font-semibold text-orange-700">kończy się</span>
               </td>
-              <td class="px-6 py-3 text-right">
-                <div class="flex items-center justify-end space-x-3">
-                  <Link :href="$page.props.permissions.kierownik ? '' : `/budowy/${organization.id}/narzedzia/${item.id}/edit`" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                    Edytuj
-                  </Link>
-                  <delete-button
-                    :href="`/budowy/${organization.id}/narzedzia/${item.id}/destroy`"
-                    confirm="Czy na pewno chcesz usunąć to narzędzie z budowy?"
-                  />
-                </div>
+              <td class="px-6 py-3 text-right whitespace-nowrap">
+                <Link
+                  v-if="!$page.props.permissions.kierownik"
+                  :href="`/budowy/${organization.id}/narzedzia/${item.id}/edit`"
+                  class="text-indigo-600 hover:underline"
+                >
+                  Popraw daty
+                </Link>
+                <button
+                  v-if="!$page.props.permissions.kierownik"
+                  type="button"
+                  class="ml-3 text-red-600 hover:underline"
+                  @click="usun(item.id)"
+                >
+                  Usuń
+                </button>
+                <span v-if="$page.props.permissions.kierownik" class="text-gray-400">—</span>
               </td>
             </tr>
           </template>
@@ -100,7 +101,6 @@ import Layout from '@/Shared/Layout.vue'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 import BudMenu from '@/Shared/BudMenu.vue'
-import DeleteButton from '@/Shared/DeleteButton.vue'
 import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
 
 
@@ -111,7 +111,6 @@ export default {
     Head,
     Icon,
     Link,
-    DeleteButton,
     SearchFilterNoFiltr,
   },
   layout: Layout,
@@ -136,12 +135,22 @@ export default {
     },
   },
   methods: {
+    doSprawdzenia(group) {
+      return group.items.filter((i) => ['po_terminie', 'wkrotce'].includes(i.badania_status)).length
+    },
+    klasaBadan(status) {
+      if (status === 'po_terminie') return 'text-red-700 font-semibold'
+      if (status === 'wkrotce') return 'text-orange-700 font-semibold'
+      if (status === 'brak') return 'text-gray-400'
+      return 'text-gray-700'
+    },
+    usun(id) {
+      if (confirm('Zdjąć ten sprzęt z budowy?')) {
+        this.$inertia.delete(`/budowy/${this.organization.id}/narzedzia/${id}/destroy`)
+      }
+    },
     reset() {
       this.form = mapValues(this.form, () => null)
-    },
-    isExpired(date) {
-      if (!date) return false
-      return new Date(date) < new Date()
     },
   },
 }

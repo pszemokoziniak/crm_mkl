@@ -31,8 +31,9 @@ class ToolWorkDatesController extends Controller
         return $workers;
     }
 
-    public function index(Organization $organization)
+    public function index(Organization $organization, MagazynSprzetu $magazyn)
     {
+        $dzis = Carbon::today()->toDateString();
         $tools = ToolWorkDate::with('narzedzia')
             ->where('organization_id', $organization->id)
             ->filter(\Illuminate\Support\Facades\Request::only('search', 'trashed'))
@@ -40,11 +41,11 @@ class ToolWorkDatesController extends Controller
 
         $groupedTools = $tools->groupBy(function ($item) {
             return $item->narzedzia ? $item->narzedzia->name : 'Nieznane';
-        })->map(function ($group, $name) {
+        })->map(function ($group, $name) use ($magazyn, $dzis) {
             return [
                 'name' => $name,
                 'total_qty' => $group->sum('narzedzia_nb'),
-                'items' => $group->map(function ($item) {
+                'items' => $group->map(function ($item) use ($magazyn, $dzis) {
                     // waznosc_badan bywa surowym Carbon (pełne ISO) albo zepsutą
                     // datą (np. rok 0001) — formatujemy i odsiewamy nierealne.
                     $badania = optional($item->narzedzia)->waznosc_badan;
@@ -58,6 +59,10 @@ class ToolWorkDatesController extends Controller
                         'narzedzia_nb' => $item->narzedzia_nb,
                         'numer_seryjny' => optional($item->narzedzia)->numer_seryjny ?: '-',
                         'waznosc_badan' => $badaniaData,
+                        // Ta sama skala pilności co w magazynie.
+                        'badania_status' => $item->narzedzia
+                            ? $magazyn->statusBadan($item->narzedzia, $dzis)
+                            : 'brak',
                         // Termin pobytu sprzętu na budowie — od kiedy tu stoi.
                         'od' => $item->start ? (string) $item->start : null,
                         'do' => $item->end ? (string) $item->end : null,

@@ -167,6 +167,33 @@ class SprzetNaBudowieTest extends TestCase
         $this->assertSame(0, ToolWorkDate::count());
     }
 
+    public function test_lista_sprzetu_budowy_podaje_status_badan(): void
+    {
+        $poTerminie = $this->sztuka('SN-STARE', now()->subMonth()->toDateString());
+        $wkrotce = $this->sztuka('SN-WKROTCE', now()->addDays(10)->toDateString());
+        $wazne = $this->sztuka('SN-OK', now()->addYear()->toDateString());
+
+        foreach ([$poTerminie, $wkrotce, $wazne] as $sztuka) {
+            ToolWorkDate::create([
+                'narzedzia_id' => $sztuka->id,
+                'organization_id' => $this->budowa->id,
+                'narzedzia_nb' => 1,
+                'start' => '2026-09-01',
+                'end' => null,
+            ]);
+        }
+
+        $odpowiedz = $this->actingAs($this->biuro)->get('/budowy/'.$this->budowa->id.'/narzedzia');
+        $odpowiedz->assertOk();
+
+        $sztuki = collect($odpowiedz->viewData('page')['props']['groupedTools'][0]['items'])
+            ->keyBy('numer_seryjny');
+
+        $this->assertSame('po_terminie', $sztuki['SN-STARE']['badania_status']);
+        $this->assertSame('wkrotce', $sztuki['SN-WKROTCE']['badania_status']);
+        $this->assertSame('wazne', $sztuki['SN-OK']['badania_status']);
+    }
+
     public function test_zdjecie_z_budowy_zwalnia_sztuke(): void
     {
         $a = $this->sztuka('SN-A');

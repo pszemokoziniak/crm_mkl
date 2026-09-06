@@ -62,10 +62,10 @@
       <h3 class="p-4 text-xl font-medium">Aktualne kierownictwo</h3>
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
-          <th class="pb-4 pt-6 px-6">Czas Pracy</th>
-          <th class="pb-4 pt-6 px-6">Stanowisko</th>
-          <th class="pb-4 pt-6 px-6">Akcje</th>
+          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Nazwisko Imię</th>
+          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Czas pracy</th>
+          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Stanowisko</th>
+          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-right">Akcje</th>
         </tr>
         <tr v-for="item in management" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t px-6 py-4">
@@ -77,10 +77,10 @@
           <td class="border-t px-6 py-4">
             {{ item.name }}
           </td>
-          <td class="border-t px-6 py-4">
+          <td class="border-t px-6 py-4 text-right whitespace-nowrap">
             <template v-if="!$page.props.permissions.kierownik">
-              <Link class="text-indigo-600 hover:underline mr-4" :href="`/pracownicy/${organization.id}/edit/${item.id}`">Popraw</Link>
-              <button class="text-red-600 hover:underline" @click="destroy(item.id)">Usuń</button>
+              <Link class="text-indigo-600 hover:underline" :href="`/pracownicy/${organization.id}/edit/${item.id}`">Popraw daty</Link>
+              <button type="button" class="ml-3 text-red-600 hover:underline" @click="destroy(item.id)">Usuń</button>
             </template>
             <span v-else class="text-gray-400">—</span>
           </td>
