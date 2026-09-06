@@ -77,7 +77,9 @@ class BadaniaController extends Controller
     {
         $contact_id = $contact->id;
         $badanias = BadaniaTyp::all();
-        return Inertia('Badania/Create', compact('contact_id', 'badanias'));
+        return Inertia('Badania/Create', compact('contact_id', 'badanias') + [
+            'pracownik' => $this->danePracownika($contact),
+        ]);
     }
 
     public function store(StoreBadaniaRequest $req, $contact_id)

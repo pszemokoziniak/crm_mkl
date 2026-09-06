@@ -70,7 +70,9 @@ class BhpController extends Controller
     {
         $contact_id = $contact->id;
         $bhpTyps = BhpTyp::all();
-        return Inertia('Bhp/Create', compact('contact_id', 'bhpTyps'));
+        return Inertia('Bhp/Create', compact('contact_id', 'bhpTyps') + [
+            'pracownik' => $this->danePracownika($contact),
+        ]);
     }
 
     public function store(StoreBhpRequest $req, $contact_id)

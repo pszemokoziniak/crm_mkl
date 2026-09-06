@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDocumentRequest;
 use App\Models\CtnDocument;
+use App\Models\Contact;
 use App\Models\DokumentyTyp;
 use App\Services\DocumentService;
 use Illuminate\Http\RedirectResponse;
@@ -34,8 +35,12 @@ class CtnDocumentsController extends Controller
 
     public function create(): Response
     {
+        // Trasa podaje samo id, nie model — dociągamy pracownika do nagłówka.
+        $contactId = (int) Request::route('contact_id');
+
         return Inertia::render('CtnDocuments/Create', [
-            'contactId' => Request::route('contact_id'),
+            'pracownik' => $this->danePracownika(Contact::withTrashed()->find($contactId)),
+            'contactId' => $contactId,
             'dokumentyTyps' => DokumentyTyp::all()
         ]);
     }

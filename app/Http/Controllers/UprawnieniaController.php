@@ -73,7 +73,9 @@ class UprawnieniaController extends Controller
     {
         $contact_id = $contact->id;
         $uprawnieniaTyps = UprawnieniaTyp::all();
-        return Inertia('Uprawnienia/Create', compact('contact_id', 'uprawnieniaTyps'));
+        return Inertia('Uprawnienia/Create', compact('contact_id', 'uprawnieniaTyps') + [
+            'pracownik' => $this->danePracownika($contact),
+        ]);
     }
 
     public function store(StoreUprawnieniaRequest $req, $contact_id)
