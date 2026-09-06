@@ -38,7 +38,7 @@ class ZmianyKadroweController extends Controller
                 'osob' => $grupa->pluck('contact_id')->unique()->count(),
                 'autor' => $grupa->first()['autor'],
                 'kiedy' => $grupa->first()['kiedy'],
-                'nieobsluzonych' => $grupa->where('status', '!=', ZmianaKadrowa::STATUS_GOTOWA)->count(),
+                'nieobsluzonych' => $grupa->whereNotIn('status', ZmianaKadrowa::STATUSY_ZAMKNIETE)->count(),
                 'naglowek' => $this->naglowekPaczki($grupa),
             ])
             ->values();
@@ -58,6 +58,7 @@ class ZmianyKadroweController extends Controller
                 ZmianaKadrowa::STATUS_NOWA,
                 ZmianaKadrowa::STATUS_W_PRZYGOTOWANIU,
                 ZmianaKadrowa::STATUS_GOTOWA,
+                ZmianaKadrowa::STATUS_BEZ_ANEKSU,
             ])],
             'id' => ['required_without:paczka', 'integer'],
             'paczka' => ['required_without:id', 'string'],
@@ -68,7 +69,9 @@ class ZmianyKadroweController extends Controller
             ? ZmianaKadrowa::where('paczka', $dane['paczka'])
             : ZmianaKadrowa::where('id', $dane['id']);
 
-        $gotowa = $dane['status'] === ZmianaKadrowa::STATUS_GOTOWA;
+        // Zamknięcie to i "umowa gotowa", i "bez aneksu" — w obu przypadkach
+        // odnotowujemy, kto i kiedy sprawę domknął.
+        $gotowa = in_array($dane['status'], ZmianaKadrowa::STATUSY_ZAMKNIETE, true);
 
         $query->get()->each(function (ZmianaKadrowa $zmiana) use ($dane, $gotowa) {
             $zmiana->update([
@@ -93,6 +96,9 @@ class ZmianyKadroweController extends Controller
             'pracownik' => $z->contact
                 ? trim($z->contact->last_name.' '.$z->contact->first_name)
                 : 'pracownik usunięty',
+            // Zwolniony trafia do archiwum, ale nazwisko zostaje — kadry
+            // muszą wiedzieć, kogo sprawa dotyczyła.
+            'pracownik_w_archiwum' => (bool) optional($z->contact)->deleted_at,
             'contact_id' => $z->contact_id,
             'typ' => $z->typ,
             'typ_label' => $z->typLabel(),

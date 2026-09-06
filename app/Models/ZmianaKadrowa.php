@@ -26,6 +26,11 @@ class ZmianaKadrowa extends Model
     public const STATUS_NOWA = 'nowa';
     public const STATUS_W_PRZYGOTOWANIU = 'w_przygotowaniu';
     public const STATUS_GOTOWA = 'gotowa';
+    /** Sprawa zamknięta bez dokumentu — np. pracownik po prostu zjechał z budowy. */
+    public const STATUS_BEZ_ANEKSU = 'bez_aneksu';
+
+    /** Statusy, po których sprawa nie czeka już na kadry. */
+    public const STATUSY_ZAMKNIETE = [self::STATUS_GOTOWA, self::STATUS_BEZ_ANEKSU];
 
     protected $fillable = [
         'contact_id',
@@ -56,7 +61,9 @@ class ZmianaKadrowa extends Model
 
     public function contact(): BelongsTo
     {
-        return $this->belongsTo(Contact::class);
+        // withTrashed, żeby nazwisko nie znikało po przeniesieniu pracownika
+        // do archiwum — kadry muszą wiedzieć, kogo dotyczył wpis.
+        return $this->belongsTo(Contact::class)->withTrashed();
     }
 
     public function budowaZ(): BelongsTo
@@ -81,7 +88,7 @@ class ZmianaKadrowa extends Model
 
     public function scopeNieobsluzone(Builder $query): Builder
     {
-        return $query->where('status', '!=', self::STATUS_GOTOWA);
+        return $query->whereNotIn('status', self::STATUSY_ZAMKNIETE);
     }
 
     public function typLabel(): string
@@ -102,6 +109,7 @@ class ZmianaKadrowa extends Model
             self::STATUS_NOWA => 'Nowa',
             self::STATUS_W_PRZYGOTOWANIU => 'W przygotowaniu',
             self::STATUS_GOTOWA => 'Umowa gotowa',
+            self::STATUS_BEZ_ANEKSU => 'Zamknięta bez aneksu',
         ][$this->status] ?? $this->status;
     }
 }
