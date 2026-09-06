@@ -103,6 +103,13 @@ class BudowaPracownicyController extends Controller
                     ->coveringDate(Carbon::today()->toDateString())])
                 ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
                 ->where('contact_work_dates.organization_id', $organization->id)
+                // Kierownictwo ma własną zakładkę — tutaj tylko obsada budowy,
+                // żeby te same nazwiska nie figurowały w dwóch miejscach.
+                // Osoba bez stanowiska zostaje: NOT IN samo z siebie pomija NULL.
+                ->where(function ($query) {
+                    $query->whereNotIn('contacts.funkcja_id', Funkcja::kierownictwoIds())
+                        ->orWhereNull('contacts.funkcja_id');
+                })
                 ->tap(fn ($query) => $this->sortowanie($query, $dzis))
                 ->select('contact_work_dates.*') // Select only columns from contact_work_dates table
                 ->filter(Request::only('search', 'trashed'))
@@ -349,15 +356,31 @@ class BudowaPracownicyController extends Controller
         // w Ustawieniach, nie lista zaszyta w kodzie.
         $funkcjeKierownictwa = Funkcja::kierownictwoIds();
 
-        $management = DB::table('contact_work_dates', 'cwd')
-            ->select('cwd.id', 'cwd.contact_id', 'contacts.first_name', 'contacts.last_name', 'cwd.start', 'cwd.end', 'funkcjas.name')
-            ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
-            ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
-            ->where('cwd.organization_id', $organization->id)
-            ->whereNull('cwd.deleted_at')
+        $dzis = Carbon::today()->toDateString();
+
+        // Te same dane co na liście pracowników, żeby obie zakładki mówiły
+        // to samo — w tym o nieobecnościach, których dotąd tu nie było widać.
+        $management = ContactWorkDate::with([
+                'contact' => fn ($q) => $q->withTrashed()->with('funkcja'),
+                'contact.holidays' => fn ($q) => $q->with('shiftStatus')->coveringDate($dzis),
+            ])
+            ->join('contacts', 'contact_work_dates.contact_id', '=', 'contacts.id')
+            ->where('contact_work_dates.organization_id', $organization->id)
             ->whereIn('contacts.funkcja_id', $funkcjeKierownictwa)
-            ->orderBy('last_name')
-            ->get();
+            ->orderByRaw('contacts.last_name COLLATE utf8mb4_polish_ci asc')
+            ->select('contact_work_dates.*')
+            ->get()
+            ->map(fn (ContactWorkDate $w) => [
+                'id' => $w->id,
+                'contact_id' => $w->contact_id,
+                'first_name' => optional($w->contact)->first_name,
+                'last_name' => optional($w->contact)->last_name,
+                'name' => optional(optional($w->contact)->funkcja)->name,
+                'start' => $w->start,
+                'end' => $w->end,
+                'on_site' => $w->end === null || (string) $w->end >= $dzis,
+                'nieobecnosc' => optional(optional($w->contact)->holidays->first())->label,
+            ]);
 
         $specialists = Contact::query()
             ->join('funkcjas', 'contacts.funkcja_id', '=', 'funkcjas.id')
