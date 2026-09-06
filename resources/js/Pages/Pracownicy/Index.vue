@@ -53,6 +53,7 @@
             <th v-if="mozeEdytowac" class="py-4 px-3 w-px">
               <input type="checkbox" class="form-checkbox" :checked="wszystkieZaznaczone" @change="przelaczWszystkie" />
             </th>
+            <th class="py-4 px-4 w-px whitespace-nowrap">Lp.</th>
             <th class="py-4 px-4">
               <button type="button" class="uppercase tracking-wider hover:text-indigo-600" @click="sortuj('nazwisko')">
                 Nazwisko Imię<span class="ml-1 text-xs text-gray-400">{{ strzalka('nazwisko') }}</span>
@@ -73,10 +74,12 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr v-for="item in contactworkdates.data" :key="item.id" class="hover:bg-gray-50">
+          <tr v-for="(item, index) in contactworkdates.data" :key="item.id" class="hover:bg-gray-50">
             <td v-if="mozeEdytowac" class="px-3 py-3">
               <input v-model="zaznaczone" type="checkbox" class="form-checkbox" :value="item.id" />
             </td>
+            <!-- Numeracja ciągła przez wszystkie strony, stąd "from" z paginacji. -->
+            <td class="px-4 py-3 text-gray-400 tabular-nums">{{ contactworkdates.from + index }}</td>
             <td v-if="item.contact" class="px-4 py-3">
               <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${item.contact.id}/edit`">
                 {{ item.contact.last_name }} {{ item.contact.first_name }}
@@ -105,7 +108,7 @@
             </td>
           </tr>
           <tr v-if="contactworkdates.data.length === 0">
-            <td class="px-4 py-6 text-gray-500" colspan="6">Nie znaleziono pracownika</td>
+            <td class="px-4 py-6 text-gray-500" colspan="7">Nie znaleziono pracownika</td>
           </tr>
         </tbody>
       </table>

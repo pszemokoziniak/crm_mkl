@@ -135,6 +135,20 @@ class SortowaniePracownikowBudowyTest extends TestCase
         $this->assertSame(['Borek', 'Adamski'], $this->nazwiska('?sort=cokolwiek'));
     }
 
+    public function test_lista_niesie_dane_do_liczby_porzadkowej(): void
+    {
+        $this->pobyt('Adamski', null);
+        $this->pobyt('Borek', null);
+
+        $odpowiedz = $this->actingAs($this->biuro)->get('/pracownicy/'.$this->budowa->id);
+        $lista = $odpowiedz->viewData('page')['props']['contactworkdates'];
+
+        // Numeracja liczy się od "from", żeby na drugiej stronie nie zaczynała
+        // się znowu od jedynki.
+        $this->assertSame(1, $lista['from']);
+        $this->assertCount(2, $lista['data']);
+    }
+
     public function test_widok_wie_jakie_sortowanie_jest_wybrane(): void
     {
         $this->pobyt('Adamski', null);
