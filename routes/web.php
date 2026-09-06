@@ -874,10 +874,6 @@ Route::delete('funkcja/{funkcja}', [FunkcjaController::class, 'destroy'])
         ->middleware('auth', 'biuro-permission');
 
 
-Route::put('funkcja/{account}/restore', [FunkcjaController::class, 'restore'])
-    ->name('funkcja.restore')
-        ->middleware('auth', 'biuro-permission');
-
 
 // Dokumenty Typ
 

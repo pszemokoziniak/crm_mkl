@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
 use App\Models\Funkcja;
-use App\Models\Account;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -39,18 +39,46 @@ class FunkcjaController extends Controller
 
     public function destroy(Funkcja $funkcja)
     {
+        // Stanowisko trzyma się kartotek pracowników kluczem obcym, więc
+        // usunięcie używanego kończyło się błędem bazy. Sprawdzamy wcześniej
+        // i mówimy, co stoi na przeszkodzie.
+        $czynni = Contact::where('funkcja_id', $funkcja->id)->count();
+        $wArchiwum = Contact::onlyTrashed()->where('funkcja_id', $funkcja->id)->count();
+
+        if ($czynni + $wArchiwum > 0) {
+            return Redirect::route('funkcja')->with('error', $this->komunikatOUzyciu($funkcja, $czynni, $wArchiwum));
+        }
+
         $funkcja->delete();
 
-        // return Redirect::back()->with('success', 'Objekt usunięty.');
-        return Redirect::route('funkcja')->with('success', 'Usunięto.');
+        return Redirect::route('funkcja')->with('success', 'Stanowisko usunięte.');
     }
 
-    public function restore(Account $account)
+    /**
+     * Osobno czynni i ci z archiwum — stanowisko potrafi wyglądać na puste,
+     * a i tak nie da się go usunąć przez jedną zarchiwizowaną kartotekę.
+     */
+    private function komunikatOUzyciu(Funkcja $funkcja, int $czynni, int $wArchiwum): string
     {
-        $account->restore();
+        $czesci = [];
 
-        return Redirect::back()->with('success', 'Objekt przywrócony.');
+        if ($czynni > 0) {
+            $czesci[] = $czynni.' '.$this->odmien($czynni, 'pracownika', 'pracowników');
+        }
+
+        if ($wArchiwum > 0) {
+            $czesci[] = $wArchiwum.' '.$this->odmien($wArchiwum, 'pracownika', 'pracowników').' w archiwum';
+        }
+
+        return 'Stanowisko „'.$funkcja->name.'" jest przypisane do '.implode(' i ', $czesci)
+            .' — nie można go usunąć. Najpierw zmień im stanowisko.';
     }
+
+    private function odmien(int $ile, string $pojedynczo, string $mnogo): string
+    {
+        return $ile === 1 ? $pojedynczo : $mnogo;
+    }
+
 
     public function update(Funkcja $funkcja)
     {
