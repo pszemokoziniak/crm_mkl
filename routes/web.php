@@ -1143,7 +1143,7 @@ Route::get('reports', [ReportsController::class, 'index'])
 
 Route::get('reports/koniecUprawinien', [ReportsController::class, 'koniecUprawinien'])
     ->name('reports.koniecUprawinien')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 // Tools

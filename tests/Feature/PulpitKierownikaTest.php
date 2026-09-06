@@ -8,7 +8,9 @@ use App\Models\Account;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
+use App\Models\Holiday;
 use App\Models\Organization;
+use App\Models\ShiftStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -166,6 +168,141 @@ class PulpitKierownikaTest extends TestCase
         $this->assertSame(0, $terminy->where('status', 'dalej')->count(), 'Odległy termin nie powinien tu trafiać.');
         $this->assertSame(2, $props['stats']['wygasajace']);
         $this->assertLessThan(0, $terminy->firstWhere('status', 'po_terminie')['dni']);
+    }
+
+    public function test_lista_bez_a1_rozroznia_brak_wpisu_od_wygaslego(): void
+    {
+        $zWygaslym = $this->pracownikNaBudowie('Wygasly', $this->mojaBudowa);
+        $this->pracownikNaBudowie('Bezwpisu', $this->mojaBudowa);
+
+        \App\Models\A1::create([
+            'contact_id' => $zWygaslym->id,
+            'start' => now()->subYears(2)->toDateString(),
+            'end' => now()->subMonth()->toDateString(),
+        ]);
+
+        $props = $this->actingAs($this->kierownik)->get('/')->viewData('page')['props'];
+        $lista = collect($props['bez_a1'])->keyBy('last_name');
+
+        $this->assertSame(now()->subMonth()->toDateString(), $lista['Wygasly']['ostatni_a1']);
+        $this->assertNull($lista['Bezwpisu']['ostatni_a1']);
+    }
+
+    public function test_pulpit_pokazuje_kto_dzis_jest_nieobecny(): void
+    {
+        $urlopId = ShiftStatus::create(['title' => 'Urlop wypoczynkowy', 'code' => 'UW'])->id;
+
+        $naUrlopie = $this->pracownikNaBudowie('Urlopowicz', $this->mojaBudowa);
+        $this->pracownikNaBudowie('Obecny', $this->mojaBudowa);
+        $obcy = $this->pracownikNaBudowie('Obcy', $this->cudzaBudowa);
+
+        foreach ([$naUrlopie, $obcy] as $c) {
+            Holiday::create([
+                'contact_id' => $c->id,
+                'shift_status_id' => $urlopId,
+                'start' => now()->subDay()->toDateString(),
+                'end' => now()->addDays(3)->toDateString(),
+            ]);
+        }
+
+        $props = $this->actingAs($this->kierownik)->get('/')->viewData('page')['props'];
+        $nieobecni = collect($props['nieobecni_dzis']);
+
+        $this->assertCount(1, $nieobecni, 'Cudza budowa i osoby obecne nie powinny tu trafiać.');
+        $this->assertSame('Urlopowicz Jan', $nieobecni->first()['pracownik']);
+        $this->assertSame('Urlop wypoczynkowy', $nieobecni->first()['powod']);
+        $this->assertSame($naUrlopie->id, $nieobecni->first()['contact_id']);
+    }
+
+    public function test_zakonczona_nieobecnosc_nie_wisi_na_pulpicie(): void
+    {
+        $urlopId = ShiftStatus::create(['title' => 'Urlop wypoczynkowy', 'code' => 'UW'])->id;
+        $pracownik = $this->pracownikNaBudowie('Wrocil', $this->mojaBudowa);
+
+        Holiday::create([
+            'contact_id' => $pracownik->id,
+            'shift_status_id' => $urlopId,
+            'start' => now()->subDays(10)->toDateString(),
+            'end' => now()->subDays(2)->toDateString(),
+        ]);
+
+        $props = $this->actingAs($this->kierownik)->get('/')->viewData('page')['props'];
+
+        $this->assertSame([], (array) $props['nieobecni_dzis']);
+    }
+
+    public function test_biuro_nie_dostaje_listy_nieobecnych_na_pulpicie(): void
+    {
+        $biuro = User::factory()->create([
+            'account_id' => $this->accountId,
+            'email' => 'biuro2@mkl.pl',
+            'owner' => 2,
+            'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        $props = $this->actingAs($biuro)->get('/')->viewData('page')['props'];
+
+        $this->assertSame([], (array) $props['nieobecni_dzis']);
+    }
+
+    public function test_kierownik_wchodzi_w_raport_terminow_ale_widzi_tylko_swoich(): void
+    {
+        $moj = $this->pracownikNaBudowie('Mojski', $this->mojaBudowa);
+        $obcy = $this->pracownikNaBudowie('Obcy', $this->cudzaBudowa);
+
+        $typ = \App\Models\BhpTyp::create(['name' => 'Szkolenie okresowe']);
+
+        foreach ([$moj, $obcy] as $c) {
+            \App\Models\Bhp::create([
+                'contact_id' => $c->id,
+                'bhpTyp_id' => $typ->id,
+                'start' => now()->subYear()->toDateString(),
+                'end' => now()->addDays(10)->toDateString(),
+            ]);
+        }
+
+        $props = $this->actingAs($this->kierownik)
+            ->get('/reports/koniecUprawinien')
+            ->assertOk()
+            ->viewData('page')['props'];
+
+        $nazwiska = collect($props['data'])->pluck('last_name');
+        $this->assertContains('Mojski', $nazwiska);
+        $this->assertNotContains('Obcy', $nazwiska);
+
+        $braki = collect($props['braki'])->pluck('name');
+        $this->assertTrue($braki->contains(fn ($n) => str_contains($n, 'Mojski')));
+        $this->assertFalse($braki->contains(fn ($n) => str_contains($n, 'Obcy')));
+    }
+
+    public function test_biuro_dalej_widzi_w_raporcie_wszystkich(): void
+    {
+        $biuro = User::factory()->create([
+            'account_id' => $this->accountId,
+            'email' => 'biuro3@mkl.pl',
+            'owner' => 2,
+            'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        $this->pracownikNaBudowie('Mojski', $this->mojaBudowa);
+        $obcy = $this->pracownikNaBudowie('Obcy', $this->cudzaBudowa);
+
+        $typ = \App\Models\BhpTyp::create(['name' => 'Szkolenie okresowe']);
+        \App\Models\Bhp::create([
+            'contact_id' => $obcy->id,
+            'bhpTyp_id' => $typ->id,
+            'start' => now()->subYear()->toDateString(),
+            'end' => now()->addDays(10)->toDateString(),
+        ]);
+
+        $props = $this->actingAs($biuro)
+            ->get('/reports/koniecUprawinien')
+            ->assertOk()
+            ->viewData('page')['props'];
+
+        $this->assertContains('Obcy', collect($props['data'])->pluck('last_name'));
     }
 
     public function test_biuro_dalej_widzi_wszystko(): void
