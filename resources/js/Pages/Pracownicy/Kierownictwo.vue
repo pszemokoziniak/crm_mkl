@@ -62,20 +62,29 @@
       <h3 class="p-4 text-xl font-medium">Aktualne kierownictwo</h3>
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
+          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 w-px whitespace-nowrap">Lp.</th>
           <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Nazwisko Imię</th>
           <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Czas pracy</th>
           <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Stanowisko</th>
+          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Na budowie</th>
           <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-right">Akcje</th>
         </tr>
-        <tr v-for="item in management" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <tr v-for="(item, index) in management" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <td class="border-t px-6 py-4 text-gray-400 tabular-nums">{{ index + 1 }}</td>
           <td class="border-t px-6 py-4">
             {{ item.last_name }} {{ item.first_name }}
           </td>
-          <td class="border-t px-6 py-4">
-            od: {{ item.start }} do: {{ item.end }}
+          <td class="border-t px-6 py-4 tabular-nums">
+            <span class="block whitespace-nowrap">od: {{ item.start }}</span>
+            <span class="block whitespace-nowrap">do: {{ item.end }}</span>
           </td>
           <td class="border-t px-6 py-4">
             {{ item.name }}
+          </td>
+          <td class="border-t px-6 py-4">
+            <span :class="klasaStatusu(item)" class="inline-block px-2.5 py-0.5 text-xs font-medium border rounded-full">
+              {{ etykietaStatusu(item) }}
+            </span>
           </td>
           <td class="border-t px-6 py-4 text-right whitespace-nowrap">
             <template v-if="!$page.props.permissions.kierownik">
@@ -86,7 +95,7 @@
           </td>
         </tr>
         <tr v-if="management.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Brak przypisanego kierownictwa.</td>
+          <td class="px-6 py-4 border-t" colspan="6">Brak przypisanego kierownictwa.</td>
         </tr>
       </table>
     </div>
@@ -145,6 +154,23 @@ export default {
     },
   },
   methods: {
+    /** Nieobecność ma pierwszeństwo: należy do budowy, ale dziś go nie ma. */
+    etykietaStatusu(item) {
+      if (item.on_site && item.nieobecnosc) {
+        return item.nieobecnosc
+      }
+
+      return item.on_site ? 'Pracuje' : `Zakończony ${item.end}`
+    },
+    klasaStatusu(item) {
+      if (item.on_site && item.nieobecnosc) {
+        return 'text-yellow-800 bg-yellow-100 border-yellow-200'
+      }
+
+      return item.on_site
+        ? 'text-green-800 bg-green-100 border-green-200'
+        : 'text-gray-600 bg-gray-100 border-gray-200'
+    },
     openConfirm() {
       if (!this.form.contact_id || !this.form.start || !this.form.end) {
         // Braki w formularzu pokaże zwykła walidacja po stronie serwera.
