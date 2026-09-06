@@ -11,6 +11,7 @@ use App\Models\Narzedzia;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
@@ -32,7 +33,11 @@ class DashboardController extends Controller
         $contact_id = $contact ? $contact->id : null;
 
         $now = now()->format('Y-m-d');
-        $in30Days = now()->addDays(30)->format('Y-m-d');
+        // Okno terminów: od dawna minione też trzeba widzieć — pracownik
+        // z nieważnym badaniem nie powinien być na budowie, a dotąd
+        // przeterminowane w ogóle się tu nie pokazywały.
+        $in30Days = now()->addDays(60)->format('Y-m-d');
+        $odKiedy = now()->subYear()->format('Y-m-d');
 
         $expiringItems = collect();
         $myOrgIds = collect();
@@ -47,27 +52,27 @@ class DashboardController extends Controller
             $uprawnieniaQuery = Uprawnienia::with(['uprawnieniaTyp'])
                 ->join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
                 ->whereNull('contacts.deleted_at')
-                ->whereBetween('end', [$now, $in30Days])
+                ->whereBetween('end', [$odKiedy, $in30Days])
                 ->select('uprawnienias.*');
 
             // Badania
             $badaniaQuery = Badania::with(['badaniaTyp'])
                 ->join('contacts', 'badanias.contact_id', '=', 'contacts.id')
                 ->whereNull('contacts.deleted_at')
-                ->whereBetween('end', [$now, $in30Days])
+                ->whereBetween('end', [$odKiedy, $in30Days])
                 ->select('badanias.*');
 
             // BHP
             $bhpQuery = Bhp::with(['bhpTyp'])
                 ->join('contacts', 'bhps.contact_id', '=', 'contacts.id')
                 ->whereNull('contacts.deleted_at')
-                ->whereBetween('end', [$now, $in30Days])
+                ->whereBetween('end', [$odKiedy, $in30Days])
                 ->select('bhps.*');
 
             // PBIOZ
             $pbiozQuery = Pbioz::join('contacts', 'pbiozs.contact_id', '=', 'contacts.id')
                 ->whereNull('contacts.deleted_at')
-                ->whereBetween('end', [$now, $in30Days])
+                ->whereBetween('end', [$odKiedy, $in30Days])
                 ->select('pbiozs.*');
 
             // Filtrowanie pracowników, którzy są OBECNIE na budowie
@@ -97,7 +102,9 @@ class DashboardController extends Controller
             $bhp = $bhpQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Szkolenie BHP', $item->bhpTyp->name ?? 'Brak typu', $now));
             $pbioz = $pbiozQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'PBIOZ', 'PBIOZ', $now));
 
-            $expiringItems = $uprawnienia->concat($badania)->concat($bhp)->concat($pbioz)->sortBy('end')->values();
+            $expiringItems = $uprawnienia->concat($badania)->concat($bhp)->concat($pbioz)
+                ->sortBy('end')
+                ->values();
         }
 
         $organizations_user = collect();
@@ -210,13 +217,13 @@ class DashboardController extends Controller
                     ->whereNull('deleted_at')
                     ->count(),
                 'sprzet' => null,
-                'wygasajace' => $expiringItems->count(),
+                'wygasajace' => $expiringItems->whereIn('status', ['po_terminie', 'wkrotce'])->count(),
             ]
             : [
                 'pracownicy' => Contact::count(),
                 'budowy' => Organization::tylkoBudowy()->count(),
                 'sprzet' => Narzedzia::count(),
-                'wygasajace' => $expiringItems->count(),
+                'wygasajace' => $expiringItems->whereIn('status', ['po_terminie', 'wkrotce'])->count(),
             ];
 
         // Zmiany pobytów czekające na kadry — dział HR to uprawnienia biuro.
@@ -290,9 +297,14 @@ class DashboardController extends Controller
             ->activeOn($now)
             ->first();
 
+        $koniec = Carbon::parse($item->end)->startOfDay();
+        $dni = (int) Carbon::parse($now)->startOfDay()->diffInDays($koniec, false);
+
         return [
             'id' => $item->id,
             'end' => $item->end,
+            'dni' => $dni,
+            'status' => $dni < 0 ? 'po_terminie' : ($dni <= 30 ? 'wkrotce' : 'dalej'),
             'category' => $category,
             'type' => $type,
             'contact' => [

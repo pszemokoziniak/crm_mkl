@@ -81,10 +81,20 @@
           <h2 class="font-semibold text-gray-700">{{ kierownik ? 'Twoi pracownicy bez ważnego A1' : 'Pracownicy bez ważnego A1' }}</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="bez_a1.length ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">{{ bez_a1.length }}</span>
         </div>
-        <div class="max-h-72 overflow-y-auto">
-          <Link v-for="p in bez_a1" :key="p.id" :href="`/contacts/${p.id}/a1`" class="block px-6 py-3 border-t border-gray-50 hover:bg-gray-50 text-sm">
+        <!-- Lista bywa długa i spychała resztę pulpitu poza ekran, więc
+             domyślnie pokazujemy kilka nazwisk. -->
+        <div>
+          <Link v-for="p in widoczneBezA1" :key="p.id" :href="`/contacts/${p.id}/a1`" class="block px-6 py-2 border-t border-gray-50 hover:bg-gray-50 text-sm">
             {{ p.last_name }} {{ p.first_name }}
           </Link>
+          <button
+            v-if="bez_a1.length > 5"
+            type="button"
+            class="w-full px-6 py-2 text-sm text-left text-indigo-600 border-t border-gray-50 hover:bg-gray-50"
+            @click="wszystkieBezA1 = !wszystkieBezA1"
+          >
+            {{ wszystkieBezA1 ? 'zwiń' : `pokaż wszystkich (${bez_a1.length})` }}
+          </button>
           <p v-if="!bez_a1.length" class="px-6 py-4 text-sm text-gray-400">Brak — wszyscy przypisani mają ważne A1.</p>
         </div>
       </div>
@@ -93,7 +103,10 @@
     <div v-if="expiring_items.length > 0" class="mb-8">
       <div class="flex items-center mb-4">
         <icon name="eligibility" class="mr-2 w-5 h-5 fill-red-600" />
-        <h2 class="text-xl font-bold text-red-600">Kończące się terminy (najbliższe 30 dni)</h2>
+        <h2 class="text-xl font-bold text-red-600">
+          Terminy do pilnowania
+          <span class="text-sm font-normal text-gray-500">— po terminie i kończące się w 60 dni</span>
+        </h2>
       </div>
       <div class="bg-white rounded-md shadow overflow-x-auto">
         <table class="w-full whitespace-nowrap">
@@ -103,6 +116,7 @@
               <th class="pb-4 pt-6 px-6">Kategoria</th>
               <th class="pb-4 pt-6 px-6">Rodzaj / Typ</th>
               <th class="pb-4 pt-6 px-6">Data końcowa</th>
+              <th class="pb-4 pt-6 px-6">Stan</th>
               <th class="pb-4 pt-6 px-6">Obecna budowa</th>
             </tr>
           </thead>
@@ -122,8 +136,11 @@
               <td class="border-t px-6 py-4">
                 {{ item.type }}
               </td>
-              <td class="border-t px-6 py-4 font-bold text-red-600">
+              <td class="border-t px-6 py-4 font-bold tabular-nums" :class="klasaTerminu(item)">
                 {{ item.end }}
+              </td>
+              <td class="border-t px-6 py-4 text-sm">
+                <span :class="klasaTerminu(item)">{{ opisTerminu(item) }}</span>
               </td>
               <td class="border-t">
                 <Link v-if="item.organization" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="user_owner[1] === 3 ? `/building/${item.organization.id}/time-sheet` : `/budowy/${item.organization.id}/edit`">
@@ -291,6 +308,7 @@ export default {
   },
   data() {
     return {
+      wszystkieBezA1: false,
       form: {
         search: this.filters.search,
         trashed: this.filters.trashed,
@@ -302,6 +320,9 @@ export default {
     kierownik() {
       return this.user_owner[1] === 3
     },
+    widoczneBezA1() {
+      return this.wszystkieBezA1 ? this.bez_a1 : this.bez_a1.slice(0, 5)
+    },
   },
   watch: {
     form: {
@@ -312,6 +333,15 @@ export default {
     },
   },
   methods: {
+    opisTerminu(item) {
+      if (item.dni < 0) return `po terminie od ${Math.abs(item.dni)} dni`
+      if (item.dni === 0) return 'kończy się dziś'
+      return `zostało ${item.dni} dni`
+    },
+    klasaTerminu(item) {
+      if (item.dni < 0) return 'text-red-700'
+      return item.dni <= 30 ? 'text-orange-700' : 'text-gray-600'
+    },
     reset() {
       this.form = mapValues(this.form, () => null)
     },

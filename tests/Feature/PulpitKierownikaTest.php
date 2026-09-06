@@ -138,6 +138,36 @@ class PulpitKierownikaTest extends TestCase
             });
     }
 
+    public function test_pulpit_pokazuje_przeterminowane_dokumenty(): void
+    {
+        $pracownik = $this->pracownikNaBudowie('Mojski', $this->mojaBudowa);
+
+        $typ = \App\Models\BhpTyp::create(['name' => 'Szkolenie okresowe']);
+        // Jedno po terminie, jedno kończące się wkrótce, jedno odległe.
+        foreach ([
+            now()->subMonths(2)->toDateString(),
+            now()->addDays(10)->toDateString(),
+            now()->addYears(2)->toDateString(),
+        ] as $koniec) {
+            \App\Models\Bhp::create([
+                'contact_id' => $pracownik->id,
+                'bhpTyp_id' => $typ->id,
+                'start' => now()->subYear()->toDateString(),
+                'end' => $koniec,
+            ]);
+        }
+
+        $props = $this->actingAs($this->kierownik)->get('/')->viewData('page')['props'];
+        $terminy = collect($props['expiring_items']);
+
+        // Przeterminowane dotąd w ogóle się nie pokazywały.
+        $this->assertSame(1, $terminy->where('status', 'po_terminie')->count());
+        $this->assertSame(1, $terminy->where('status', 'wkrotce')->count());
+        $this->assertSame(0, $terminy->where('status', 'dalej')->count(), 'Odległy termin nie powinien tu trafiać.');
+        $this->assertSame(2, $props['stats']['wygasajace']);
+        $this->assertLessThan(0, $terminy->firstWhere('status', 'po_terminie')['dni']);
+    }
+
     public function test_biuro_dalej_widzi_wszystko(): void
     {
         $biuro = User::factory()->create([
