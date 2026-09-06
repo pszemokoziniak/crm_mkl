@@ -70,6 +70,11 @@
               <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${zmiana.contact_id}/edit`">
                 {{ zmiana.pracownik }}
               </Link>
+              <!-- Zwolniony trafia do archiwum — nazwisko zostaje, żeby wiadomo
+                   było, kogo wpis dotyczył. -->
+              <span v-if="zmiana.pracownik_w_archiwum" class="block text-[10px] text-gray-400">
+                w archiwum
+              </span>
             </td>
             <td class="px-6 py-3 text-gray-700">
               {{ zmiana.typ_label }}
@@ -110,15 +115,25 @@
                 Biorę
               </button>
               <button
-                v-if="zmiana.status !== 'gotowa'"
+                v-if="!zamknieta(zmiana.status)"
                 type="button"
-                class="text-xs text-green-700 hover:underline"
+                class="text-xs text-green-700 hover:underline mr-3"
                 @click="zmienStatus({ id: zmiana.id, status: 'gotowa' })"
               >
                 Umowa gotowa
               </button>
+              <!-- Zjazd z budowy bez kolejnej roboty: nie ma czego aneksować,
+                   a sprawa i tak musi zejść z listy kadr. -->
               <button
-                v-else
+                v-if="!zamknieta(zmiana.status)"
+                type="button"
+                class="text-xs text-gray-600 hover:underline"
+                @click="zamknijBezAneksu(zmiana)"
+              >
+                Bez aneksu
+              </button>
+              <button
+                v-if="zamknieta(zmiana.status)"
                 type="button"
                 class="text-xs text-gray-400 hover:underline"
                 @click="zmienStatus({ id: zmiana.id, status: 'nowa' })"
@@ -155,6 +170,18 @@ export default {
     zmienStatus(dane) {
       this.$inertia.put('/zmiany-kadrowe', dane, { preserveScroll: true })
     },
+    zamknieta(status) {
+      return status === 'gotowa' || status === 'bez_aneksu'
+    },
+    zamknijBezAneksu(zmiana) {
+      const pytanie = `Zamknąć bez aneksu: ${zmiana.pracownik} — ${zmiana.typ_label}?\n\n`
+        + 'Użyj tego, gdy do zmiany nie trzeba żadnego dokumentu (np. pracownik zjechał z budowy). '
+        + 'Wpis zostaje w rejestrze, tylko przestaje czekać na kadry.'
+
+      if (confirm(pytanie)) {
+        this.zmienStatus({ id: zmiana.id, status: 'bez_aneksu' })
+      }
+    },
     zamknij(dane, pytanie) {
       if (confirm(pytanie)) {
         this.zmienStatus({ ...dane, status: 'gotowa' })
@@ -165,6 +192,7 @@ export default {
         nowa: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         w_przygotowaniu: 'bg-blue-100 text-blue-800 border-blue-200',
         gotowa: 'bg-green-100 text-green-800 border-green-200',
+        bez_aneksu: 'bg-gray-100 text-gray-700 border-gray-300',
       }[status] || 'bg-gray-100 text-gray-800 border-gray-200'
     },
   },
