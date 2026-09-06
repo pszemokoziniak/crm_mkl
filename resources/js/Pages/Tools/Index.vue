@@ -29,6 +29,9 @@
       <Link class="btn-indigo mr-5" :href="`/shiftStatusTyp`">
         <span>Godziny Pracy</span>
       </Link>
+      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/logowania`">
+        <span>Rejestr logowań</span>
+      </Link>
       <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/narzedziaTyp`">
         <span>Narzędzia Typ</span>
       </Link>

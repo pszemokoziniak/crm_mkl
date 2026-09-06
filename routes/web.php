@@ -9,6 +9,7 @@ use App\Http\Controllers\BhpTypController;
 use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
+use App\Http\Controllers\LogowaniaController;
 use App\Http\Controllers\PodszywanieController;
 use App\Http\Controllers\CtnDocumentsController;
 use App\Http\Controllers\DashboardController;
@@ -1146,6 +1147,11 @@ Route::get('reports/koniecUprawinien', [ReportsController::class, 'koniecUprawin
 
 
 // Tools
+
+// Rejestr logowań — tylko administrator
+Route::get('logowania', [LogowaniaController::class, 'index'])
+    ->name('logowania')
+    ->middleware('auth', 'admin-permission');
 
 Route::get('tools', [ToolsController::class, 'index'])
     ->name('tools')

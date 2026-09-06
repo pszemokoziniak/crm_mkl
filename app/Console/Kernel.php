@@ -20,6 +20,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('kadry:powiadom-mailem')
             ->everyFiveMinutes()
             ->withoutOverlapping();
+
+        // Rejestr logowań trzymamy rok — reszta znika sama.
+        $schedule->command('logowania:posprzataj')->dailyAt('03:30');
     }
 
     /**
