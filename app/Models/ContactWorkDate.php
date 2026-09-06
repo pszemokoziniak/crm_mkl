@@ -26,7 +26,9 @@ class ContactWorkDate extends Model
 
     public function organization(): BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        // withTrashed, bo archiwizacja budowy nie kasuje pobytów — bez tego
+        // historia pracownika pokazywała "budowa usunięta" zamiast nazwy.
+        return $this->belongsTo(Organization::class)->withTrashed();
     }
 
     public function contact(): BelongsTo

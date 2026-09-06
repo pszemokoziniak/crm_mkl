@@ -130,6 +130,7 @@ class ContactsController extends Controller
                 'id' => $w->id,
                 'organization_id' => $w->organization_id,
                 'nazwaBud' => optional($w->organization)->nazwaBud,
+                'budowa_w_archiwum' => (bool) optional($w->organization)->deleted_at,
                 'start' => $w->start,
                 'end' => $w->end,
             ]);
@@ -155,6 +156,7 @@ class ContactsController extends Controller
             ->get()
             ->map(fn (ContactWorkDate $w) => [
                 'nazwaBud' => optional($w->organization)->nazwaBud,
+                'budowa_w_archiwum' => (bool) optional($w->organization)->deleted_at,
                 'start' => $w->start,
                 'end' => $w->end,
             ]);

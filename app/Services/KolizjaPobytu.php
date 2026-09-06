@@ -47,7 +47,10 @@ class KolizjaPobytu
             return null;
         }
 
-        $nazwa = optional($inna->organization)->nazwaBud ?? 'inna budowa (już usunięta)';
+        $budowa = $inna->organization;
+        $nazwa = $budowa
+            ? $budowa->nazwaBud.($budowa->deleted_at ? ' (w archiwum)' : '')
+            : 'inna budowa (usunięta z bazy)';
 
         return 'Pracownik jest w tym terminie na budowie: '.$nazwa.' ('.$this->termin($inna).'). '
             .'Najpierw skróć tamten pobyt.';
