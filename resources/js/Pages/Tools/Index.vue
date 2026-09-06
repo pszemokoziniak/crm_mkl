@@ -1,66 +1,94 @@
 <template>
   <div>
-    <Head title="Narzędzia" />
-    <h1 class="mb-8 text-3xl font-bold">Ustawiania</h1>
-    <!-- Biuro (kadry) widzi tylko słowniki, do których ma dostęp —
-         reszta zostaje przy administratorze. -->
-    <div class="grid grid-cols-4 gap-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-2">
-      <Link class="btn-indigo mr-5" :href="`/funkcja`">
-        <span>Stanowisko</span>
-      </Link>
-      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/badaniaTyp`">
-        <span>Badania Lekarskie</span>
-      </Link>
-      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/bhpTyp`">
-        <span>Szkolenia BHP</span>
-      </Link>
-<!--      <Link class="btn-indigo mr-5" :href="`/uprawnieniaTyp`">-->
-<!--        <span>Uprawnienia</span>-->
-<!--      </Link>-->
-      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/jezykTyp`">
-        <span>Języki</span>
-      </Link>
-      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/krajTyp`">
-        <span>Kraj</span>
-      </Link>
-      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/dokumentyTyp`">
-        <span>Dokumenty</span>
-      </Link>
-      <Link class="btn-indigo mr-5" :href="`/shiftStatusTyp`">
-        <span>Godziny Pracy</span>
-      </Link>
-      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/logowania`">
-        <span>Rejestr logowań</span>
-      </Link>
-      <Link v-if="$page.props.permissions.admin" class="btn-indigo mr-5" :href="`/narzedziaTyp`">
-        <span>Narzędzia Typ</span>
-      </Link>
-      <Link class="btn-indigo mr-5" :href="`/uprawnieniaTyp`">
-        <span>Uprawnienia Typ</span>
-      </Link>
-      <Link class="btn-indigo mr-5" :href="`/ustawienia`">
-        <span>Wykres prognozy</span>
+    <Head title="Ustawienia" />
+    <h1 class="mb-6 text-3xl font-bold">Ustawienia</h1>
+
+    <!-- Trzy grupy, żeby nie szukać jednego kafelka wśród dwunastu. -->
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-gray-200">
+      <button
+        v-for="zakladka in widoczneZakladki"
+        :key="zakladka.klucz"
+        type="button"
+        class="px-4 py-2 -mb-px text-sm font-medium border-b-2"
+        :class="wybrana === zakladka.klucz
+          ? 'border-indigo-600 text-indigo-700'
+          : 'border-transparent text-gray-500 hover:text-gray-800'"
+        @click="wybrana = zakladka.klucz"
+      >
+        {{ zakladka.nazwa }}
+      </button>
+    </div>
+
+    <p class="mb-4 text-sm text-gray-500">{{ opisWybranej }}</p>
+
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <Link v-for="kafelek in widoczneKafelki" :key="kafelek.adres" class="btn-indigo text-center" :href="kafelek.adres">
+        <span>{{ kafelek.nazwa }}</span>
       </Link>
     </div>
-  </div>
 
+    <p v-if="widoczneKafelki.length === 0" class="text-sm text-gray-400">
+      Nic tu dla Twoich uprawnień.
+    </p>
+  </div>
 </template>
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
-// import Icon from '@/Shared/Icon'
-
-import {  } from '@inertiajs/inertia-vue3'
-
 import Layout from '@/Shared/Layout'
 
 export default {
-  components: {
-    Head,
-    Link,
-    // Icon,
-  },
+  components: { Head, Link },
   layout: Layout,
+  data() {
+    return {
+      wybrana: 'slowniki',
+      zakladki: [
+        { klucz: 'logowania', nazwa: 'Logowania', opis: 'Kto i kiedy wchodził do systemu.' },
+        { klucz: 'slowniki', nazwa: 'Słowniki', opis: 'Listy, z których wybiera się wartości w kartotekach.' },
+        { klucz: 'ustawienia', nazwa: 'Ustawienia', opis: 'Zachowanie samego systemu.' },
+      ],
+      kafelki: [
+        { zakladka: 'logowania', nazwa: 'Rejestr logowań', adres: '/logowania', tylkoAdmin: true },
 
+        { zakladka: 'slowniki', nazwa: 'Stanowisko', adres: '/funkcja', tylkoAdmin: false },
+        { zakladka: 'slowniki', nazwa: 'Godziny Pracy', adres: '/shiftStatusTyp', tylkoAdmin: false },
+        { zakladka: 'slowniki', nazwa: 'Uprawnienia Typ', adres: '/uprawnieniaTyp', tylkoAdmin: false },
+        { zakladka: 'slowniki', nazwa: 'Badania Lekarskie', adres: '/badaniaTyp', tylkoAdmin: true },
+        { zakladka: 'slowniki', nazwa: 'Szkolenia BHP', adres: '/bhpTyp', tylkoAdmin: true },
+        { zakladka: 'slowniki', nazwa: 'Języki', adres: '/jezykTyp', tylkoAdmin: true },
+        { zakladka: 'slowniki', nazwa: 'Kraj', adres: '/krajTyp', tylkoAdmin: true },
+        { zakladka: 'slowniki', nazwa: 'Dokumenty', adres: '/dokumentyTyp', tylkoAdmin: true },
+        { zakladka: 'slowniki', nazwa: 'Narzędzia Typ', adres: '/narzedziaTyp', tylkoAdmin: true },
+
+        { zakladka: 'ustawienia', nazwa: 'Wykres prognozy', adres: '/ustawienia', tylkoAdmin: false },
+      ],
+    }
+  },
+  computed: {
+    admin() {
+      return !!this.$page.props.permissions.admin
+    },
+    dostepneKafelki() {
+      return this.kafelki.filter((k) => this.admin || !k.tylkoAdmin)
+    },
+    // Zakładka bez ani jednego kafelka dla tych uprawnień w ogóle się nie pokazuje.
+    widoczneZakladki() {
+      return this.zakladki.filter((z) => this.dostepneKafelki.some((k) => k.zakladka === z.klucz))
+    },
+    widoczneKafelki() {
+      return this.dostepneKafelki.filter((k) => k.zakladka === this.wybrana)
+    },
+    opisWybranej() {
+      const z = this.zakladki.find((x) => x.klucz === this.wybrana)
+      return z ? z.opis : ''
+    },
+  },
+  mounted() {
+    // Kadry nie widzą Logowań, więc otwieramy pierwszą zakładkę, którą widzą.
+    if (!this.widoczneZakladki.some((z) => z.klucz === this.wybrana)) {
+      this.wybrana = this.widoczneZakladki.length ? this.widoczneZakladki[0].klucz : ''
+    }
+  },
 }
 </script>
