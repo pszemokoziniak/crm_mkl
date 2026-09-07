@@ -86,12 +86,26 @@ class User extends Authenticatable
         $query->orderBy('last_name')->orderBy('first_name');
     }
 
+    /**
+     * Filtr uprawnien na liscie uzytkownikow.
+     *
+     * Dotad rozumial tylko 'user' i 'owner' z czasow PingCRM, a formularz
+     * wysylal numery rol — switch nie trafial w zaden przypadek i zapytanie
+     * wracalo nietkniete. Filtr wygladal wiec na dzialajacy, a pokazywal
+     * zawsze komplet uzytkownikow.
+     */
     public function scopeWhereRole($query, $role)
     {
-        switch ($role) {
-            case 'user': return $query->where('owner', false);
-            case 'owner': return $query->where('owner', true);
+        if (in_array((int) $role, Role::values(), true)) {
+            return $query->where('owner', (int) $role);
         }
+
+        // Stare wartosci zostawiamy — moga jeszcze siedziec w czyims zakladce.
+        return match ($role) {
+            'user' => $query->whereIn('owner', [Role::KIEROWNIK->value]),
+            'owner' => $query->whereIn('owner', Role::officeValues()),
+            default => $query,
+        };
     }
 
     public function scopeFilter($query, array $filters)

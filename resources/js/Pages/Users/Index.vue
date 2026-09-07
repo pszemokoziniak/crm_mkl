@@ -7,9 +7,7 @@
         <label class="block text-gray-700">Uprawnienia:</label>
         <select v-model="form.role" class="form-select mt-1 w-full">
           <option :value="null" />
-          <option value="1">Kierownik Budowy</option>
-          <option value="2">Biuro</option>
-          <option value="3">Zarząd</option>
+          <option v-for="rola in OPCJE_ROL" :key="rola.wartosc" :value="String(rola.wartosc)">{{ rola.etykieta }}</option>
         </select>
         <label class="block mt-4 text-gray-700">Archiwum:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
@@ -26,7 +24,7 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
+          <th class="pb-4 pt-6 px-6">Nazwisko i imię</th>
           <th class="pb-4 pt-6 px-6">Email</th>
           <th class="pb-4 pt-6 px-6">Uprawnienia</th>
           <th class="pb-4 pt-6 px-6">Logowanie</th>
@@ -36,7 +34,7 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/users/${user.id}/edit`">
               <img v-if="user.photo" class="block -my-2 mr-2 w-5 h-5 rounded-full" :src="user.photo" />
-              {{ user.name }}
+              {{ user.last_name }} {{ user.first_name }}
               <icon v-if="user.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
@@ -87,7 +85,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
-import { etykietaRoli } from '@/role'
+import { etykietaRoli, OPCJE_ROL } from '@/role'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 import SearchFilter from '@/Shared/SearchFilter'
@@ -106,6 +104,7 @@ export default {
   },
   data() {
     return {
+      OPCJE_ROL,
       form: {
         search: this.filters.search,
         role: this.filters.role,

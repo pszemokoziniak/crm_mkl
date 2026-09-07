@@ -29,6 +29,10 @@ class UsersController extends Controller
                 ->transform(fn ($user) => [
                     'id' => $user->id,
                     'name' => $user->name,
+                    // Osobno, bo lista pokazuje nazwisko przed imieniem —
+                    // tak samo jak listy pracowników, i tak samo się sortuje.
+                    'last_name' => $user->last_name,
+                    'first_name' => $user->first_name,
                     'email' => $user->email,
                     'owner' => $user->owner,
                     'contact_id' => $user->user_id,
