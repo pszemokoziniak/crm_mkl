@@ -1,164 +1,144 @@
 <template>
   <div>
-    <Head title="Badania" />
-    <div>
-      <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
-    </div>
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ contact.first_name }} {{ contact.last_name }}
-    </h1>
-    <h1 class="mb-8 text-3xl font-bold">PBiOZ</h1>
-    <div class="flex items-center justify-between mb-6">
-      <Link v-if="userOwner !== 3" class="btn-indigo" :href="`/contacts/${contact.id}/pbioz/create`">
+    <Head title="PBIOZ" />
+    <WorkerMenu :contactId="contactId" :userOwner="userOwner" />
+
+    <PracownikNaglowek :contact-id="contactId" :nazwa="pracownik" tytul="PBIOZ" />
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <label class="flex items-center gap-2 text-sm text-gray-600">
+        <input type="checkbox" class="form-checkbox" :checked="pokazKosz" @change="przelaczKosz" />
+        <span>Pokaż usunięte</span>
+      </label>
+      <Link v-if="!kierownik" class="btn-indigo" :href="`/contacts/${contactId}/pbioz/create`">
         <span>Dodaj</span>
       </Link>
     </div>
+
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Start</th>
-          <th class="pb-4 pt-6 px-6">Koniec</th>
-        </tr>
-        <tr v-for="item in pbioz.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/pbioz/${item.id}/edit`">
-              {{ item.name }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/pbioz/${item.id}/edit`">
-              {{ item.start }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/pbioz/${item.id}/edit`">
-              {{ item.end }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/pbioz/${item.id}/edit`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-          </td>
-        </tr>
-        <!-- <tr v-if="accounts.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pozycji</td>
-        </tr> -->
+        <thead>
+          <tr class="text-left font-bold">
+            <th class="pb-4 pt-6 px-6">Nazwa</th>
+            <th class="pb-4 pt-6 px-6">Od</th>
+            <th class="pb-4 pt-6 px-6">Do</th>
+            <th class="pb-4 pt-6 px-6">Stan</th>
+            <th class="pb-4 pt-6 px-6" />
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in wiersze"
+            :key="item.id"
+            class="hover:bg-gray-100 focus-within:bg-gray-100"
+            :class="item.deleted_at ? 'text-gray-400' : ''"
+          >
+            <td class="border-t px-6 py-4">
+              <!-- Kierownik ma tu podgląd, więc zamiast martwego href="" tekst. -->
+              <Link v-if="!kierownik" class="focus:text-indigo-500" :href="`/contacts/${contactId}/pbioz/${item.id}/edit`">
+                {{ item.name || '—' }}
+              </Link>
+              <span v-else>{{ item.name || '—' }}</span>
+              <span v-if="item.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+            </td>
+            <td class="border-t px-6 py-4 tabular-nums">{{ item.start || '—' }}</td>
+            <td class="border-t px-6 py-4 tabular-nums font-medium" :class="klasaTerminu(item)">{{ item.end || '—' }}</td>
+            <td class="border-t px-6 py-4 text-sm" :class="klasaTerminu(item)">{{ opisTerminu(item) }}</td>
+            <td class="border-t px-6 py-4 text-right">
+              <button
+                v-if="!kierownik && item.deleted_at"
+                type="button"
+                class="text-sm text-indigo-600 hover:text-indigo-800"
+                @click="przywroc(item)"
+              >Przywróć</button>
+              <button
+                v-else-if="!kierownik"
+                type="button"
+                class="text-sm text-red-600 hover:text-red-800"
+                @click="usun(item)"
+              >Usuń</button>
+            </td>
+          </tr>
+          <tr v-if="wiersze.length === 0">
+            <td class="px-6 py-6 border-t text-gray-400" colspan="5">Brak wpisów dla tego pracownika.</td>
+          </tr>
+        </tbody>
       </table>
     </div>
-    <h1 class="m-4 font-bold">Dodane pliki</h1>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
-      <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Plik</th>
-          <th class="pb-4 pt-6 px-6">Typ</th>
-          <th class="pb-4 pt-6 px-6 text-center">Akcje</th>
-        </tr>
-        <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <!-- Nazwa też pobiera plik. Wcześniej wisiało tu wywołanie metody
-                 download(), której nie ma w żadnym z tych widoków — klik
-                 w nazwę kończył się błędem w konsoli i niczym więcej. -->
-            <a
-              target="_blank"
-              :href="`/contacts/${contactId}/documents/${document.id}`"
-              class="flex items-center px-6 py-4 focus:text-indigo-500 hover:text-indigo-600"
-            >{{ document.name }}</a>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.dokumentytyp.name }}</Link>
-          </td>
-          <td class="border-t">
-            <div class="flex justify-end">
-              <div class="text-center px-4 py-2 m-2">
-                <a target="_blank" :href="'/contacts/' + contactId + '/documents/'+ document.id" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-                  <DocumentDownloadIcon class="h-5 w-5 text-indigo-500" />
-                  <span>Pobierz</span>
-                </a>
-              </div>
-              <div v-if="userOwner !== 3" class="text-center px-4 py-2 m-2">
-                <a class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center cursor-pointer" target="_blank" @click="removeDocument(document.id)" >
-                  <TrashIcon class="h-5 w-5 text-indigo-500" />
-                  <span>Usuń</span>
-                </a>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr v-if="documents.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono dokumentów</td>
-        </tr>
-      </table>
-    </div>
-    <!-- <pagination class="mt-6" :links="accounts.links" /> -->
+    <pagination v-if="pbioz.links" class="mt-4" :links="pbioz.links" />
+
+    <SkanyDokumentow
+      :contact-id="contactId"
+      :documents="documents"
+      :kierownik="kierownik"
+      tytul="Skany PBIOZ"
+      trasa-usuwania="pbioz"
+    />
   </div>
 </template>
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
-import Icon from '@/Shared/Icon'
-import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
-import throttle from 'lodash/throttle'
-import mapValues from 'lodash/mapValues'
+import Pagination from '@/Shared/Pagination'
+import PracownikNaglowek from '@/Shared/PracownikNaglowek'
+import SkanyDokumentow from '@/Shared/SkanyDokumentow'
 import WorkerMenu from '@/Shared/WorkerMenu'
-import {DocumentDownloadIcon, TrashIcon} from '@heroicons/vue/solid'
-
 
 export default {
-  components: {
-    Head,
-    Icon,
-    Link,
-    WorkerMenu,
-    DocumentDownloadIcon,
-    TrashIcon,
-  },
+  components: { Head, Link, Pagination, PracownikNaglowek, SkanyDokumentow, WorkerMenu },
   layout: Layout,
   props: {
-    pbioz: Object,
+    filters: { type: Object, default: () => ({}) },
+    pracownik: { type: String, default: '' },
     contact: Object,
-    badanias: Object,
-    badaniaTyp: Object,
+    pbioz: Object,
     documents: Object,
     userOwner: Number,
   },
-  mounted: function () {
-    // console.log(this.bads)
-  },
-  data() {
-    return {
-      contactId: this.contact.id,
-      form: {
-        // search: this.filters.search,
-        // trashed: this.filters.trashed,
-      },
-    }
-  },
-  watch: {
-    form: {
-      deep: true,
-      handler: throttle(function () {
-        this.$inertia.get('/badania', pickBy(this.form), { preserveState: true })
-      }, 150),
+  computed: {
+    contactId() {
+      return this.contact.id
+    },
+    kierownik() {
+      return this.userOwner === 3
+    },
+    pokazKosz() {
+      return this.filters.trashed === 'with'
+    },
+    wiersze() {
+      return this.pbioz.data || this.pbioz
     },
   },
   methods: {
-    reset() {
-      this.form = mapValues(this.form, () => null)
+    // Ta sama skala co na pulpicie i w badaniach.
+    opisTerminu(item) {
+      if (item.deleted_at) return 'w koszu'
+      if (item.dni === null || item.dni === undefined) return 'bez daty końca'
+      if (item.dni < 0) return `po terminie od ${Math.abs(item.dni)} dni`
+      if (item.dni === 0) return 'kończy się dziś'
+      return `zostało ${item.dni} dni`
     },
-    removeDocument(documentId) {
-      this.$inertia.delete(`/contacts/${this.contactId}/documents/${documentId}/bhp`)
+    klasaTerminu(item) {
+      if (item.deleted_at) return 'text-gray-400'
+      if (item.dni === null || item.dni === undefined) return 'text-gray-500'
+      if (item.dni < 0) return 'text-red-700'
+      return item.dni <= 30 ? 'text-orange-700' : 'text-gray-600'
+    },
+    przelaczKosz(zdarzenie) {
+      this.$inertia.get(
+        `/contacts/${this.contactId}/pbioz`,
+        zdarzenie.target.checked ? { trashed: 'with' } : {},
+        { preserveScroll: true, replace: true }
+      )
+    },
+    usun(item) {
+      if (confirm('Przenieść ten wpis do kosza?')) {
+        this.$inertia.delete(`/pbioz/${item.id}`, { preserveScroll: true })
+      }
+    },
+    przywroc(item) {
+      this.$inertia.put(`/pbioz/${item.id}/restore`, {}, { preserveScroll: true })
     },
   },
 }
