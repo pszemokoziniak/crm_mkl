@@ -8,31 +8,48 @@ use App\Models\Contact;
 use App\Models\CtnDocument;
 use App\Models\KrajTyp;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class A1Controller extends Controller
 {
-    public function index(Contact $contact)
+    public function index(Contact $contact, Request $request)
     {
 
+        $dzis = Carbon::today();
+        $zKoszem = $request->input('trashed') === 'with';
+
         return Inertia::render('A1/Index', [
+            'filters' => $request->only('search', 'trashed'),
+            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
             'a1s' => A1::with('kraj')
                 ->where('contact_id', $contact->id)
-                ->get()
-                ->map(fn ($a1) => [
+                ->when($zKoszem, fn ($q) => $q->withTrashed())
+                // Najświeższy wpis na górze — to on mówi, czy papier jest ważny.
+                ->orderByRaw('`end` IS NULL, `end` DESC')
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($a1) => [
                     'id' => $a1->id,
                     'start' => $a1->start,
                     'end' => $a1->end,
                     'kraj' => $a1->kraj ? $a1->kraj : null,
+                    'deleted_at' => $a1->deleted_at,
+                    'dni' => $a1->end
+                        ? (int) $dzis->diffInDays(Carbon::parse($a1->end)->startOfDay(), false)
+                        : null,
                 ]),
             'contact' => $contact,
             'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '4')
+                ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->orderByDesc('id')
                 ->paginate(10)
+                ->withQueryString()
         ]);
     }
     public function edit(Contact $contact, A1 $a1)
@@ -86,6 +103,14 @@ class A1Controller extends Controller
         $contact_id = $a1->contact_id;
         $a1->delete();
 
-        return Redirect::route('a1.index', $contact_id)->with('success', 'Element usunięty.');
+        return Redirect::route('a1.index', $contact_id)->with('success', 'Wpis A1 przeniesiony do kosza.');
+    }
+
+    /** Trasa a1.restore istniała od dawna, ale kontroler nie miał tej metody. */
+    public function restore(A1 $a1)
+    {
+        $a1->restore();
+
+        return Redirect::back()->with('success', 'Wpis A1 przywrócony.');
     }
 }
