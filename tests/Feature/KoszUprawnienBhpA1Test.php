@@ -10,6 +10,7 @@ use App\Models\Account;
 use App\Models\Bhp;
 use App\Models\BhpTyp;
 use App\Models\Contact;
+use App\Models\Pbioz;
 use App\Models\CtnDocument;
 use App\Models\DokumentyTyp;
 use App\Models\Uprawnienia;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
- * Uprawnienia, BHP i A1 — to samo co przy badaniach: kolejność od
+ * Uprawnienia, BHP, A1 i PBIOZ — to samo co przy badaniach: kolejność od
  * najświeższego, stan terminu i kosz zamiast kasowania na zawsze.
  *
  * Tabele bhps i uprawnienias miały deleted_at od dawna, ale modele nie
@@ -90,6 +91,14 @@ class KoszUprawnienBhpA1Test extends TestCase
                 ]);
 
                 return [$m, 'bhps', 'bhp', 'bhp'];
+            case 'pbioz':
+                // PBIOZ ma własną nazwę wpisu, nie słownik typów.
+                $m = Pbioz::create([
+                    'contact_id' => $this->pracownik->id, 'name' => 'Plan BIOZ',
+                    'start' => now()->subYear()->toDateString(), 'end' => now()->addDays(10)->toDateString(),
+                ]);
+
+                return [$m, 'pbioz', 'pbiozs', 'pbioz'];
             default:
                 $m = A1::create([
                     'contact_id' => $this->pracownik->id,
@@ -150,12 +159,13 @@ class KoszUprawnienBhpA1Test extends TestCase
             'uprawnienia' => ['uprawnienia', 'uprawnienias', 'uprawnienias', 'uprawnienia'],
             'bhp' => ['bhp', 'bhps', 'bhps', 'bhp'],
             'a1' => ['a1', 'a1s', 'a1_s', 'a1'],
+            'pbioz' => ['pbioz', 'pbioz', 'pbiozs', 'pbioz'],
         ];
     }
 
     public function test_skany_kazdej_sekcji_takze_ida_do_kosza(): void
     {
-        foreach ([['uprawnienia', 3, 'Uprawnienia'], ['bhp', 2, 'Szkolenia BHP'], ['a1', 4, 'A1']] as [$sekcja, $typId, $nazwa]) {
+        foreach ([['uprawnienia', 3, 'Uprawnienia'], ['bhp', 2, 'Szkolenia BHP'], ['a1', 4, 'A1'], ['pbioz', 5, 'PBiOZ']] as [$sekcja, $typId, $nazwa]) {
             $d = $this->skan($typId, $nazwa);
 
             $this->actingAs($this->biuro)

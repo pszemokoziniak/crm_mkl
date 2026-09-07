@@ -1289,6 +1289,10 @@ Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsControl
         ->middleware('auth', 'biuro-kierownik-permission');
 
 
+Route::put('contacts/{contact_id}/documents/{document_id}/restore', [CtnDocumentsController::class, 'restore'])
+    ->name('documents.restore')
+        ->middleware('auth', 'biuro-permission');
+
 Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'delete'])
     ->name('documents.delete')
         ->middleware('auth', 'biuro-permission');
@@ -1308,6 +1312,12 @@ Route::delete('contacts/{contact_id}/documents/{document_id}/uprawnienia', [CtnD
     ->name('documentsUpr.delete')
         ->middleware('auth', 'biuro-permission');
 
+
+// Ekran PBIOZ nie miał swojego wariantu i kasował skany trasą /bhp,
+// przez co po usunięciu wyrzucało użytkownika na ekran szkoleń BHP.
+Route::delete('contacts/{contact_id}/documents/{document_id}/pbioz', [CtnDocumentsController::class, 'deletePbioz'])
+    ->name('documentsPbioz.delete')
+        ->middleware('auth', 'biuro-permission');
 
 Route::delete('contacts/{contact_id}/documents/{document_id}/a1', [CtnDocumentsController::class, 'deleteA1'])
     ->name('documentsA1.delete')

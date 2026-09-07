@@ -132,6 +132,14 @@ class CtnDocumentsController extends Controller
             ->with('success', 'Dokument przeniesiony do kosza.');
     }
 
+    public function deletePbioz(int $id, int $documentId): RedirectResponse
+    {
+        $this->doKosza($id, $documentId);
+
+        return Redirect::route('pbioz.index', ['contact' => $id])
+            ->with('success', 'Dokument przeniesiony do kosza.');
+    }
+
     public function restore(int $id, int $documentId): RedirectResponse
     {
         $document = CtnDocument::withTrashed()
