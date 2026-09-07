@@ -47,9 +47,7 @@
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/users/${user.id}/edit`" tabindex="-1">
-              <span v-if="user.owner === 1">Administrator</span>
-              <span v-if="user.owner === 2">Biuro</span>
-              <span v-if="user.owner === 3">Kierownik budowy</span>
+              <span>{{ etykietaRoli(user.owner) }}</span>
             </Link>
           </td>
           <td class="border-t">
@@ -89,6 +87,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
+import { etykietaRoli } from '@/role'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
 import SearchFilter from '@/Shared/SearchFilter'
@@ -123,6 +122,7 @@ export default {
     },
   },
   methods: {
+    etykietaRoli,
     reset() {
       this.form = mapValues(this.form, () => null)
     },

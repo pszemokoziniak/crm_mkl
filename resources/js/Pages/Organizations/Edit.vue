@@ -76,7 +76,7 @@
 
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button
-            v-if="!organization.deleted_at && (user_owner === 1 || user_owner === 2)"
+            v-if="!organization.deleted_at && ($page.props.permissions.admin || $page.props.permissions.biuro)"
             type="button"
             class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 transition-colors"
             @click="archive"
@@ -84,7 +84,7 @@
             <icon name="trash" class="mr-1.5 w-3 h-3 fill-red-700" />
             Archiwizuj budowę
           </button>
-          <loading-button v-if="!organization.deleted_at && (user_owner === 1 || user_owner === 2)" :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
+          <loading-button v-if="!organization.deleted_at && ($page.props.permissions.admin || $page.props.permissions.biuro)" :loading="form.processing" class="btn-indigo ml-auto" type="submit">Popraw</loading-button>
         </div>
       </form>
     </div>

@@ -32,9 +32,7 @@
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
           <text-input v-model="form.password" :error="form.errors.password" class="pb-8 pr-6 w-full lg:w-1/2" type="password" autocomplete="new-password" label="Hasło" />
           <select-input v-show="user_owner === 1" v-model="form.owner" :error="form.errors.owner" class="pb-8 pr-6 w-full lg:w-1/2" label="Uprawnienia">
-            <option value="1">Administrator</option>
-            <option value="2">Biuro</option>
-            <option value="3">Kierownik budowy</option>
+            <option v-for="rola in OPCJE_ROL" :key="rola.wartosc" :value="String(rola.wartosc)">{{ rola.etykieta }}</option>
           </select-input>
           <!-- Powiązanie z pracownikiem: biuro i admin — tak samo jak po stronie serwera. -->
           <select-input v-if="isOffice" v-model="form.contact_id" :error="form.errors.contact_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Połącz User z Pracownikiem">
@@ -65,6 +63,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
+import { OPCJE_ROL } from '@/role'
 import TextInput from '@/Shared/TextInput'
 import FileInput from '@/Shared/FileInput'
 import SelectInput from '@/Shared/SelectInput'
@@ -93,6 +92,7 @@ export default {
   remember: 'form',
   data() {
     return {
+      OPCJE_ROL,
       form: this.$inertia.form({
         _method: 'put',
         first_name: this.user.first_name,

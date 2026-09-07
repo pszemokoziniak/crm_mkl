@@ -18,7 +18,9 @@ class BiuroPermission
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!in_array(Auth::user()->owner, [1,2])) {
+        // Lista ról mieszka w Role::OFFICE — dopisanie kolejnej nie wymaga
+        // szukania po middleware'ach, gdzie ktoś wpisał numery na sztywno.
+        if (! Auth::user()->isOffice()) {
             abort(403);
         }
 
