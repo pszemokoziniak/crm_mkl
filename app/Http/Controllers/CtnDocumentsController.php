@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDocumentRequest;
 use App\Models\CtnDocument;
+use App\Enums\TypDokumentu;
 use App\Models\Contact;
 use App\Models\DokumentyTyp;
 use App\Services\DocumentService;
@@ -46,7 +47,11 @@ class CtnDocumentsController extends Controller
         return Inertia::render('CtnDocuments/Create', [
             'pracownik' => $this->danePracownika(Contact::withTrashed()->find($contactId)),
             'contactId' => $contactId,
-            'dokumentyTyps' => DokumentyTyp::all()
+            'dokumentyTyps' => DokumentyTyp::all(),
+            // Wpisy pracownika w rozbiciu na typ dokumentu — żeby dało się
+            // przypiąć skan do konkretnego badania, a nie tylko do worka
+            // "badania tego człowieka".
+            'wpisy' => $this->wpisyDoPrzypisania($contactId),
         ]);
     }
 
@@ -54,13 +59,18 @@ class CtnDocumentsController extends Controller
     {
         $redirect = Redirect::route('documents.index', ['contact_id' => $contactId]);
 
+        $wpis = $this->wskazanyWpis($contactId, Request::get('typ'), Request::get('zrodlo_id'));
+
         try {
             foreach (Request::file('documents') as $file) {
                 $documentService->storeCtnDocument(
                     $file,
                     $contactId,
-                    Request::get('name'),
-                    Request::get('typ'),
+                    (string) Request::get('name'),
+                    // Formularz przysyła tekst, ale przez API bywa liczba —
+                    // serwis oczekuje stringa, więc rzutujemy tutaj.
+                    (string) Request::get('typ'),
+                    $wpis
                 );
             }
         } catch (\Exception $e) {
@@ -170,12 +180,62 @@ class CtnDocumentsController extends Controller
      * Plik zostaje teraz na dysku świadomie: bez niego przywrócenie
      * z kosza dałoby wiersz bez treści.
      */
+    /**
+     * @return array<int, array<int, array{id: int, etykieta: string}>>
+     */
+    private function wpisyDoPrzypisania(int $contactId): array
+    {
+        $wynik = [];
+
+        foreach (TypDokumentu::cases() as $typ) {
+            $zapytanie = $typ->modelWpisu()::where('contact_id', $contactId);
+
+            if ($relacja = $typ->relacjaRodzaju()) {
+                $zapytanie->with($relacja);
+            }
+
+            $wynik[$typ->value] = $zapytanie
+                ->orderByRaw('`end` IS NULL, `end` DESC')
+                ->get()
+                ->map(fn ($wpis) => [
+                    'id' => $wpis->id,
+                    'etykieta' => $typ->opisWpisu($wpis),
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $wynik;
+    }
+
     /** Nagłówek ma pokazywać, czyją kartę się ogląda — trasa podaje samo id. */
     private function nazwaPracownika(int $contactId): string
     {
         $c = Contact::withTrashed()->find($contactId);
 
         return $c ? trim($c->last_name.' '.$c->first_name) : '';
+    }
+
+    /**
+     * Wpis wskazany na formularzu. Sprawdzamy, że należy do TEGO pracownika
+     * i jest tego typu, co wybrany — inaczej dałoby się podpiąć dokument
+     * pod cudze badanie, podmieniając id w formularzu.
+     */
+    private function wskazanyWpis(int $contactId, $typ, $zrodloId)
+    {
+        if (! $zrodloId || ! $typ) {
+            return null;
+        }
+
+        $rodzaj = TypDokumentu::tryFrom((int) $typ);
+
+        if (! $rodzaj) {
+            return null;
+        }
+
+        return $rodzaj->modelWpisu()::where('id', $zrodloId)
+            ->where('contact_id', $contactId)
+            ->first();
     }
 
     private function doKosza(int $contactId, int $documentId): void

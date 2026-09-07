@@ -19,6 +19,7 @@ class StoreDocumentRequest extends FormRequest
             'name' => ['required', 'max:50', 'min:4'],
             'typ' => ['required'],
             'documents' => ['required'],
+            'zrodlo_id' => ['nullable', 'integer'],
         ];
     }
 
