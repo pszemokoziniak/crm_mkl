@@ -1,6 +1,5 @@
 <template>
   <div>
-    <RaportMenu />
     <Head title="Termin uprawnień" />
     <h1 class="mb-6 text-3xl font-bold">Termin uprawnień</h1>
 
@@ -135,7 +134,6 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
-import RaportMenu from '@/Shared/RaportMenu'
 import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
 import throttle from 'lodash/throttle'
 
@@ -143,7 +141,6 @@ export default {
   components: {
     Head,
     Link,
-    RaportMenu,
     SearchFilterNoFiltr,
   },
   layout: Layout,
