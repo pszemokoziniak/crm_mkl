@@ -17,9 +17,7 @@
             </Link>
           </div>
           <div class="md:text-md flex items-center justify-between p-4 w-full text-sm bg-white border-b md:px-12 md:py-0">
-            <div v-if="auth.user.owner === 1" class="mr-4 mt-1">Stanowisko: Administrator</div>
-            <div v-if="auth.user.owner === 2" class="mr-4 mt-1">Stanowisko: Biuro</div>
-            <div v-if="auth.user.owner === 3" class="mr-4 mt-1">Stanowisko: Kierownik Budowy</div>
+            <div class="mr-4 mt-1">Stanowisko: {{ etykietaRoli(auth.user.owner) }}</div>
             <!-- Dzwonek trzymamy w jednej grupie z nazwiskiem, żeby justify-between
                  nie wypychało go na środek paska. -->
             <div class="flex items-center ml-auto">
@@ -37,7 +35,7 @@
                 <template #dropdown>
                   <div class="mt-2 py-2 text-sm bg-white rounded shadow-xl">
                     <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" :href="`/users/${auth.user.id}/edit`">Profil</Link>
-                    <Link v-if="auth.user.owner === 1 || auth.user.owner === 2" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
+                    <Link v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
                     <Link class="block px-6 py-2 w-full text-left hover:text-white hover:bg-indigo-500" href="/logout" method="delete" as="button">Wyloguj</Link>
                   </div>
                 </template>
@@ -64,6 +62,7 @@ import Logo from '@/Shared/Logo'
 import Dropdown from '@/Shared/Dropdown'
 import MainMenu from '@/Shared/MainMenu'
 import FlashMessages from '@/Shared/FlashMessages'
+import { etykietaRoli } from '@/role'
 import NotificationBell from '@/Shared/NotificationBell'
 
 export default {
@@ -76,6 +75,10 @@ export default {
     MainMenu,
     NotificationBell,
   },
+  methods: {
+    etykietaRoli,
+  },
+
   props: {
     auth: Object,
   },

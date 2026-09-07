@@ -12,9 +12,7 @@
           <text-input v-model="form.last_name" :error="form.errors.last_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Nazwisko" />
           <text-input v-model="form.email" :error="form.errors.email" class="pb-8 pr-6 w-full lg:w-1/2" label="Email" />
           <select-input v-model="form.owner" :error="form.errors.owner" class="pb-8 pr-6 w-full lg:w-1/2" label="Uprawnienia">
-            <option value="1">Administrator</option>
-            <option value="2">Biuro</option>
-            <option value="3">Kierownik budowy</option>
+            <option v-for="rola in OPCJE_ROL" :key="rola.wartosc" :value="String(rola.wartosc)">{{ rola.etykieta }}</option>
           </select-input>
           <file-input v-model="form.photo" :error="form.errors.photo" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcia" />
           <p class="pb-8 pr-6 w-full text-sm text-gray-500">
@@ -33,6 +31,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
+import { OPCJE_ROL } from '@/role'
 import FileInput from '@/Shared/FileInput'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
@@ -51,6 +50,7 @@ export default {
   remember: 'form',
   data() {
     return {
+      OPCJE_ROL,
       form: this.$inertia.form({
         first_name: '',
         last_name: '',

@@ -49,7 +49,7 @@ class DashboardController extends Controller
             $myOrgIds = Organization::managedBy($contact_id)->pluck('id');
         }
 
-        if ($user->owner === 1 || $user->owner === 2 || $user->owner === 3) {
+        if ($user->isOffice() || $user->isKierownik()) {
             // Uprawnienia
             $uprawnieniaQuery = Uprawnienia::with(['uprawnieniaTyp'])
                 ->join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
@@ -275,7 +275,7 @@ class DashboardController extends Controller
         // Zmiany pobytów czekające na kadry — dział HR to uprawnienia biuro.
         $zmianyKadrowe = collect();
 
-        if (in_array($user->owner, [1, 2], true)) {
+        if ($user->isOffice()) {
             $zmianyKadrowe = ZmianaKadrowa::with(['contact', 'budowaZ', 'budowaDo'])
                 ->nieobsluzone()
                 ->orderByDesc('created_at')
@@ -299,7 +299,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Index', [
             'filters' => Request::all('search', 'trashed', 'my'),
             'zmiany_kadrowe' => $zmianyKadrowe,
-            'zmiany_kadrowe_licznik' => in_array($user->owner, [1, 2], true)
+            'zmiany_kadrowe_licznik' => $user->isOffice()
                 ? ZmianaKadrowa::nieobsluzone()->count()
                 : 0,
             'stats' => $stats,

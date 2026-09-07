@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Mail\CreateUserPassword;
 use App\Models\Contact;
 use App\Models\Uprawnienia;
@@ -70,7 +71,9 @@ class UsersController extends Controller
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
             'email' => ['required', 'max:50', 'email', 'ends_with:'.self::DOMENA_FIRMOWA, Rule::unique('users')],
-            'owner' => ['required', 'max:10'],
+            // Dotad przechodzila tu dowolna liczba do 10 znakow, wiec dalo sie
+            // zalozyc konto z rola, ktorej nie ma w systemie.
+            'owner' => ['required', Rule::in(Role::values())],
             'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
         ],
@@ -79,6 +82,7 @@ class UsersController extends Controller
                 'unique' => 'Nazwa użyta',
                 'numeric' => 'Pole attribute może zawierać tylko cyfry',
                 'email.ends_with' => 'Adres musi być w domenie '.self::DOMENA_FIRMOWA,
+                'owner.in' => 'Nieznane uprawnienia.',
             ]
         );
 
@@ -176,7 +180,7 @@ class UsersController extends Controller
                 'min:8',
                 'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/',
             ],
-//            'owner' => ['nullable'],
+            'owner' => ['nullable', Rule::in(Role::values())],
             'contact_id' => ['nullable'],
             'photo' => ['nullable', 'image'],
             'powiadomienia_kadrowe' => ['boolean'],
@@ -188,6 +192,7 @@ class UsersController extends Controller
             'password.regex' => 'Hasło musi zawierać dużą literę, znak specjalny, cyfrę',
             'password.min' => 'Hasło musi zawierać 8 znaków',
             'email.ends_with' => 'Adres musi być w domenie '.self::DOMENA_FIRMOWA,
+            'owner.in' => 'Nieznane uprawnienia.',
         ]
         );
 

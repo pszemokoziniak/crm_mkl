@@ -116,8 +116,13 @@ class User extends Authenticatable
     public function getPermissionsAttribute() {
         return [
             'admin' => $this->hasRole(Role::ADMIN),
-            'biuro' => $this->hasRole(Role::BIURO),
+            // W widokach "biuro" znaczy "uprawnienia biurowe", a nie samo
+            // stanowisko — kierownictwo ma na razie ten sam zakres, więc
+            // dostaje tę samą flagę i nie trzeba ruszać kilkudziesięciu v-if.
+            'biuro' => $this->hasRole(Role::BIURO) || $this->hasRole(Role::KIEROWNICTWO),
             'kierownik' => $this->hasRole(Role::KIEROWNIK),
+            // Osobna flaga na wypadek, gdy zakresy zaczną się różnić.
+            'kierownictwo' => $this->hasRole(Role::KIEROWNICTWO),
         ];
     }
 
@@ -141,7 +146,13 @@ class User extends Authenticatable
         return $this->hasRole(Role::KIEROWNIK);
     }
 
-    /** Admin lub biuro — pełny dostęp do wszystkich budów. */
+    /** Kierownictwo firmy — nie mylić z kierownikiem budowy. */
+    public function isKierownictwo(): bool
+    {
+        return $this->hasRole(Role::KIEROWNICTWO);
+    }
+
+    /** Uprawnienia biurowe (admin, biuro, kierownictwo) — wszystkie budowy. */
     public function isOffice(): bool
     {
         return in_array((int) $this->owner, Role::officeValues(), true);

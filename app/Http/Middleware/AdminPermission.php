@@ -17,7 +17,7 @@ class AdminPermission
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!in_array(Auth::user()->owner, [1])) {
+        if (! Auth::user()->isAdmin()) {
             abort(403);
         }
         return $next($request);
