@@ -33,7 +33,7 @@
     </search-filter-no-filtr>
   </div>
 
-  <div class="bg-white rounded-md shadow overflow-x-auto">
+  <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
     <table class="w-full whitespace-nowrap">
       <tr class="text-left font-bold">
         <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
@@ -97,6 +97,43 @@
         <td class="px-6 py-4 border-t" colspan="5">Nie znaleziono pobytów na tej budowie</td>
       </tr>
     </table>
+  </div>
+
+  <!-- Wąski ekran: karty zamiast pięciu kolumn. -->
+  <div class="space-y-3 md:hidden">
+    <div
+      v-for="row in rows"
+      :key="row.id"
+      class="bg-white rounded-md shadow p-4"
+      :class="{ 'opacity-60': row.period === 'zakonczony' }"
+    >
+      <div class="flex flex-wrap items-center gap-2">
+        <Link class="font-medium text-gray-900" :href="`/contacts/${row.contact_id}/edit`">
+          {{ row.last_name }} {{ row.first_name }}
+        </Link>
+        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded" :class="statusBadge(row.status).class">
+          {{ statusBadge(row.status).label }}
+        </span>
+      </div>
+      <div class="mt-1 text-sm text-gray-600">
+        pobyt: {{ row.start || '—' }} → {{ row.end || '—' }}
+        <span class="inline-flex items-center ml-1 px-2 py-0.5 text-[10px] font-semibold rounded-full" :class="periodBadge(row.period).class">
+          {{ periodBadge(row.period).label }}
+        </span>
+      </div>
+      <div class="mt-1 text-sm">
+        <template v-if="row.a1">
+          <span class="text-gray-500">A1: </span>{{ row.a1.start || '—' }} → {{ row.a1.end || '—' }}
+          <span v-if="row.a1.kraj" class="text-gray-600">· {{ row.a1.kraj }}</span>
+          <span v-else class="text-orange-700 font-medium">· brak kraju</span>
+        </template>
+        <span v-else class="text-gray-400">brak dokumentu A1</span>
+      </div>
+      <Link class="mt-2 inline-block text-sm text-indigo-600" :href="`/contacts/${row.contact_id}/a1`">Zarządzaj A1</Link>
+    </div>
+    <p v-if="rows.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">
+      Nie znaleziono pobytów na tej budowie
+    </p>
   </div>
 </template>
 

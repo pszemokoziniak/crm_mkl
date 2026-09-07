@@ -58,7 +58,7 @@
       </div>
     </teleport>
 
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
       <h3 class="p-4 text-xl font-medium">Aktualne kierownictwo</h3>
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -98,6 +98,25 @@
           <td class="px-6 py-4 border-t" colspan="6">Brak przypisanego kierownictwa.</td>
         </tr>
       </table>
+    </div>
+
+    <!-- Wąski ekran: karty, bo sześć kolumn nie mieści się na telefonie. -->
+    <div class="bg-white rounded-md shadow divide-y divide-gray-100 md:hidden">
+      <div v-for="item in management" :key="item.id" class="p-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-medium text-gray-900">{{ item.last_name }} {{ item.first_name }}</span>
+          <span :class="klasaStatusu(item)" class="inline-block px-2 py-0.5 text-xs font-medium border rounded-full">
+            {{ etykietaStatusu(item) }}
+          </span>
+        </div>
+        <div v-if="item.name" class="mt-0.5 text-xs text-gray-500">{{ item.name }}</div>
+        <div class="mt-1 text-sm text-gray-600 tabular-nums">od: {{ item.start }} · do: {{ item.end }}</div>
+        <div v-if="!$page.props.permissions.kierownik" class="mt-2 text-sm">
+          <Link class="text-indigo-600" :href="`/pracownicy/${organization.id}/edit/${item.id}`">Popraw daty</Link>
+          <button type="button" class="ml-4 text-red-600" @click="destroy(item.id)">Usuń</button>
+        </div>
+      </div>
+      <p v-if="management.length === 0" class="p-4 text-sm text-gray-500">Brak przypisanego kierownictwa.</p>
     </div>
   </div>
 </template>
