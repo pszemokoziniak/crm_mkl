@@ -9,17 +9,23 @@ use App\Models\BhpTyp;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class BhpController extends Controller
 {
-    public function index(Contact $contact)
+    public function index(Contact $contact, Request $request)
     {
+        $dzis = Carbon::today();
+        $zKoszem = $request->input('trashed') === 'with';
+
         $bhps = Bhp::with('bhpTyp')
             ->where('contact_id', $contact->id)
-            ->orderByName()
+            ->when($zKoszem, fn ($q) => $q->withTrashed())
+            // Najświeższy wpis na górze — to on decyduje o ważności.
+            ->orderByRaw('`end` IS NULL, `end` DESC')
             ->paginate(10)
             ->withQueryString()
             ->through(fn ($bhp) => [
@@ -27,17 +33,25 @@ class BhpController extends Controller
                 'start' => $bhp->start,
                 'bhp' => $bhp->bhpTyp ? $bhp->bhpTyp : null,
                 'end' => $bhp->end,
+                'deleted_at' => $bhp->deleted_at,
+                'dni' => $bhp->end
+                    ? (int) $dzis->diffInDays(Carbon::parse($bhp->end)->startOfDay(), false)
+                    : null,
             ]);
 
         return Inertia::render('Bhp/Index', [
-            'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
+            'filters' => $request->only('search', 'trashed'),
+            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
             'contact' => $contact,
             'bhps' => $bhps,
             'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '2')
+                ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->orderByDesc('id')
                 ->paginate(10)
+                ->withQueryString()
         ]);
     }
     public function edit(Contact $contact, Bhp $bhp)
@@ -92,13 +106,13 @@ class BhpController extends Controller
         $contact_id = $bhp->contact_id;
         $bhp->delete();
 
-        return Redirect::route('bhp.index', $contact_id)->with('success', 'Element usunięty.');
+        return Redirect::route('bhp.index', $contact_id)->with('success', 'Szkolenie BHP przeniesione do kosza.');
     }
 
     public function restore(Bhp $bhp)
     {
         $bhp->restore();
 
-        return Redirect::back()->with('success', 'Element przywrócony.');
+        return Redirect::back()->with('success', 'Szkolenie BHP przywrócone.');
     }
 }

@@ -70,71 +70,13 @@
     </div>
     <pagination v-if="bads.links" class="mt-4" :links="bads.links" />
 
-    <h2 class="mt-10 mb-4 text-xl font-bold">Skany badań</h2>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
-      <table class="w-full whitespace-nowrap">
-        <thead>
-          <tr class="text-left font-bold">
-            <th class="pb-4 pt-6 px-6">Nazwa</th>
-            <th class="pb-4 pt-6 px-6">Plik</th>
-            <th class="pb-4 pt-6 px-6" />
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="document in documents.data"
-            :key="document.id"
-            class="hover:bg-gray-100 focus-within:bg-gray-100"
-            :class="document.deleted_at ? 'text-gray-400' : ''"
-          >
-            <td class="border-t px-6 py-4">
-              <a
-                v-if="!document.deleted_at"
-                target="_blank"
-                :href="`/contacts/${contactId}/documents/${document.id}`"
-                class="hover:text-indigo-600 focus:text-indigo-500"
-              >{{ document.name }}</a>
-              <span v-else>{{ document.name }}</span>
-              <span v-if="document.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
-            </td>
-            <td class="border-t px-6 py-4 text-gray-500">{{ document.filename }}</td>
-            <td class="border-t px-6 py-4">
-              <div class="flex items-center justify-end gap-3">
-                <a
-                  v-if="!document.deleted_at"
-                  target="_blank"
-                  :href="`/contacts/${contactId}/documents/${document.id}`"
-                  class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800"
-                >
-                  <DocumentDownloadIcon class="h-4 w-4" />
-                  <span>Pobierz</span>
-                </a>
-                <button
-                  v-if="!kierownik && document.deleted_at"
-                  type="button"
-                  class="text-sm text-indigo-600 hover:text-indigo-800"
-                  @click="przywrocDokument(document)"
-                >Przywróć</button>
-                <button
-                  v-else-if="!kierownik"
-                  type="button"
-                  class="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800"
-                  @click="usunDokument(document)"
-                >
-                  <TrashIcon class="h-4 w-4" />
-                  <span>Usuń</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="documents.data.length === 0">
-            <td class="px-6 py-6 border-t text-gray-400" colspan="3">
-              Brak skanów. Wgrywa się je w zakładce <Link class="text-indigo-600 hover:underline" :href="`/contacts/${contactId}/documents`">Dokumenty</Link>.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <SkanyDokumentow
+      :contact-id="contactId"
+      :documents="documents"
+      :kierownik="kierownik"
+      tytul="Skany badań"
+      trasa-usuwania="lekarskie"
+    />
   </div>
 </template>
 
@@ -143,17 +85,16 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import Pagination from '@/Shared/Pagination'
 import PracownikNaglowek from '@/Shared/PracownikNaglowek'
+import SkanyDokumentow from '@/Shared/SkanyDokumentow'
 import WorkerMenu from '@/Shared/WorkerMenu'
-import { DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
 
 export default {
   components: {
-    DocumentDownloadIcon,
     Head,
     Link,
     Pagination,
     PracownikNaglowek,
-    TrashIcon,
+    SkanyDokumentow,
     WorkerMenu,
   },
   layout: Layout,
@@ -205,14 +146,6 @@ export default {
     },
     przywrocBadanie(badanie) {
       this.$inertia.put(`/badania/${badanie.id}/restore`, {}, { preserveScroll: true })
-    },
-    usunDokument(document) {
-      if (confirm('Przenieść ten skan do kosza?')) {
-        this.$inertia.delete(`/contacts/${this.contactId}/documents/${document.id}/lekarskie`, { preserveScroll: true })
-      }
-    },
-    przywrocDokument(document) {
-      this.$inertia.put(`/contacts/${this.contactId}/documents/${document.id}/restore`, {}, { preserveScroll: true })
     },
   },
 }

@@ -12,17 +12,23 @@ use App\Models\CtnDocument;
 use App\Models\Uprawnienia;
 use App\Models\UprawnieniaTyp;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class UprawnieniaController extends Controller
 {
-    public function index(Contact $contact)
+    public function index(Contact $contact, Request $request)
     {
+        $dzis = Carbon::today();
+        $zKoszem = $request->input('trashed') === 'with';
+
         $uprawnienias = Uprawnienia::with('uprawnieniaTyp')
             ->where('contact_id', $contact->id)
-            ->orderByName()
+            ->when($zKoszem, fn ($q) => $q->withTrashed())
+            // Najświeższy wpis na górze — to on decyduje o ważności.
+            ->orderByRaw('`end` IS NULL, `end` DESC')
             ->paginate(10)
             ->withQueryString()
             ->through(fn ($uprawnienia) => [
@@ -30,17 +36,25 @@ class UprawnieniaController extends Controller
                 'start' => $uprawnienia->start,
                 'uprawnienia' => $uprawnienia->uprawnieniaTyp ? $uprawnienia->uprawnieniaTyp : null,
                 'end' => $uprawnienia->end,
+                'deleted_at' => $uprawnienia->deleted_at,
+                'dni' => $uprawnienia->end
+                    ? (int) $dzis->diffInDays(Carbon::parse($uprawnienia->end)->startOfDay(), false)
+                    : null,
             ]);
 
         return Inertia::render('Uprawnienia/Index', [
-//            'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
+            'filters' => $request->only('search', 'trashed'),
+            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
             'contact' => $contact,
             'uprawnienias' => $uprawnienias,
             'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '3')
+                ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->orderByDesc('id')
                 ->paginate(10)
+                ->withQueryString()
         ]);
     }
     public function edit(Contact $contact, Uprawnienia $uprawnienia)
@@ -94,13 +108,13 @@ class UprawnieniaController extends Controller
         $contact_id = $uprawnienia->contact_id;
         $uprawnienia->delete();
 
-        return Redirect::route('uprawnienia.index', $contact_id)->with('success', 'Element usunięty.');
+        return Redirect::route('uprawnienia.index', $contact_id)->with('success', 'Uprawnienie przeniesione do kosza.');
     }
 
     public function restore(Uprawnienia $uprawnienia)
     {
         $uprawnienia->restore();
 
-        return Redirect::back()->with('success', 'Element przywrócony.');
+        return Redirect::back()->with('success', 'Uprawnienie przywrócone.');
     }
 }
