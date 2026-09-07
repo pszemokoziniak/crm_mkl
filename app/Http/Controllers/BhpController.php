@@ -6,6 +6,8 @@ use App\Http\Requests\StoreBhpRequest;
 use App\Http\Requests\UpdateBhpRequest;
 use App\Models\Bhp;
 use App\Models\BhpTyp;
+use App\Enums\TypDokumentu;
+use App\Http\Controllers\Concerns\ZapisujeSkan;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use Illuminate\Http\Request;
@@ -16,12 +18,14 @@ use Inertia\Inertia;
 
 class BhpController extends Controller
 {
+    use ZapisujeSkan;
+
     public function index(Contact $contact, Request $request)
     {
         $dzis = Carbon::today();
         $zKoszem = $request->input('trashed') === 'with';
 
-        $bhps = Bhp::with('bhpTyp')
+        $bhps = Bhp::with('skan', 'bhpTyp')
             ->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
             // Najświeższy wpis na górze — to on decyduje o ważności.
@@ -37,6 +41,7 @@ class BhpController extends Controller
                 'dni' => $bhp->end
                     ? (int) $dzis->diffInDays(Carbon::parse($bhp->end)->startOfDay(), false)
                     : null,
+                    'skan' => optional($bhp->skan)->id,
             ]);
 
         return Inertia::render('Bhp/Index', [
@@ -97,6 +102,8 @@ class BhpController extends Controller
         $data->end = $req->end;
         $data->contact_id = $contact_id;
         $data->save();
+
+        $this->zapiszSkan($req, $data, TypDokumentu::BHP);
 
         return Redirect::route('bhp.index', $contact_id)->with('success', 'Zapisano.');
     }

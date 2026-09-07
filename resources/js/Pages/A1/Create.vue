@@ -12,6 +12,17 @@
             <option v-for="item in countries" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
           <text-input v-model="form.contact_id" type="hidden" value="@{{contact_id}}" :error="form.errors.contact_id" />
+          <!-- Skan przy wpisie, żeby nie trzeba było wracać do zakładki
+               Dokumenty i wgrywać go osobno. Dokument zostaje powiązany
+               z tym wpisem. -->
+          <file-input
+            v-model="form.skan"
+            :errors="form.errors.skan ? [form.errors.skan] : []"
+            class="pb-8 pr-6 w-full"
+            type="file"
+            accept=".pdf,image/*"
+            label="Skan (opcjonalnie)"
+          />
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj A1</loading-button>
@@ -27,6 +38,7 @@ import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import WorkerMenu from '@/Shared/WorkerMenu'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
+import FileInput from '@/Shared/FileInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import SelectInput from '@/Shared/SelectInput.vue'
 
@@ -37,6 +49,7 @@ export default {
     SelectInput,
     Head,
     Link,
+    FileInput,
     LoadingButton,
     TextInput,
   },
@@ -52,6 +65,7 @@ export default {
     const minDate = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0')
     return {
       form: this.$inertia.form({
+        skan: null,
         start: '',
         end: '',
         kraj_typs_id: '',

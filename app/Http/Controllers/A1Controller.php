@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreA1Request;
 use App\Models\A1;
+use App\Enums\TypDokumentu;
+use App\Http\Controllers\Concerns\ZapisujeSkan;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use App\Models\KrajTyp;
@@ -15,6 +17,8 @@ use Inertia\Inertia;
 
 class A1Controller extends Controller
 {
+    use ZapisujeSkan;
+
     public function index(Contact $contact, Request $request)
     {
 
@@ -24,7 +28,7 @@ class A1Controller extends Controller
         return Inertia::render('A1/Index', [
             'filters' => $request->only('search', 'trashed'),
             'pracownik' => trim($contact->last_name.' '.$contact->first_name),
-            'a1s' => A1::with('kraj')
+            'a1s' => A1::with('skan', 'kraj')
                 ->where('contact_id', $contact->id)
                 ->when($zKoszem, fn ($q) => $q->withTrashed())
                 // Najświeższy wpis na górze — to on mówi, czy papier jest ważny.
@@ -40,6 +44,7 @@ class A1Controller extends Controller
                     'dni' => $a1->end
                         ? (int) $dzis->diffInDays(Carbon::parse($a1->end)->startOfDay(), false)
                         : null,
+                    'skan' => optional($a1->skan)->id,
                 ]),
             'contact' => $contact,
             'userOwner' => Auth::user()->owner,
@@ -95,6 +100,9 @@ class A1Controller extends Controller
         $data->kraj_typs_id=$req->kraj_typs_id;
         $data->contact_id=$contact_id;
         $data->save();
+
+        $this->zapiszSkan($req, $data, TypDokumentu::A1);
+
         return Redirect::route('a1.index', $contact_id)->with('success', 'Zapisano.');
     }
 

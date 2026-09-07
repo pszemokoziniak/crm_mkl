@@ -7,6 +7,8 @@ use App\Http\Requests\StoreUprawnieniaRequest;
 use App\Http\Requests\UpdateBhpRequest;
 //use App\Models\Bhp;
 //use App\Models\BhpTyp;
+use App\Enums\TypDokumentu;
+use App\Http\Controllers\Concerns\ZapisujeSkan;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use App\Models\Uprawnienia;
@@ -19,12 +21,14 @@ use Inertia\Inertia;
 
 class UprawnieniaController extends Controller
 {
+    use ZapisujeSkan;
+
     public function index(Contact $contact, Request $request)
     {
         $dzis = Carbon::today();
         $zKoszem = $request->input('trashed') === 'with';
 
-        $uprawnienias = Uprawnienia::with('uprawnieniaTyp')
+        $uprawnienias = Uprawnienia::with('skan', 'uprawnieniaTyp')
             ->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
             // Najświeższy wpis na górze — to on decyduje o ważności.
@@ -40,6 +44,7 @@ class UprawnieniaController extends Controller
                 'dni' => $uprawnienia->end
                     ? (int) $dzis->diffInDays(Carbon::parse($uprawnienia->end)->startOfDay(), false)
                     : null,
+                    'skan' => optional($uprawnienia->skan)->id,
             ]);
 
         return Inertia::render('Uprawnienia/Index', [
@@ -100,6 +105,9 @@ class UprawnieniaController extends Controller
         $data->end=$req->end;
         $data->contact_id=$contact_id;
         $data->save();
+
+        $this->zapiszSkan($req, $data, TypDokumentu::UPRAWNIENIA);
+
         return Redirect::route('uprawnienia.index', $contact_id)->with('success', 'Zapisano.');
     }
 

@@ -4,11 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class A1 extends Model
 {
     use SoftDeletes;
+
+    /** Skan wgrany przy tym wpisie — jeśli był. */
+    public function skan(): MorphOne
+    {
+        return $this->morphOne(CtnDocument::class, 'zrodlo');
+    }
 
     /**
      * Wiazanie trasy musi widziec kosz — bez tego /restore dawalo 404.

@@ -41,6 +41,13 @@
               </Link>
               <span v-else>{{ badanie.name ? badanie.name.name : '—' }}</span>
               <span v-if="badanie.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+              <!-- Skan wgrany przy tym wpisie — od razu widać, czy jest. -->
+              <a
+                v-if="badanie.skan"
+                target="_blank"
+                :href="`/contacts/${contactId}/documents/${badanie.skan}`"
+                class="ml-2 text-xs text-indigo-600 hover:underline"
+              >skan</a>
             </td>
             <td class="border-t px-6 py-4 tabular-nums">{{ badanie.start || '—' }}</td>
             <td class="border-t px-6 py-4 tabular-nums font-medium" :class="klasaTerminu(badanie)">{{ badanie.end || '—' }}</td>
@@ -80,6 +87,12 @@
         <div class="flex items-start justify-between gap-2">
           <div class="font-medium break-words">{{ badanie.name ? badanie.name.name : '—' }}</div>
           <span v-if="badanie.deleted_at" class="flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+          <a
+            v-if="badanie.skan"
+            target="_blank"
+            :href="`/contacts/${contactId}/documents/${badanie.skan}`"
+            class="flex-shrink-0 text-xs text-indigo-600"
+          >skan</a>
         </div>
         <div class="mt-1 text-sm text-gray-500 tabular-nums">{{ badanie.start || '—' }} → {{ badanie.end || '—' }}</div>
         <div class="mt-1 text-sm" :class="klasaTerminu(badanie)">{{ opisTerminu(badanie) }}</div>

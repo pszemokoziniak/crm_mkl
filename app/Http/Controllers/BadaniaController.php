@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBadaniaRequest;
 use App\Models\Badania;
 use App\Models\BadaniaTyp;
+use App\Enums\TypDokumentu;
+use App\Http\Controllers\Concerns\ZapisujeSkan;
 use App\Models\Contact;
 use App\Models\Account;
 use App\Models\CtnDocument;
@@ -21,12 +23,14 @@ use Inertia\Inertia;
 
 class BadaniaController extends Controller
 {
+    use ZapisujeSkan;
+
     public function index(Contact $contact)
     {
         $dzis = Carbon::today();
         $zKoszem = Request::input('trashed') === 'with';
 
-        $bads = Badania::with('badaniaTyp')
+        $bads = Badania::with('skan', 'badaniaTyp')
                 ->where('contact_id', $contact->id)
                 ->when($zKoszem, fn ($q) => $q->withTrashed())
                 // Najświeższe badanie na górze — to ono decyduje, czy człowiek
@@ -43,6 +47,7 @@ class BadaniaController extends Controller
                     'dni' => $badania->end
                         ? (int) $dzis->diffInDays(Carbon::parse($badania->end)->startOfDay(), false)
                         : null,
+                    'skan' => optional($badania->skan)->id,
                 ]);
 
 
@@ -107,6 +112,9 @@ class BadaniaController extends Controller
         $data->end=$req->end;
         $data->contact_id=$contact_id;
         $data->save();
+
+        $this->zapiszSkan($req, $data, TypDokumentu::BADANIA);
+
         return Redirect::route('badania.index', $contact_id)->with('success', 'Zapisano.');
     }
 

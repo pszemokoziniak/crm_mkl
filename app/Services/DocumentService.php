@@ -21,7 +21,11 @@ class DocumentService
     private const TOOL_PATH = 'tools';
     private const ZADANIA_PATH = 'zadania';
 
-    public function storeCtnDocument(UploadedFile $file, int $id, string $fileName, string $typ): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Model|null  $zrodlo  wpis, przy którym
+     *         wgrano skan — dzięki temu wiadomo, którego badania dotyczy
+     */
+    public function storeCtnDocument(UploadedFile $file, int $id, string $fileName, string $typ, $zrodlo = null): void
     {
         $path = $this->filePathForActor(
             self::CTN_DOCUMENTS_PATH,
@@ -38,7 +42,8 @@ class DocumentService
             $id,
             $fileName,
             $typ,
-            $file
+            $file,
+            $zrodlo
         );
 
         Log::info('Stored document: ' . $path);
@@ -147,15 +152,21 @@ class DocumentService
         return $path . '/' . $id;
     }
 
-    private function persistCtnDocumentEntity(string $path, int $id, string $name, string $typ, UploadedFile $file): void
+    private function persistCtnDocumentEntity(string $path, int $id, string $name, string $typ, UploadedFile $file, $zrodlo = null): void
     {
-        CtnDocument::create(
+        $dokument = CtnDocument::create(
             $name,
             $typ,
             $this->fullFilePath($path, $file),
             $id,
             $file->getClientOriginalName()
-        )->save();
+        );
+
+        if ($zrodlo) {
+            $dokument->zrodlo()->associate($zrodlo);
+        }
+
+        $dokument->save();
     }
 
     private function persistToolFileEntity(UploadedFile $file, string $type, int $toolId): void
