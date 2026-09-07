@@ -1,166 +1,218 @@
 <template>
   <div>
-    <Head title="Badania" />
-    <div>
-      <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
-    </div>
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ contact.first_name }} {{ contact.last_name }}
-    </h1>
-    <h1 class="mb-8 text-3xl font-bold">Badania Lekarskie</h1>
-    <div class="flex items-center justify-between mb-6">
-      <Link v-if="userOwner !== 3" class="btn-indigo" :href="`/contacts/${contact.id}/badania/create`">
-        <span>Dodaj</span>
+    <Head title="Badania lekarskie" />
+    <WorkerMenu :contactId="contactId" :userOwner="userOwner" />
+
+    <PracownikNaglowek :contact-id="contactId" :nazwa="pracownik" tytul="Badania lekarskie" />
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <label class="flex items-center gap-2 text-sm text-gray-600">
+        <input type="checkbox" class="form-checkbox" :checked="pokazKosz" @change="przelaczKosz" />
+        <span>Pokaż usunięte</span>
+      </label>
+      <Link v-if="!kierownik" class="btn-indigo" :href="`/contacts/${contactId}/badania/create`">
+        <span>Dodaj badanie</span>
       </Link>
     </div>
+
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Start</th>
-          <th class="pb-4 pt-6 px-6">Koniec</th>
-        </tr>
-        <tr v-for="badania in bads.data" :key="badania.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/badania/${badania.id}/edit`">
-              <div v-if="badania.name">
-                {{ badania.name.name }}
-              </div>
-              <icon v-if="badania.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/badania/${badania.id}/edit`">
-              {{ badania.start }}
-              <icon v-if="badania.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/badania/${badania.id}/edit`">
-              {{ badania.end }}
-              <icon v-if="badania.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-            </Link>
-          </td>
-          <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/badania/${badania.id}/edit`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
-          </td>
-        </tr>
-        <!-- <tr v-if="accounts.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pozycji</td>
-        </tr> -->
+        <thead>
+          <tr class="text-left font-bold">
+            <th class="pb-4 pt-6 px-6">Rodzaj badania</th>
+            <th class="pb-4 pt-6 px-6">Od</th>
+            <th class="pb-4 pt-6 px-6">Do</th>
+            <th class="pb-4 pt-6 px-6">Stan</th>
+            <th class="pb-4 pt-6 px-6" />
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="badanie in bads.data"
+            :key="badanie.id"
+            class="hover:bg-gray-100 focus-within:bg-gray-100"
+            :class="badanie.deleted_at ? 'text-gray-400' : ''"
+          >
+            <td class="border-t px-6 py-4">
+              <!-- Kierownik ma tu tylko podgląd, więc zamiast martwego
+                   odnośnika (href="") pokazujemy zwykły tekst. -->
+              <Link v-if="!kierownik" class="focus:text-indigo-500" :href="`/contacts/${contactId}/badania/${badanie.id}/edit`">
+                {{ badanie.name ? badanie.name.name : '—' }}
+              </Link>
+              <span v-else>{{ badanie.name ? badanie.name.name : '—' }}</span>
+              <span v-if="badanie.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+            </td>
+            <td class="border-t px-6 py-4 tabular-nums">{{ badanie.start || '—' }}</td>
+            <td class="border-t px-6 py-4 tabular-nums font-medium" :class="klasaTerminu(badanie)">{{ badanie.end || '—' }}</td>
+            <td class="border-t px-6 py-4 text-sm" :class="klasaTerminu(badanie)">{{ opisTerminu(badanie) }}</td>
+            <td class="border-t px-6 py-4 text-right">
+              <button
+                v-if="!kierownik && badanie.deleted_at"
+                type="button"
+                class="text-sm text-indigo-600 hover:text-indigo-800"
+                @click="przywrocBadanie(badanie)"
+              >Przywróć</button>
+              <button
+                v-else-if="!kierownik"
+                type="button"
+                class="text-sm text-red-600 hover:text-red-800"
+                @click="usunBadanie(badanie)"
+              >Usuń</button>
+            </td>
+          </tr>
+          <tr v-if="bads.data.length === 0">
+            <td class="px-6 py-6 border-t text-gray-400" colspan="5">
+              Brak wpisanych badań dla tego pracownika.
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
-    <h1 class="m-4 font-bold">Dodane pliki</h1>
+    <pagination v-if="bads.links" class="mt-4" :links="bads.links" />
+
+    <h2 class="mt-10 mb-4 text-xl font-bold">Skany badań</h2>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Plik</th>
-          <th class="pb-4 pt-6 px-6">Typ</th>
-          <th class="pb-4 pt-6 px-6 text-center">Akcje</th>
-        </tr>
-        <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t">
-            <!-- Nazwa też pobiera plik. Wcześniej wisiało tu wywołanie metody
-                 download(), której nie ma w żadnym z tych widoków — klik
-                 w nazwę kończył się błędem w konsoli i niczym więcej. -->
-            <a
-              target="_blank"
-              :href="`/contacts/${contactId}/documents/${document.id}`"
-              class="flex items-center px-6 py-4 focus:text-indigo-500 hover:text-indigo-600"
-            >{{ document.name }}</a>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
-          </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.dokumentytyp.name }}</Link>
-          </td>
-          <td class="border-t">
-            <div class="flex justify-end">
-              <div class="text-center px-4 py-2 m-2">
-                <a target="_blank" :href="'/contacts/' + contactId + '/documents/'+ document.id" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-                  <DocumentDownloadIcon class="h-5 w-5 text-indigo-500" />
+        <thead>
+          <tr class="text-left font-bold">
+            <th class="pb-4 pt-6 px-6">Nazwa</th>
+            <th class="pb-4 pt-6 px-6">Plik</th>
+            <th class="pb-4 pt-6 px-6" />
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="document in documents.data"
+            :key="document.id"
+            class="hover:bg-gray-100 focus-within:bg-gray-100"
+            :class="document.deleted_at ? 'text-gray-400' : ''"
+          >
+            <td class="border-t px-6 py-4">
+              <a
+                v-if="!document.deleted_at"
+                target="_blank"
+                :href="`/contacts/${contactId}/documents/${document.id}`"
+                class="hover:text-indigo-600 focus:text-indigo-500"
+              >{{ document.name }}</a>
+              <span v-else>{{ document.name }}</span>
+              <span v-if="document.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+            </td>
+            <td class="border-t px-6 py-4 text-gray-500">{{ document.filename }}</td>
+            <td class="border-t px-6 py-4">
+              <div class="flex items-center justify-end gap-3">
+                <a
+                  v-if="!document.deleted_at"
+                  target="_blank"
+                  :href="`/contacts/${contactId}/documents/${document.id}`"
+                  class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800"
+                >
+                  <DocumentDownloadIcon class="h-4 w-4" />
                   <span>Pobierz</span>
                 </a>
-              </div>
-              <div v-if="userOwner !== 3" class="text-center px-4 py-2 m-2">
-                <a class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center cursor-pointer" target="_blank" @click="removeDocument(document.id)" >
-                  <TrashIcon class="h-5 w-5 text-indigo-500" />
+                <button
+                  v-if="!kierownik && document.deleted_at"
+                  type="button"
+                  class="text-sm text-indigo-600 hover:text-indigo-800"
+                  @click="przywrocDokument(document)"
+                >Przywróć</button>
+                <button
+                  v-else-if="!kierownik"
+                  type="button"
+                  class="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800"
+                  @click="usunDokument(document)"
+                >
+                  <TrashIcon class="h-4 w-4" />
                   <span>Usuń</span>
-                </a>
+                </button>
               </div>
-            </div>
-          </td>
-        </tr>
-        <tr v-if="documents.data.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono dokumentów</td>
-        </tr>
+            </td>
+          </tr>
+          <tr v-if="documents.data.length === 0">
+            <td class="px-6 py-6 border-t text-gray-400" colspan="3">
+              Brak skanów. Wgrywa się je w zakładce <Link class="text-indigo-600 hover:underline" :href="`/contacts/${contactId}/documents`">Dokumenty</Link>.
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
-    <!-- <pagination class="mt-6" :links="accounts.links" /> -->
   </div>
 </template>
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
-import Icon from '@/Shared/Icon'
-import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
-import throttle from 'lodash/throttle'
-import mapValues from 'lodash/mapValues'
+import Pagination from '@/Shared/Pagination'
+import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import WorkerMenu from '@/Shared/WorkerMenu'
-import {DocumentDownloadIcon, TrashIcon} from '@heroicons/vue/solid'
-
+import { DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
 
 export default {
   components: {
-    Head,
-    Icon,
-    Link,
-    WorkerMenu,
     DocumentDownloadIcon,
+    Head,
+    Link,
+    Pagination,
+    PracownikNaglowek,
     TrashIcon,
+    WorkerMenu,
   },
   layout: Layout,
   props: {
-    bads: Object,
+    filters: { type: Object, default: () => ({}) },
+    pracownik: { type: String, default: '' },
     contact: Object,
-    badanias: Object,
-    badaniaTyp: Object,
+    bads: Object,
     documents: Object,
     userOwner: Number,
   },
-  mounted: function () {
-    // console.log(this.bads)
-  },
-  data() {
-    return {
-      contactId: this.contact.id,
-      form: {
-        // search: this.filters.search,
-        // trashed: this.filters.trashed,
-      },
-    }
-  },
-  watch: {
-    form: {
-      deep: true,
-      handler: throttle(function () {
-        this.$inertia.get('/badania', pickBy(this.form), { preserveState: true })
-      }, 150),
+  computed: {
+    contactId() {
+      return this.contact.id
+    },
+    kierownik() {
+      return this.userOwner === 3
+    },
+    pokazKosz() {
+      return this.filters.trashed === 'with'
     },
   },
   methods: {
-    reset() {
-      this.form = mapValues(this.form, () => null)
+    // Ta sama skala co na pulpicie, żeby "po terminie" znaczyło wszędzie to samo.
+    opisTerminu(badanie) {
+      if (badanie.deleted_at) return 'w koszu'
+      if (badanie.dni === null || badanie.dni === undefined) return 'bez daty końca'
+      if (badanie.dni < 0) return `po terminie od ${Math.abs(badanie.dni)} dni`
+      if (badanie.dni === 0) return 'kończy się dziś'
+      return `zostało ${badanie.dni} dni`
     },
-    removeDocument(documentId) {
-      this.$inertia.delete(`/contacts/${this.contactId}/documents/${documentId}/lekarskie`)
+    klasaTerminu(badanie) {
+      if (badanie.deleted_at) return 'text-gray-400'
+      if (badanie.dni === null || badanie.dni === undefined) return 'text-gray-500'
+      if (badanie.dni < 0) return 'text-red-700'
+      return badanie.dni <= 30 ? 'text-orange-700' : 'text-gray-600'
+    },
+    przelaczKosz(zdarzenie) {
+      this.$inertia.get(
+        `/contacts/${this.contactId}/badania`,
+        zdarzenie.target.checked ? { trashed: 'with' } : {},
+        { preserveScroll: true, replace: true }
+      )
+    },
+    usunBadanie(badanie) {
+      if (confirm('Przenieść to badanie do kosza?')) {
+        this.$inertia.delete(`/badania/${badanie.id}`, { preserveScroll: true })
+      }
+    },
+    przywrocBadanie(badanie) {
+      this.$inertia.put(`/badania/${badanie.id}/restore`, {}, { preserveScroll: true })
+    },
+    usunDokument(document) {
+      if (confirm('Przenieść ten skan do kosza?')) {
+        this.$inertia.delete(`/contacts/${this.contactId}/documents/${document.id}/lekarskie`, { preserveScroll: true })
+      }
+    },
+    przywrocDokument(document) {
+      this.$inertia.put(`/contacts/${this.contactId}/documents/${document.id}/restore`, {}, { preserveScroll: true })
     },
   },
 }
