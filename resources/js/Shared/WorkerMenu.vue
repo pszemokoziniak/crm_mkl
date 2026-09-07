@@ -2,7 +2,7 @@
   <!-- Na telefonie dziesięć zakładek układało się w pionową listę i spychało
        treść pod ekran. Teraz to jeden pasek, który się przewija w bok;
        na szerokim ekranie mieści się w całości jak dotąd. -->
-  <nav class="mb-6 -mx-1 border-b border-gray-200">
+  <nav class="mt-2 mb-6 -mx-1 border-b border-gray-200">
     <div class="flex gap-4 overflow-x-auto whitespace-nowrap px-1 pb-2">
       <Link
         v-for="zakladka in widoczne"
