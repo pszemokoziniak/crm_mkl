@@ -25,6 +25,7 @@ class CtnDocumentsController extends Controller
         return Inertia::render('CtnDocuments/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contactId' => (int) Request::route('contact_id'),
+            'pracownik' => $this->nazwaPracownika((int) Request::route('contact_id')),
             'userOwner' => Auth::user()->owner,
             // "trashed=with" pokazuje też kosz — inaczej nie da się niczego
             // przywrócić, bo usunięty dokument nigdzie się nie pojawia.
@@ -169,6 +170,14 @@ class CtnDocumentsController extends Controller
      * Plik zostaje teraz na dysku świadomie: bez niego przywrócenie
      * z kosza dałoby wiersz bez treści.
      */
+    /** Nagłówek ma pokazywać, czyją kartę się ogląda — trasa podaje samo id. */
+    private function nazwaPracownika(int $contactId): string
+    {
+        $c = Contact::withTrashed()->find($contactId);
+
+        return $c ? trim($c->last_name.' '.$c->first_name) : '';
+    }
+
     private function doKosza(int $contactId, int $documentId): void
     {
         $document = CtnDocument::query()

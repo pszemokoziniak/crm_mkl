@@ -15,7 +15,7 @@
       </Link>
     </div>
 
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="text-left font-bold">
@@ -64,6 +64,31 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Telefon: karty zamiast przewijanej w bok tabeli. -->
+    <div class="sm:hidden space-y-3">
+      <div
+        v-for="item in wiersze"
+        :key="item.id"
+        class="bg-white rounded-md shadow p-4"
+        :class="item.deleted_at ? 'text-gray-400' : ''"
+      >
+        <div class="flex items-start justify-between gap-2">
+          <div class="font-medium break-words">{{ item.kraj ? item.kraj.name : '—' }}</div>
+          <span v-if="item.deleted_at" class="flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+        </div>
+        <div class="mt-1 text-sm text-gray-500 tabular-nums">{{ item.start || '—' }} → {{ item.end || '—' }}</div>
+        <div class="mt-1 text-sm" :class="klasaTerminu(item)">{{ opisTerminu(item) }}</div>
+        <div v-if="!kierownik" class="mt-3 flex items-center gap-4">
+          <Link class="text-sm text-indigo-600" :href="`/contacts/${contactId}/a1/${item.id}/edit`">Edytuj</Link>
+          <button v-if="item.deleted_at" type="button" class="text-sm text-indigo-600" @click="przywroc(item)">Przywróć</button>
+          <button v-else type="button" class="text-sm text-red-600" @click="usun(item)">Usuń</button>
+        </div>
+      </div>
+      <p v-if="wiersze.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-400">
+        Brak wpisów dla tego pracownika.
+      </p>
     </div>
     <pagination v-if="a1s.links" class="mt-4" :links="a1s.links" />
 
