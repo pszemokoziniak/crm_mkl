@@ -43,8 +43,10 @@ class BiuroKierownikPermission
                 }
             }
 
-            // Dostęp do pracownika (parametr contact)
-            $contactParam = $request->route('contact');
+            // Dostęp do pracownika. Część tras nazywa ten parametr `contact`,
+            // część `contact_id` — bez obu nazw zawężenie po cichu nie zadziała
+            // i kierownik zobaczyłby cudzego pracownika.
+            $contactParam = $request->route('contact') ?: $request->route('contact_id');
 
             if ($contactParam !== null) {
                 $contact = $contactParam instanceof Contact

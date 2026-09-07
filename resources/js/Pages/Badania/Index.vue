@@ -64,8 +64,15 @@
           <th class="pb-4 pt-6 px-6 text-center">Akcje</th>
         </tr>
         <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-          <td class="border-t" @click="download(document.path)">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500">{{ document.name }} </Link>
+          <td class="border-t">
+            <!-- Nazwa też pobiera plik. Wcześniej wisiało tu wywołanie metody
+                 download(), której nie ma w żadnym z tych widoków — klik
+                 w nazwę kończył się błędem w konsoli i niczym więcej. -->
+            <a
+              target="_blank"
+              :href="`/contacts/${contactId}/documents/${document.id}`"
+              class="flex items-center px-6 py-4 focus:text-indigo-500 hover:text-indigo-600"
+            >{{ document.name }}</a>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" tabindex="-1">{{ document.filename }}</Link>
