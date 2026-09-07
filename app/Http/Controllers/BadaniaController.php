@@ -12,6 +12,7 @@ use App\Models\Account;
 use App\Models\CtnDocument;
 use App\Models\Funkcja;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
@@ -22,8 +23,15 @@ class BadaniaController extends Controller
 {
     public function index(Contact $contact)
     {
+        $dzis = Carbon::today();
+        $zKoszem = Request::input('trashed') === 'with';
+
         $bads = Badania::with('badaniaTyp')
                 ->where('contact_id', $contact->id)
+                ->when($zKoszem, fn ($q) => $q->withTrashed())
+                // Najświeższe badanie na górze — to ono decyduje, czy człowiek
+                // może być na budowie. Bez daty końca na sam dół.
+                ->orderByRaw('`end` IS NULL, `end` DESC')
                 ->paginate(10)
                 ->withQueryString()
                 ->through(fn ($badania) => [
@@ -31,18 +39,26 @@ class BadaniaController extends Controller
                     'start' => $badania->start,
                     'name' => $badania->badaniaTyp ? $badania->badaniaTyp : null,
                     'end' => $badania->end,
+                    'deleted_at' => $badania->deleted_at,
+                    'dni' => $badania->end
+                        ? (int) $dzis->diffInDays(Carbon::parse($badania->end)->startOfDay(), false)
+                        : null,
                 ]);
 
 
         return Inertia::render('Badania/Index', [
             'filters' => Request::all('search', 'trashed'),
+            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
             'contact' => $contact,
             'bads' => $bads,
             'userOwner' => Auth::user()->owner,
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', $contact->id)
                 ->where('dokumentytyp_id', '1')
+                ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->orderByDesc('id')
                 ->paginate(10)
+                ->withQueryString()
         ]);
     }
     public function edit(Contact $contact, Badania $badania)
@@ -99,14 +115,14 @@ class BadaniaController extends Controller
         $contact_id = $badania->contact_id;
         $badania->delete();
 
-        return Redirect::route('badania.index', $contact_id)->with('success', 'Pracownik usunięty.');
+        return Redirect::route('badania.index', $contact_id)->with('success', 'Badanie przeniesione do kosza.');
     }
 
     public function restore(Badania $badania)
     {
         $badania->restore();
 
-        return Redirect::back()->with('success', 'Pracownik przywrócony.');
+        return Redirect::back()->with('success', 'Badanie przywrócone.');
     }
 
 }

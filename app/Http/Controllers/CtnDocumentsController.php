@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -27,9 +26,14 @@ class CtnDocumentsController extends Controller
             'filters' => Request::all('search', 'trashed'),
             'contactId' => (int) Request::route('contact_id'),
             'userOwner' => Auth::user()->owner,
+            // "trashed=with" pokazuje też kosz — inaczej nie da się niczego
+            // przywrócić, bo usunięty dokument nigdzie się nie pojawia.
             'documents' => CtnDocument::with('dokumentytyp')
                 ->where('contact_id', Request::route('contact_id'))
+                ->when(Request::input('trashed') === 'with', fn ($q) => $q->withTrashed())
+                ->orderByDesc('id')
                 ->paginate(10)
+                ->withQueryString()
         ]);
     }
 
@@ -90,98 +94,84 @@ class CtnDocumentsController extends Controller
 
     public function delete(int $id, int $documentId): RedirectResponse
     {
-        $document = CtnDocument::query()->where('id', $documentId)->first();
+        $this->doKosza($id, $documentId);
 
-        if ($document) {
-            $document->delete();
-        }
-
-        try {
-            Storage::delete(storage_path("app/" . $document->path));
-        } catch (\Exception $exception) {
-            throw new \Exception('Cannot remove file ' . $document->path);
-        }
-
-        return Redirect::route(
-            'documents.index',
-            [
-                'contact_id' => $id,
-                'document_id' => $documentId
-            ])
-            ->with('success', 'Usunięto dokument');
+        return Redirect::route('documents.index', ['contact_id' => $id])
+            ->with('success', 'Dokument przeniesiony do kosza.');
     }
 
     public function deleteLek(int $id, int $documentId): RedirectResponse
     {
-        $document = CtnDocument::query()->where('id', $documentId)->first();
+        $this->doKosza($id, $documentId);
 
-        if ($document) {
-            $document->delete();
-        }
-
-        try {
-            Storage::delete(storage_path("app/" . $document->path));
-        } catch (\Exception $exception) {
-            throw new \Exception('Cannot remove file ' . $document->path);
-        }
-
-        // @TODO remove file and add logger
         return Redirect::route('badania.index', ['contact' => $id])
-            ->with('success', 'Usunięto dokument');
+            ->with('success', 'Dokument przeniesiony do kosza.');
     }
 
     public function deleteBhp(int $id, int $documentId): RedirectResponse
     {
-        $document = CtnDocument::query()->where('id', $documentId)->first();
+        $this->doKosza($id, $documentId);
 
-        if ($document) {
-            $document->delete();
-        }
-
-        try {
-            Storage::delete(storage_path("app/" . $document->path));
-        } catch (\Exception $exception) {
-            throw new \Exception('Cannot remove file ' . $document->path);
-        }
-
-        // @TODO remove file and add logger
         return Redirect::route('bhp.index', ['contact' => $id])
-            ->with('success', 'Usunięto dokument');
+            ->with('success', 'Dokument przeniesiony do kosza.');
     }
+
     public function deleteUpr(int $id, int $documentId): RedirectResponse
     {
-        $document = CtnDocument::query()->where('id', $documentId)->first();
+        $this->doKosza($id, $documentId);
 
-        if ($document) {
-            $document->delete();
-        }
-
-        try {
-            Storage::delete(storage_path("app/" . $document->path));
-        } catch (\Exception $exception) {
-            throw new \Exception('Cannot remove file ' . $document->path);
-        }
-
-        // @TODO remove file and add logger
         return Redirect::route('uprawnienia.index', ['contact' => $id])
-            ->with('success', 'Usunięto dokument');
+            ->with('success', 'Dokument przeniesiony do kosza.');
     }
+
     public function deleteA1(int $id, int $documentId): RedirectResponse
     {
-        $document = CtnDocument::query()->where('id', $documentId)->first();
+        $this->doKosza($id, $documentId);
 
-        if ($document) {
-            $document->delete();
-        }
-
-        try {
-            Storage::delete(storage_path("app/" . $document->path));
-        } catch (\Exception $exception) {
-            throw new \Exception('Cannot remove file ' . $document->path);
-        }
-
-        // @TODO remove file and add logger
         return Redirect::route('a1.index', ['contact' => $id])
-            ->with('success', 'Usunięto dokument');
+            ->with('success', 'Dokument przeniesiony do kosza.');
+    }
+
+    public function restore(int $id, int $documentId): RedirectResponse
+    {
+        $document = CtnDocument::withTrashed()
+            ->where('id', $documentId)
+            ->where('contact_id', $id)
+            ->first();
+
+        if (! $document) {
+            abort(404);
+        }
+
+        $document->restore();
+
+        return Redirect::back()->with('success', 'Dokument przywrócony.');
+    }
+
+    /**
+     * Kasowanie dokumentu w pięciu miejscach było pięć razy przepisane
+     * i wszędzie miało te same trzy usterki:
+     *
+     * - $document->path czytano poza sprawdzeniem null, więc brakujący
+     *   dokument kończył się błędem zamiast cichym pominięciem,
+     * - Storage::delete() dostawało ścieżkę bezwzględną, a oczekuje ścieżki
+     *   względem dysku — plik NIGDY nie znikał, tylko wiersz z bazy,
+     * - nie sprawdzano, czy dokument należy do pracownika z adresu.
+     *
+     * Plik zostaje teraz na dysku świadomie: bez niego przywrócenie
+     * z kosza dałoby wiersz bez treści.
+     */
+    private function doKosza(int $contactId, int $documentId): void
+    {
+        $document = CtnDocument::query()
+            ->where('id', $documentId)
+            ->where('contact_id', $contactId)
+            ->first();
+
+        if (! $document) {
+            abort(404);
+        }
+
+        $document->delete();
     }
 }
