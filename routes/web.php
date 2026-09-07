@@ -1340,25 +1340,29 @@ Route::get('building/time-sheet/month-report', [BuildingTimeSheet::class, 'repor
     ->middleware('auth', 'biuro-permission');
 
 /** Country Feasts */
+// Kalendarz dni wolnych to slownik jak Kraj — wchodzi sie tu wylacznie
+// z edycji kraju, a ta jest admin-only. Trasom brakowalo tego sprawdzenia,
+// wiec kazdy zalogowany (takze kierownik budowy) mogl dodawac i kasowac
+// swieta, a te wplywaja na rozliczenie godzin.
 Route::get('country/{country}/feasts', [FeastsController::class, 'index'])
     ->name('country_feasts.index')
-    ->middleware('auth');
+    ->middleware('auth', 'admin-permission');
 
 Route::get('country/{country}/feasts/create', [FeastsController::class, 'create'])
     ->name('country_feasts.create')
-    ->middleware('auth');
+    ->middleware('auth', 'admin-permission');
 
 Route::get('country/{country}/feasts/{feast}', [FeastsController::class, 'edit'])
     ->name('country_feasts.edit')
-    ->middleware('auth');
+    ->middleware('auth', 'admin-permission');
 
 Route::post('country/{country}/feasts', [FeastsController::class, 'store'])
     ->name('country_feasts.store')
-    ->middleware('auth');
+    ->middleware('auth', 'admin-permission');
 
 Route::delete('country/{country}/feasts/{feast}/delete', [FeastsController::class, 'delete'])
     ->name('country_feasts.delete')
-    ->middleware('auth');
+    ->middleware('auth', 'admin-permission');
 
 
 // Baza wiedzy — czyta każdy zalogowany, pisze administrator.

@@ -49,7 +49,19 @@ class FeastsController extends Controller
 
     public function store(FeastRequest $request, int $country): RedirectResponse
     {
-        Feast::updateOrCreate(['id' => $request->get('id')], $request->all())->save();
+        $dane = $request->validated();
+
+        // Tylko pola z walidacji. Wcześniej szło tu $request->all(), a przy
+        // globalnym Model::unguard() oznacza to, że do tabeli trafia wszystko,
+        // co ktoś doklei do formularza.
+        Feast::updateOrCreate(
+            ['id' => $dane['id'] ?? null],
+            [
+                'country_id' => $dane['country_id'],
+                'name' => $dane['name'],
+                'date' => $dane['date'],
+            ]
+        );
 
         return Redirect::route('krajTyp.edit', $country);
     }
