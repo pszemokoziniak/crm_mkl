@@ -15,7 +15,7 @@
       </Link>
     </div>
 
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="text-left font-bold">
@@ -50,13 +50,13 @@
                 v-if="!kierownik && badanie.deleted_at"
                 type="button"
                 class="text-sm text-indigo-600 hover:text-indigo-800"
-                @click="przywrocBadanie(badanie)"
+                @click="przywroc(badanie)"
               >Przywróć</button>
               <button
                 v-else-if="!kierownik"
                 type="button"
                 class="text-sm text-red-600 hover:text-red-800"
-                @click="usunBadanie(badanie)"
+                @click="usun(badanie)"
               >Usuń</button>
             </td>
           </tr>
@@ -67,6 +67,31 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Telefon: karty zamiast przewijanej w bok tabeli. -->
+    <div class="sm:hidden space-y-3">
+      <div
+        v-for="badanie in bads.data"
+        :key="badanie.id"
+        class="bg-white rounded-md shadow p-4"
+        :class="badanie.deleted_at ? 'text-gray-400' : ''"
+      >
+        <div class="flex items-start justify-between gap-2">
+          <div class="font-medium break-words">{{ badanie.name ? badanie.name.name : '—' }}</div>
+          <span v-if="badanie.deleted_at" class="flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+        </div>
+        <div class="mt-1 text-sm text-gray-500 tabular-nums">{{ badanie.start || '—' }} → {{ badanie.end || '—' }}</div>
+        <div class="mt-1 text-sm" :class="klasaTerminu(badanie)">{{ opisTerminu(badanie) }}</div>
+        <div v-if="!kierownik" class="mt-3 flex items-center gap-4">
+          <Link class="text-sm text-indigo-600" :href="`/contacts/${contactId}/badania/${badanie.id}/edit`">Edytuj</Link>
+          <button v-if="badanie.deleted_at" type="button" class="text-sm text-indigo-600" @click="przywroc(badanie)">Przywróć</button>
+          <button v-else type="button" class="text-sm text-red-600" @click="usun(badanie)">Usuń</button>
+        </div>
+      </div>
+      <p v-if="bads.data.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-400">
+        Brak wpisów dla tego pracownika.
+      </p>
     </div>
     <pagination v-if="bads.links" class="mt-4" :links="bads.links" />
 
@@ -139,12 +164,12 @@ export default {
         { preserveScroll: true, replace: true }
       )
     },
-    usunBadanie(badanie) {
+    usun(badanie) {
       if (confirm('Przenieść to badanie do kosza?')) {
         this.$inertia.delete(`/badania/${badanie.id}`, { preserveScroll: true })
       }
     },
-    przywrocBadanie(badanie) {
+    przywroc(badanie) {
       this.$inertia.put(`/badania/${badanie.id}/restore`, {}, { preserveScroll: true })
     },
   },

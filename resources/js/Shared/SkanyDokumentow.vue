@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 v-if="pokazTytul" class="mt-10 mb-4 text-xl font-bold">{{ tytul }}</h2>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="text-left font-bold">
@@ -72,6 +72,47 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Telefon: karty zamiast tabeli. Nazwa pliku bywa długa
+         ("Robert Biskupiak - badanie do 17.03.2027.pdf"), więc łamiemy ją
+         zamiast chować za poziomym przewijaniem. -->
+    <div class="sm:hidden space-y-3">
+      <div
+        v-for="dokument in documents.data"
+        :key="dokument.id"
+        class="bg-white rounded-md shadow p-4"
+        :class="dokument.deleted_at ? 'text-gray-400' : ''"
+      >
+        <div class="flex items-start justify-between gap-2">
+          <div class="font-medium break-words">{{ dokument.name }}</div>
+          <span v-if="dokument.deleted_at" class="flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+        </div>
+        <div class="mt-1 text-sm text-gray-500 break-all">{{ dokument.filename }}</div>
+        <div v-if="pokazTyp && dokument.dokumentytyp" class="mt-1 text-xs text-gray-400">
+          {{ dokument.dokumentytyp.name }}
+        </div>
+        <div class="mt-3 flex items-center gap-4">
+          <a
+            v-if="!dokument.deleted_at"
+            target="_blank"
+            :href="adresPliku(dokument)"
+            class="inline-flex items-center gap-1 text-sm text-indigo-600"
+          >
+            <DocumentDownloadIcon class="h-4 w-4" />
+            <span>Pobierz</span>
+          </a>
+          <button v-if="!kierownik && dokument.deleted_at" type="button" class="text-sm text-indigo-600" @click="przywroc(dokument)">Przywróć</button>
+          <button v-else-if="!kierownik" type="button" class="inline-flex items-center gap-1 text-sm text-red-600" @click="usun(dokument)">
+            <TrashIcon class="h-4 w-4" />
+            <span>Usuń</span>
+          </button>
+        </div>
+      </div>
+      <p v-if="documents.data.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-400">
+        <template v-if="pokazTyp">Brak dokumentów.</template>
+        <template v-else>Brak skanów. Wgrywa się je w zakładce Dokumenty.</template>
+      </p>
     </div>
   </div>
 </template>
