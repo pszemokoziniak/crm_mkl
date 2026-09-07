@@ -24,6 +24,8 @@ class StoreBadaniaRequest extends FormRequest
     public function rules()
     {
         return [
+            // 20 MB — tyle samo, co przy wgrywaniu w zakładce Dokumenty.
+            'skan' => ['nullable', 'file', 'max:20480'],
 //            'badaniaTyp_id' =>'required',
             'start' => 'required | date | before:end',
             'end' => 'required | date | after:start',

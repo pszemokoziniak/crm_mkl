@@ -26,6 +26,8 @@ class StoreA1Request extends FormRequest
         $rules = [
             'start' => 'required | date | before:end',
             'end' => 'required | date | after:start',
+            // 20 MB — tyle samo, co przy wgrywaniu w zakładce Dokumenty.
+            'skan' => ['nullable', 'file', 'max:20480'],
         ];
 
         if ($this->isMethod('post')) {

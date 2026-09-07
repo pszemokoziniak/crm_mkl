@@ -24,6 +24,8 @@ class StorePbiozRequest extends FormRequest
     public function rules()
     {
         return [
+            // 20 MB — tyle samo, co przy wgrywaniu w zakładce Dokumenty.
+            'skan' => ['nullable', 'file', 'max:20480'],
             'start' => 'required | date | before:end',
             'end' => 'required | date | after:start',
             'name' => 'required | string | min:3',

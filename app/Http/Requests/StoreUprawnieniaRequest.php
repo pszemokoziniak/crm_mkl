@@ -27,6 +27,8 @@ class StoreUprawnieniaRequest extends FormRequest
             'start' => 'required | date | before:end',
             'end' => 'required | date | after:start',
             'uprawnieniaTyp_id' => 'required',
+            // 20 MB — tyle samo, co przy wgrywaniu w zakładce Dokumenty.
+            'skan' => ['nullable', 'file', 'max:20480'],
         ];
     }
     public function messages() {

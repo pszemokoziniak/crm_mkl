@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePbiozRequest;
+use App\Enums\TypDokumentu;
+use App\Http\Controllers\Concerns\ZapisujeSkan;
 use App\Models\Contact;
 use App\Models\CtnDocument;
 use App\Models\Pbioz;
@@ -14,12 +16,14 @@ use Inertia\Inertia;
 
 class PbiozController extends Controller
 {
+    use ZapisujeSkan;
+
     public function index(Contact $contact, Request $request)
     {
         $dzis = Carbon::today();
         $zKoszem = $request->input('trashed') === 'with';
 
-        $pbioz = Pbioz::where('contact_id', $contact->id)
+        $pbioz = Pbioz::with('skan')->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
             // Najświeższy wpis na górze — to on decyduje o ważności.
             ->orderByRaw('`end` IS NULL, `end` DESC')
@@ -34,6 +38,7 @@ class PbiozController extends Controller
                 'dni' => $pbioz->end
                     ? (int) $dzis->diffInDays(Carbon::parse($pbioz->end)->startOfDay(), false)
                     : null,
+                    'skan' => optional($pbioz->skan)->id,
             ]);
 
         return Inertia::render('Pbioz/Index', [
@@ -92,6 +97,9 @@ class PbiozController extends Controller
         $data->end=$req->end;
         $data->contact_id=$contact_id;
         $data->save();
+
+        $this->zapiszSkan($req, $data, TypDokumentu::PBIOZ);
+
         return Redirect::route('pbioz.index', $contact_id)->with('success', 'Zapisano.');
     }
 
