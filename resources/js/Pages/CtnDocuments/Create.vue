@@ -10,16 +10,28 @@
           <select-input v-model="form.typ" :error="form.errors.typ" class="pb-8 pr-6 w-full lg:w-1/2" label="Typ dokumentu">
             <option v-for="item in dokumentyTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
-          <!-- Przypisanie do konkretnego wpisu: bez tego skan trafiał tylko
-               do worka "dokumenty tego pracownika w tym typie". -->
-          <div v-if="form.typ" class="pb-8 pr-6 w-full">
-            <label class="form-label" for="zrodlo">Przypisz do wpisu:</label>
-            <select id="zrodlo" v-model="form.zrodlo_id" class="form-select" :disabled="!wpisyTypu.length">
+          <!-- Przypisanie do konkretnego wpisu: bez tego dokument trafia tylko
+               do worka "dokumenty tego pracownika w tym typie".
+               Pole jest widoczne od razu, tylko nieczynne do czasu wybrania
+               typu — schowane nie dawało znać, że taka możliwość istnieje. -->
+          <div class="pb-8 pr-6 w-full lg:w-1/2">
+            <label class="form-label" for="zrodlo">Przypisz do wpisu (opcjonalnie):</label>
+            <select
+              id="zrodlo"
+              v-model="form.zrodlo_id"
+              class="form-select"
+              :class="{ 'bg-gray-100 text-gray-400': !form.typ || !wpisyTypu.length }"
+              :disabled="!form.typ || !wpisyTypu.length"
+            >
               <option :value="null">— nie przypisuj —</option>
               <option v-for="w in wpisyTypu" :key="w.id" :value="w.id">{{ w.etykieta }}</option>
             </select>
-            <p v-if="!wpisyTypu.length" class="mt-1 text-sm text-gray-500">
-              Ten pracownik nie ma jeszcze wpisów tego rodzaju — dokument zostanie dodany luzem.
+            <p class="mt-1 text-sm text-gray-500">
+              <template v-if="!form.typ">Najpierw wybierz typ dokumentu.</template>
+              <template v-else-if="!wpisyTypu.length">
+                Ten pracownik nie ma jeszcze wpisów rodzaju „{{ nazwaTypu }}" — dokument zostanie dodany luzem.
+              </template>
+              <template v-else>Dzięki temu przy wpisie pojawi się odnośnik do tego dokumentu.</template>
             </p>
             <div v-if="form.errors.zrodlo_id" class="form-error">{{ form.errors.zrodlo_id }}</div>
           </div>
@@ -80,6 +92,11 @@ export default {
   computed: {
     wpisyTypu() {
       return this.wpisy[this.form.typ] || []
+    },
+    nazwaTypu() {
+      const t = (this.dokumentyTyps || []).find((x) => String(x.id) === String(this.form.typ))
+
+      return t ? t.name : ''
     },
   },
   watch: {
