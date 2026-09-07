@@ -20,7 +20,7 @@
         <span>Dodaj</span>
       </Link>
     </div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="text-left font-bold">
@@ -58,6 +58,23 @@
 <!--          </tr>-->
         </tbody>
       </table>
+    </div>
+
+    <!-- Wąski ekran: karta zamiast tabeli. -->
+    <div class="space-y-3 md:hidden">
+      <div v-for="item in klients" :key="item.id" class="bg-white rounded-md shadow p-4">
+        <div class="font-medium text-gray-900 break-words">
+          {{ item.nameFirma }}
+          <icon v-if="item.deleted_at" name="trash" class="inline ml-1 w-3 h-3 fill-gray-400" />
+        </div>
+        <div v-if="item.nameKontakt" class="mt-0.5 text-sm text-gray-600">{{ item.nameKontakt }}</div>
+        <!-- Na telefonie numer ma być klikalny — po to ten ekran tam jest. -->
+        <a v-if="item.phone" :href="`tel:${item.phone}`" class="mt-1 inline-block text-sm text-indigo-600">{{ item.phone }}</a>
+        <div v-if="!$page.props.permissions.kierownik" class="mt-2 text-sm">
+          <Link class="text-indigo-600" :href="`/budowy/${budId}/klient/${item.id}/edit`">Popraw</Link>
+        </div>
+      </div>
+      <p v-if="klients.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">Brak danych klienta.</p>
     </div>
 <!--    <pagination class="mt-6" :links="organizations.links" />-->
   </div>
