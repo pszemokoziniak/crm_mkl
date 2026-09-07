@@ -67,13 +67,25 @@ class CtnDocumentsController extends Controller
 
     public function view(int $contactId, int $documentId): BinaryFileResponse
     {
-        $document = CtnDocument::query()->where('id', $documentId)->first();
+        // Dokument musi należeć do pracownika z adresu. Bez tego wystarczyło
+        // podać id własnego pracownika i dowolne id dokumentu, żeby pobrać
+        // cudzy skan — a od teraz wchodzą tu też kierownicy budów.
+        $document = CtnDocument::query()
+            ->where('id', $documentId)
+            ->where('contact_id', $contactId)
+            ->first();
 
-        if (!$document) {
-            throw new \Exception('with ID ' . $documentId);
+        if (! $document) {
+            abort(404);
         }
 
-        return response()->download(storage_path("app/" . $document->path));
+        $sciezka = storage_path('app/'.$document->path);
+
+        if (! is_file($sciezka)) {
+            abort(404);
+        }
+
+        return response()->download($sciezka, $document->filename ?: basename($sciezka));
     }
 
     public function delete(int $id, int $documentId): RedirectResponse

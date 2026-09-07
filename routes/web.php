@@ -1271,7 +1271,7 @@ Route::get('/img/{path}', [ImagesController::class, 'show'])
 
 Route::get('contacts/{contact_id}/documents/', [CtnDocumentsController::class, 'index'])
     ->name('documents.index')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::get('contacts/{contact_id}/documents/create', [CtnDocumentsController::class, 'create'])
@@ -1286,7 +1286,7 @@ Route::post('contacts/{contact_id}/documents/store', [CtnDocumentsController::cl
 
 Route::get('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'view'])
     ->name('documents.view')
-        ->middleware('auth', 'biuro-permission');
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 
 Route::delete('contacts/{contact_id}/documents/{document_id}', [CtnDocumentsController::class, 'delete'])

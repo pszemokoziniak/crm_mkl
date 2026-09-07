@@ -27,7 +27,9 @@
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/uprawnienia`">
             <div :class="isUrl('uprawnienia') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Uprawnienia</div>
           </Link>
-          <Link v-if="rola !== 3" class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/documents`">
+          <!-- Kierownik ogląda i pobiera dokumenty swoich ludzi — potrzebuje
+               ich przy kontroli i przy wejściu inwestora na budowę. -->
+          <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/documents`">
             <div :class="isUrl('documents') ? 'text-green-500' : 'text-indigo-300 hover:text-green-500'">Dokumenty</div>
           </Link>
           <Link class="block mt-4 md:inline-block lg:mt-3 mr-4" :href="`/contacts/${contactId}/jezyk`">
