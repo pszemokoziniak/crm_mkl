@@ -2,19 +2,33 @@
   <div>
     <Head :title="`${form.first_name} ${form.last_name}`" />
 
-    <div class="grid grid-cols-3 bg-white rounded-md shadow overflow-hidden">
-      <div class="grid col-span-1 relative group bg-gray-200">
+    <h1 class="mb-4 text-2xl sm:text-3xl font-bold">
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>
+      <span class="text-indigo-400 font-medium">/</span>
+      {{ form.first_name }} {{ form.last_name }}
+    </h1>
+
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 bg-white rounded-md shadow overflow-hidden">
+      <!-- Na wąskim ekranie kolumny się układają jedna pod drugą, a ta bez
+           własnej wysokości zapadała się do paska i nakładka ze stanowiskiem
+           lądowała na inicjałach. -->
+      <div class="grid col-span-1 relative group bg-gray-200 h-48 md:h-auto">
         <!-- Podgląd nowo wybranego zdjęcia -->
         <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover" alt="Podgląd" />
         <!-- Istniejące zdjęcie -->
         <img v-else-if="contact.photo_path" :src="contact.photo_path" class="w-full h-full object-cover" alt="image" />
         <!-- Placeholder -->
-        <img v-else src="/img/contacts/emptyPhoto.png?w=260&h=260&fit=fill" class="w-full h-full object-cover opacity-50" alt="Brak zdjęcia" />
+        <!-- Wskazywało na /img/contacts/emptyPhoto.png, którego nie ma w repo
+             ani na serwerze — przeglądarka pokazywała ikonę zepsutego obrazka.
+             Inicjały rysujemy same, więc nie ma czego zgubić. -->
+        <div v-else class="flex items-end justify-center pb-6 w-full h-full bg-gray-300">
+          <span class="text-5xl font-black text-gray-500 tracking-wide">{{ inicjaly }}</span>
+        </div>
 
         <!-- Stanowisko nakładka na zdjęcie - GÓRNY LEWY RÓG -->
         <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent p-5 pt-6">
-          <p class="text-[10px] font-bold text-black-300 uppercase tracking-[0.2em] mb-1 drop-shadow-sm">Stanowisko</p>
-          <p class="text-2xl text-black font-black tracking-tight leading-tight drop-shadow-md uppercase">
+          <p class="text-[10px] font-bold text-white/80 uppercase tracking-[0.2em] mb-1">Stanowisko</p>
+          <p class="text-xl sm:text-2xl text-white font-black tracking-tight leading-tight drop-shadow-md uppercase">
             {{ currentFunkcjaName }}
           </p>
         </div>
@@ -118,14 +132,7 @@
         </div>
       </div>
     </div>
-    <div>
-      <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" :user-owner="user_owner" />
-    </div>
-    <h1 class="mb-4 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ form.first_name }} {{ form.last_name }}
-    </h1>
+    <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" :user-owner="user_owner" />
     <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-100">
         <span class="font-semibold text-gray-700">Budowy pracownika</span>
@@ -368,6 +375,13 @@ export default {
     }
   },
   computed: {
+    /** Inicjały zamiast brakującego zdjęcia — dwie litery z imienia i nazwiska. */
+    inicjaly() {
+      const i = (this.form.first_name || '').trim()[0] || ''
+      const n = (this.form.last_name || '').trim()[0] || ''
+
+      return (i + n).toUpperCase() || '—'
+    },
     /** Pobyty na innych budowach zachodzące na wybrany termin. */
     kolidujacePobyty() {
       if (!this.assignForm.start || !this.assignForm.end) {
