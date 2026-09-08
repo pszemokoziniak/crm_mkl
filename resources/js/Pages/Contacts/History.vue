@@ -3,7 +3,7 @@
     <Head :title="`${contact.first_name} ${contact.last_name} - Historia`" />
     <div class="mb-8">
       <WorkerMenu :contact-id="contact.id" />
-      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Historia" />
+      <pracownik-naglowek :pracownik="pracownik" tytul="Historia" />
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">

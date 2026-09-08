@@ -3,7 +3,7 @@
     <Head title="Nieobecności" />
     <div>
       <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
-      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Nieobecności" />
+      <pracownik-naglowek :pracownik="pracownik" tytul="Nieobecności" />
     </div>
     <h1 class="mb-2 text-2xl font-bold">Nieobecności</h1>
     <p class="mb-6 text-sm text-gray-500">Urlopy, zwolnienia i inne powody, dla których pracownika nie ma na budowie.</p>

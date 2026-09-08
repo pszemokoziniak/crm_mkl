@@ -85,7 +85,9 @@ class BadaniaWidokTest extends TestCase
 
         // Szablon sięga po te pola wprost — brak któregokolwiek to pusty
         // nagłówek albo wywalona paginacja, czego testy logiki nie wychwycą.
-        $this->assertSame('Bącik Marcin', $p['pracownik']);
+        // Nagłówek dostaje obiekt {id, nazwa} — id napędza odnośnik do karty.
+        $this->assertSame('Bącik Marcin', $p['pracownik']['nazwa']);
+        $this->assertSame($this->pracownik->id, $p['pracownik']['id']);
         $this->assertArrayHasKey('links', json_decode(json_encode($p['bads']), true));
         $this->assertArrayHasKey('data', json_decode(json_encode($p['documents']), true));
 

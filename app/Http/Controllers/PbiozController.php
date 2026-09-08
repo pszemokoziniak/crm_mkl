@@ -43,7 +43,7 @@ class PbiozController extends Controller
 
         return Inertia::render('Pbioz/Index', [
             'filters' => $request->only('search', 'trashed'),
-            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
+            'pracownik' => $this->danePracownika($contact),
             'contact' => $contact,
             'pbioz' => $pbioz,
             'userOwner' => Auth::user()->owner,

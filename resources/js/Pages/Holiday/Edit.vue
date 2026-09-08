@@ -3,7 +3,7 @@
     <Head :title="`${form.first_name} ${form.last_name}`" />
     <div>
       <WorkerMenu :contactId="contactId" />
-      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Nieobecności — edycja" />
+      <pracownik-naglowek :pracownik="pracownik" tytul="Nieobecności — edycja" />
     </div>
     <h1 class="mb-8 text-2xl font-bold">Nieobecność</h1>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">

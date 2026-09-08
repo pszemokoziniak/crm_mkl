@@ -2,7 +2,7 @@
   <div>
     <Head title="Create Contact" />
     <worker-menu :contact-id="contactId" />
-    <pracownik-naglowek :contact-id="pracownik ? pracownik.id : contactId" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Dokumenty — dodaj" />
+    <pracownik-naglowek :pracownik="pracownik" tytul="Dokumenty — dodaj" />
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">

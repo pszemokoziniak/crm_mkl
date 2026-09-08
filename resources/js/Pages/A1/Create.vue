@@ -2,7 +2,7 @@
   <div>
     <Head title="Dodaj A1" />
     <worker-menu :contact-id="contact_id" />
-    <pracownik-naglowek :contact-id="pracownik ? pracownik.id : contact_id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="A1 — dodaj" />
+    <pracownik-naglowek :pracownik="pracownik" tytul="A1 — dodaj" />
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store(contact_id)">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">

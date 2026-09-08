@@ -3,7 +3,7 @@
     <Head :title="`${form.first_name} ${form.last_name}`" />
     <div>
       <WorkerMenu :contactId="contactId" />
-      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Języki — edycja" />
+      <pracownik-naglowek :pracownik="pracownik" tytul="Języki — edycja" />
     </div>
     <trashed-message v-if="jezyk.deleted_at" class="mb-6" @restore="restore"> Ten element będzię usunięty</trashed-message>
     <h1 class="mb-8 text-2xl font-bold">Dodaj język</h1>

@@ -53,7 +53,7 @@ class BadaniaController extends Controller
 
         return Inertia::render('Badania/Index', [
             'filters' => Request::all('search', 'trashed'),
-            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
+            'pracownik' => $this->danePracownika($contact),
             'contact' => $contact,
             'bads' => $bads,
             'userOwner' => Auth::user()->owner,

@@ -2,7 +2,7 @@
   <div>
     <Head title="Język" />
     <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
-    <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Języki" />
+    <pracownik-naglowek :pracownik="pracownik" tytul="Języki" />
     <div class="flex items-center justify-between mb-6">
       <Link v-if="userOwner !== 3" class="btn-indigo" :href="`/contacts/${contact.id}/jezyk/create`">
         <span>Dodaj</span>

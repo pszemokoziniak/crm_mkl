@@ -65,7 +65,10 @@ class EkranDokumentowTest extends TestCase
     {
         $this->skan();
 
-        $this->assertSame('Biskupiak Robert', $this->props()['pracownik']);
+        $p = $this->props()['pracownik'];
+
+        $this->assertSame('Biskupiak Robert', $p['nazwa']);
+        $this->assertSame($this->pracownik->id, $p['id']);
     }
 
     public function test_lista_niesie_typ_dokumentu(): void

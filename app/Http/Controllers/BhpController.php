@@ -46,7 +46,7 @@ class BhpController extends Controller
 
         return Inertia::render('Bhp/Index', [
             'filters' => $request->only('search', 'trashed'),
-            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
+            'pracownik' => $this->danePracownika($contact),
             'contact' => $contact,
             'bhps' => $bhps,
             'userOwner' => Auth::user()->owner,

@@ -27,7 +27,7 @@ class A1Controller extends Controller
 
         return Inertia::render('A1/Index', [
             'filters' => $request->only('search', 'trashed'),
-            'pracownik' => trim($contact->last_name.' '.$contact->first_name),
+            'pracownik' => $this->danePracownika($contact),
             'a1s' => A1::with('skan', 'kraj')
                 ->where('contact_id', $contact->id)
                 ->when($zKoszem, fn ($q) => $q->withTrashed())

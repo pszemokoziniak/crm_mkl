@@ -3,7 +3,7 @@
     <Head title="PBIOZ" />
     <WorkerMenu :contactId="contactId" :userOwner="userOwner" />
 
-    <PracownikNaglowek :contact-id="contactId" :nazwa="pracownik" tytul="PBIOZ" />
+    <pracownik-naglowek :pracownik="pracownik" tytul="PBIOZ" />
 
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <label class="flex items-center gap-2 text-sm text-gray-600">
@@ -128,7 +128,7 @@ export default {
   layout: Layout,
   props: {
     filters: { type: Object, default: () => ({}) },
-    pracownik: { type: String, default: '' },
+    pracownik: { type: Object, default: null },
     contact: Object,
     pbioz: Object,
     documents: Object,

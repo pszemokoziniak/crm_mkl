@@ -3,7 +3,7 @@
     <Head :title="`${form.first_name} ${form.last_name}`" />
     <div>
       <WorkerMenu :contactId="contactId" />
-      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="A1 — edycja" />
+      <pracownik-naglowek :pracownik="pracownik" tytul="A1 — edycja" />
     </div>
     <trashed-message v-if="a1.deleted_at" class="mb-6" @restore="restore"> Ten element będzię usunięty</trashed-message>
     <h1 class="mb-8 text-2xl font-bold">A1</h1>
