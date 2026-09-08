@@ -69,6 +69,8 @@ class BadaniaController extends Controller
     public function edit(Contact $contact, Badania $badania)
     {
         return Inertia::render('Badania/Edit', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'badanie' => [
                 'id' => $badania->id,
                 'badaniaTyp_id' => $badania->badaniaTyp_id,

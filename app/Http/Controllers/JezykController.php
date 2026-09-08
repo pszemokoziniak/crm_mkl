@@ -27,6 +27,8 @@ class JezykController extends Controller
             ]);
 
         return Inertia::render('Jezyk/Index', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
 //            'filters' => \Illuminate\Support\Facades\Request::all('search', 'trashed'),
             'contact' => $contact,
             'userOwner' => Auth::user()->owner,
@@ -36,6 +38,8 @@ class JezykController extends Controller
     public function edit(Contact $contact, Jezyk $jezyk)
     {
         return Inertia::render('Jezyk/Edit', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'jezyk' => [
                 'id' => $jezyk->id,
                 'jezykTyp_id' => $jezyk->jezykTyp_id,

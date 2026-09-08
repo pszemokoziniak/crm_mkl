@@ -59,6 +59,8 @@ class PbiozController extends Controller
     public function edit(Contact $contact, Pbioz $pbioz)
     {
         return Inertia::render('Pbioz/Edit', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'pbioz' => [
                 'id' =>$pbioz->id,
                 'name' => $pbioz->name,

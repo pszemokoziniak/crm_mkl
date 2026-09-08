@@ -3,12 +3,8 @@
     <Head :title="`${form.first_name} ${form.last_name}`" />
     <div>
       <WorkerMenu :contactId="contactId" />
+      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Badania lekarskie — edycja" />
     </div>
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ contact.first_name }} {{ contact.last_name }}
-    </h1>
     <trashed-message v-if="badanie.deleted_at" class="mb-6" @restore="restore"> To badanie zostało usunięte</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="update">
@@ -33,6 +29,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import SelectInput from '@/Shared/SelectInput'
@@ -48,10 +45,12 @@ export default {
     SelectInput,
     TextInput,
     TrashedMessage,
+    PracownikNaglowek,
     WorkerMenu,
   },
   layout: Layout,
   props: {
+    pracownik: { type: Object, default: null },
     contact: Object,
     organizations: Array,
     badaniaTyps: Object,
