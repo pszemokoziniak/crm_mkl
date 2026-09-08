@@ -116,7 +116,8 @@ class KoszUprawnienBhpA1Test extends TestCase
 
         $p = $this->props($rodzaj);
 
-        $this->assertSame('Bącik Marcin', $p['pracownik']);
+        $this->assertSame('Bącik Marcin', $p['pracownik']['nazwa']);
+        $this->assertSame($this->pracownik->id, $p['pracownik']['id']);
         $wiersz = collect($p[$propLista]['data'])->firstWhere('id', $m->id);
         $this->assertSame(10, $wiersz['dni']);
         $this->assertNull($wiersz['deleted_at']);
