@@ -2,7 +2,7 @@
   <div>
     <Head :title="`${form.id} ${form.name}`" />
     <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/narzedziaTyp">Narzędzia Typ</Link>
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/narzedziaTyp">Sprzęt</Link>
       <span class="text-indigo-400 font-medium">/</span>
       {{ form.name }}
     </h1>

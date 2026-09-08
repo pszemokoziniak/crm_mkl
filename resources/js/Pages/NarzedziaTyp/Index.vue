@@ -1,7 +1,10 @@
 <template>
   <div>
-    <Head title="Narzędzia Typ" />
-    <h1 class="mb-8 text-3xl font-bold">Narzędzia Typ</h1>
+    <Head title="Sprzęt" />
+    <h1 class="mb-8 text-3xl font-bold">
+      <Link class="text-indigo-400 hover:text-indigo-600" href="/tools">Ustawienia</Link>
+      <span class="text-indigo-400 font-medium">/</span> Sprzęt
+    </h1>
     <div class="flex items-center justify-between mb-6">
       <Link class="btn-indigo" href="/narzedziaTyp/create">
         <span>Dodaj</span>
@@ -11,7 +14,7 @@
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th>Nazwa</th>
-          <th></th>
+          <th />
         </tr>
         <tr v-for="item in narzedziaTyp" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
