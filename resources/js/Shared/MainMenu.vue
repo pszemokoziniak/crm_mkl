@@ -1,78 +1,25 @@
 <template>
-  <div>
-    <!-- To samo miejsce, co po kliknięciu w logo — tylko widoczne w menu. -->
-    <div class="mb-4">
-      <Link class="group flex items-center py-3" href="/">
-        <icon name="home" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Home</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro || $page.props.permissions.kierownik" class="mb-4">
-      <Link class="group flex items-center py-3" href="/budowy">
-        <icon name="office" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('budowy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('budowy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Budowy</div>
-      </Link>
-    </div>
-    <div class="mb-4">
-      <Link class="group flex items-center py-3" href="/zadania">
-        <icon name="zadania" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('zadania') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('zadania') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Zadania</div>
-      </Link>
-    </div>
-    <div class="mb-4">
-      <Link class="group flex items-center py-3" href="/baza-wiedzy">
-        <icon name="baza-wiedzy" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('baza-wiedzy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('baza-wiedzy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Baza wiedzy</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/narzedzia">
-        <icon name="sprzet2" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('narzedzia') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('narzedzia') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Sprzęt</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/zmiany-kadrowe">
-        <icon name="zmiany" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('zmiany-kadrowe') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('zmiany-kadrowe') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Zmiany kadrowe</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/contacts">
-        <icon name="users" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('contacts') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('contacts') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Pracownicy</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/kierownicy">
-        <icon name="kierownictwo" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('kierownicy') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('kierownicy') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Kierownicy / Inżynierowie</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/reports/koniecUprawinien">
-        <icon name="eligibility" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('reports') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('reports') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Termin uprawnień</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/tools">
-        <icon name="tools" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('tools') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('tools') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Ustawienia</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/prognoza">
-        <icon name="forecast-workers" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('prognoza') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('prognoza') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Prognoza pracowników</div>
-      </Link>
-    </div>
-    <div v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="mb-4">
-      <Link class="group flex items-center py-3" href="/building/time-sheet/month-report">
-        <icon name="monthlyReport" class="flex-shrink-0 mr-2 w-4 h-4" :class="isUrl('month-report') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'" />
-        <div :class="isUrl('month-report') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">Raport miesięczny</div>
-      </Link>
-    </div>
+  <!-- Wygląd dorównany do CRM: te same odstępy, wielkość ikon i podświetlenie
+       aktywnej pozycji. Kolejność ustala lista poniżej — wcześniej każda
+       pozycja była osobnym blokiem HTML i przestawienie jednej wymagało
+       przenoszenia kilkunastu linii. -->
+  <div class="space-y-1">
+    <Link
+      v-for="pozycja in widoczne"
+      :key="pozycja.adres"
+      class="group flex items-center px-4 py-3 rounded-lg transition-all duration-200"
+      :href="pozycja.adres"
+      :class="czyAktywna(pozycja)
+        ? 'bg-indigo-900 text-white shadow-inner'
+        : 'text-indigo-100 hover:bg-indigo-700 hover:text-white'"
+    >
+      <icon
+        :name="pozycja.ikona"
+        class="flex-shrink-0 mr-3 w-5 h-5 transition-colors duration-200"
+        :class="czyAktywna(pozycja) ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'"
+      />
+      <div class="font-medium">{{ pozycja.nazwa }}</div>
+    </Link>
   </div>
 </template>
 
@@ -81,20 +28,40 @@ import { Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 
 export default {
-  components: {
-    Icon,
-    Link,
+  components: { Icon, Link },
+  data() {
+    return {
+      // Kolejność wg ustaleń z Tomaszem. "widzi" mówi, kto ma pozycję
+      // zobaczyć; brak pola = każdy zalogowany.
+      pozycje: [
+        { nazwa: 'Home', adres: '/', ikona: 'home', dopasowanie: '' },
+        { nazwa: 'Budowy', adres: '/budowy', ikona: 'office', dopasowanie: 'budowy', widzi: ['admin', 'biuro', 'kierownik'] },
+        { nazwa: 'Pracownicy', adres: '/contacts', ikona: 'users', dopasowanie: 'contacts', widzi: ['admin', 'biuro'] },
+        { nazwa: 'Kierownicy / Inżynierowie', adres: '/kierownicy', ikona: 'kierownictwo', dopasowanie: 'kierownicy', widzi: ['admin', 'biuro'] },
+        { nazwa: 'Zmiany kadrowe', adres: '/zmiany-kadrowe', ikona: 'zmiany', dopasowanie: 'zmiany-kadrowe', widzi: ['admin', 'biuro'] },
+        { nazwa: 'Sprzęt', adres: '/narzedzia', ikona: 'sprzet2', dopasowanie: 'narzedzia', widzi: ['admin', 'biuro'] },
+        // Kierownik ma tu wersję zawężoną do swoich budów, więc też widzi pozycję.
+        { nazwa: 'Termin uprawnień', adres: '/reports/koniecUprawinien', ikona: 'eligibility', dopasowanie: 'reports', widzi: ['admin', 'biuro', 'kierownik'] },
+        { nazwa: 'Prognoza pracowników', adres: '/prognoza', ikona: 'forecast-workers', dopasowanie: 'prognoza', widzi: ['admin', 'biuro'] },
+        { nazwa: 'Ustawienia', adres: '/tools', ikona: 'tools', dopasowanie: 'tools', widzi: ['admin', 'biuro'] },
+        { nazwa: 'Zadania', adres: '/zadania', ikona: 'zadania', dopasowanie: 'zadania' },
+        { nazwa: 'Baza wiedzy', adres: '/baza-wiedzy', ikona: 'baza-wiedzy', dopasowanie: 'baza-wiedzy' },
+        { nazwa: 'Raport miesięczny', adres: '/building/time-sheet/month-report', ikona: 'monthlyReport', dopasowanie: 'month-report', widzi: ['admin', 'biuro'] },
+      ],
+    }
   },
-  props: {
-    auth: Object,
+  computed: {
+    widoczne() {
+      const uprawnienia = this.$page.props.permissions || {}
+
+      return this.pozycje.filter((p) => !p.widzi || p.widzi.some((rola) => uprawnienia[rola]))
+    },
   },
   methods: {
-    isUrl(...urls) {
-      let currentUrl = this.$page.url.substr(1)
-      if (urls[0] === '') {
-        return currentUrl === ''
-      }
-      return urls.filter((url) => currentUrl.startsWith(url)).length
+    czyAktywna(pozycja) {
+      const adres = this.$page.url.substr(1)
+
+      return pozycja.dopasowanie === '' ? adres === '' : adres.startsWith(pozycja.dopasowanie)
     },
   },
 }
