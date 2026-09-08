@@ -11,25 +11,17 @@
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa" />
-          <!-- Lista istniejących grup sprzętu + możliwość wpisania nowej,
-               tak samo jak przy wyborze typu sprzętu. -->
+          <!-- Grupę wybiera się tylko z listy; zakłada i nazywa w
+               Ustawieniach → Grupy sprzętu, żeby literówka nie tworzyła
+               drugiej grupy obok istniejącej. -->
           <select-input
-            v-model="form.grupa_wybor"
+            v-model="form.grupa"
             class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Grupa (łączy modele w magazynie)"
+            label="Nazwa grupy"
           >
             <option value="">— bez grupy —</option>
             <option v-for="k in grupy" :key="k" :value="k">{{ k }}</option>
-            <option value="__new__">+ Nowa grupa…</option>
           </select-input>
-          <text-input
-            v-if="form.grupa_wybor === '__new__'"
-            v-model="form.grupa_nowa"
-            :error="form.errors.grupa"
-            class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Nazwa nowej grupy"
-            placeholder="np. Żuraw"
-          />
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!narzedziaTyp.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -68,21 +60,9 @@ export default {
       form: this.$inertia.form({
         id: this.narzedziaTyp.id,
         name: this.narzedziaTyp.name,
-        grupa: this.narzedziaTyp.grupa,
-        grupa_wybor: this.narzedziaTyp.grupa || '',
-        grupa_nowa: '',
+        grupa: this.narzedziaTyp.grupa || '',
       }),
     }
-  },
-  watch: {
-    'form.grupa_wybor': function (wybor) {
-      this.form.grupa = wybor === '__new__' ? this.form.grupa_nowa : wybor
-    },
-    'form.grupa_nowa': function (nazwa) {
-      if (this.form.grupa_wybor === '__new__') {
-        this.form.grupa = nazwa
-      }
-    },
   },
   methods: {
     update() {

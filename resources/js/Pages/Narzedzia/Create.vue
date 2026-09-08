@@ -8,35 +8,23 @@
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
+          <!-- Najpierw czym sprzęt jest, potem którą sztuką — tak się go opisuje. -->
+          <div class="pb-8 pr-6 w-full">
+            <wybor-typu-sprzetu
+              v-model="form.narzedzia_typ_id"
+              v-model:nowy-typ="form.new_typ_name"
+              v-model:nowa-grupa="form.new_typ_grupa"
+              :typy="typy"
+              :grupy="grupy"
+              :bledy="form.errors"
+            />
+          </div>
           <text-input v-model="form.numer_seryjny" :error="form.errors.numer_seryjny" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer seryjny" />
           <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważność badań" />
-          <select-input v-model="form.narzedzia_typ_id" :error="form.errors.narzedzia_typ_id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa sprzętu (typ)">
-            <option value="">— wybierz —</option>
-            <option v-for="t in typy" :key="t.id" :value="t.id">{{ t.name }}</option>
-            <option value="__new__">+ Nowy typ…</option>
-          </select-input>
-          <text-input v-if="form.narzedzia_typ_id === '__new__'" v-model="form.new_typ_name" :error="form.errors.new_typ_name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa nowego typu" />
-          <!-- Lista istniejących grup sprzętu + możliwość wpisania nowej,
-               tak samo jak przy wyborze typu sprzętu. -->
-          <select-input
-            v-if="form.narzedzia_typ_id === '__new__'"
-            v-model="form.new_typ_grupa_wybor"
-            class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Grupa (łączy modele w magazynie)"
-          >
-            <option value="">— bez grupy —</option>
-            <option v-for="k in grupy" :key="k" :value="k">{{ k }}</option>
-            <option value="__new__">+ Nowa grupa…</option>
-          </select-input>
-          <text-input
-            v-if="form.narzedzia_typ_id === '__new__' && form.new_typ_grupa_wybor === '__new__'"
-            v-model="form.new_typ_grupa_nowa"
-            :error="form.errors.new_typ_grupa"
-            class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Nazwa nowej grupy"
-            placeholder="np. Żuraw"
-          />
-          <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
+          <div class="pb-8 pr-6 w-full lg:w-1/2">
+            <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" label="Ilość" />
+            <p class="mt-1 text-sm text-gray-500">Jeden wpis to jedna maszyna — magazyn liczy sprzęt sztukami.</p>
+          </div>
           <div class="pb-8 pr-6 w-full">
             <div class="form-label">Zdjęcia</div>
             <dropzone v-model="form.photos" :extensions="['jpg', 'jpeg', 'png', 'tiff']" />
@@ -68,19 +56,19 @@ import TextInput from '@/Shared/TextInput'
 import NumberInput from '@/Shared/NumberInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import DateInput from '@/Shared/DateInput.vue'
-import SelectInput from '@/Shared/SelectInput'
 import Dropzone from '@/Shared/Dropzone.vue'
+import WyborTypuSprzetu from '@/Shared/WyborTypuSprzetu'
 
 export default {
   components: {
     DateInput,
-    SelectInput,
     Head,
     Link,
     LoadingButton,
     TextInput,
     NumberInput,
     Dropzone,
+    WyborTypuSprzetu,
   },
   layout: Layout,
   props: {
@@ -94,27 +82,15 @@ export default {
     return {
       form: this.$inertia.form({
         numer_seryjny: '',
-        waznosc_badan: new Date().toISOString().substr(0, 10),
+        waznosc_badan: '',
         narzedzia_typ_id: '',
         new_typ_name: '',
         new_typ_grupa: '',
-        new_typ_grupa_wybor: '',
-        new_typ_grupa_nowa: '',
-        ilosc_all: 0,
+        ilosc_all: 1,
         photos: [],
         documents: [],
       }),
     }
-  },
-  watch: {
-    'form.new_typ_grupa_wybor': function (wybor) {
-      this.form.new_typ_grupa = wybor === '__new__' ? this.form.new_typ_grupa_nowa : wybor
-    },
-    'form.new_typ_grupa_nowa': function (nazwa) {
-      if (this.form.new_typ_grupa_wybor === '__new__') {
-        this.form.new_typ_grupa = nazwa
-      }
-    },
   },
   computed: {
     // Pliki większe niż limit serwera — sprawdzamy w przeglądarce, bo taki

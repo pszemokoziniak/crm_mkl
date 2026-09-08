@@ -15,32 +15,16 @@
           <form @submit.prevent="update">
             <div class="p-8">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <select-input v-model="form.narzedzia_typ_id" :error="form.errors.narzedzia_typ_id" label="Nazwa sprzętu (typ)" class="md:col-span-2">
-                  <option value="">— wybierz —</option>
-                  <option v-for="t in typy" :key="t.id" :value="t.id">{{ t.name }}</option>
-                  <option value="__new__">+ Nowy typ…</option>
-                </select-input>
-          <text-input v-if="form.narzedzia_typ_id === '__new__'" v-model="form.new_typ_name" :error="form.errors.new_typ_name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa nowego typu" />
-          <!-- Lista istniejących grup sprzętu + możliwość wpisania nowej,
-               tak samo jak przy wyborze typu sprzętu. -->
-          <select-input
-            v-if="form.narzedzia_typ_id === '__new__'"
-            v-model="form.new_typ_grupa_wybor"
-            class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Grupa (łączy modele w magazynie)"
-          >
-            <option value="">— bez grupy —</option>
-            <option v-for="k in grupy" :key="k" :value="k">{{ k }}</option>
-            <option value="__new__">+ Nowa grupa…</option>
-          </select-input>
-          <text-input
-            v-if="form.narzedzia_typ_id === '__new__' && form.new_typ_grupa_wybor === '__new__'"
-            v-model="form.new_typ_grupa_nowa"
-            :error="form.errors.new_typ_grupa"
-            class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Nazwa nowej grupy"
-            placeholder="np. Żuraw"
-          />
+                <div class="md:col-span-2">
+                  <wybor-typu-sprzetu
+                    v-model="form.narzedzia_typ_id"
+                    v-model:nowy-typ="form.new_typ_name"
+                    v-model:nowa-grupa="form.new_typ_grupa"
+                    :typy="typy"
+                    :grupy="grupy"
+                    :bledy="form.errors"
+                  />
+                </div>
                 <text-input v-model="form.numer_seryjny" :error="form.errors.numer_seryjny" label="Numer seryjny" />
                 <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" label="Ważność badań" />
               </div>
@@ -166,11 +150,11 @@
 <script>
 import {Head, Link} from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
+import WyborTypuSprzetu from '@/Shared/WyborTypuSprzetu'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import DateInput from '@/Shared/DateInput.vue'
-import SelectInput from '@/Shared/SelectInput'
 import Dropzone from '@/Shared/Dropzone.vue'
 import DeleteButton from '@/Shared/DeleteButton.vue'
 import Icon from '@/Shared/Icon.vue'
@@ -179,7 +163,6 @@ import axios from 'axios'
 export default {
   components: {
     DateInput,
-    SelectInput,
     Head,
     Link,
     LoadingButton,
@@ -188,6 +171,7 @@ export default {
     Dropzone,
     DeleteButton,
     Icon,
+    WyborTypuSprzetu,
   },
   layout: Layout,
   props: {
@@ -209,8 +193,6 @@ export default {
         narzedzia_typ_id: this.narzedzia.narzedzia_typ_id ?? '',
         new_typ_name: '',
         new_typ_grupa: '',
-        new_typ_grupa_wybor: '',
-        new_typ_grupa_nowa: '',
         ilosc_all: this.narzedzia.ilosc_all,
         photos: this.photos,
         documents: this.documents,
@@ -227,16 +209,6 @@ export default {
       return wszystkie
         .filter((p) => p && !p.deleted && p.size > limit)
         .map((p) => `${p.name} (${(p.size / 1024 / 1024).toFixed(1)} MB)`)
-    },
-  },
-  watch: {
-    'form.new_typ_grupa_wybor': function (wybor) {
-      this.form.new_typ_grupa = wybor === '__new__' ? this.form.new_typ_grupa_nowa : wybor
-    },
-    'form.new_typ_grupa_nowa': function (nazwa) {
-      if (this.form.new_typ_grupa_wybor === '__new__') {
-        this.form.new_typ_grupa = nazwa
-      }
     },
   },
   methods: {

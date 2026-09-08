@@ -35,6 +35,11 @@ export default {
     selected(selected) {
       this.$emit('update:modelValue', selected)
     },
+    // Bez tego pole nie nadążało za rodzicem: wyczyszczenie wyboru z zewnątrz
+    // zmieniało dane formularza, ale na ekranie zostawała stara pozycja.
+    modelValue(wartosc) {
+      this.selected = wartosc
+    },
   },
   methods: {
     focus() {
