@@ -12,11 +12,11 @@
     <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
-          <tr class="text-left font-bold bg-gray-50 border-b border-gray-100">
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Nazwa sprzętu / Szczegóły</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Sztuk</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Badania techniczne</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-right">Akcje</th>
+          <tr class="naglowek-tabeli">
+            <th>Nazwa sprzętu / Szczegóły</th>
+            <th class="text-center">Sztuk</th>
+            <th>Badania techniczne</th>
+            <th class="text-right">Akcje</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">

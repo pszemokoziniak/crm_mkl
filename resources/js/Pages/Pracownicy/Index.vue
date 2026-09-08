@@ -49,28 +49,28 @@
     <div class="hidden bg-white rounded-md shadow overflow-x-auto md:block">
       <table class="w-full text-sm">
         <thead>
-          <tr class="text-left text-xs uppercase tracking-wider text-gray-500 bg-gray-50 border-b">
-            <th v-if="mozeEdytowac" class="py-4 px-3 w-px">
+          <tr class="naglowek-tabeli">
+            <th v-if="mozeEdytowac" class="px-3 w-px">
               <input type="checkbox" class="form-checkbox" :checked="wszystkieZaznaczone" @change="przelaczWszystkie" />
             </th>
-            <th class="py-4 px-4 w-px whitespace-nowrap">Lp.</th>
-            <th class="py-4 px-4">
-              <button type="button" class="uppercase tracking-wider hover:text-indigo-600" @click="sortuj('nazwisko')">
+            <th class="w-px whitespace-nowrap">Lp.</th>
+            <th>
+              <button type="button" @click="sortuj('nazwisko')">
                 Nazwisko Imię<span class="ml-1 text-xs text-gray-400">{{ strzalka('nazwisko') }}</span>
               </button>
             </th>
-            <th class="py-4 px-4">
-              <button type="button" class="uppercase tracking-wider hover:text-indigo-600" @click="sortuj('data')">
+            <th>
+              <button type="button" @click="sortuj('data')">
                 Czas pracy<span class="ml-1 text-xs text-gray-400">{{ strzalka('data') }}</span>
               </button>
             </th>
-            <th class="py-4 px-4">
-              <button type="button" class="uppercase tracking-wider hover:text-indigo-600" @click="sortuj('stanowisko')">
+            <th>
+              <button type="button" @click="sortuj('stanowisko')">
                 Stanowisko<span class="ml-1 text-xs text-gray-400">{{ strzalka('stanowisko') }}</span>
               </button>
             </th>
-            <th class="py-4 px-4">Na budowie</th>
-            <th v-if="mozeEdytowac" class="py-4 px-4 text-right">Akcje</th>
+            <th>Na budowie</th>
+            <th v-if="mozeEdytowac" class="text-right">Akcje</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">

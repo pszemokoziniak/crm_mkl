@@ -35,12 +35,12 @@
 
   <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
     <table class="w-full whitespace-nowrap">
-      <tr class="text-left font-bold">
-        <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
-        <th class="pb-4 pt-6 px-6">Pobyt na budowie</th>
-        <th class="pb-4 pt-6 px-6">A1 (od–do, kraj)</th>
-        <th class="pb-4 pt-6 px-6">Status A1</th>
-        <th class="pb-4 pt-6 px-6" />
+      <tr class="naglowek-tabeli">
+        <th>Nazwisko Imię</th>
+        <th>Pobyt na budowie</th>
+        <th>A1 (od–do, kraj)</th>
+        <th>Status A1</th>
+        <th class="text-right">Akcje</th>
       </tr>
       <tr
         v-for="row in rows"
