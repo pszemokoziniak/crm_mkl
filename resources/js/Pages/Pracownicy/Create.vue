@@ -36,11 +36,11 @@
     <div class="max-w my-5 bg-white rounded-md shadow overflow-hidden">
       <h3 class="p-4 text-xl font-medium">Lista pracowników na budowie</h3>
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko</th>
-          <th class="pb-4 pt-6 px-6">Daty</th>
-          <th class="pb-4 pt-6 px-6">Stanowisko</th>
-          <th class="pb-4 pt-6 px-6">Status</th>
+        <tr class="naglowek-tabeli">
+          <th>Nazwisko</th>
+          <th>Daty</th>
+          <th>Stanowisko</th>
+          <th>Status</th>
         </tr>
         <tr v-for="contact in contacts" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

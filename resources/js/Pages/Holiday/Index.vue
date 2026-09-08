@@ -14,10 +14,10 @@
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Powód</th>
-          <th class="pb-4 pt-6 px-6">Od</th>
-          <th class="pb-4 pt-6 px-6">Do</th>
+        <tr class="naglowek-tabeli">
+          <th>Powód</th>
+          <th>Od</th>
+          <th>Do</th>
         </tr>
         <tr v-for="item in holiday" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

@@ -10,9 +10,9 @@
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Język</th>
-          <th class="pb-4 pt-6 px-6">Poziom</th>
+        <tr class="naglowek-tabeli">
+          <th>Język</th>
+          <th>Poziom</th>
         </tr>
         <tr v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
