@@ -61,13 +61,13 @@
     <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
       <h3 class="p-4 text-xl font-medium">Aktualne kierownictwo</h3>
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 w-px whitespace-nowrap">Lp.</th>
-          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Nazwisko Imię</th>
-          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Czas pracy</th>
-          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Stanowisko</th>
-          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Na budowie</th>
-          <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-right">Akcje</th>
+        <tr class="naglowek-tabeli">
+          <th class="w-px whitespace-nowrap">Lp.</th>
+          <th>Nazwisko Imię</th>
+          <th>Czas pracy</th>
+          <th>Stanowisko</th>
+          <th>Na budowie</th>
+          <th class="text-right">Akcje</th>
         </tr>
         <tr v-for="(item, index) in management" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t px-6 py-4 text-gray-400 tabular-nums">{{ index + 1 }}</td>

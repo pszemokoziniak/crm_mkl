@@ -1,0 +1,22 @@
+/*
+ * Nagłówki tabel. Każda podstrona budowy miała własny wariant: raz styl
+ * siedział na wierszu, raz był powielony na każdej komórce, a na dwóch
+ * ekranach nagłówki były po prostu dużym czarnym pismem. Do tego kolumny
+ * z sortowaniem są przyciskami, a przycisk gubi pogrubienie odziedziczone
+ * po <th> — przez co w JEDNEJ tabeli część nagłówków wyglądała inaczej
+ * niż reszta.
+ *
+ * Jedna klasa na wierszu nagłówka ustawia wszystko, także dla przycisków.
+ */
+.naglowek-tabeli {
+  @apply bg-gray-50 border-b border-gray-100;
+}
+
+.naglowek-tabeli th {
+  @apply py-4 px-6 text-left text-xs font-semibold uppercase tracking-wider text-gray-500;
+}
+
+/* Sortowanie: przycisk ma wyglądać jak zwykły nagłówek, tylko klikalny. */
+.naglowek-tabeli th button {
+  @apply text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-indigo-600;
+}

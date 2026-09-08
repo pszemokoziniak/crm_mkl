@@ -6,6 +6,7 @@
 @import 'tailwindcss/components';
 @import 'buttons';
 @import 'form';
+@import 'tabele';
 
 /* Utilities */
 @import 'tailwindcss/utilities';
