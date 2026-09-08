@@ -11,23 +11,23 @@
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa" />
-          <!-- Lista już używanych kategorii + możliwość wpisania nowej,
+          <!-- Lista istniejących grup sprzętu + możliwość wpisania nowej,
                tak samo jak przy wyborze typu sprzętu. -->
           <select-input
-            v-model="form.kategoria_wybor"
+            v-model="form.grupa_wybor"
             class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Kategoria (grupuje modele w magazynie)"
+            label="Grupa (łączy modele w magazynie)"
           >
-            <option value="">— bez kategorii —</option>
-            <option v-for="k in kategorie" :key="k" :value="k">{{ k }}</option>
-            <option value="__new__">+ Nowa kategoria…</option>
+            <option value="">— bez grupy —</option>
+            <option v-for="k in grupy" :key="k" :value="k">{{ k }}</option>
+            <option value="__new__">+ Nowa grupa…</option>
           </select-input>
           <text-input
-            v-if="form.kategoria_wybor === '__new__'"
-            v-model="form.kategoria_nowa"
-            :error="form.errors.kategoria"
+            v-if="form.grupa_wybor === '__new__'"
+            v-model="form.grupa_nowa"
+            :error="form.errors.grupa"
             class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Nazwa nowej kategorii"
+            label="Nazwa nowej grupy"
             placeholder="np. Żuraw"
           />
         </div>
@@ -59,7 +59,7 @@ export default {
   },
   layout: Layout,
   props: {
-    kategorie: { type: Array, default: () => [] },
+    grupy: { type: Array, default: () => [] },
     narzedziaTyp: Object,
   },
   remember: 'form',
@@ -68,19 +68,19 @@ export default {
       form: this.$inertia.form({
         id: this.narzedziaTyp.id,
         name: this.narzedziaTyp.name,
-        kategoria: this.narzedziaTyp.kategoria,
-        kategoria_wybor: this.narzedziaTyp.kategoria || '',
-        kategoria_nowa: '',
+        grupa: this.narzedziaTyp.grupa,
+        grupa_wybor: this.narzedziaTyp.grupa || '',
+        grupa_nowa: '',
       }),
     }
   },
   watch: {
-    'form.kategoria_wybor': function (wybor) {
-      this.form.kategoria = wybor === '__new__' ? this.form.kategoria_nowa : wybor
+    'form.grupa_wybor': function (wybor) {
+      this.form.grupa = wybor === '__new__' ? this.form.grupa_nowa : wybor
     },
-    'form.kategoria_nowa': function (nazwa) {
-      if (this.form.kategoria_wybor === '__new__') {
-        this.form.kategoria = nazwa
+    'form.grupa_nowa': function (nazwa) {
+      if (this.form.grupa_wybor === '__new__') {
+        this.form.grupa = nazwa
       }
     },
   },

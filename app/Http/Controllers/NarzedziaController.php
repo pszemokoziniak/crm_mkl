@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNarzedziaRequest;
 use Carbon\Carbon;
+use App\Models\GrupaSprzetu;
 use App\Models\Narzedzia;
 use App\Models\NarzedziaTyp;
 use App\Models\Organization;
@@ -183,8 +184,8 @@ class NarzedziaController extends Controller
         $dzis = Carbon::today()->toDateString();
         $narzedzia->load($magazyn->relacje());
         return Inertia::render('Narzedzia/Edit', [
-            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name', 'kategoria']),
-            'kategorie' => NarzedziaTyp::kategorie(),
+            'typy' => $this->typy(),
+            'grupy' => GrupaSprzetu::nazwy(),
             'limitPlikuMb' => self::limitPlikuMb(),
             'narzedzia' => [
                 'id' => $narzedzia->id,
@@ -256,7 +257,7 @@ class NarzedziaController extends Controller
         $data = Request::validate([
             'narzedzia_typ_id' => ['nullable', 'integer', 'exists:narzedzia_typs,id'],
             'new_typ_name' => ['nullable', 'string', 'max:100'],
-            'new_typ_kategoria' => ['nullable', 'string', 'max:100'],
+            'new_typ_grupa' => ['nullable', 'string', 'max:100'],
             'numer_seryjny' => ['nullable'],
             'waznosc_badan' => ['nullable', 'date'],
             'ilosc_all' => ['nullable', 'numeric'],
@@ -265,7 +266,7 @@ class NarzedziaController extends Controller
         [$typId, $typName] = $this->resolveTyp(
             $data['narzedzia_typ_id'] ?? null,
             $data['new_typ_name'] ?? null,
-            $data['new_typ_kategoria'] ?? null
+            $data['new_typ_grupa'] ?? null
         );
 
         try {
@@ -322,30 +323,44 @@ class NarzedziaController extends Controller
     public function create(): Response
     {
         return Inertia('Narzedzia/Create', [
-            'typy' => NarzedziaTyp::orderBy('name')->get(['id', 'name', 'kategoria']),
-            'kategorie' => NarzedziaTyp::kategorie(),
+            'typy' => $this->typy(),
+            'grupy' => GrupaSprzetu::nazwy(),
             'limitPlikuMb' => self::limitPlikuMb(),
         ]);
     }
 
     /** Wspólne: ustal typ (istniejący lub nowy) i zwróć [id, nazwa]. */
-    private function resolveTyp($typId, $newName, $kategoria = null): array
+    private function resolveTyp($typId, $newName, $grupa = null): array
     {
         $newName = trim((string) $newName);
         if ($newName !== '') {
             $typ = NarzedziaTyp::firstOrCreate(['name' => $newName]);
 
-            // Kategoria dopisywana przy zakładaniu typu z formularza sprzętu —
+            // Grupa dopisywana przy zakładaniu typu z formularza sprzętu —
             // bez niej nowy model stanąłby w magazynie osobno, obok swoich.
-            $kategoria = trim((string) $kategoria);
-            if ($kategoria !== '' && ! $typ->kategoria) {
-                $typ->update(['kategoria' => $kategoria]);
+            // Grupy o tej nazwie jeszcze może nie być, więc zakładamy ją tutaj.
+            if (! $typ->grupa_id && $nowa = GrupaSprzetu::zNazwy($grupa)) {
+                $typ->update(['grupa_id' => $nowa->id]);
             }
 
             return [$typ->id, $typ->name];
         }
         $typ = $typId ? NarzedziaTyp::find($typId) : null;
         return [$typ?->id, $typ?->name];
+    }
+
+    /** Modele do wyboru na formularzu — z nazwą grupy, nie jej numerem. */
+    private function typy(): array
+    {
+        return NarzedziaTyp::with('grupa')
+            ->orderBy('name')
+            ->get()
+            ->map(fn (NarzedziaTyp $t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+                'grupa' => $t->nazwaGrupy(),
+            ])
+            ->all();
     }
 
     public function store(
@@ -356,7 +371,7 @@ class NarzedziaController extends Controller
         [$typId, $typName] = $this->resolveTyp(
             $request->get('narzedzia_typ_id'),
             $request->get('new_typ_name'),
-            $request->get('new_typ_kategoria')
+            $request->get('new_typ_grupa')
         );
 
         /** @var Narzedzia $tool */

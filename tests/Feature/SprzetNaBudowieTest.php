@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\GrupaSprzetu;
 use App\Models\Narzedzia;
 use App\Models\NarzedziaTyp;
 use App\Models\Organization;
@@ -39,7 +40,7 @@ class SprzetNaBudowieTest extends TestCase
         ]);
 
         $this->budowa = Organization::create(['account_id' => 0, 'name' => 'LLT', 'nazwaBud' => '517_LLT Pontmain']);
-        $this->kontener6 = NarzedziaTyp::create(['name' => 'Kontener 6m', 'kategoria' => 'Kontener']);
+        $this->kontener6 = NarzedziaTyp::create(['name' => 'Kontener 6m', 'grupa_id' => GrupaSprzetu::zNazwy('Kontener')->id]);
     }
 
     private function sztuka(string $numer, ?string $badania = null): Narzedzia

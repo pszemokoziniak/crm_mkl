@@ -67,7 +67,7 @@
         </thead>
         <tbody class="divide-y divide-gray-100">
           <template v-for="grupa in grupy" :key="grupa.klucz">
-            <!-- Poziom 1: kategoria (Kontener, Manitou) albo pojedynczy model. -->
+            <!-- Poziom 1: grupa (Kontener, Manitou) albo pojedynczy model. -->
             <tr class="hover:bg-gray-50 transition-colors cursor-pointer" @click="przelacz(grupa.klucz)">
               <td class="px-6 py-4">
                 <div class="flex items-center font-medium text-gray-900">

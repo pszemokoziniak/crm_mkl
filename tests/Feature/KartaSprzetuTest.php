@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\GrupaSprzetu;
 use App\Models\Narzedzia;
 use App\Models\NarzedziaTyp;
 use App\Models\Organization;
@@ -42,7 +43,7 @@ class KartaSprzetuTest extends TestCase
         $this->budowaA = Organization::create(['account_id' => 0, 'name' => 'Berkes', 'nazwaBud' => 'Berkes Lachendorf']);
         $this->budowaB = Organization::create(['account_id' => 0, 'name' => 'Valmet', 'nazwaBud' => 'Valmet Ortofta']);
 
-        $typ = NarzedziaTyp::create(['name' => 'Kontener 6m', 'kategoria' => 'Kontener']);
+        $typ = NarzedziaTyp::create(['name' => 'Kontener 6m', 'grupa_id' => GrupaSprzetu::zNazwy('Kontener')->id]);
 
         $this->sprzet = Narzedzia::create([
             'name' => 'Kontener 6m',

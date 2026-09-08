@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePosRequest;
+use App\Models\GrupaSprzetu;
 use App\Models\NarzedziaTyp;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -12,8 +11,20 @@ class NarzedziaTypController extends Controller
 {
     public function index()
     {
-        // Kategoria najpierw — w magazynie typy i tak wiszą pod nią.
-        $narzedziaTyp = NarzedziaTyp::orderBy('kategoria')->orderBy('name')->get();
+        // Grupa najpierw — w magazynie typy i tak wiszą pod nią.
+        $narzedziaTyp = NarzedziaTyp::query()
+            ->leftJoin('grupy_sprzetu', 'grupy_sprzetu.id', '=', 'narzedzia_typs.grupa_id')
+            ->orderBy('grupy_sprzetu.nazwa')
+            ->orderBy('narzedzia_typs.name')
+            ->select('narzedzia_typs.*')
+            ->with('grupa')
+            ->get()
+            ->map(fn (NarzedziaTyp $t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+                'grupa' => $t->nazwaGrupy(),
+                'deleted_at' => $t->deleted_at,
+            ]);
 
         return Inertia('NarzedziaTyp/Index', [
             'narzedziaTyp' => $narzedziaTyp,
@@ -26,40 +37,49 @@ class NarzedziaTypController extends Controller
             'narzedziaTyp' => [
                 'id' => $narzedziaTyp->id,
                 'name' => $narzedziaTyp->name,
-                'kategoria' => $narzedziaTyp->kategoria,
+                'grupa' => $narzedziaTyp->nazwaGrupy(),
                 'deleted_at' => $narzedziaTyp->deleted_at,
             ],
-            'kategorie' => NarzedziaTyp::kategorie(),
+            'grupy' => GrupaSprzetu::nazwy(),
         ]);
     }
+
     public function update(NarzedziaTyp $narzedziaTyp)
     {
-        $narzedziaTyp->update(
-            \Illuminate\Support\Facades\Request::validate([
-                'name' => ['required', 'max:100'],
-                'kategoria' => ['nullable', 'max:100'],
-            ])
-        );
+        $dane = \Illuminate\Support\Facades\Request::validate([
+            'name' => ['required', 'max:100'],
+            'grupa' => ['nullable', 'max:100'],
+        ]);
+
+        $narzedziaTyp->update([
+            'name' => $dane['name'],
+            'grupa_id' => optional(GrupaSprzetu::zNazwy($dane['grupa'] ?? null))->id,
+        ]);
+
         return Redirect::route('narzedziaTyp')->with('success', 'Poprawiono.');
     }
+
     public function destroy(NarzedziaTyp $narzedziaTyp)
     {
         $narzedziaTyp->delete();
 
         return Redirect::route('narzedziaTyp')->with('success', 'Usunięto.');
     }
+
     public function restore(NarzedziaTyp $narzedziaTyp)
     {
         $narzedziaTyp->restore();
 
         return Redirect::back()->with('success', 'Objekt przywrócony.');
     }
+
     public function create()
     {
         return Inertia('NarzedziaTyp/Create', [
-            'kategorie' => NarzedziaTyp::kategorie(),
+            'grupy' => GrupaSprzetu::nazwy(),
         ]);
     }
+
     public function store()
     {
         // Własna walidacja: słownik typów nie ma nic wspólnego z formularzem
@@ -67,15 +87,16 @@ class NarzedziaTypController extends Controller
         // i przez to nie dawał założyć żadnego.
         $dane = \Illuminate\Support\Facades\Request::validate([
             'name' => ['required', 'max:100'],
-            'kategoria' => ['nullable', 'max:100'],
+            'grupa' => ['nullable', 'max:100'],
         ], [
             'name.required' => 'Podaj nazwę typu.',
         ]);
 
         NarzedziaTyp::create([
             'name' => $dane['name'],
-            'kategoria' => $dane['kategoria'] ?: null,
+            'grupa_id' => optional(GrupaSprzetu::zNazwy($dane['grupa'] ?? null))->id,
         ]);
+
         return Redirect::route('narzedziaTyp')->with('success', 'Zapisano.');
     }
 }

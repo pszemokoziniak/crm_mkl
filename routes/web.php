@@ -1412,11 +1412,15 @@ Route::get('grupy-sprzetu', [GrupySprzetuController::class, 'index'])
     ->name('grupySprzetu')
         ->middleware('auth', 'admin-permission');
 
-Route::put('grupy-sprzetu', [GrupySprzetuController::class, 'update'])
+Route::post('grupy-sprzetu', [GrupySprzetuController::class, 'store'])
+    ->name('grupySprzetu.store')
+        ->middleware('auth', 'admin-permission');
+
+Route::put('grupy-sprzetu/{grupa}', [GrupySprzetuController::class, 'update'])
     ->name('grupySprzetu.update')
         ->middleware('auth', 'admin-permission');
 
-Route::delete('grupy-sprzetu', [GrupySprzetuController::class, 'destroy'])
+Route::delete('grupy-sprzetu/{grupa}', [GrupySprzetuController::class, 'destroy'])
     ->name('grupySprzetu.destroy')
         ->middleware('auth', 'admin-permission');
 
