@@ -738,37 +738,37 @@ Route::put('uprawnienia/{uprawnienia}/restore', [UprawnieniaController::class, '
 
 Route::get('narzedziaTyp', [NarzedziaTypController::class, 'index'])
     ->name('narzedziaTyp')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 
 Route::get('narzedziaTyp/create', [NarzedziaTypController::class, 'create'])
     ->name('narzedziaTyp.create')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 
 Route::post('narzedziaTyp', [NarzedziaTypController::class, 'store'])
     ->name('narzedziaTyp.store')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 
 Route::get('narzedziaTyp/{narzedziaTyp}/edit', [NarzedziaTypController::class, 'edit'])
     ->name('narzedziaTyp.edit')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 
 Route::put('narzedziaTyp/{narzedziaTyp}', [NarzedziaTypController::class, 'update'])
     ->name('narzedziaTyp.update')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 
 Route::delete('narzedziaTyp/{narzedziaTyp}', [NarzedziaTypController::class, 'destroy'])
     ->name('narzedziaTyp.destroy')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 
 Route::put('narzedziaTyp/{narzedziaTyp}/restore', [NarzedziaTypController::class, 'restore'])
     ->name('narzedziaTyp.restore')
-    ->middleware('auth', 'admin-permission');
+    ->middleware('auth', 'biuro-permission');
 
 // Języki
 
@@ -1410,20 +1410,20 @@ Route::delete('baza-wiedzy/{artykul}', [BazaWiedzyController::class, 'destroy'])
 // Grupy sprzętu — słownik jak pozostałe w Ustawieniach.
 Route::get('grupy-sprzetu', [GrupySprzetuController::class, 'index'])
     ->name('grupySprzetu')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 Route::post('grupy-sprzetu', [GrupySprzetuController::class, 'store'])
     ->name('grupySprzetu.store')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 Route::put('grupy-sprzetu/{grupa}', [GrupySprzetuController::class, 'update'])
     ->name('grupySprzetu.update')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 Route::delete('grupy-sprzetu/{grupa}', [GrupySprzetuController::class, 'destroy'])
     ->name('grupySprzetu.destroy')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');
 
 Route::post('grupy-sprzetu/przypisz', [GrupySprzetuController::class, 'przypisz'])
     ->name('grupySprzetu.przypisz')
-        ->middleware('auth', 'admin-permission');
+        ->middleware('auth', 'biuro-permission');

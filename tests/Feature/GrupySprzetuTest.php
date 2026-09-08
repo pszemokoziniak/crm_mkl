@@ -211,22 +211,45 @@ class GrupySprzetuTest extends TestCase
         $this->assertSame(3, $kontener['sztuk']);
     }
 
-    public function test_tylko_administrator(): void
+    public function test_biuro_prowadzi_grupy_sprzetu(): void
     {
-        $biuro = User::factory()->create([
-            'account_id' => $this->admin->account_id, 'email' => 'biuro@mkl.pl',
-            'owner' => Role::BIURO->value, 'active' => 1,
-            'password_changed_at' => now()->toDateTimeString(),
-        ]);
+        // Magazynem zajmuje się biuro, nie administrator — to biuro zgłosiło
+        // potrzebę zakładania grup i to ono przypisuje do nich sprzęt.
+        $biuro = $this->uzytkownik(Role::BIURO, 'biuro@mkl.pl');
+        $typ = $this->model('Kontener 6m', null);
+
+        $this->actingAs($biuro)->get('/grupy-sprzetu')->assertOk();
+        $this->actingAs($biuro)->post('/grupy-sprzetu', ['nazwa' => 'Kontener'])->assertRedirect();
+
+        $grupa = GrupaSprzetu::where('nazwa', 'Kontener')->firstOrFail();
+        $this->actingAs($biuro)
+            ->post('/grupy-sprzetu/przypisz', ['modele' => [$typ->id], 'grupa_id' => $grupa->id])
+            ->assertRedirect();
+
+        $this->assertSame('Kontener', $typ->fresh()->nazwaGrupy());
+    }
+
+    public function test_kierownik_budowy_nie_rusza_slownika(): void
+    {
+        $kierownik = $this->uzytkownik(Role::KIEROWNIK, 'kierownik@mkl.pl');
         $typ = $this->model('Kontener 6m', 'Kontener');
         $grupa = GrupaSprzetu::where('nazwa', 'Kontener')->firstOrFail();
 
-        $this->actingAs($biuro)->get('/grupy-sprzetu')->assertForbidden();
-        $this->actingAs($biuro)->post('/grupy-sprzetu', ['nazwa' => 'X'])->assertForbidden();
-        $this->actingAs($biuro)->put("/grupy-sprzetu/{$grupa->id}", ['nazwa' => 'X'])->assertForbidden();
-        $this->actingAs($biuro)->delete("/grupy-sprzetu/{$grupa->id}")->assertForbidden();
+        $this->actingAs($kierownik)->get('/grupy-sprzetu')->assertForbidden();
+        $this->actingAs($kierownik)->post('/grupy-sprzetu', ['nazwa' => 'X'])->assertForbidden();
+        $this->actingAs($kierownik)->put("/grupy-sprzetu/{$grupa->id}", ['nazwa' => 'X'])->assertForbidden();
+        $this->actingAs($kierownik)->delete("/grupy-sprzetu/{$grupa->id}")->assertForbidden();
 
         $this->assertSame('Kontener', $typ->fresh()->nazwaGrupy());
         $this->assertSame(1, GrupaSprzetu::count());
+    }
+
+    private function uzytkownik(Role $rola, string $email): User
+    {
+        return User::factory()->create([
+            'account_id' => $this->admin->account_id, 'email' => $email,
+            'owner' => $rola->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
     }
 }

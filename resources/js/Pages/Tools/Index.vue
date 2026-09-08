@@ -59,8 +59,8 @@ export default {
         { zakladka: 'slowniki', nazwa: 'Języki', adres: '/jezykTyp', tylkoAdmin: true },
         { zakladka: 'slowniki', nazwa: 'Kraj', adres: '/krajTyp', tylkoAdmin: true },
         { zakladka: 'slowniki', nazwa: 'Dokumenty', adres: '/dokumentyTyp', tylkoAdmin: true },
-        { zakladka: 'slowniki', nazwa: 'Narzędzia Typ', adres: '/narzedziaTyp', tylkoAdmin: true },
-        { zakladka: 'slowniki', nazwa: 'Grupy sprzętu', adres: '/grupy-sprzetu', tylkoAdmin: true },
+        { zakladka: 'slowniki', nazwa: 'Narzędzia Typ', adres: '/narzedziaTyp', tylkoAdmin: false },
+        { zakladka: 'slowniki', nazwa: 'Grupy sprzętu', adres: '/grupy-sprzetu', tylkoAdmin: false },
 
         { zakladka: 'ustawienia', nazwa: 'Wykres prognozy', adres: '/ustawienia', tylkoAdmin: false },
       ],

@@ -13,7 +13,8 @@ use Tests\TestCase;
 /**
  * Kadry (uprawnienie "biuro") prowadzą słownik stanowisk same — to on
  * decyduje, kto trafia do zakładki Kierownicy/Inżynierowie i kto może
- * wejść do kierownictwa budowy. Pozostałe słowniki zostają przy adminie.
+ * wejść do kierownictwa budowy. Magazyn sprzętu prowadzi biuro z tego
+ * samego powodu. Pozostałe słowniki zostają przy adminie.
  */
 class KadryStanowiskaTest extends TestCase
 {
@@ -76,9 +77,20 @@ class KadryStanowiskaTest extends TestCase
 
     public function test_pozostale_slowniki_zostaja_przy_adminie(): void
     {
-        foreach (['/badaniaTyp', '/bhpTyp', '/jezykTyp', '/krajTyp', '/dokumentyTyp', '/narzedziaTyp'] as $adres) {
+        foreach (['/badaniaTyp', '/bhpTyp', '/jezykTyp', '/krajTyp', '/dokumentyTyp'] as $adres) {
             $this->actingAs($this->kadry)->get($adres)->assertStatus(403);
         }
+    }
+
+    public function test_slownik_sprzetu_prowadzi_biuro(): void
+    {
+        // Magazynem zajmuje się biuro i to ono zgłosiło potrzebę zakładania
+        // grup — bez tego dostępu nowa zakładka byłaby dla niego zamknięta.
+        $this->actingAs($this->kadry)->get('/narzedziaTyp')->assertOk();
+        $this->actingAs($this->kadry)->get('/grupy-sprzetu')->assertOk();
+
+        $this->actingAs($this->kierownik)->get('/narzedziaTyp')->assertStatus(403);
+        $this->actingAs($this->kierownik)->get('/grupy-sprzetu')->assertStatus(403);
     }
 
     public function test_kadry_wchodza_na_strone_ustawien(): void
