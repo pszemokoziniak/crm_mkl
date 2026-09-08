@@ -10,6 +10,7 @@ use App\Http\Controllers\BudowaPracownicyController;
 use App\Http\Controllers\BuildingTimeSheet;
 use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\BazaWiedzyController;
+use App\Http\Controllers\GrupySprzetuController;
 use App\Http\Controllers\LogowaniaController;
 use App\Http\Controllers\PodszywanieController;
 use App\Http\Controllers\CtnDocumentsController;
@@ -1403,4 +1404,22 @@ Route::put('baza-wiedzy/{artykul}', [BazaWiedzyController::class, 'update'])
 
 Route::delete('baza-wiedzy/{artykul}', [BazaWiedzyController::class, 'destroy'])
     ->name('bazaWiedzy.destroy')
+        ->middleware('auth', 'admin-permission');
+
+
+// Grupy sprzętu — słownik jak pozostałe w Ustawieniach.
+Route::get('grupy-sprzetu', [GrupySprzetuController::class, 'index'])
+    ->name('grupySprzetu')
+        ->middleware('auth', 'admin-permission');
+
+Route::put('grupy-sprzetu', [GrupySprzetuController::class, 'update'])
+    ->name('grupySprzetu.update')
+        ->middleware('auth', 'admin-permission');
+
+Route::delete('grupy-sprzetu', [GrupySprzetuController::class, 'destroy'])
+    ->name('grupySprzetu.destroy')
+        ->middleware('auth', 'admin-permission');
+
+Route::post('grupy-sprzetu/przypisz', [GrupySprzetuController::class, 'przypisz'])
+    ->name('grupySprzetu.przypisz')
         ->middleware('auth', 'admin-permission');
