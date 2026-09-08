@@ -2,7 +2,7 @@
   <div>
     <Head title="Dodaj badanie lekarskie" />
     <worker-menu :contact-id="contact_id" />
-    <pracownik-naglowek :contact-id="pracownik ? pracownik.id : contact_id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Badania lekarskie — dodaj" />
+    <pracownik-naglowek :pracownik="pracownik" tytul="Badania lekarskie — dodaj" />
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store(contact_id)">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">

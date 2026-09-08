@@ -26,7 +26,7 @@ class CtnDocumentsController extends Controller
         return Inertia::render('CtnDocuments/Index', [
             'filters' => Request::all('search', 'trashed'),
             'contactId' => (int) Request::route('contact_id'),
-            'pracownik' => $this->nazwaPracownika((int) Request::route('contact_id')),
+            'pracownik' => $this->danePracownika(Contact::withTrashed()->find((int) Request::route('contact_id'))),
             'userOwner' => Auth::user()->owner,
             // "trashed=with" pokazuje też kosz — inaczej nie da się niczego
             // przywrócić, bo usunięty dokument nigdzie się nie pojawia.
@@ -208,13 +208,6 @@ class CtnDocumentsController extends Controller
         return $wynik;
     }
 
-    /** Nagłówek ma pokazywać, czyją kartę się ogląda — trasa podaje samo id. */
-    private function nazwaPracownika(int $contactId): string
-    {
-        $c = Contact::withTrashed()->find($contactId);
-
-        return $c ? trim($c->last_name.' '.$c->first_name) : '';
-    }
 
     /**
      * Wpis wskazany na formularzu. Sprawdzamy, że należy do TEGO pracownika

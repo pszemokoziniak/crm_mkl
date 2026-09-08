@@ -3,7 +3,7 @@
     <Head :title="`${form.first_name} ${form.last_name}`" />
     <div>
       <WorkerMenu :contactId="contactId" />
-      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Badania lekarskie — edycja" />
+      <pracownik-naglowek :pracownik="pracownik" tytul="Badania lekarskie — edycja" />
     </div>
     <trashed-message v-if="badanie.deleted_at" class="mb-6" @restore="restore"> To badanie zostało usunięte</trashed-message>
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
