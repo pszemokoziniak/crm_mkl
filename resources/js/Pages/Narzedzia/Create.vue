@@ -16,24 +16,24 @@
             <option value="__new__">+ Nowy typ…</option>
           </select-input>
           <text-input v-if="form.narzedzia_typ_id === '__new__'" v-model="form.new_typ_name" :error="form.errors.new_typ_name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa nowego typu" />
-          <!-- Lista już używanych kategorii + możliwość wpisania nowej,
+          <!-- Lista istniejących grup sprzętu + możliwość wpisania nowej,
                tak samo jak przy wyborze typu sprzętu. -->
           <select-input
             v-if="form.narzedzia_typ_id === '__new__'"
-            v-model="form.new_typ_kategoria_wybor"
+            v-model="form.new_typ_grupa_wybor"
             class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Kategoria (grupuje modele w magazynie)"
+            label="Grupa (łączy modele w magazynie)"
           >
-            <option value="">— bez kategorii —</option>
-            <option v-for="k in kategorie" :key="k" :value="k">{{ k }}</option>
-            <option value="__new__">+ Nowa kategoria…</option>
+            <option value="">— bez grupy —</option>
+            <option v-for="k in grupy" :key="k" :value="k">{{ k }}</option>
+            <option value="__new__">+ Nowa grupa…</option>
           </select-input>
           <text-input
-            v-if="form.narzedzia_typ_id === '__new__' && form.new_typ_kategoria_wybor === '__new__'"
-            v-model="form.new_typ_kategoria_nowa"
-            :error="form.errors.new_typ_kategoria"
+            v-if="form.narzedzia_typ_id === '__new__' && form.new_typ_grupa_wybor === '__new__'"
+            v-model="form.new_typ_grupa_nowa"
+            :error="form.errors.new_typ_grupa"
             class="pb-8 pr-6 w-full lg:w-1/1"
-            label="Nazwa nowej kategorii"
+            label="Nazwa nowej grupy"
             placeholder="np. Żuraw"
           />
           <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" class="pb-8 pr-6 w-full lg:w-1/4" label="Ilość" />
@@ -85,7 +85,7 @@ export default {
   layout: Layout,
   props: {
     limitPlikuMb: { type: Number, default: 2 },
-    kategorie: { type: Array, default: () => [] },
+    grupy: { type: Array, default: () => [] },
     organizations: Array,
     typy: { type: Array, default: () => [] },
   },
@@ -97,9 +97,9 @@ export default {
         waznosc_badan: new Date().toISOString().substr(0, 10),
         narzedzia_typ_id: '',
         new_typ_name: '',
-        new_typ_kategoria: '',
-        new_typ_kategoria_wybor: '',
-        new_typ_kategoria_nowa: '',
+        new_typ_grupa: '',
+        new_typ_grupa_wybor: '',
+        new_typ_grupa_nowa: '',
         ilosc_all: 0,
         photos: [],
         documents: [],
@@ -107,12 +107,12 @@ export default {
     }
   },
   watch: {
-    'form.new_typ_kategoria_wybor': function (wybor) {
-      this.form.new_typ_kategoria = wybor === '__new__' ? this.form.new_typ_kategoria_nowa : wybor
+    'form.new_typ_grupa_wybor': function (wybor) {
+      this.form.new_typ_grupa = wybor === '__new__' ? this.form.new_typ_grupa_nowa : wybor
     },
-    'form.new_typ_kategoria_nowa': function (nazwa) {
-      if (this.form.new_typ_kategoria_wybor === '__new__') {
-        this.form.new_typ_kategoria = nazwa
+    'form.new_typ_grupa_nowa': function (nazwa) {
+      if (this.form.new_typ_grupa_wybor === '__new__') {
+        this.form.new_typ_grupa = nazwa
       }
     },
   },

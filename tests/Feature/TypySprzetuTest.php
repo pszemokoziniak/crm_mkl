@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\GrupaSprzetu;
 use App\Models\Narzedzia;
 use App\Models\NarzedziaTyp;
 use App\Models\User;
@@ -13,7 +14,7 @@ use Tests\TestCase;
 
 /**
  * Zakładanie typów sprzętu: z Ustawień i wprost z formularza sprzętu.
- * W obu miejscach da się od razu wskazać kategorię, żeby nowy model
+ * W obu miejscach da się od razu wskazać grupę, żeby nowy model
  * stanął w magazynie pod właściwą pozycją.
  */
 class TypySprzetuTest extends TestCase
@@ -35,36 +36,36 @@ class TypySprzetuTest extends TestCase
         ]);
     }
 
-    public function test_ustawienia_zakladaja_typ_z_kategoria(): void
+    public function test_ustawienia_zakladaja_typ_z_grupa(): void
     {
         $this->actingAs($this->admin)
-            ->post('/narzedziaTyp', ['name' => 'Kontener 9m', 'kategoria' => 'Kontener'])
+            ->post('/narzedziaTyp', ['name' => 'Kontener 9m', 'grupa' => 'Kontener'])
             ->assertSessionHasNoErrors()
             ->assertRedirect();
 
         $typ = NarzedziaTyp::firstWhere('name', 'Kontener 9m');
 
         $this->assertNotNull($typ, 'Typ nie powstał.');
-        $this->assertSame('Kontener', $typ->kategoria);
+        $this->assertSame('Kontener', $typ->nazwaGrupy());
     }
 
-    public function test_ustawienia_zmieniaja_kategorie_istniejacego_typu(): void
+    public function test_ustawienia_zmieniaja_grupe_istniejacego_typu(): void
     {
         $typ = NarzedziaTyp::create(['name' => 'Manitou MT1840']);
 
         $this->actingAs($this->admin)
-            ->put('/narzedziaTyp/'.$typ->id, ['name' => 'Manitou MT1840', 'kategoria' => 'Manitou'])
+            ->put('/narzedziaTyp/'.$typ->id, ['name' => 'Manitou MT1840', 'grupa' => 'Manitou'])
             ->assertRedirect();
 
-        $this->assertSame('Manitou', $typ->fresh()->kategoria);
+        $this->assertSame('Manitou', $typ->fresh()->nazwaGrupy());
     }
 
-    public function test_nowy_typ_z_formularza_sprzetu_dostaje_kategorie(): void
+    public function test_nowy_typ_z_formularza_sprzetu_dostaje_grupe(): void
     {
         $this->actingAs($this->admin)
             ->post('/narzedzia', [
                 'new_typ_name' => 'Kontener 9m',
-                'new_typ_kategoria' => 'Kontener',
+                'new_typ_grupa' => 'Kontener',
                 'numer_seryjny' => 'SN-9',
                 'ilosc_all' => 1,
             ])
@@ -73,7 +74,7 @@ class TypySprzetuTest extends TestCase
         $typ = NarzedziaTyp::firstWhere('name', 'Kontener 9m');
 
         $this->assertNotNull($typ);
-        $this->assertSame('Kontener', $typ->kategoria);
+        $this->assertSame('Kontener', $typ->nazwaGrupy());
         $this->assertSame($typ->id, Narzedzia::firstWhere('numer_seryjny', 'SN-9')->narzedzia_typ_id);
     }
 
@@ -95,17 +96,17 @@ class TypySprzetuTest extends TestCase
         $this->assertNull($sprzet->waznosc_badan);
     }
 
-    public function test_istniejacemu_typowi_nie_nadpisujemy_kategorii(): void
+    public function test_istniejacemu_typowi_nie_nadpisujemy_grupy(): void
     {
-        NarzedziaTyp::create(['name' => 'Kontener 6m', 'kategoria' => 'Kontener']);
+        NarzedziaTyp::create(['name' => 'Kontener 6m', 'grupa_id' => GrupaSprzetu::zNazwy('Kontener')->id]);
 
         $this->actingAs($this->admin)->post('/narzedzia', [
             'new_typ_name' => 'Kontener 6m',
-            'new_typ_kategoria' => 'Coś innego',
+            'new_typ_grupa' => 'Coś innego',
             'numer_seryjny' => 'SN-10',
             'ilosc_all' => 1,
         ]);
 
-        $this->assertSame('Kontener', NarzedziaTyp::firstWhere('name', 'Kontener 6m')->kategoria);
+        $this->assertSame('Kontener', NarzedziaTyp::firstWhere('name', 'Kontener 6m')->nazwaGrupy());
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\GrupaSprzetu;
 use App\Models\Narzedzia;
 use App\Models\NarzedziaTyp;
 use App\Models\Organization;
@@ -40,8 +41,8 @@ class MagazynSprzetuTest extends TestCase
             'password_changed_at' => now()->toDateTimeString(),
         ]);
 
-        $this->kontener6 = NarzedziaTyp::create(['name' => 'Kontener 6m', 'kategoria' => 'Kontener']);
-        $this->kontener3 = NarzedziaTyp::create(['name' => 'Kontener 3m', 'kategoria' => 'Kontener']);
+        $this->kontener6 = NarzedziaTyp::create(['name' => 'Kontener 6m', 'grupa_id' => GrupaSprzetu::zNazwy('Kontener')->id]);
+        $this->kontener3 = NarzedziaTyp::create(['name' => 'Kontener 3m', 'grupa_id' => GrupaSprzetu::zNazwy('Kontener')->id]);
 
         $this->budowa = Organization::create([
             'account_id' => 0, 'name' => 'Valmet', 'nazwaBud' => '504_Valmet Ortofta',
@@ -88,7 +89,7 @@ class MagazynSprzetuTest extends TestCase
         return $this->model($nazwa)['sztuki'];
     }
 
-    public function test_kategoria_zbiera_modele_i_sumuje_sztuki(): void
+    public function test_grupa_zbiera_modele_i_sumuje_sztuki(): void
     {
         $this->sztuka($this->kontener6, 'A1');
         $this->sztuka($this->kontener6, 'A2');
@@ -110,7 +111,7 @@ class MagazynSprzetuTest extends TestCase
         $this->assertSame(1, $modele->firstWhere('nazwa', 'Kontener 3m')['sztuk']);
     }
 
-    public function test_sprzet_bez_kategorii_stoi_osobno(): void
+    public function test_sprzet_bez_grupy_stoi_osobno(): void
     {
         $jlg = NarzedziaTyp::create(['name' => 'JLG X20J Plus']);
         $this->sztuka($jlg, 'J1');
@@ -159,9 +160,9 @@ class MagazynSprzetuTest extends TestCase
         $this->assertSame(1, $model['badania_wkrotce']);
         $this->assertSame(2, $model['badania_uwaga']);
 
-        $kategoria = collect($this->grupy())->firstWhere('nazwa', 'Kontener');
-        $this->assertSame(1, $kategoria['badania_po_terminie']);
-        $this->assertSame(1, $kategoria['badania_wkrotce']);
+        $grupa = collect($this->grupy())->firstWhere('nazwa', 'Kontener');
+        $this->assertSame(1, $grupa['badania_po_terminie']);
+        $this->assertSame(1, $grupa['badania_wkrotce']);
     }
 
     public function test_wydanie_sprzetu_na_budowe(): void

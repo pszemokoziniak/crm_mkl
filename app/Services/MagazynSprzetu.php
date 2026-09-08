@@ -25,15 +25,15 @@ class MagazynSprzetu
     public function relacje(): array
     {
         return [
-            'typ',
+            'typ.grupa',
             'files' => fn ($query) => $query->where('type', 'photo')->orderBy('id'),
             'toolWorkDates.organization',
         ];
     }
 
     /**
-     * Dwa poziomy: kategoria (np. "Kontener") zbiera modele, a te — sztuki.
-     * Sprzęt bez kategorii pokazuje się wprost jako swój model.
+     * Dwa poziomy: grupa (np. "Kontener") zbiera modele, a te — sztuki.
+     * Sprzęt bez grupy pokazuje się wprost jako swój model.
      *
      * @param  Collection<int, Narzedzia>  $sztuki
      * @return array<int, array<string, mixed>>
@@ -43,7 +43,7 @@ class MagazynSprzetu
         $dzien = $dzien ?? Carbon::today()->toDateString();
 
         return $sztuki
-            ->groupBy(fn (Narzedzia $n) => optional($n->typ)->kategoria ?: 'model:'.$this->nazwaModelu($n))
+            ->groupBy(fn (Narzedzia $n) => $this->nazwaGrupy($n) ?: 'model:'.$this->nazwaModelu($n))
             ->map(function ($wKategorii, $klucz) use ($dzien) {
                 $modele = $wKategorii
                     ->groupBy(fn (Narzedzia $n) => $this->nazwaModelu($n))
@@ -151,6 +151,11 @@ class MagazynSprzetu
             'h' => 96,
             'fit' => 'crop',
         ]);
+    }
+
+    private function nazwaGrupy(Narzedzia $narzedzia): ?string
+    {
+        return optional(optional($narzedzia->typ)->grupa)->nazwa;
     }
 
     private function nazwaModelu(Narzedzia $narzedzia): string

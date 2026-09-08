@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NarzedziaTyp extends Model
@@ -16,20 +17,20 @@ class NarzedziaTyp extends Model
         return $this->hasMany(Narzedzia::class, 'narzedzia_typ_id');
     }
 
+    /** @return BelongsTo<GrupaSprzetu, NarzedziaTyp> */
+    public function grupa(): BelongsTo
+    {
+        return $this->belongsTo(GrupaSprzetu::class, 'grupa_id');
+    }
+
     protected $fillable = [
         'name',
-        'kategoria',
+        'grupa_id',
     ];
 
-    /** Kategorie już użyte — podpowiedzi przy typie, żeby nie mnożyć zapisów. */
-    public static function kategorie(): array
+    /** Nazwa grupy albo null — na ekranach mówimy nazwami, nie identyfikatorami. */
+    public function nazwaGrupy(): ?string
     {
-        return static::query()
-            ->whereNotNull('kategoria')
-            ->where('kategoria', '!=', '')
-            ->distinct()
-            ->orderBy('kategoria')
-            ->pluck('kategoria')
-            ->all();
+        return optional($this->grupa)->nazwa;
     }
 }
