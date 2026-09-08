@@ -18,6 +18,8 @@ class HolidayController extends Controller
     {
 
         return Inertia::render('Holiday/Index', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'holiday' => Holiday::with('shiftStatus')
                 ->where('contact_id', $contact->id)
                 ->orderByDesc('start')
@@ -59,6 +61,8 @@ class HolidayController extends Controller
     public function edit(Contact $contact, Holiday $holiday)
     {
         return Inertia::render('Holiday/Edit', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'holiday' => [
                 'id' => $holiday->id,
                 'start' => $holiday->start,

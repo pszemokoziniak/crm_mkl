@@ -1,15 +1,8 @@
 <template>
   <div>
     <Head title="Język" />
-    <div>
-      <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
-    </div>
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ contact.first_name }} {{ contact.last_name }}
-    </h1>
-    <h1 class="mb-8 text-3xl font-bold">Języki</h1>
+    <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
+    <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Języki" />
     <div class="flex items-center justify-between mb-6">
       <Link v-if="userOwner !== 3" class="btn-indigo" :href="`/contacts/${contact.id}/jezyk/create`">
         <span>Dodaj</span>
@@ -55,6 +48,7 @@
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
 import pickBy from 'lodash/pickBy'
+import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import Layout from '@/Shared/Layout'
 import throttle from 'lodash/throttle'
 import mapValues from 'lodash/mapValues'
@@ -66,10 +60,12 @@ export default {
     Head,
     Icon,
     Link,
+    PracownikNaglowek,
     WorkerMenu,
   },
   layout: Layout,
   props: {
+    pracownik: { type: Object, default: null },
     jezyks: Object,
     contact: Object,
     userOwner: Number,

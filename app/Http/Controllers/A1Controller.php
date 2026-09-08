@@ -60,6 +60,8 @@ class A1Controller extends Controller
     public function edit(Contact $contact, A1 $a1)
     {
         return Inertia::render('A1/Edit', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'a1' => [
                 'id' => $a1->id,
                 'start' => $a1->start,

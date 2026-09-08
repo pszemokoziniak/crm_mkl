@@ -3,12 +3,8 @@
     <Head title="Nieobecności" />
     <div>
       <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
+      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Nieobecności" />
     </div>
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownik</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ contact.first_name }} {{ contact.last_name }}
-    </h1>
     <h1 class="mb-2 text-2xl font-bold">Nieobecności</h1>
     <p class="mb-6 text-sm text-gray-500">Urlopy, zwolnienia i inne powody, dla których pracownika nie ma na budowie.</p>
     <div class="flex items-center justify-between mb-6">
@@ -60,6 +56,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
+import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import Layout from '@/Shared/Layout'
 import WorkerMenu from '@/Shared/WorkerMenu'
 
@@ -68,10 +65,12 @@ export default {
     Head,
     Icon,
     Link,
+    PracownikNaglowek,
     WorkerMenu,
   },
   layout: Layout,
   props: {
+    pracownik: { type: Object, default: null },
     holiday: Object,
     contact: Object,
     userOwner: Number,

@@ -391,6 +391,8 @@ class ContactsController extends Controller
             });
 
         return Inertia::render('Contacts/History', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'contact' => [
                 'id' => $contact->id,
                 'first_name' => $contact->first_name,

@@ -65,6 +65,8 @@ class UprawnieniaController extends Controller
     public function edit(Contact $contact, Uprawnienia $uprawnienia)
     {
         return Inertia::render('Uprawnienia/Edit', [
+            // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
+            'pracownik' => $this->danePracownika($contact),
             'uprawnienia' => [
                 'id' => $uprawnienia->id,
                 'uprawnieniaTyp_id' => $uprawnienia->uprawnieniaTyp_id,

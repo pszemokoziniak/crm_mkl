@@ -3,14 +3,8 @@
     <Head :title="`${contact.first_name} ${contact.last_name} - Historia`" />
     <div class="mb-8">
       <WorkerMenu :contact-id="contact.id" />
+      <pracownik-naglowek :contact-id="contact.id" :nazwa="pracownik ? pracownik.nazwa : ''" tytul="Historia" />
     </div>
-    <h1 class="mb-8 text-3xl font-bold">
-      <Link class="text-indigo-400 hover:text-indigo-600" href="/contacts">Pracownicy</Link>
-      <span class="text-indigo-400 font-medium">/</span>
-      {{ contact.first_name }} {{ contact.last_name }}
-      <span class="text-indigo-400 font-medium">/</span>
-      Historia
-    </h1>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
@@ -43,6 +37,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import Layout from '@/Shared/Layout'
 import WorkerMenu from '@/Shared/WorkerMenu'
 
@@ -50,10 +45,12 @@ export default {
   components: {
     Head,
     Link,
+    PracownikNaglowek,
     WorkerMenu,
   },
   layout: Layout,
   props: {
+    pracownik: { type: Object, default: null },
     contact: Object,
     history: Array,
   },
