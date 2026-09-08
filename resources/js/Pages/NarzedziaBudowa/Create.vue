@@ -30,12 +30,12 @@
       <h3 class="font-medium text-xl px-6 py-4 border-b border-gray-100">Sprzęt na tej budowie</h3>
       <table class="w-full whitespace-nowrap">
         <thead>
-          <tr class="text-left text-xs uppercase tracking-wider text-gray-500 bg-gray-50">
-            <th class="py-3 px-6">Nazwa</th>
-            <th class="py-3 px-6">Numer seryjny</th>
-            <th class="py-3 px-6">Badania techniczne</th>
-            <th class="py-3 px-6">Termin</th>
-            <th class="py-3 px-6 text-right">Akcje</th>
+          <tr class="naglowek-tabeli">
+            <th class="py-3">Nazwa</th>
+            <th class="py-3">Numer seryjny</th>
+            <th class="py-3">Badania techniczne</th>
+            <th class="py-3">Termin</th>
+            <th class="py-3 text-right">Akcje</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -73,10 +73,10 @@
       </div>
       <table class="w-full">
         <thead>
-          <tr class="text-left text-xs uppercase tracking-wider text-gray-500 bg-gray-50">
-            <th class="py-3 px-6">Sprzęt</th>
-            <th class="py-3 px-6 text-center">Wolnych sztuk</th>
-            <th class="py-3 px-6">Badania</th>
+          <tr class="naglowek-tabeli">
+            <th class="py-3">Sprzęt</th>
+            <th class="py-3 text-center">Wolnych sztuk</th>
+            <th class="py-3">Badania</th>
             <th class="py-3 px-6" />
           </tr>
         </thead>

@@ -31,9 +31,9 @@
     <h2 class="mt-12 text-2xl font-bold">Pracownik</h2>
     <div class="mt-6 bg-white rounded shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Imię</th>
-          <th class="pb-4 pt-6 px-6">Nazwisko</th>
+        <tr class="naglowek-tabeli">
+          <th>Imię</th>
+          <th>Nazwisko</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
         <tr v-for="contact in klient" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">

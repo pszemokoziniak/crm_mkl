@@ -18,12 +18,12 @@
     <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
-          <tr class="text-left font-bold">
-            <th class="pb-4 pt-6 px-6">Nazwa</th>
-            <th class="pb-4 pt-6 px-6">Od</th>
-            <th class="pb-4 pt-6 px-6">Do</th>
-            <th class="pb-4 pt-6 px-6">Stan</th>
-            <th class="pb-4 pt-6 px-6" />
+          <tr class="naglowek-tabeli">
+            <th>Nazwa</th>
+            <th>Od</th>
+            <th>Do</th>
+            <th>Stan</th>
+            <th />
           </tr>
         </thead>
         <tbody>
