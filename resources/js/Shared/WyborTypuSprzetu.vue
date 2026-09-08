@@ -7,17 +7,17 @@
       <option v-for="g in grupy" :key="g" :value="g">{{ g }}</option>
     </select-input>
 
-    <select-input v-model="typWybor" :error="bledy.narzedzia_typ_id" label="Nazwa sprzętu (typ)">
+    <select-input v-model="typWybor" :error="bledy.narzedzia_typ_id" label="Nazwa sprzętu">
       <option value="">— wybierz —</option>
       <option v-for="t in typyDoWyboru" :key="t.id" :value="t.id">{{ t.name }}</option>
-      <option value="__new__">+ Nowy typ…</option>
+      <option value="__new__">+ Nowy sprzęt…</option>
     </select-input>
 
     <text-input
       v-if="typWybor === '__new__'"
       v-model="nazwaNowegoTypu"
       :error="bledy.new_typ_name"
-      label="Nazwa nowego typu"
+      label="Nazwa nowego sprzętu"
       placeholder="np. Manitou MT 1840"
     />
 
@@ -56,7 +56,7 @@ export default {
     }
   },
   computed: {
-    /** Przy wybranej grupie pokazujemy tylko jej modele — reszta tylko przeszkadza. */
+    /** Przy wybranej grupie pokazujemy tylko jej sprzęt — reszta tylko przeszkadza. */
     typyDoWyboru() {
       if (!this.grupaWybor) return this.typy
 
@@ -65,8 +65,8 @@ export default {
     podpowiedz() {
       if (this.typWybor === '__new__') {
         return this.grupaWybor
-          ? `Nowy typ trafi do grupy „${this.grupaWybor}”.`
-          : 'Wybierz grupę powyżej, inaczej nowy typ stanie w magazynie osobno.'
+          ? `Nowy sprzęt trafi do grupy „${this.grupaWybor}”.`
+          : 'Wybierz grupę powyżej, inaczej nowy sprzęt stanie w magazynie osobno.'
       }
 
       const typ = this.typy.find((t) => String(t.id) === String(this.typWybor))
@@ -77,7 +77,7 @@ export default {
           : `„${typ.name}” nie ma grupy — przypiszesz ją w Ustawieniach → Grupy sprzętu.`
       }
 
-      return 'Wybór grupy zawęża listę typów obok. Grupy zakłada się w Ustawieniach → Grupy sprzętu.'
+      return 'Wybór grupy zawęża listę sprzętu obok. Grupy zakłada się w Ustawieniach → Grupy sprzętu.'
     },
   },
   watch: {
