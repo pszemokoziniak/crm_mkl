@@ -9,6 +9,18 @@
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
+          <!-- Do której kolumny listy budów trafia osoba z tym stanowiskiem.
+               Trzymamy to w słowniku, bo lista stanowisk rośnie, a wcześniej
+               kolumny były zaszyte w kodzie i gubiły nowe stanowiska. -->
+          <select-input
+            v-model="form.rola_budowy"
+            :error="form.errors.rola_budowy"
+            class="pb-8 pr-6 w-full lg:w-1/2"
+            label="Kolumna na liście budów"
+          >
+            <option :value="null">— nie pokazuj —</option>
+            <option v-for="(podpis, klucz) in roleBudowy" :key="klucz" :value="klucz">{{ podpis }}</option>
+          </select-input>
           <div class="pb-8 pr-6 w-full">
             <label class="flex items-center gap-2 text-sm text-gray-700">
               <input v-model="form.kierownictwo" type="checkbox" class="form-checkbox" />
@@ -29,6 +41,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
+import SelectInput from '@/Shared/SelectInput'
 
 export default {
   components: {
@@ -36,6 +49,7 @@ export default {
     Link,
     LoadingButton,
     TextInput,
+    SelectInput,
   },
   layout: Layout,
   remember: 'form',
@@ -44,6 +58,7 @@ export default {
       form: this.$inertia.form({
         name: '',
         kierownictwo: false,
+        rola_budowy: null,
       }),
     }
   },

@@ -21,7 +21,10 @@ class FunkcjaController extends Controller
 
         $funkcjas = Funkcja::orderBy('name')->get();
 
-        return Inertia('Funkcja/Index', compact('funkcjas'));
+        return Inertia('Funkcja/Index', [
+            'funkcjas' => $funkcjas,
+            'roleBudowy' => Funkcja::ROLE_BUDOWY,
+        ]);
 
     }
 
@@ -32,8 +35,10 @@ class FunkcjaController extends Controller
                 'id' => $funkcja->id,
                 'name' => $funkcja->name,
                 'kierownictwo' => (bool) $funkcja->kierownictwo,
+                'rola_budowy' => $funkcja->rola_budowy,
                 'deleted_at' => $funkcja->deleted_at,
             ],
+            'roleBudowy' => Funkcja::ROLE_BUDOWY,
         ]);
     }
 
@@ -86,6 +91,7 @@ class FunkcjaController extends Controller
             Request::validate([
                 'name' => ['required', 'max:50'],
                 'kierownictwo' => ['boolean'],
+                'rola_budowy' => ['nullable', Rule::in(array_keys(Funkcja::ROLE_BUDOWY))],
             ])
         );
 
@@ -96,7 +102,9 @@ class FunkcjaController extends Controller
 
     public function create()
     {
-        return Inertia('Funkcja/Create');
+        return Inertia('Funkcja/Create', [
+            'roleBudowy' => Funkcja::ROLE_BUDOWY,
+        ]);
     }
 
     public function store(StorePosRequest $req)

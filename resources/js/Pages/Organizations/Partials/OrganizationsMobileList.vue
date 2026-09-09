@@ -37,7 +37,7 @@
 
         <!-- NOWE POLA (stringi z backendu) -->
         <div v-if="organization.kierownicy">
-          <span class="text-gray-500">Kierownicy:</span> {{ organization.kierownicy }}
+          <span class="text-gray-500">Kierownik budowy:</span> {{ organization.kierownicy }}
         </div>
 
         <div v-if="organization.inzynierowie">
