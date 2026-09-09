@@ -49,6 +49,27 @@ class DashboardController extends Controller
             $myOrgIds = Organization::mojeBudowy($user)->pluck('id');
         }
 
+        /**
+         * Wpis zastąpiony nowszym tego samego rodzaju nie jest już terminem
+         * do pilnowania. Bez tego stare badanie wisiało na pulpicie jako
+         * przeterminowane, choć obok był nowy wpis ważny jeszcze latami —
+         * karta pracownika pokazywała nowy, pulpit stary i jedno przeczyło
+         * drugiemu.
+         *
+         * Rodzaj, nie kategoria: pracownik miewa kilka różnych uprawnień
+         * naraz i każde ma własny termin.
+         */
+        $tylkoNajnowszy = function ($query, string $tabela, string $kolumnaRodzaju) {
+            $query->whereNotExists(function ($q) use ($tabela, $kolumnaRodzaju) {
+                $q->select(DB::raw(1))
+                    ->from($tabela.' as nowszy')
+                    ->whereColumn('nowszy.contact_id', $tabela.'.contact_id')
+                    ->whereColumn('nowszy.'.$kolumnaRodzaju, $tabela.'.'.$kolumnaRodzaju)
+                    ->whereColumn('nowszy.end', '>', $tabela.'.end')
+                    ->whereNull('nowszy.deleted_at');
+            });
+        };
+
         if ($user->isOffice() || $user->prowadziBudowy()) {
             // Uprawnienia
             $uprawnieniaQuery = Uprawnienia::with(['uprawnieniaTyp'])
@@ -98,6 +119,12 @@ class DashboardController extends Controller
             $filterByActiveWorkers($badaniaQuery);
             $filterByActiveWorkers($bhpQuery);
             $filterByActiveWorkers($pbiozQuery);
+
+            $tylkoNajnowszy($uprawnieniaQuery, 'uprawnienias', 'uprawnieniaTyp_id');
+            $tylkoNajnowszy($badaniaQuery, 'badanias', 'badaniaTyp_id');
+            $tylkoNajnowszy($bhpQuery, 'bhps', 'bhpTyp_id');
+            // PBIOZ nie ma słownika rodzajów — rolę rodzaju pełni nazwa wpisu.
+            $tylkoNajnowszy($pbiozQuery, 'pbiozs', 'name');
 
             $uprawnienia = $uprawnieniaQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Uprawnienia', $item->uprawnieniaTyp->name ?? 'Brak typu', $now));
             $badania = $badaniaQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Badania lekarskie', $item->badaniaTyp->name ?? 'Brak typu', $now));

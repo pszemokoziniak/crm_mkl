@@ -146,16 +146,17 @@ class PulpitKierownikaTest extends TestCase
     {
         $pracownik = $this->pracownikNaBudowie('Mojski', $this->mojaBudowa);
 
-        $typ = \App\Models\BhpTyp::create(['name' => 'Szkolenie okresowe']);
-        // Jedno po terminie, jedno kończące się wkrótce, jedno odległe.
+        // Trzy różne szkolenia: po terminie, kończące się wkrótce i odległe.
+        // Różne rodzaje, bo wpis zastąpiony nowszym tego samego rodzaju
+        // celowo nie trafia już na pulpit (patrz test o zastąpieniu).
         foreach ([
-            now()->subMonths(2)->toDateString(),
-            now()->addDays(10)->toDateString(),
-            now()->addYears(2)->toDateString(),
-        ] as $koniec) {
+            'Szkolenie okresowe' => now()->subMonths(2)->toDateString(),
+            'Szkolenie wstępne' => now()->addDays(10)->toDateString(),
+            'Szkolenie dla kierujących' => now()->addYears(2)->toDateString(),
+        ] as $nazwa => $koniec) {
             \App\Models\Bhp::create([
                 'contact_id' => $pracownik->id,
-                'bhpTyp_id' => $typ->id,
+                'bhpTyp_id' => \App\Models\BhpTyp::create(['name' => $nazwa])->id,
                 'start' => now()->subYear()->toDateString(),
                 'end' => $koniec,
             ]);
@@ -170,6 +171,54 @@ class PulpitKierownikaTest extends TestCase
         $this->assertSame(0, $terminy->where('status', 'dalej')->count(), 'Odległy termin nie powinien tu trafiać.');
         $this->assertSame(2, $props['stats']['wygasajace']);
         $this->assertLessThan(0, $terminy->firstWhere('status', 'po_terminie')['dni']);
+    }
+
+    public function test_wpis_zastapiony_nowszym_znika_z_terminow(): void
+    {
+        // Zgłoszenie: pulpit pokazywał "208 dni po terminie", a karta pracownika
+        // badania ważne do 2028. Pracownik miał dwa wpisy tego samego rodzaju —
+        // pulpit brał oba, karta tylko najnowszy.
+        $pracownik = $this->pracownikNaBudowie('Izdebski', $this->mojaBudowa);
+        $typ = \App\Models\BadaniaTyp::create(['name' => 'badanie okresowe']);
+
+        \App\Models\Badania::create([
+            'contact_id' => $pracownik->id, 'badaniaTyp_id' => $typ->id,
+            'start' => now()->subYears(2)->toDateString(),
+            'end' => now()->subDays(208)->toDateString(),
+        ]);
+        \App\Models\Badania::create([
+            'contact_id' => $pracownik->id, 'badaniaTyp_id' => $typ->id,
+            'start' => now()->subMonths(3)->toDateString(),
+            'end' => now()->addYears(2)->toDateString(),
+        ]);
+
+        $terminy = collect($this->actingAs($this->kierownik)->get('/')->viewData('page')['props']['expiring_items']);
+
+        $this->assertCount(0, $terminy->where('category', 'Badania lekarskie'),
+            'Stare badanie zastąpione nowym nie jest terminem do pilnowania.');
+    }
+
+    public function test_rozne_rodzaje_uprawnien_liczą_sie_osobno(): void
+    {
+        // Zawężamy do najnowszego w obrębie rodzaju, nie kategorii — inaczej
+        // nowe uprawnienie zasłoniłoby przeterminowane, zupełnie inne.
+        $pracownik = $this->pracownikNaBudowie('Mojski', $this->mojaBudowa);
+        $koparka = \App\Models\UprawnieniaTyp::create(['name' => 'Operator koparki']);
+        $wysokosc = \App\Models\UprawnieniaTyp::create(['name' => 'Praca na wysokości']);
+
+        \App\Models\Uprawnienia::create([
+            'contact_id' => $pracownik->id, 'uprawnieniaTyp_id' => $koparka->id,
+            'start' => now()->subYears(2)->toDateString(), 'end' => now()->subMonth()->toDateString(),
+        ]);
+        \App\Models\Uprawnienia::create([
+            'contact_id' => $pracownik->id, 'uprawnieniaTyp_id' => $wysokosc->id,
+            'start' => now()->subMonths(2)->toDateString(), 'end' => now()->addYears(2)->toDateString(),
+        ]);
+
+        $terminy = collect($this->actingAs($this->kierownik)->get('/')->viewData('page')['props']['expiring_items']);
+
+        $this->assertCount(1, $terminy->where('category', 'Uprawnienia'));
+        $this->assertSame('Operator koparki', $terminy->firstWhere('category', 'Uprawnienia')['type']);
     }
 
     public function test_pulpit_nie_powiela_listy_budow(): void
