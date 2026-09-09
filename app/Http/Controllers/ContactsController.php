@@ -111,7 +111,10 @@ class ContactsController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'photo_path' => $request->file('photo_path') ? $request->file('photo_path')->store('contacts') : null,
-            'status_zatrudnienia' => $request->status_zatrudnienia,
+            // Kolumna jest NOT NULL, a skrócony formularz opiekuna kontraktu
+            // tego pola nie wysyła — bez wartości domyślnej zapis kończył się
+            // błędem bazy zamiast komunikatem.
+            'status_zatrudnienia' => $request->status_zatrudnienia ?: Contact::STATUS_AKTYWNY,
         ]);
 
 

@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Mail\CreateUserPassword;
 use App\Models\Contact;
 use App\Models\Uprawnienia;
+use App\Models\Funkcja;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -95,7 +96,7 @@ class UsersController extends Controller
         // (PasswordExpired: password_changed_at zostaje NULL).
         $password = $this->generateInitialPassword();
 
-        Auth::user()->account->users()->create([
+        $user = Auth::user()->account->users()->create([
             'first_name' => Request::get('first_name'),
             'last_name' => Request::get('last_name'),
             'email' => Request::get('email'),
@@ -105,9 +106,61 @@ class UsersController extends Controller
             'photo_path' => Request::file('photo') ? Request::file('photo')->store('users') : null,
         ]);
 
+        $this->zapewnijKartotekeKierownikaProjektu($user);
+
         Mail::send(new CreateUserPassword(Request::get('email'), $password));
 
         return Redirect::route('users')->with('success', 'Użytkownik utworzony.');
+    }
+
+    /**
+     * Kierownik projektu ma się pojawić na liście wyboru przy budowie zaraz
+     * po założeniu konta — bez drugiego formularza i bez PESEL-u, którego
+     * do tej roli nie potrzebujemy.
+     *
+     * Lista czyta pracowników (`organizations.kierownik_projektu_id` wskazuje
+     * na `contacts`), więc samo konto nie wystarczy — musi mieć kartotekę.
+     */
+    private function zapewnijKartotekeKierownikaProjektu(User $user): void
+    {
+        if ((int) $user->owner !== Role::KIEROWNIK_PROJEKTU->value) {
+            return;
+        }
+
+        if (Contact::where('user_id', $user->id)->exists()) {
+            return;
+        }
+
+        // Stanowisko bierzemy ze słownika; gdy go nie ma (świeża instalacja),
+        // zakładamy je razem z przypisaniem do kolumny.
+        $funkcja = Funkcja::firstOrCreate(
+            ['name' => Funkcja::NAZWA_KIEROWNIK_PROJEKTU],
+            ['kierownictwo' => true, 'rola_budowy' => Funkcja::ROLA_KIEROWNIK_PROJEKTU]
+        );
+
+        // Kartoteka mogła powstać wcześniej ścieżką bez logowania. Wiążemy ją
+        // z kontem tylko wtedy, gdy pasuje dokładnie jedna — przy dwóch osobach
+        // o tym samym nazwisku zgadywanie skończyłoby się cudzą kartoteką.
+        $istniejace = Contact::whereNull('user_id')
+            ->where('funkcja_id', $funkcja->id)
+            ->where('first_name', $user->first_name)
+            ->where('last_name', $user->last_name)
+            ->get();
+
+        if ($istniejace->count() === 1) {
+            $istniejace->first()->update(['user_id' => $user->id]);
+
+            return;
+        }
+
+        Contact::create([
+            'account_id' => $user->account_id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'funkcja_id' => $funkcja->id,
+            'user_id' => $user->id,
+            'status_zatrudnienia' => Contact::STATUS_AKTYWNY,
+        ]);
     }
 
     /**

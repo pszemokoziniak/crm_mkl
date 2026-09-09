@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Funkcja;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Request;
 
@@ -22,23 +23,39 @@ class StoreCustomersRequest extends FormRequest
      *
      * @return array
      */
+    /**
+     * Kierownik projektu to opiekun kontraktu, nie pracownik budowy: nie ma
+     * dat zatrudnienia ani badań, a PESEL-u i telefonu do tej roli nie
+     * potrzebujemy — więc ich nie zbieramy. Wystarczą imię, nazwisko
+     * i stanowisko.
+     */
+    private function tylkoOpiekunKontraktu(): bool
+    {
+        $funkcjaId = Funkcja::kierownikProjektuId();
+
+        return $funkcjaId !== null && (int) $this->input('funkcja_id') === $funkcjaId;
+    }
+
     public function rules()
     {
+        $opiekun = $this->tylkoOpiekunKontraktu();
+        $wymagane = $opiekun ? 'nullable' : 'required';
+
         return [
             'first_name' => ['required', 'max:150'],
             'last_name' => ['required', 'max:150'],
-            'birth_date' => ['required'],
-            'pesel' => ['required', 'numeric', 'unique:contacts', 'digits:11'],
+            'birth_date' => [$wymagane],
+            'pesel' => array_filter([$wymagane, $opiekun ? null : 'numeric', 'unique:contacts', $opiekun ? null : 'digits:11']),
             'idCard_number' => ['nullable'],
             'idCard_date' => ['nullable'],
             'funkcja_id' => ['required'],
-            'work_start' => 'required | date | before:work_end',
-            'work_end' => 'required | date | after:work_start',
+            'work_start' => $wymagane.' | date | before:work_end',
+            'work_end' => $wymagane.' | date | after:work_start',
             'ekuz' => ['nullable'],
             'miejsce_urodzenia' => ['nullable'],
             'organization_id' => ['nullable'],
             'email' => 'nullable | max:150| email | unique:contacts',
-            'phone' => ['required', 'max:50', 'string'],
+            'phone' => [$wymagane, 'max:50', 'string'],
             'address' => ['nullable'],
             'photo_path' => ['nullable', 'image'],
             'status_zatrudnienia' => ['nullable', 'in:Aktywny,Zwolniony'],

@@ -27,6 +27,13 @@
             <option v-for="funkcja in funkcjas" :key="funkcja.id" :value="funkcja.id">{{ funkcja.name }}</option>
           </select-input>
 
+          <!-- Opiekun kontraktu nie jest pracownikiem budowy: nie ma dat
+               zatrudnienia ani badań, więc reszty pól nie wymagamy. -->
+          <p v-if="opiekunKontraktu" class="pb-8 pr-6 w-full text-sm text-gray-500">
+            Kierownik projektu — wystarczą imię, nazwisko i stanowisko.
+            Pozostałe pola są opcjonalne.
+          </p>
+
           <select-input v-model="form.status_zatrudnienia" :error="form.errors.status_zatrudnienia" class="pb-8 pr-6 w-full lg:w-1/2" label="Status zatrudnienia">
             <option value="Aktywny">Aktywny</option>
             <option value="Zwolniony">Zwolniony</option>
@@ -74,6 +81,15 @@ export default {
     errors: Object,
   },
   remember: 'form',
+  computed: {
+    // Stanowisko rozpoznajemy po nazwie ze słownika — tak samo jak serwer,
+    // bo id bywa inne na produkcji i lokalnie.
+    opiekunKontraktu() {
+      const wybrane = Object.values(this.funkcjas || {}).find((f) => String(f.id) === String(this.form.funkcja_id))
+
+      return Boolean(wybrane && wybrane.name === 'Kierownik Projektu')
+    },
+  },
   data() {
     return {
       form: this.$inertia.form({

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Funkcja;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreContactRequest extends FormRequest
@@ -21,18 +22,32 @@ class StoreContactRequest extends FormRequest
      *
      * @return array
      */
+    /**
+     * Kierownik projektu to opiekun kontraktu, nie pracownik budowy: nie ma
+     * dat zatrudnienia ani badań, a PESEL-u do tej roli nie potrzebujemy —
+     * więc go nie zbieramy. Wystarczą imię, nazwisko i stanowisko.
+     */
+    private function tylkoOpiekunKontraktu(): bool
+    {
+        $funkcjaId = Funkcja::kierownikProjektuId();
+
+        return $funkcjaId !== null && (int) $this->input('funkcja_id') === $funkcjaId;
+    }
+
     public function rules()
     {
+        $wymagane = $this->tylkoOpiekunKontraktu() ? 'nullable' : 'required';
+
         return [
             'first_name' => ['required', 'max:150'],
             'last_name' => ['required', 'max:150'],
-            'birth_date' => ['required'],
-            'pesel' => ['required'],
+            'birth_date' => [$wymagane],
+            'pesel' => [$wymagane],
             'idCard_number' => ['nullable'],
             'idCard_date' => ['nullable'],
             'funkcja_id' => ['nullable'],
-            'work_start' => 'required | date | before:work_end',
-            'work_end' => 'required | date | after:work_start',
+            'work_start' => $wymagane.' | date | before:work_end',
+            'work_end' => $wymagane.' | date | after:work_start',
             'ekuz' => ['nullable'],
             'miejsce_urodzenia' => ['nullable'],
             'organization_id' => ['nullable'],

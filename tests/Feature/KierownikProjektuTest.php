@@ -153,6 +153,94 @@ class KierownikProjektuTest extends TestCase
         $this->assertNotContains('Obcy', $nazwiska);
     }
 
+    public function test_zalozenie_konta_tworzy_kartoteke_i_wstawia_na_liste(): void
+    {
+        // O to prosił klient: jeden formularz. Lista wyboru przy budowie czyta
+        // pracowników, więc samo konto by nie wystarczyło.
+        $admin = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'admin@mkl.pl',
+            'owner' => Role::ADMIN->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        $this->actingAs($admin)->post('/users', [
+            'first_name' => 'Miłosz', 'last_name' => 'Pacak',
+            'email' => 'milosz.pacak@mkl.pl',
+            'owner' => (string) Role::KIEROWNIK_PROJEKTU->value,
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $konto = User::where('email', 'milosz.pacak@mkl.pl')->firstOrFail();
+        $kartoteka = Contact::where('user_id', $konto->id)->first();
+
+        $this->assertNotNull($kartoteka, 'Konto bez kartoteki nie trafiłoby na listę wyboru.');
+        $this->assertSame('Pacak', $kartoteka->last_name);
+        $this->assertSame(Funkcja::kierownikProjektuId(), $kartoteka->funkcja_id);
+        $this->assertNull($kartoteka->pesel, 'PESEL-u do tej roli nie zbieramy.');
+
+        // Lista rozwijana przy zakładaniu budowy
+        $props = $this->actingAs($admin)->get('/budowy/create')->assertOk()->viewData('page')['props'];
+        $this->assertContains('Pacak Miłosz', collect($props['kierownicyProjektow'])->pluck('name'));
+    }
+
+    public function test_konto_dolacza_do_kartoteki_zalozonej_wczesniej(): void
+    {
+        // Ścieżka bez logowania zostaje, więc kartoteka mogła powstać wcześniej.
+        // Zakładanie konta nie może dublować tej samej osoby.
+        $admin = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'admin@mkl.pl',
+            'owner' => Role::ADMIN->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        $istniejaca = Contact::create([
+            'account_id' => $this->accountId, 'first_name' => 'Wojciech', 'last_name' => 'Szpura',
+            'funkcja_id' => Funkcja::kierownikProjektuId(),
+        ]);
+
+        $this->actingAs($admin)->post('/users', [
+            'first_name' => 'Wojciech', 'last_name' => 'Szpura',
+            'email' => 'wojciech.szpura@mkl.pl',
+            'owner' => (string) Role::KIEROWNIK_PROJEKTU->value,
+        ])->assertRedirect();
+
+        $konto = User::where('email', 'wojciech.szpura@mkl.pl')->firstOrFail();
+
+        $this->assertSame(1, Contact::where('last_name', 'Szpura')->count(), 'Bez duplikatu kartoteki.');
+        $this->assertSame($konto->id, $istniejaca->fresh()->user_id);
+    }
+
+    public function test_kartoteke_opiekuna_zapiszemy_bez_peselu_i_dat(): void
+    {
+        // Ścieżka bez logowania: wymagane tylko imię, nazwisko i stanowisko.
+        $biuro = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'kadry@mkl.pl',
+            'owner' => Role::BIURO->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        $this->actingAs($biuro)->post('/contacts', [
+            'first_name' => 'Ewa', 'last_name' => 'Nowak',
+            'funkcja_id' => Funkcja::kierownikProjektuId(),
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $this->assertDatabaseHas('contacts', ['last_name' => 'Nowak', 'pesel' => null]);
+    }
+
+    public function test_zwyklemu_pracownikowi_dalej_wymagamy_kompletu(): void
+    {
+        $biuro = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'kadry@mkl.pl',
+            'owner' => Role::BIURO->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        $monter = Funkcja::create(['name' => 'Monter konstrukcji stalowych', 'kierownictwo' => false]);
+
+        $this->actingAs($biuro)->post('/contacts', [
+            'first_name' => 'Jan', 'last_name' => 'Monterski', 'funkcja_id' => $monter->id,
+        ])->assertSessionHasErrors(['pesel', 'birth_date', 'work_start', 'work_end']);
+    }
+
     public function test_zdjecie_opieki_odbiera_dostep(): void
     {
         // Budowa przypięta jest polem, więc odpięcie musi zamknąć dostęp od razu.
