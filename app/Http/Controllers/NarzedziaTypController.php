@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\GrupaSprzetu;
+use App\Models\Narzedzia;
 use App\Models\NarzedziaTyp;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -61,6 +62,23 @@ class NarzedziaTypController extends Controller
 
     public function destroy(NarzedziaTyp $narzedziaTyp)
     {
+        // Na narzedzias.narzedzia_typ_id nie ma klucza obcego, a typ nie ma
+        // kosza — baza nie zatrzyma usunięcia używanej nazwy. Sprzęt zostałby
+        // z numerem nieistniejącego typu: wypadłby ze swojej grupy w magazynie
+        // i pokazywał się osobno. Sprawdzamy wcześniej i mówimy, co stoi na
+        // przeszkodzie, tak samo jak przy stanowiskach.
+        $sztuk = Narzedzia::where('narzedzia_typ_id', $narzedziaTyp->id)->count();
+
+        if ($sztuk > 0) {
+            return Redirect::route('narzedziaTyp')->with(
+                'error',
+                'Nazwa „'.$narzedziaTyp->name.'" jest przypisana do '.$sztuk.' '
+                .($sztuk === 1 ? 'sztuki sprzętu' : 'sztuk sprzętu')
+                .' — nie można jej usunąć. Najpierw przepisz ten sprzęt na inną nazwę '
+                .'(Sprzęt → wybierz sztukę → Nazwa sprzętu).'
+            );
+        }
+
         $narzedziaTyp->delete();
 
         return Redirect::route('narzedziaTyp')->with('success', 'Usunięto.');

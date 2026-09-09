@@ -211,6 +211,35 @@ class GrupySprzetuTest extends TestCase
         $this->assertSame(3, $kontener['sztuk']);
     }
 
+    public function test_nie_usuniemy_nazwy_uzywanej_przez_sprzet(): void
+    {
+        // Na narzedzias.narzedzia_typ_id nie ma klucza obcego, a typ nie ma
+        // kosza — bez tej blokady sprzęt zostawał z numerem nieistniejącej
+        // nazwy i wypadał ze swojej grupy w magazynie.
+        $typ = $this->model('RENAULT Trafic', 'BUS', 3);
+
+        $this->actingAs($this->admin)
+            ->delete("/narzedziaTyp/{$typ->id}")
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('narzedzia_typs', ['id' => $typ->id]);
+        $this->assertSame(3, Narzedzia::where('narzedzia_typ_id', $typ->id)->count());
+    }
+
+    public function test_nazwe_bez_sprzetu_da_sie_usunac(): void
+    {
+        // Literówka bez przypisanego sprzętu — dokładnie przypadek ze zgłoszenia.
+        $literowka = $this->model('RENAUL Trafic', 'BUS');
+
+        $this->actingAs($this->admin)
+            ->delete("/narzedziaTyp/{$literowka->id}")
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('narzedzia_typs', ['id' => $literowka->id]);
+    }
+
     public function test_biuro_prowadzi_grupy_sprzetu(): void
     {
         // Magazynem zajmuje się biuro, nie administrator — to biuro zgłosiło
