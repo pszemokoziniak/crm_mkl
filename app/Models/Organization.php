@@ -79,7 +79,9 @@ class Organization extends Model
         return $query->whereHas('contactWorkDates', function ($q) use ($contactId) {
             $q->where('contact_id', $contactId)
                 ->whereHas('contact', function ($c) {
-                    $c->whereIn('funkcja_id', [Funkcja::KIEROWNIK, Funkcja::INZYNIER]);
+                    // Zbiór ze słownika, nie z kodu — inaczej stanowisko
+                    // widoczne w kolumnie nie dawałoby dostępu do budowy.
+                    $c->whereIn('funkcja_id', Funkcja::idsKierownictwaBudowy());
                 });
         });
     }
@@ -102,7 +104,9 @@ class Organization extends Model
             $q->where('contact_id', $contactId)
                 ->activeOn($today)
                 ->whereHas('contact', function ($c) {
-                    $c->whereIn('funkcja_id', [Funkcja::KIEROWNIK, Funkcja::INZYNIER]);
+                    // Zbiór ze słownika, nie z kodu — inaczej stanowisko
+                    // widoczne w kolumnie nie dawałoby dostępu do budowy.
+                    $c->whereIn('funkcja_id', Funkcja::idsKierownictwaBudowy());
                 });
         });
     }

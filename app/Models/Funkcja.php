@@ -67,6 +67,21 @@ class Funkcja extends Model
     }
 
     /**
+     * Stanowiska wchodzące w kierownictwo budowy — obie kolumny naraz.
+     *
+     * Tego zbioru używa zakres dostępu kierownika: kto może wejść na budowę
+     * i zobaczyć jej ludzi. Kierownik projektu jest poza nim celowo — jego
+     * budowy biorą się z pola przy budowie, nie z kierownictwa.
+     *
+     * @return int[]
+     */
+    public static function idsKierownictwaBudowy(): array
+    {
+        return static::whereIn('rola_budowy', [self::ROLA_KIEROWNIK, self::ROLA_INZYNIER])
+            ->pluck('id')->all();
+    }
+
+    /**
      * Stanowiska kierujące do danej kolumny listy budów.
      *
      * Zwracamy identyfikatory, bo zapytania o kolumny i tak filtrują po

@@ -41,6 +41,7 @@ class DokumentyKierownikaTest extends TestCase
             'id' => Funkcja::KIEROWNIK,
             'name' => 'Kierownik Budowy',
             'kierownictwo' => true,
+            'rola_budowy' => Funkcja::ROLA_KIEROWNIK,
         ]);
 
         $this->kierownik = User::factory()->create([

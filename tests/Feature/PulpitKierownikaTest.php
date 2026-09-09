@@ -37,12 +37,14 @@ class PulpitKierownikaTest extends TestCase
 
         $this->accountId = Account::create(['name' => 'MKL'])->id;
 
-        // Id wpisujemy wprost: Organization::scopeManagedBy filtruje po stałej
-        // Funkcja::KIEROWNIK, więc bez tego kierownik nie miałby żadnej budowy.
+        // O tym, czy stanowisko wchodzi w kierownictwo budowy, decyduje
+        // przypisanie do kolumny w słowniku — bez niego kierownik nie miałby
+        // żadnej budowy (Organization::scopeManagedBy).
         $funkcjaKierownik = Funkcja::create([
             'id' => Funkcja::KIEROWNIK,
             'name' => 'Kierownik Budowy',
             'kierownictwo' => true,
+            'rola_budowy' => Funkcja::ROLA_KIEROWNIK,
         ]);
 
         $this->kierownik = User::factory()->create([

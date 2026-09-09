@@ -47,13 +47,19 @@ class KolumnyKierownictwaTest extends TestCase
         ]);
     }
 
-    private function stanowisko(string $nazwa, ?string $rola): Funkcja
+    /**
+     * Id podajemy wprost tam, gdzie test ma odróżnić słownik od dawnych
+     * stałych 1 i 6 — przy autoinkremencie stanowisko trafiłoby na id 1
+     * i stary, zaszyty wariant przeszedłby tak samo.
+     */
+    private function stanowisko(string $nazwa, ?string $rola, ?int $id = null): Funkcja
     {
-        return Funkcja::create([
+        return Funkcja::create(array_filter([
+            'id' => $id,
             'name' => $nazwa,
             'kierownictwo' => $rola !== null,
             'rola_budowy' => $rola,
-        ]);
+        ], fn ($w) => $w !== null));
     }
 
     private function naBudowie(string $nazwisko, Funkcja $stanowisko): Contact
@@ -138,6 +144,47 @@ class KolumnyKierownictwaTest extends TestCase
             ->assertRedirect();
 
         $this->assertStringContainsString('Iksiński', $this->wiersz()['kierownicy']);
+    }
+
+    public function test_przypisanie_ze_slownika_daje_tez_dostep_do_budowy(): void
+    {
+        // Kolumna i dostęp muszą chodzić w parze. Wcześniej zakres kierownika
+        // miał zaszyte funkcja_id IN (1, 6), więc np. Koordynator ds. Realizacji
+        // widniał w kolumnie, ale po zalogowaniu nie widział tej budowy.
+        $stanowisko = $this->stanowisko('Koordynator ds. Realizacji', Funkcja::ROLA_INZYNIER, 21);
+        $osoba = $this->naBudowie('Paśnikowski', $stanowisko);
+
+        $kierownik = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'koordynator@mkl.pl',
+            'first_name' => $osoba->first_name, 'last_name' => $osoba->last_name,
+            'owner' => Role::KIEROWNIK->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+        $osoba->update(['user_id' => $kierownik->id]);
+
+        $this->actingAs($kierownik)->get("/budowy/{$this->budowa->id}/edit")->assertOk();
+
+        $nazwy = collect(
+            $this->actingAs($kierownik)->get('/budowy')->viewData('page')['props']['organizations']['data']
+                ?? $this->actingAs($kierownik)->get('/budowy')->viewData('page')['props']['organizations']
+        )->pluck('nazwaBud');
+        $this->assertContains('Lausitzer Zeitz', $nazwy);
+    }
+
+    public function test_stanowisko_bez_przypisania_nie_daje_dostepu(): void
+    {
+        $stanowisko = $this->stanowisko('Monter konstrukcji stalowych', null, 22);
+        $osoba = $this->naBudowie('Cebula', $stanowisko);
+
+        $kierownik = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'monter@mkl.pl',
+            'first_name' => $osoba->first_name, 'last_name' => $osoba->last_name,
+            'owner' => Role::KIEROWNIK->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+        $osoba->update(['user_id' => $kierownik->id]);
+
+        $this->actingAs($kierownik)->get("/budowy/{$this->budowa->id}/edit")->assertForbidden();
     }
 
     public function test_slownik_pokazuje_i_zapisuje_przypisanie(): void
