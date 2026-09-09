@@ -64,6 +64,8 @@ class UprawnieniaController extends Controller
     }
     public function edit(Contact $contact, Uprawnienia $uprawnienia)
     {
+        $this->wpisPracownika($contact, $uprawnienia);
+
         return Inertia::render('Uprawnienia/Edit', [
             // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
             'pracownik' => $this->danePracownika($contact),
@@ -81,6 +83,8 @@ class UprawnieniaController extends Controller
 
     public function update(StoreUprawnieniaRequest $req, Contact $contact, Uprawnienia $uprawnienia)
     {
+        $this->wpisPracownika($contact, $uprawnienia);
+
         $uprawnienia->update([
             'uprawnieniaTyp_id' => $req->uprawnieniaTyp_id,
             'start' => $req->start,

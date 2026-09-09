@@ -61,6 +61,8 @@ class BhpController extends Controller
     }
     public function edit(Contact $contact, Bhp $bhp)
     {
+        $this->wpisPracownika($contact, $bhp);
+
         return Inertia::render('Bhp/Edit', [
             // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
             'pracownik' => $this->danePracownika($contact),
@@ -78,6 +80,8 @@ class BhpController extends Controller
 
     public function update(UpdateBhpRequest $req, Contact $contact, Bhp $bhp)
     {
+        $this->wpisPracownika($contact, $bhp);
+
         $bhp->update([
             'bhpTyp_id' => $req->bhpTyp_id,
             'start' => $req->start,
