@@ -123,6 +123,12 @@ class StatystykiBudowTest extends TestCase
 
         $props = $this->actingAs($this->biuro)->get('/statystyki')->viewData('page')['props'];
         $this->assertContains('Sraczka', $props['statusyBezKategorii'], 'Ekran ma o tym powiedzieć wprost.');
+
+        // Status skasowany ze słownika, a jego wpisy zostają i dalej liczą
+        // godziny — musi być widoczny, inaczej te godziny nie mają wyjaśnienia.
+        $dziwny->delete();
+        $props = $this->actingAs($this->biuro)->get('/statystyki')->viewData('page')['props'];
+        $this->assertContains('Sraczka (usunięty ze słownika)', $props['statusyBezKategorii']);
     }
 
     public function test_licznik_osob_dniowek_i_sredniej(): void

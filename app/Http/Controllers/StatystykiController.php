@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\BuildingTimeSheet;
 use App\Models\ShiftStatus;
 use App\Services\StatystykiBudow;
 use Illuminate\Http\Request;
@@ -31,8 +32,17 @@ class StatystykiController extends Controller
             'filters' => ['rok' => (string) $wybranyRok, 'zakres' => $zArchiwum ? 'wszystkie' : 'aktywne'],
             // Statusy bez kategorii wpadają do "inne" — mówimy o tym wprost,
             // żeby liczba w tej kolumnie nie wyglądała na błąd.
-            'statusyBezKategorii' => ShiftStatus::whereNull('kategoria')
-                ->orderBy('title')->pluck('title')->all(),
+            //
+            // Także te usunięte ze słownika: status bywa skasowany, a wpisy
+            // z nim zostają i dalej dokładają godziny. Bez tego w kolumnie
+            // "inne" wisiałyby godziny bez żadnego wyjaśnienia.
+            'statusyBezKategorii' => ShiftStatus::withTrashed()
+                ->whereNull('kategoria')
+                ->whereIn('id', BuildingTimeSheet::query()->select('shift_status_id')->whereNotNull('shift_status_id'))
+                ->orderBy('title')
+                ->get()
+                ->map(fn (ShiftStatus $s) => $s->title.($s->deleted_at ? ' (usunięty ze słownika)' : ''))
+                ->all(),
         ]);
     }
 }
