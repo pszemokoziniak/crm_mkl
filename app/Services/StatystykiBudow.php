@@ -48,8 +48,16 @@ class StatystykiBudow
 
         $kategorie = $this->kategorieStatusow();
 
+        // Grupujemy raz. Filtrowanie kolekcji osobno dla każdej budowy dawało
+        // kilkadziesiąt przejść po całej Karcie Czasu Pracy i ~1,4 s na ekran.
+        $wgBudowy = $wpisy->groupBy('organization_id');
+
         return $budowy
-            ->map(fn (Organization $b) => $this->podsumuj($b, $wpisy->where('organization_id', $b->id), $kategorie))
+            // Budowa bez wpisów w KCP nie ma czego podsumowywać — w zestawieniu
+            // byłby to sam wiersz zer. Takich jest większość.
+            ->filter(fn (Organization $b) => $wgBudowy->has($b->id))
+            ->map(fn (Organization $b) => $this->podsumuj($b, $wgBudowy->get($b->id), $kategorie))
+            ->values()
             ->all();
     }
 

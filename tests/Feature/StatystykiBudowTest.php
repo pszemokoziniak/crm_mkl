@@ -167,6 +167,20 @@ class StatystykiBudowTest extends TestCase
         $this->assertNull($this->wiersz(['zakres' => 'aktywne']));
     }
 
+    public function test_budowy_bez_wpisow_nie_zasmiecaja_zestawienia(): void
+    {
+        // Budów bez ani jednego wpisu w KCP jest w bazie większość — jako
+        // wiersze samych zer tylko przykrywałyby te, które coś pokazują.
+        Organization::create(['account_id' => $this->accountId, 'nazwaBud' => 'Budowa bez godzin']);
+        $this->wpis($this->pracownik('Kowalski'), '2026-03-02', '08:00');
+
+        $nazwy = collect($this->actingAs($this->biuro)->get('/statystyki')
+            ->viewData('page')['props']['budowy'])->pluck('nazwa');
+
+        $this->assertContains('Lausitzer Zeitz', $nazwy);
+        $this->assertNotContains('Budowa bez godzin', $nazwy);
+    }
+
     public function test_kierownik_widzi_tylko_swoje_budowy(): void
     {
         $cudza = Organization::create(['account_id' => $this->accountId, 'nazwaBud' => 'Cudza budowa']);
