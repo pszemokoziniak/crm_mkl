@@ -24,12 +24,13 @@ class BiuroKierownikPermission
     {
         $user = Auth::user();
 
-        if (!$user->isOffice() && !$user->isKierownik()) {
+        if (!$user->isOffice() && !$user->prowadziBudowy()) {
             abort(403);
         }
 
-        // Biuro/admin mają pełny dostęp — sprawdzamy zakres tylko dla kierownika.
-        if ($user->isKierownik()) {
+        // Biuro/admin mają pełny dostęp — zakres sprawdzamy tylko tym,
+        // którzy prowadzą wybrane budowy (kierownik budowy, kierownik projektu).
+        if ($user->prowadziBudowy()) {
             // Dostęp do budowy (parametr organization / build)
             $orgParam = $request->route('organization') ?: $request->route('build');
 

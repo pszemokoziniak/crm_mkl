@@ -22,7 +22,7 @@
           <option value="only">Usunięte</option>
         </select>
       </search-filter-no-filtr>
-      <Link v-if="user_owner !== 3" class="btn-indigo text-center whitespace-nowrap" :href="`/pracownicy/${organization_id}/create`">
+      <Link v-if="!prowadziBudowy(user_owner)" class="btn-indigo text-center whitespace-nowrap" :href="`/pracownicy/${organization_id}/create`">
         <span>Dodaj</span>
         <span class="hidden md:inline">&nbsp;Pracownika</span>
       </Link>
@@ -148,6 +148,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import { prowadziBudowy } from '@/role'
 import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
@@ -189,7 +190,7 @@ export default {
   },
   computed: {
     mozeEdytowac() {
-      return this.user_owner !== 3
+      return !prowadziBudowy(this.user_owner)
     },
     wszystkieZaznaczone() {
       return this.contactworkdates.data.length > 0
@@ -216,6 +217,7 @@ export default {
     },
   },
   methods: {
+    prowadziBudowy,
     // Kliknięcie w tę samą kolumnę odwraca kierunek, w inną — zaczyna od A do Z.
     sortuj(kolumna) {
       const kierunek = this.sortowanie.sort === kolumna && this.sortowanie.direction === 'asc' ? 'desc' : 'asc'

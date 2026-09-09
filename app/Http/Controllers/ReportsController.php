@@ -43,14 +43,15 @@ class ReportsController extends Controller
         $windowEnd = $all ? $today->copy()->addYears(50)->toDateString()
                           : $today->copy()->addDays($days)->toDateString();
 
-        // Kierownik dostał ten raport, ale tylko dla ludzi ze swoich budów —
+        // Kierownik budowy i kierownik projektu dostają ten raport, ale tylko
+        // dla ludzi ze swoich budów —
         // ten sam zakres, co licznik "wygasające terminy" na jego pulpicie.
         $user = Auth::user();
         $moiPracownicy = null;
 
-        if ($user && $user->isKierownik()) {
+        if ($user && $user->prowadziBudowy()) {
             $moiPracownicy = ContactWorkDate::query()
-                ->whereIn('organization_id', Organization::managedBy($user->contactId())->pluck('id'))
+                ->whereIn('organization_id', Organization::mojeBudowy($user)->pluck('id'))
                 ->where(function ($q) use ($todayStr) {
                     $q->whereNull('end')->orWhere('end', '>=', $todayStr);
                 })

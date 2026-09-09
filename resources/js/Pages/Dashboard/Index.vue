@@ -224,6 +224,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import { prowadziBudowy } from '@/role'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 
@@ -252,7 +253,7 @@ export default {
   computed: {
     // user_owner niesie rolę pod indeksem 1 — tak jak w reszcie tego widoku.
     kierownik() {
-      return this.user_owner[1] === 3
+      return prowadziBudowy(this.user_owner[1])
     },
     widoczneBezA1() {
       return this.wszystkieBezA1 ? this.bez_a1 : this.bez_a1.slice(0, 5)

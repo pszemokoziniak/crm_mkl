@@ -4,7 +4,7 @@
     <WorkerMenu :contactId="contactId" :userOwner="userOwner"/>
     <pracownik-naglowek :pracownik="pracownik" tytul="Języki" />
     <div class="flex items-center justify-between mb-6">
-      <Link v-if="userOwner !== 3" class="btn-indigo" :href="`/contacts/${contact.id}/jezyk/create`">
+      <Link v-if="!prowadziBudowy(userOwner)" class="btn-indigo" :href="`/contacts/${contact.id}/jezyk/create`">
         <span>Dodaj</span>
       </Link>
     </div>
@@ -16,7 +16,7 @@
         </tr>
         <tr v-for="item in jezyks.data" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`">
               <div v-if="item.jezyk">
                 {{ item.jezyk.name }}
               </div>
@@ -24,13 +24,13 @@
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`">
               {{ item.poziom }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`" tabindex="-1">
+            <Link class="flex items-center px-4" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -46,6 +46,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import { prowadziBudowy } from '@/role'
 import Icon from '@/Shared/Icon'
 import pickBy from 'lodash/pickBy'
 import PracownikNaglowek from '@/Shared/PracownikNaglowek'
@@ -93,6 +94,7 @@ export default {
     },
   },
   methods: {
+    prowadziBudowy,
     reset() {
       this.form = mapValues(this.form, () => null)
     },

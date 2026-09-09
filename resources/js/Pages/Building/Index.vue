@@ -122,7 +122,7 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="(calculateDiffDays() < 3 && user_owner === 3) || user_owner !== 3" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+                <div v-if="(calculateDiffDays() < 3 && prowadziBudowy(user_owner)) || !prowadziBudowy(user_owner)" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
                   <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-white text-base font-medium bg-green-600 hover:bg-green-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
                   <button ref="cancelButtonRef" type="button" class="inline-flex justify-center mt-3 px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
                   <button class="mr-auto text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -138,6 +138,7 @@
 
 <script>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import { prowadziBudowy } from '@/role'
 import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Layout from '@/Shared/Layout'
 import moment from 'moment'
@@ -254,6 +255,7 @@ export default {
     })
   },
   methods: {
+    prowadziBudowy,
     printData() {
       var divToPrint = this.$refs.printTable
       var newWin = window.open('')

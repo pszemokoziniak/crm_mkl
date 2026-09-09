@@ -154,9 +154,12 @@ class RolaKierownictwoTest extends TestCase
 
     public function test_lista_rol_zawiera_kierownictwo(): void
     {
-        $this->assertSame([1, 2, 3, 4], Role::values());
+        $this->assertSame([1, 2, 3, 4, 5], Role::values());
         $this->assertContains(Role::KIEROWNICTWO->value, Role::officeValues());
         $this->assertNotContains(Role::KIEROWNIK->value, Role::officeValues());
         $this->assertSame('Kierownictwo', Role::KIEROWNICTWO->label());
+
+        // Kierownik projektu widzi tylko swoje budowy — nie należy do biura.
+        $this->assertNotContains(Role::KIEROWNIK_PROJEKTU->value, Role::officeValues());
     }
 }

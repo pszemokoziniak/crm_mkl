@@ -43,12 +43,13 @@ class DashboardController extends Controller
         $expiringItems = collect();
         $myOrgIds = collect();
 
-        if ($user->owner === 3) {
-            // "Budowa kierownika" = kierownictwo obecne lub byłe (patrz Organization::scopeManagedBy).
-            $myOrgIds = Organization::managedBy($contact_id)->pluck('id');
+        if ($user->prowadziBudowy()) {
+            // Zakres zależy od roli: kierownik budowy — kierownictwo obecne lub
+            // byłe; kierownik projektu — pole `kierownik_projektu_id` przy budowie.
+            $myOrgIds = Organization::mojeBudowy($user)->pluck('id');
         }
 
-        if ($user->isOffice() || $user->isKierownik()) {
+        if ($user->isOffice() || $user->prowadziBudowy()) {
             // Uprawnienia
             $uprawnieniaQuery = Uprawnienia::with(['uprawnieniaTyp'])
                 ->join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id')
@@ -112,7 +113,7 @@ class DashboardController extends Controller
         // żaden nie jest już niezakończony (wszyscy zjechali).
         // Warsztat nigdy się nie kończy, więc nie ma go po co archiwizować.
         // Archiwizacja to decyzja biura, więc kierownik tej listy nie dostaje.
-        $doArchiwizacji = $user->isKierownik() ? collect() : Organization::query()
+        $doArchiwizacji = $user->prowadziBudowy() ? collect() : Organization::query()
             ->tylkoBudowy()
             ->whereExists(function ($q) {
                 $q->select(DB::raw(1))->from('contact_work_dates as cwd')
@@ -154,7 +155,7 @@ class DashboardController extends Controller
                     });
 
                 // Kierownik odpowiada za swoje budowy — cudzych ludzi nie ogląda.
-                if ($user->isKierownik()) {
+                if ($user->prowadziBudowy()) {
                     $q->whereIn('organization_id', $myOrgIds);
                 }
             })
@@ -174,7 +175,7 @@ class DashboardController extends Controller
         // Biuro widzi nieobecności na liście pracowników, więc dostaje to tylko on.
         $nieobecniDzis = collect();
 
-        if ($user->isKierownik()) {
+        if ($user->prowadziBudowy()) {
             $nieobecniDzis = Holiday::with('shiftStatus')
                 ->join('contacts', 'contacts.id', '=', 'holidays.contact_id')
                 ->whereNull('contacts.deleted_at')
@@ -203,7 +204,7 @@ class DashboardController extends Controller
 
         // Kierownik liczy swoje budowy i swoich ludzi; sprzętu nie prowadzi,
         // więc tego kafelka nie dostaje.
-        $stats = $user->isKierownik()
+        $stats = $user->prowadziBudowy()
             ? [
                 'pracownicy' => ContactWorkDate::query()
                     ->whereIn('organization_id', $myOrgIds)

@@ -160,6 +160,24 @@ class User extends Authenticatable
         return $this->hasRole(Role::KIEROWNIK);
     }
 
+    /**
+     * Kierownik projektu — zakres taki sam jak kierownik budowy, ale jego
+     * budowy biorą się z pola `kierownik_projektu_id`, nie z kierownictwa budowy.
+     */
+    public function isKierownikProjektu(): bool
+    {
+        return $this->hasRole(Role::KIEROWNIK_PROJEKTU);
+    }
+
+    /**
+     * Prowadzi budowy: widzi tylko swoje, nie wszystkie jak biuro.
+     * O tym, które są "jego", decyduje rola — patrz Organization::scopeMojeBudowy.
+     */
+    public function prowadziBudowy(): bool
+    {
+        return $this->isKierownik() || $this->isKierownikProjektu();
+    }
+
     /** Kierownictwo firmy — nie mylić z kierownikiem budowy. */
     public function isKierownictwo(): bool
     {

@@ -121,8 +121,58 @@ class Organization extends Model
     }
 
     /**
+     * Budowy, których opiekunem jest dany kontakt. Kierownik projektu jest
+     * przypięty wprost polem przy budowie, a nie obecnością w kierownictwie —
+     * nie ma tu więc podziału na "obecne" i "byłe".
+     */
+    public function scopeProwadzonePrzez($query, ?int $contactId)
+    {
+        if (!$contactId) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where('organizations.kierownik_projektu_id', $contactId);
+    }
+
+    /**
+     * Budowy użytkownika spoza biura — zależnie od roli. Jedno miejsce, bo
+     * inaczej każdy ekran musiałby wiedzieć, skąd bierze się zakres kierownika
+     * projektu, a skąd kierownika budowy.
+     */
+    public function scopeMojeBudowy($query, ?User $user)
+    {
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->isKierownikProjektu()) {
+            return $query->prowadzonePrzez($user->contactId());
+        }
+
+        return $query->managedBy($user->contactId());
+    }
+
+    /**
+     * Jak wyżej, ale do decyzji o DOSTĘPIE: kierownik budowy wchodzi tylko na
+     * swoje aktywne budowy. Kierownik projektu jest opiekunem bezterminowo,
+     * więc dla niego oba zakresy są tym samym.
+     */
+    public function scopeMojeAktywneBudowy($query, ?User $user)
+    {
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->isKierownikProjektu()) {
+            return $query->prowadzonePrzez($user->contactId());
+        }
+
+        return $query->activelyManagedBy($user->contactId());
+    }
+
+    /**
      * Ogranicza listę budów do widocznych dla użytkownika:
-     * admin/biuro widzą wszystko, kierownik tylko swoje (kierownictwo — obecne lub byłe).
+     * admin/biuro widzą wszystko, kierownik budowy i kierownik projektu — swoje.
      */
     public function scopeVisibleTo($query, ?User $user)
     {
@@ -130,8 +180,8 @@ class Organization extends Model
             return $query;
         }
 
-        if ($user && $user->isKierownik()) {
-            return $query->managedBy($user->contactId());
+        if ($user && $user->prowadziBudowy()) {
+            return $query->mojeBudowy($user);
         }
 
         return $query->whereRaw('1 = 0');

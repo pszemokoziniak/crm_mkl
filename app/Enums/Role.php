@@ -10,6 +10,10 @@ namespace App\Enums;
  * Uwaga na nazwy: KIEROWNIK to kierownik budowy (widzi tylko swoje budowy),
  * KIEROWNICTWO to kierownictwo firmy — inna rola, mimo podobnej nazwy.
  * Kierownictwo ma na razie dokładnie ten sam zakres co biuro.
+ *
+ * KIEROWNIK_PROJEKTU ma zakres taki sam jak kierownik budowy, ale jego
+ * budowy wynikają z pola `organizations.kierownik_projektu_id`, a nie
+ * z obecności w kierownictwie budowy.
  */
 enum Role: int
 {
@@ -17,6 +21,7 @@ enum Role: int
     case BIURO = 2;
     case KIEROWNIK = 3;
     case KIEROWNICTWO = 4;
+    case KIEROWNIK_PROJEKTU = 5;
 
     /** Role z pełnym dostępem (biurowym) — widzą wszystkie budowy. */
     public const OFFICE = [self::ADMIN, self::BIURO, self::KIEROWNICTWO];
@@ -46,6 +51,7 @@ enum Role: int
             self::BIURO => 'Biuro',
             self::KIEROWNIK => 'Kierownik budowy',
             self::KIEROWNICTWO => 'Kierownictwo',
+            self::KIEROWNIK_PROJEKTU => 'Kierownik projektu',
         };
     }
 }

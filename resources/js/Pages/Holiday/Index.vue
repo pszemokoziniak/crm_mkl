@@ -21,26 +21,26 @@
         </tr>
         <tr v-for="item in holiday" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
               <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-yellow-800 bg-yellow-100 border border-yellow-200 rounded-full">
                 {{ item.powod || 'nie podano' }}
               </span>
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
               {{ item.start }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
-            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
+            <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`">
               {{ item.end }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="userOwner === 3 ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`" tabindex="-1">
+            <Link class="flex items-center px-4" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/holiday/${item.id}/edit`" tabindex="-1">
               <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
             </Link>
           </td>
@@ -55,6 +55,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import { prowadziBudowy } from '@/role'
 import Icon from '@/Shared/Icon'
 import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import Layout from '@/Shared/Layout'
@@ -80,6 +81,9 @@ export default {
     return {
       contactId: this.contact.id,
     }
+  },
+  methods: {
+    prowadziBudowy,
   },
 }
 </script>

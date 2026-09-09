@@ -41,7 +41,7 @@
         </div>
 
         <div v-if="organization.inzynierowie">
-          <span class="text-gray-500">Inżynierowie:</span> {{ organization.inzynierowie }}
+          <span class="text-gray-500">Inżynier:</span> {{ organization.inzynierowie }}
         </div>
 
         <div v-if="organization.kierownik_projektu">

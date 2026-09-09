@@ -24,8 +24,8 @@
           <!-- Kierownik budowy -->
           <th class="pb-4 pt-6 px-4 lg:table-cell">Kierownik budowy</th>
 
-          <!-- Inżynierowie -->
-          <th class="pb-4 pt-6 px-4 lg:table-cell">Inżynierowie</th>
+          <!-- Inżynier -->
+          <th class="pb-4 pt-6 px-4 lg:table-cell">Inżynier</th>
 
           <!-- Kierownik projektu — wpisywany ręcznie, to nie pracownik z bazy -->
           <th class="hidden pb-4 pt-6 px-4 xl:table-cell">Kierownik projektu</th>
@@ -90,7 +90,7 @@
             </Link>
           </td>
 
-          <!-- Inżynierowie -->
+          <!-- Inżynier -->
           <td class="hidden border-t lg:table-cell">
             <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
               <div v-if="organization.inzynierowie" class="max-w-[250px]">

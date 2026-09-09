@@ -125,6 +125,7 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import { prowadziBudowy } from '@/role'
 import Layout from '@/Shared/Layout'
 import Pagination from '@/Shared/Pagination'
 import PracownikNaglowek from '@/Shared/PracownikNaglowek'
@@ -147,7 +148,7 @@ export default {
       return this.contact.id
     },
     kierownik() {
-      return this.userOwner === 3
+      return prowadziBudowy(this.userOwner)
     },
     pokazKosz() {
       return this.filters.trashed === 'with'

@@ -4,179 +4,160 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Enums\Role;
 use App\Models\Account;
 use App\Models\Contact;
+use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
-use App\Models\KrajTyp;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 /**
- * Kierownik projektu — opiekun kontraktu wybierany z listy pracowników
- * ze stanowiskiem "Kierownik Projektu" (słownik /funkcja). To ktoś inny
- * niż kierownik budowy.
+ * Rola "Kierownik projektu" — zakres taki sam jak kierownik budowy, ale jego
+ * budowy biorą się z pola `organizations.kierownik_projektu_id`, a nie
+ * z obecności w kierownictwie budowy.
+ *
+ * To rozróżnienie jest sednem: przy dosłownym "uprawnienia jak kierownik
+ * budowy" opiekun kontraktu zalogowałby się i nie zobaczył ani jednej budowy,
+ * bo nie ma wpisu w contact_work_dates ze stanowiskiem kierowniczym.
  */
 class KierownikProjektuTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $biuro;
-    private int $krajId;
-    private int $funkcjaId;
-    private int $innaFunkcjaId;
+    private int $accountId;
+    private User $opiekun;
+    private Contact $opiekunKontakt;
+    private Organization $mojaBudowa;
+    private Organization $cudzaBudowa;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->biuro = User::factory()->create([
-            'account_id' => Account::create(['name' => 'MKL'])->id,
-            'email' => 'biuro@example.com',
-            'owner' => 2,
-            'active' => 1,
+        $this->accountId = Account::create(['name' => 'MKL'])->id;
+
+        $stanowisko = Funkcja::create([
+            'name' => 'Kierownik Projektu',
+            'kierownictwo' => true,
+            'rola_budowy' => Funkcja::ROLA_KIEROWNIK_PROJEKTU,
         ]);
 
-        $this->krajId = KrajTyp::create(['name' => 'Polska'])->id;
-        $this->funkcjaId = Funkcja::create(['name' => Funkcja::NAZWA_KIEROWNIK_PROJEKTU])->id;
-        $this->innaFunkcjaId = Funkcja::create(['name' => 'Spawacz'])->id;
-    }
+        $this->opiekun = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'opiekun@mkl.pl',
+            'first_name' => 'Anna', 'last_name' => 'Opiekun',
+            'owner' => Role::KIEROWNIK_PROJEKTU->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
 
-    public function test_nowa_budowa_zapisuje_kierownika_projektu(): void
-    {
-        $osoba = $this->pracownik('Nowak', 'Anna', $this->funkcjaId);
+        $this->opiekunKontakt = Contact::create([
+            'account_id' => $this->accountId, 'first_name' => 'Anna',
+            'last_name' => 'Opiekun', 'funkcja_id' => $stanowisko->id,
+            'user_id' => $this->opiekun->id,
+        ]);
 
-        $this->actingAs($this->biuro)
-            ->post('/budowy', [
-                'name' => 'Valmet',
-                'nazwaBud' => '500_Nowa budowa',
-                'country_id' => $this->krajId,
-                'kierownik_projektu_id' => $osoba->id,
-            ])
-            ->assertRedirect();
+        $this->mojaBudowa = Organization::create([
+            'account_id' => $this->accountId, 'nazwaBud' => 'Valmet Ortofta',
+            'kierownik_projektu_id' => $this->opiekunKontakt->id,
+        ]);
 
-        $this->assertSame(
-            $osoba->id,
-            Organization::firstWhere('nazwaBud', '500_Nowa budowa')->kierownik_projektu_id
-        );
-    }
-
-    public function test_edycja_budowy_zmienia_kierownika_projektu(): void
-    {
-        $stary = $this->pracownik('Kowalski', 'Jan', $this->funkcjaId);
-        $nowy = $this->pracownik('Zieliński', 'Piotr', $this->funkcjaId);
-        $budowa = $this->budowa($stary->id);
-
-        $this->actingAs($this->biuro)
-            ->put('/budowy/'.$budowa->id, [
-                'name' => $budowa->name,
-                'nazwaBud' => $budowa->nazwaBud,
-                'kierownik_projektu_id' => $nowy->id,
-            ])
-            ->assertRedirect();
-
-        $this->assertSame($nowy->id, $budowa->fresh()->kierownik_projektu_id);
-    }
-
-    public function test_pole_moze_zostac_puste(): void
-    {
-        $budowa = $this->budowa($this->pracownik('Kowalski', 'Jan', $this->funkcjaId)->id);
-
-        $this->actingAs($this->biuro)
-            ->put('/budowy/'.$budowa->id, [
-                'name' => $budowa->name,
-                'nazwaBud' => $budowa->nazwaBud,
-                'kierownik_projektu_id' => null,
-            ])
-            ->assertRedirect();
-
-        $this->assertNull($budowa->fresh()->kierownik_projektu_id);
-    }
-
-    public function test_nieistniejacy_pracownik_jest_odrzucany(): void
-    {
-        $osoba = $this->pracownik('Kowalski', 'Jan', $this->funkcjaId);
-        $budowa = $this->budowa($osoba->id);
-
-        $this->actingAs($this->biuro)
-            ->put('/budowy/'.$budowa->id, [
-                'name' => $budowa->name,
-                'nazwaBud' => $budowa->nazwaBud,
-                'kierownik_projektu_id' => 999999,
-            ])
-            ->assertSessionHasErrors('kierownik_projektu_id');
-
-        $this->assertSame($osoba->id, $budowa->fresh()->kierownik_projektu_id);
-    }
-
-    public function test_do_wyboru_sa_tylko_pracownicy_z_tym_stanowiskiem(): void
-    {
-        $nowak = $this->pracownik('Nowak', 'Anna', $this->funkcjaId);
-        $kowalski = $this->pracownik('Kowalski', 'Jan', $this->funkcjaId);
-        $this->pracownik('Spawalski', 'Adam', $this->innaFunkcjaId);
-        $this->pracownik('Zwolniony', 'Marek', $this->funkcjaId, Contact::STATUS_ZWOLNIONY);
-
-        $this->actingAs($this->biuro)
-            ->get('/budowy/create')
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('Organizations/Create')
-                ->where('kierownicyProjektow', [
-                    ['id' => $kowalski->id, 'name' => 'Kowalski Jan'],
-                    ['id' => $nowak->id, 'name' => 'Nowak Anna'],
-                ])
-            );
-    }
-
-    public function test_juz_przypisany_zwolniony_zostaje_na_liscie(): void
-    {
-        $zwolniony = $this->pracownik('Zwolniony', 'Marek', $this->funkcjaId, Contact::STATUS_ZWOLNIONY);
-        $budowa = $this->budowa($zwolniony->id);
-
-        $this->actingAs($this->biuro)
-            ->get('/budowy/'.$budowa->id.'/edit')
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->where('organization.kierownik_projektu_id', $zwolniony->id)
-                ->where('kierownicyProjektow', [
-                    ['id' => $zwolniony->id, 'name' => 'Zwolniony Marek'],
-                ])
-            );
-    }
-
-    public function test_lista_budow_pokazuje_nazwisko_kierownika_projektu(): void
-    {
-        $this->budowa($this->pracownik('Nowak', 'Anna', $this->funkcjaId)->id);
-
-        $this->actingAs($this->biuro)
-            ->get('/budowy')
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->where('organizations.data.0.kierownik_projektu', 'Nowak Anna')
-            );
-    }
-
-    private function pracownik(string $nazwisko, string $imie, int $funkcjaId, ?string $status = null): Contact
-    {
-        return Contact::create([
-            'account_id' => 0,
-            'first_name' => $imie,
-            'last_name' => $nazwisko,
-            'funkcja_id' => $funkcjaId,
-            'status_zatrudnienia' => $status ?? Contact::STATUS_AKTYWNY,
+        $this->cudzaBudowa = Organization::create([
+            'account_id' => $this->accountId, 'nazwaBud' => 'Berkes Lachendorf',
         ]);
     }
 
-    private function budowa(?int $kierownikProjektuId): Organization
+    private function pracownikNa(Organization $budowa, string $nazwisko): Contact
     {
-        return Organization::create([
-            'account_id' => 0,
-            'name' => 'Klient',
-            'nazwaBud' => 'Budowa '.uniqid(),
-            'country_id' => $this->krajId,
-            'kierownik_projektu_id' => $kierownikProjektuId,
+        $osoba = Contact::create([
+            'account_id' => $this->accountId, 'first_name' => 'Jan', 'last_name' => $nazwisko,
         ]);
+
+        ContactWorkDate::create([
+            'contact_id' => $osoba->id, 'organization_id' => $budowa->id,
+            'start' => now()->subMonth()->toDateString(), 'end' => null,
+        ]);
+
+        return $osoba;
+    }
+
+    public function test_rola_jest_do_wyboru_przy_zakladaniu_konta(): void
+    {
+        $this->assertContains(Role::KIEROWNIK_PROJEKTU->value, Role::values());
+        $this->assertSame('Kierownik projektu', Role::KIEROWNIK_PROJEKTU->label());
+    }
+
+    public function test_nie_ma_uprawnien_biura(): void
+    {
+        // Zakres ma być jak u kierownika budowy, a nie jak u biura.
+        $this->assertFalse($this->opiekun->isOffice());
+        $this->assertTrue($this->opiekun->prowadziBudowy());
+    }
+
+    public function test_widzi_tylko_budowy_ktorych_jest_opiekunem(): void
+    {
+        $props = $this->actingAs($this->opiekun)->get('/budowy')->assertOk()->viewData('page')['props'];
+        $nazwy = collect($props['organizations']['data'] ?? $props['organizations'])->pluck('nazwaBud');
+
+        $this->assertContains('Valmet Ortofta', $nazwy);
+        $this->assertNotContains('Berkes Lachendorf', $nazwy);
+    }
+
+    public function test_wchodzi_na_swoja_budowe_a_na_cudza_nie(): void
+    {
+        $this->actingAs($this->opiekun)->get("/budowy/{$this->mojaBudowa->id}/edit")->assertOk();
+        $this->actingAs($this->opiekun)->get("/budowy/{$this->cudzaBudowa->id}/edit")->assertForbidden();
+    }
+
+    public function test_wchodzi_na_karte_swojego_pracownika_a_cudzego_nie(): void
+    {
+        $moj = $this->pracownikNa($this->mojaBudowa, 'Mojski');
+        $obcy = $this->pracownikNa($this->cudzaBudowa, 'Obcy');
+
+        $this->actingAs($this->opiekun)->get("/contacts/{$moj->id}/edit")->assertOk();
+        $this->actingAs($this->opiekun)->get("/contacts/{$obcy->id}/edit")->assertForbidden();
+    }
+
+    public function test_pulpit_liczy_tylko_jego_budowy(): void
+    {
+        $this->pracownikNa($this->mojaBudowa, 'Mojski');
+        $this->pracownikNa($this->cudzaBudowa, 'Obcy');
+
+        $props = $this->actingAs($this->opiekun)->get('/')->assertOk()->viewData('page')['props'];
+
+        $this->assertSame(1, $props['stats']['budowy']);
+        $this->assertSame(1, $props['stats']['pracownicy']);
+        $this->assertNull($props['stats']['sprzet'], 'Sprzętu nie prowadzi, tak jak kierownik budowy — kafelek pusty.');
+    }
+
+    public function test_raport_terminow_obejmuje_tylko_jego_ludzi(): void
+    {
+        $moj = $this->pracownikNa($this->mojaBudowa, 'Mojski');
+        $obcy = $this->pracownikNa($this->cudzaBudowa, 'Obcy');
+
+        $typ = \App\Models\BhpTyp::create(['name' => 'Szkolenie okresowe']);
+        foreach ([$moj, $obcy] as $c) {
+            \App\Models\Bhp::create([
+                'contact_id' => $c->id, 'bhpTyp_id' => $typ->id,
+                'start' => now()->subYear()->toDateString(),
+                'end' => now()->addDays(10)->toDateString(),
+            ]);
+        }
+
+        $props = $this->actingAs($this->opiekun)
+            ->get('/reports/koniecUprawinien')->assertOk()->viewData('page')['props'];
+        $nazwiska = collect($props['data'])->pluck('last_name');
+
+        $this->assertContains('Mojski', $nazwiska);
+        $this->assertNotContains('Obcy', $nazwiska);
+    }
+
+    public function test_zdjecie_opieki_odbiera_dostep(): void
+    {
+        // Budowa przypięta jest polem, więc odpięcie musi zamknąć dostęp od razu.
+        $this->mojaBudowa->update(['kierownik_projektu_id' => null]);
+
+        $this->actingAs($this->opiekun)->get("/budowy/{$this->mojaBudowa->id}/edit")->assertForbidden();
     }
 }

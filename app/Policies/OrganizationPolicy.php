@@ -24,16 +24,14 @@ class OrganizationPolicy
             return true;
         }
 
-        if ($user->isKierownik()) {
-            $contactId = $user->contactId();
-
-            if (!$contactId) {
+        if ($user->prowadziBudowy()) {
+            if (!$user->contactId()) {
                 return false;
             }
 
             return Organization::query()
                 ->whereKey($organization->getKey())
-                ->activelyManagedBy($contactId)
+                ->mojeAktywneBudowy($user)
                 ->exists();
         }
 

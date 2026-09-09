@@ -26,15 +26,15 @@ class ContactPolicy
             return true;
         }
 
-        if ($user->isKierownik()) {
-            $kierownikContactId = $user->contactId();
-
-            if (!$kierownikContactId) {
+        if ($user->prowadziBudowy()) {
+            if (!$user->contactId()) {
                 return false;
             }
 
+            // Zakres budów zależy od roli — kierownik projektu jest przypięty
+            // polem przy budowie, kierownik budowy przez kierownictwo.
             $myOrgIds = Organization::query()
-                ->managedBy($kierownikContactId)
+                ->mojeBudowy($user)
                 ->pluck('id');
 
             if ($myOrgIds->isEmpty()) {
