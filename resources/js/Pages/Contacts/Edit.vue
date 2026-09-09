@@ -8,15 +8,17 @@
       {{ form.first_name }} {{ form.last_name }}
     </h1>
 
+    <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" :user-owner="user_owner" />
+
     <div class="mb-6 grid grid-cols-1 md:grid-cols-3 bg-white rounded-md shadow overflow-hidden">
       <!-- Na wąskim ekranie kolumny się układają jedna pod drugą, a ta bez
            własnej wysokości zapadała się do paska i nakładka ze stanowiskiem
            lądowała na inicjałach. -->
-      <div class="grid col-span-1 relative group bg-gray-200 h-48 md:h-auto">
+      <div class="grid col-span-1 relative group bg-gray-200 h-48 md:h-64 md:self-start">
         <!-- Podgląd nowo wybranego zdjęcia -->
-        <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover" alt="Podgląd" />
+        <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover object-top" alt="Podgląd" />
         <!-- Istniejące zdjęcie -->
-        <img v-else-if="contact.photo_path" :src="contact.photo_path" class="w-full h-full object-cover" alt="image" />
+        <img v-else-if="contact.photo_path" :src="contact.photo_path" class="w-full h-full object-cover object-top" alt="image" />
         <!-- Placeholder -->
         <!-- Wskazywało na /img/contacts/emptyPhoto.png, którego nie ma w repo
              ani na serwerze — przeglądarka pokazywała ikonę zepsutego obrazka.
@@ -26,9 +28,9 @@
         </div>
 
         <!-- Stanowisko nakładka na zdjęcie - GÓRNY LEWY RÓG -->
-        <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent p-5 pt-6">
-          <p class="text-[10px] font-bold text-white/80 uppercase tracking-[0.2em] mb-1">Stanowisko</p>
-          <p class="text-xl sm:text-2xl text-white font-black tracking-tight leading-tight drop-shadow-md uppercase">
+        <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent px-4 pt-4 pb-6">
+          <p class="text-[10px] font-bold text-white/80 uppercase tracking-[0.2em] mb-0.5">Stanowisko</p>
+          <p class="text-sm sm:text-base text-white font-black tracking-tight leading-tight drop-shadow-md uppercase">
             {{ currentFunkcjaName }}
           </p>
         </div>
@@ -132,7 +134,6 @@
         </div>
       </div>
     </div>
-    <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" :user-owner="user_owner" />
     <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-100">
         <span class="font-semibold text-gray-700">Budowy pracownika</span>
