@@ -1,24 +1,27 @@
 <template>
   <div>
-    <Head title="Users" />
-    <h1 class="mb-8 text-3xl font-bold">Użykownicy</h1>
+    <Head title="Użytkownicy" />
+    <h1 class="mb-8 text-3xl font-bold">Użytkownicy</h1>
     <div class="flex items-center justify-between mb-6">
       <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
         <label class="block text-gray-700">Uprawnienia:</label>
         <select v-model="form.role" class="form-select mt-1 w-full">
-          <option :value="null" />
+          <!-- Pusta pozycja bez podpisu wyglądała jak brakujący wiersz. -->
+          <option :value="null">Wszyscy</option>
           <option v-for="rola in OPCJE_ROL" :key="rola.wartosc" :value="String(rola.wartosc)">{{ rola.etykieta }}</option>
         </select>
-        <label class="block mt-4 text-gray-700">Archiwum:</label>
+        <label class="block mt-4 text-gray-700">Wyświetlaj:</label>
         <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <option :value="null" />
-          <option value="with">Wszystkie</option>
-          <option value="only">Usunięte</option>
+          <!-- Wartości serwera bez zmian: brak = tylko czynne, only = kosz,
+               with = jedno i drugie. Zmieniają się same podpisy. -->
+          <option :value="null">Aktualne</option>
+          <option value="only">Archiwum</option>
+          <option value="with">Wszystko</option>
         </select>
       </search-filter>
       <Link class="btn-indigo" href="/users/create">
         <span>Utwórz</span>
-        <span class="hidden md:inline">&nbsp;Użykownika</span>
+        <span class="hidden md:inline">&nbsp;Użytkownika</span>
       </Link>
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">

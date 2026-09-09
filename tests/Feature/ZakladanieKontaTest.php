@@ -49,6 +49,40 @@ class ZakladanieKontaTest extends TestCase
         ]);
     }
 
+    public function test_filtr_wyswietlania_rozroznia_aktualne_archiwum_i_wszystko(): void
+    {
+        // Podpisy na ekranie: Aktualne / Archiwum / Wszystko. Wartości wysyłane
+        // na serwer to kolejno brak / only / with — łatwo je przy okazji zamienić.
+        $czynne = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'czynny@mkl.pl',
+            'owner' => Role::BIURO->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+        $wKoszu = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'wkoszu@mkl.pl',
+            'owner' => Role::BIURO->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+        $wKoszu->delete();
+
+        $adresy = function (array $filtry) {
+            $adres = '/users'.($filtry ? '?'.http_build_query($filtry) : '');
+
+            return collect($this->actingAs($this->admin)->get($adres)->assertOk()
+                ->viewData('page')['props']['users'])->pluck('email');
+        };
+
+        $this->assertContains('czynny@mkl.pl', $adresy([]));
+        $this->assertNotContains('wkoszu@mkl.pl', $adresy([]), 'Aktualne: bez archiwum.');
+
+        $this->assertContains('wkoszu@mkl.pl', $adresy(['trashed' => 'only']));
+        $this->assertNotContains('czynny@mkl.pl', $adresy(['trashed' => 'only']), 'Archiwum: samo archiwum.');
+
+        $wszystko = $adresy(['trashed' => 'with']);
+        $this->assertContains('czynny@mkl.pl', $wszystko);
+        $this->assertContains('wkoszu@mkl.pl', $wszystko);
+    }
+
     public function test_adres_konta_z_kosza_mowi_o_przywroceniu(): void
     {
         $usuniete = User::factory()->create([
