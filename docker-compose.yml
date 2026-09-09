@@ -29,6 +29,10 @@ services:
             MYSQL_USER: user
             SERVICE_TAGS: dev
             SERVICE_NAME: mysql
+            # Produkcyjna baza chodzi na czasie systemowym serwera (Europe/Warsaw).
+            # Bez tego lokalny MySQL stoi na UTC i testy czasu rozjeżdżają się
+            # o dwie godziny tylko dlatego, że środowiska są różne.
+            TZ: Europe/Warsaw
         volumes:
             -   db:/var/lib/mysql
         env_file:

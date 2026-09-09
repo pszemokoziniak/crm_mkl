@@ -67,7 +67,14 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    /*
+     * Czas polski, nie UTC. Baza chodzi na czasie systemowym serwera
+     * (Europe/Warsaw), więc przy UTC aplikacja była o dwie godziny do tyłu
+     * względem bazy: znaczniki czasu zapisywały się o 2 h wcześniej, niż
+     * pokazywał zegar, a między 22:00 a północą PHP uważał, że jest jeszcze
+     * poprzedni dzień — co przekłamywało wszystko liczone "na dziś".
+     */
+    'timezone' => env('APP_TIMEZONE', 'Europe/Warsaw'),
 
     /*
     |--------------------------------------------------------------------------
