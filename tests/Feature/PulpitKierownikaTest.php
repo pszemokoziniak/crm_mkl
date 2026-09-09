@@ -170,6 +170,29 @@ class PulpitKierownikaTest extends TestCase
         $this->assertLessThan(0, $terminy->firstWhere('status', 'po_terminie')['dni']);
     }
 
+    public function test_kierownik_wchodzi_z_terminu_na_karte_pracownika(): void
+    {
+        // Wiersz "Terminów do pilnowania" prowadzi na kartę pracownika.
+        // Dla kierownika był to dotąd zwykły tekst, bez odnośnika.
+        $pracownik = $this->pracownikNaBudowie('Mojski', $this->mojaBudowa);
+        $typ = \App\Models\BhpTyp::create(['name' => 'Szkolenie okresowe']);
+        \App\Models\Bhp::create([
+            'contact_id' => $pracownik->id, 'bhpTyp_id' => $typ->id,
+            'start' => now()->subYear()->toDateString(), 'end' => now()->addDays(10)->toDateString(),
+        ]);
+
+        $props = $this->actingAs($this->kierownik)->get('/')->viewData('page')['props'];
+        $wiersz = collect($props['expiring_items'])->firstWhere('status', 'wkrotce');
+
+        $this->assertNotNull($wiersz);
+        $this->assertSame($pracownik->id, $wiersz['contact']['id'], 'Bez id nie da się zbudować odnośnika.');
+
+        // Pulpit pokazuje kierownikowi tylko jego ludzi, więc karta musi się otworzyć.
+        $this->actingAs($this->kierownik)
+            ->get("/contacts/{$wiersz['contact']['id']}/edit")
+            ->assertOk();
+    }
+
     public function test_lista_bez_a1_rozroznia_brak_wpisu_od_wygaslego(): void
     {
         $zWygaslym = $this->pracownikNaBudowie('Wygasly', $this->mojaBudowa);

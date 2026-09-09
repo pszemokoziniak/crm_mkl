@@ -142,49 +142,81 @@
           <span class="text-sm font-normal text-gray-500">— po terminie i kończące się w 60 dni</span>
         </h2>
       </div>
-      <div class="bg-white rounded-md shadow overflow-x-auto">
-        <table class="w-full whitespace-nowrap">
+      <!-- Bez whitespace-nowrap szesc kolumn miesci sie bez wlasnego paska
+           przewijania. overflow-x-auto zostaje jako zabezpieczenie: lepiej
+           przewinac niz uciac tresc, gdyby nazwa budowy byla wyjatkowo dluga. -->
+      <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+        <table class="w-full table-fixed">
           <thead>
             <tr class="text-left font-bold bg-red-50">
-              <th class="pb-4 pt-6 px-6">Pracownik</th>
-              <th class="pb-4 pt-6 px-6">Kategoria</th>
-              <th class="pb-4 pt-6 px-6">Rodzaj / Typ</th>
-              <th class="pb-4 pt-6 px-6">Data końcowa</th>
-              <th class="pb-4 pt-6 px-6">Stan</th>
-              <th class="pb-4 pt-6 px-6">Obecna budowa</th>
+              <th class="pb-4 pt-6 px-4 w-1/6">Pracownik</th>
+              <th class="pb-4 pt-6 px-4 w-1/6">Kategoria</th>
+              <th class="pb-4 pt-6 px-4 w-1/5">Rodzaj / Typ</th>
+              <th class="pb-4 pt-6 px-4 w-32">Data końcowa</th>
+              <th class="pb-4 pt-6 px-4 w-1/6">Stan</th>
+              <th class="pb-4 pt-6 px-4 w-1/6">Obecna budowa</th>
             </tr>
           </thead>
           <tbody>
+            <!-- Caly wiersz prowadzi na karte pracownika; wyjatkiem jest
+                 ostatnia kolumna, ktora ma wlasny cel — budowe. -->
             <tr v-for="(item, index) in expiring_items" :key="index" class="hover:bg-gray-100 focus-within:bg-gray-100">
               <td class="border-t">
-                <span v-if="user_owner[1] === 3" class="flex items-center px-6 py-4">
-                  {{ item.contact.first_name }} {{ item.contact.last_name }}
-                </span>
-                <Link v-else class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${item.contact.id}/edit`">
+                <Link class="block px-4 py-4 text-indigo-600 hover:underline" :href="`/contacts/${item.contact.id}/edit`">
                   {{ item.contact.first_name }} {{ item.contact.last_name }}
                 </Link>
-              </td>
-              <td class="border-t px-6 py-4">
-                <span class="px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
-              </td>
-              <td class="border-t px-6 py-4">
-                {{ item.type }}
-              </td>
-              <td class="border-t px-6 py-4 font-bold tabular-nums" :class="klasaTerminu(item)">
-                {{ item.end }}
-              </td>
-              <td class="border-t px-6 py-4 text-sm">
-                <span :class="klasaTerminu(item)">{{ opisTerminu(item) }}</span>
               </td>
               <td class="border-t">
-                <Link v-if="item.organization" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="user_owner[1] === 3 ? `/building/${item.organization.id}/time-sheet` : `/budowy/${item.organization.id}/edit`">
+                <Link class="block px-4 py-4" :href="`/contacts/${item.contact.id}/edit`">
+                  <span class="inline-block px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
+                </Link>
+              </td>
+              <td class="border-t">
+                <Link class="block px-4 py-4" :href="`/contacts/${item.contact.id}/edit`">
+                  {{ item.type }}
+                </Link>
+              </td>
+              <td class="border-t">
+                <Link class="block px-4 py-4 font-bold tabular-nums whitespace-nowrap" :class="klasaTerminu(item)" :href="`/contacts/${item.contact.id}/edit`">
+                  {{ item.end }}
+                </Link>
+              </td>
+              <td class="border-t">
+                <Link class="block px-4 py-4 text-sm" :class="klasaTerminu(item)" :href="`/contacts/${item.contact.id}/edit`">
+                  {{ opisTerminu(item) }}
+                </Link>
+              </td>
+              <td class="border-t">
+                <Link v-if="item.organization" class="block px-4 py-4 text-indigo-600 hover:underline" :href="kierownik ? `/building/${item.organization.id}/time-sheet` : `/budowy/${item.organization.id}/edit`">
                   {{ item.organization.nazwaBud }}
                 </Link>
-                <span v-else class="px-6 py-4 text-gray-400 italic">Brak przypisanej budowy</span>
+                <span v-else class="block px-4 py-4 text-gray-400 italic">Brak przypisanej budowy</span>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Telefon: karty zamiast szesciu kolumn sciscietych do niczego. -->
+      <div class="sm:hidden space-y-3">
+        <div v-for="(item, index) in expiring_items" :key="`karta-${index}`" class="bg-white rounded-md shadow p-4">
+          <Link class="font-medium text-indigo-600 hover:underline" :href="`/contacts/${item.contact.id}/edit`">
+            {{ item.contact.first_name }} {{ item.contact.last_name }}
+          </Link>
+          <div class="mt-2">
+            <span class="inline-block px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
+            <span class="ml-2 text-sm text-gray-600">{{ item.type }}</span>
+          </div>
+          <div class="mt-2 text-sm font-bold tabular-nums" :class="klasaTerminu(item)">
+            {{ item.end }} <span class="font-normal">— {{ opisTerminu(item) }}</span>
+          </div>
+          <div class="mt-1 text-sm">
+            <Link v-if="item.organization" class="text-indigo-600 hover:underline" :href="kierownik ? `/building/${item.organization.id}/time-sheet` : `/budowy/${item.organization.id}/edit`">
+              {{ item.organization.nazwaBud }}
+            </Link>
+            <span v-else class="text-gray-400 italic">Brak przypisanej budowy</span>
+          </div>
+        </div>
       </div>
     </div>
 
