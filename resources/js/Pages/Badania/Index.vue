@@ -36,7 +36,7 @@
             <td class="border-t px-6 py-4">
               <!-- Kierownik ma tu tylko podgląd, więc zamiast martwego
                    odnośnika (href="") pokazujemy zwykły tekst. -->
-              <Link v-if="!kierownik" class="focus:text-indigo-500" :href="`/contacts/${contactId}/badania/${badanie.id}/edit`">
+              <Link v-if="!kierownik" class="text-indigo-600 hover:underline" :href="`/contacts/${contactId}/badania/${badanie.id}/edit`">
                 {{ badanie.name ? badanie.name.name : '—' }}
               </Link>
               <span v-else>{{ badanie.name ? badanie.name.name : '—' }}</span>
@@ -53,6 +53,14 @@
             <td class="border-t px-6 py-4 tabular-nums font-medium" :class="klasaTerminu(badanie)">{{ badanie.end || '—' }}</td>
             <td class="border-t px-6 py-4 text-sm" :class="klasaTerminu(badanie)">{{ opisTerminu(badanie) }}</td>
             <td class="border-t px-6 py-4 text-right">
+              <!-- Dotad jedynym wejsciem w edycje byla nazwa wpisu, ktora nie wygladala na odnosnik. -->
+              <Link
+                v-if="!kierownik && !badanie.deleted_at"
+                class="mr-4 text-sm text-indigo-600 hover:text-indigo-800"
+                :href="`/contacts/${contactId}/badania/${badanie.id}/edit`"
+              >
+                Edytuj
+              </Link>
               <button
                 v-if="!kierownik && badanie.deleted_at"
                 type="button"

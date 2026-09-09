@@ -59,6 +59,8 @@ class A1Controller extends Controller
     }
     public function edit(Contact $contact, A1 $a1)
     {
+        $this->wpisPracownika($contact, $a1);
+
         return Inertia::render('A1/Edit', [
             // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
             'pracownik' => $this->danePracownika($contact),
@@ -73,13 +75,17 @@ class A1Controller extends Controller
         ]);
     }
 
-    public function update(StoreA1Request $req)
+    public function update(StoreA1Request $req, Contact $contact, A1 $a1)
     {
-        $data = A1::find($req->id);
-        $data->start = $req->start;
-        $data->end = $req->end;
-        $data->kraj_typs_id = $req->kraj_typs_id;
-        $data->save();
+        // Wpis brany był po identyfikatorze z ciała żądania, a nie z adresu —
+        // podmiana tego pola pozwalała poprawić wpis obcego pracownika.
+        $this->wpisPracownika($contact, $a1);
+
+        $a1->update([
+            'start' => $req->start,
+            'end' => $req->end,
+            'kraj_typs_id' => $req->kraj_typs_id,
+        ]);
 
         return Redirect::back()->with('success', 'Element poprawiony.');
     }

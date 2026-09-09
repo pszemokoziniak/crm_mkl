@@ -58,6 +58,8 @@ class PbiozController extends Controller
     }
     public function edit(Contact $contact, Pbioz $pbioz)
     {
+        $this->wpisPracownika($contact, $pbioz);
+
         return Inertia::render('Pbioz/Edit', [
             // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
             'pracownik' => $this->danePracownika($contact),
@@ -74,11 +76,13 @@ class PbiozController extends Controller
 
     public function update(StorePbiozRequest $req, Contact $contact, Pbioz $pbioz)
     {
-        $data = Pbioz::find($pbioz->id);
-        $data->name = $req->name;
-        $data->start = $req->start;
-        $data->end = $req->end;
-        $data->save();
+        $this->wpisPracownika($contact, $pbioz);
+
+        $pbioz->update([
+            'name' => $req->name,
+            'start' => $req->start,
+            'end' => $req->end,
+        ]);
 
         return Redirect::back()->with('success', 'Element poprawiony.');
     }

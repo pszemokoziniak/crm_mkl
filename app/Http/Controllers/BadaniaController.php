@@ -68,6 +68,8 @@ class BadaniaController extends Controller
     }
     public function edit(Contact $contact, Badania $badania)
     {
+        $this->wpisPracownika($contact, $badania);
+
         return Inertia::render('Badania/Edit', [
             // Nagłówek podstrony ma pokazywać, czyją kartę widzimy.
             'pracownik' => $this->danePracownika($contact),
@@ -85,6 +87,8 @@ class BadaniaController extends Controller
 
     public function update(Contact $contact, Badania $badania)
     {
+        $this->wpisPracownika($contact, $badania);
+
         $badania->update(
             Request::validate([
                 'badaniaTyp_id' => ['required', 'max:50'],
