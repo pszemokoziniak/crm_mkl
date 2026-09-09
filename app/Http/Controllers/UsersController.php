@@ -75,7 +75,7 @@ class UsersController extends Controller
         Request::validate([
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
-            'email' => ['required', 'max:50', 'email', 'ends_with:'.self::DOMENA_FIRMOWA, Rule::unique('users')],
+            'email' => ['required', 'max:50', 'email', 'ends_with:'.self::DOMENA_FIRMOWA, $this->regulaAdresu()],
             // Dotad przechodzila tu dowolna liczba do 10 znakow, wiec dalo sie
             // zalozyc konto z rola, ktorej nie ma w systemie.
             'owner' => ['required', Rule::in(Role::values())],
@@ -164,6 +164,31 @@ class UsersController extends Controller
     }
 
     /**
+     * Adres e-mail jest w bazie unikalny i drugiego konta z tym samym adresem
+     * założyć się nie da — i tak ma zostać. Komunikat "Nazwa użyta" nie mówił
+     * jednak, że to konto tej samej osoby leży w koszu i wystarczy je
+     * przywrócić, więc trafiało to do nas jako zgłoszenie błędu.
+     */
+    private function regulaAdresu(?int $pomijaneId = null): \Closure
+    {
+        return function ($pole, $wartosc, $blad) use ($pomijaneId) {
+            $konto = User::withTrashed()
+                ->where('email', $wartosc)
+                ->when($pomijaneId, fn ($q) => $q->where('id', '!=', $pomijaneId))
+                ->first();
+
+            if (! $konto) {
+                return;
+            }
+
+            $blad($konto->deleted_at
+                ? 'Konto z tym adresem jest w koszu (usunięte '.$konto->deleted_at->format('d.m.Y')
+                  .'). Przywróć je zamiast zakładać nowe.'
+                : 'Konto z tym adresem już istnieje.');
+        };
+    }
+
+    /**
      * Losowe, mocne hasło startowe. Bez znaków dwuznacznych (0/O, 1/l/I),
      * z gwarantowaną dużą i małą literą, cyfrą oraz znakiem specjalnym.
      */
@@ -231,7 +256,7 @@ class UsersController extends Controller
         Request::validate([
             'first_name' => ['required', 'max:50'],
             'last_name' => ['required', 'max:50'],
-            'email' => ['required', 'max:50', 'email', 'ends_with:'.self::DOMENA_FIRMOWA, Rule::unique('users')->ignore($user->id)],
+            'email' => ['required', 'max:50', 'email', 'ends_with:'.self::DOMENA_FIRMOWA, $this->regulaAdresu($user->id)],
             'password' => [
                 'nullable',
                 'min:8',
