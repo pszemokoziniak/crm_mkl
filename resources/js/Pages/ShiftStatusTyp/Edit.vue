@@ -12,6 +12,17 @@
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.title" :error="form.errors.title" class="pb-8 pr-6 w-1/2 lg:w-1/1" label="Nazwa" />
           <text-input v-model="form.code" :error="form.errors.code" class="pb-8 pr-6 w-1/2 lg:w-1/1" label="Code" />
+          <!-- Do czego zaliczyć te godziny w statystykach budów. Bez kategorii
+               wpadają do kolumny "Inne". -->
+          <select-input
+            v-model="form.kategoria"
+            :error="form.errors.kategoria"
+            class="pb-8 pr-6 w-1/2 lg:w-1/1"
+            label="Kategoria w statystykach"
+          >
+            <option :value="null">— nieprzypisana (liczy się jako „inne") —</option>
+            <option v-for="(podpis, klucz) in kategorie" :key="klucz" :value="klucz">{{ podpis }}</option>
+          </select-input>
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!shiftStatus.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -29,6 +40,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
+import SelectInput from '@/Shared/SelectInput'
 import TrashedMessage from '@/Shared/TrashedMessage'
 
 export default {
@@ -37,10 +49,12 @@ export default {
     Link,
     LoadingButton,
     TextInput,
+    SelectInput,
     TrashedMessage,
   },
   layout: Layout,
   props: {
+    kategorie: { type: Object, default: () => ({}) },
     shiftStatus: Object,
   },
   remember: 'form',
@@ -50,6 +64,7 @@ export default {
         id: this.shiftStatus.id,
         title: this.shiftStatus.title,
         code: this.shiftStatus.code,
+        kategoria: this.shiftStatus.kategoria || null,
       }),
     }
   },

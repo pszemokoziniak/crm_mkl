@@ -32,6 +32,7 @@ use App\Http\Controllers\PbiozController;
 use App\Http\Controllers\PrognozaController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\StatystykiController;
 use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
@@ -1406,6 +1407,11 @@ Route::delete('baza-wiedzy/{artykul}', [BazaWiedzyController::class, 'destroy'])
     ->name('bazaWiedzy.destroy')
         ->middleware('auth', 'admin-permission');
 
+
+// Statystyki budów — podsumowanie Karty Czasu Pracy.
+Route::get('statystyki', [StatystykiController::class, 'index'])
+    ->name('statystyki')
+        ->middleware('auth', 'biuro-kierownik-permission');
 
 // Grupy sprzętu — słownik jak pozostałe w Ustawieniach.
 Route::get('grupy-sprzetu', [GrupySprzetuController::class, 'index'])

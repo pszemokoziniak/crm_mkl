@@ -17,7 +17,8 @@ class ShiftStatusController extends Controller
         return Inertia('ShiftStatusTyp/Index', [
             'filters' => Request::all('search', 'trashed'),
             'ShiftStatusTypes' => ShiftStatus::orderBy('title')->filter(Request::only('search', 'trashed'))
-                ->get()
+                ->get(),
+            'kategorie' => ShiftStatus::KATEGORIE,
         ]);
     }
 
@@ -28,8 +29,10 @@ class ShiftStatusController extends Controller
                 'id' => $shiftStatus->id,
                 'title' => $shiftStatus->title,
                 'code' => $shiftStatus->code,
+                'kategoria' => $shiftStatus->kategoria,
                 'deleted_at' => $shiftStatus->deleted_at,
             ],
+            'kategorie' => ShiftStatus::KATEGORIE,
         ]);
     }
 
@@ -38,6 +41,7 @@ class ShiftStatusController extends Controller
         $shiftStatus->update(Request::validate([
                 'title' => ['required', 'max:100'],
                 'code' => ['required', 'max:15'],
+                'kategoria' => ['nullable', \Illuminate\Validation\Rule::in(array_keys(ShiftStatus::KATEGORIE))],
             ])
         );
         return Redirect::route('shiftStatusTyp')->with('success', 'Poprawiono.');
@@ -58,7 +62,7 @@ class ShiftStatusController extends Controller
     }
     public function create()
     {
-        return Inertia('ShiftStatusTyp/Create');
+        return Inertia('ShiftStatusTyp/Create', ['kategorie' => ShiftStatus::KATEGORIE]);
     }
 
     public function store(StoreTypGodzinyRequest $request)

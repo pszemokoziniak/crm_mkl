@@ -26,6 +26,8 @@ class StoreTypGodzinyRequest extends FormRequest
         return [
             'title' => 'required | max:100',
             'code' => 'required | max:5',
+            // Do czego zaliczyć godziny z tym statusem w statystykach budów.
+            'kategoria' => ['nullable', \Illuminate\Validation\Rule::in(array_keys(\App\Models\ShiftStatus::KATEGORIE))],
         ];
     }
     public function messages() {
