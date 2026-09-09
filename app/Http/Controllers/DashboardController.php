@@ -16,7 +16,6 @@ use App\Models\Uprawnienia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -107,52 +106,6 @@ class DashboardController extends Controller
             $expiringItems = $uprawnienia->concat($badania)->concat($bhp)->concat($pbioz)
                 ->sortBy('end')
                 ->values();
-        }
-
-        $organizations_user = collect();
-        $organizations_biuro = collect();
-
-        if ($user->owner === 3) {
-            $organizations_user = Organization::with(['inzynier', 'krajTyp'])
-                ->addSelect([
-                    'inzynierowie_names' => ContactWorkDate::query()
-                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
-                        ->selectRaw(
-                            "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name)
-                         ORDER BY contacts.last_name SEPARATOR ', ')"
-                        )
-                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                        ->where('contacts.funkcja_id', 6)
-                        ->activeOn($now),
-                ])
-                ->whereIn('id', $myOrgIds)
-                ->filter(Request::only('search', 'trashed', 'my'))
-                ->whereNull('organizations.deleted_at')
-                ->orderBy('organizations.created_at', 'desc')
-                ->get()
-                ->transform(fn($org) => $this->transformOrganization($org, $now));
-        } else {
-            $organizations_biuro = Organization::with(['inzynier', 'krajTyp'])
-                ->addSelect([
-                    'inzynierowie_names' => ContactWorkDate::query()
-                        ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
-                        ->selectRaw(
-                            "GROUP_CONCAT(DISTINCT CONCAT(contacts.last_name, ' ', contacts.first_name)
-                         ORDER BY contacts.last_name SEPARATOR ', ')"
-                        )
-                        ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                        ->where('contacts.funkcja_id', 6)
-                        ->activeOn($now),
-                ])
-                ->whereHas('contactWorkDates', function ($query) use ($now) {
-                    $query->activeOn($now);
-                })
-                ->filter(Request::only('search', 'trashed', 'my'))
-                ->whereNull('organizations.deleted_at')
-                ->orderBy('organizations.created_at', 'desc')
-                ->paginate(100)
-                ->getCollection()
-                ->transform(fn($org) => $this->transformOrganization($org, $now));
         }
 
         // Budowy do archiwizacji: mają pobyty istniejących pracowników, ale
@@ -297,7 +250,6 @@ class DashboardController extends Controller
         }
 
         return Inertia::render('Dashboard/Index', [
-            'filters' => Request::all('search', 'trashed', 'my'),
             'zmiany_kadrowe' => $zmianyKadrowe,
             'zmiany_kadrowe_licznik' => $user->isOffice()
                 ? ZmianaKadrowa::nieobsluzone()->count()
@@ -307,33 +259,8 @@ class DashboardController extends Controller
             'bez_a1' => $bezWaznegoA1,
             'nieobecni_dzis' => $nieobecniDzis,
             'expiring_items' => $expiringItems,
-            'organizations_user' => $organizations_user,
-            'organizations_biuro' => $organizations_biuro,
             'user_owner' => [$user->id, $user->owner, $contact_id],
         ]);
-    }
-
-    private function transformOrganization($organization, $now)
-    {
-        return [
-            'id' => $organization->id,
-            'nazwaBud' => $organization->nazwaBud,
-            'numerBud' => $organization->numerBud,
-            'kierownikBud_id' => $organization->kierownikBud_id,
-            'inzynier_id' => $organization->inzynier_id,
-            'city' => $organization->city,
-            'country' => $organization->krajTyp ? $organization->krajTyp : null,
-            'workers_count' => ContactWorkDate::where('organization_id', $organization->id)
-                ->activeOn($now)
-                ->count(),
-            'inzynier_name' => $organization->inzynierowie_names,
-            'inzynier' => $organization->inzynier ? [
-                'id' => $organization->inzynier->id,
-                'first_name' => $organization->inzynier->first_name,
-                'last_name' => $organization->inzynier->last_name,
-            ] : null,
-            'deleted_at' => $organization->deleted_at,
-        ];
     }
 
     private function mapExpiringItem($item, $category, $type, $now)

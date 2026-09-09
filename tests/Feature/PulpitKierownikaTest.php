@@ -170,6 +170,26 @@ class PulpitKierownikaTest extends TestCase
         $this->assertLessThan(0, $terminy->firstWhere('status', 'po_terminie')['dni']);
     }
 
+    public function test_pulpit_nie_powiela_listy_budow(): void
+    {
+        // Listy budów zdjęte z pulpitu: to samo jest w zakładce Budowy, razem
+        // z filtrowaniem. Asercja pilnuje, żeby ciężkie zapytania tu nie wróciły.
+        $biuro = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'biuro@mkl.pl',
+            'owner' => 2, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        foreach ([$this->kierownik, $biuro] as $kto) {
+            $props = $this->actingAs($kto)->get('/')->viewData('page')['props'];
+
+            $this->assertArrayNotHasKey('organizations_user', $props);
+            $this->assertArrayNotHasKey('organizations_biuro', $props);
+            $this->assertArrayNotHasKey('filters', $props);
+            $this->assertArrayHasKey('stats', $props, 'Reszta pulpitu zostaje.');
+        }
+    }
+
     public function test_kierownik_wchodzi_z_terminu_na_karte_pracownika(): void
     {
         // Wiersz "Terminów do pilnowania" prowadzi na kartę pracownika.

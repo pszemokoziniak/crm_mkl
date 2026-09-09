@@ -219,149 +219,22 @@
         </div>
       </div>
     </div>
-
-    <div class="flex items-center justify-between mb-6">
-      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
-        <label class="block text-gray-700">Wybierz:</label>
-        <select v-model="form.trashed" class="form-select mt-1 w-full">
-          <option :value="null">Aktywne budowy</option>
-          <option value="my">Moje budowy</option>
-          <option value="with">Wszystkie budowy</option>
-          <option value="only">Usunięte budowy</option>
-        </select>
-      </search-filter>
-    </div>
-    <div v-if="user_owner[1]===3" class="my-3 font-bold mb-3">Twoje budowy</div>
-    <div v-if="user_owner[1]===3" class="bg-white rounded-md shadow overflow-x-auto my-3">
-      <table class="w-full whitespace-nowrap">
-        <thead>
-          <tr class="text-left font-bold">
-            <th class="pb-4 pt-6 px-6">Nazwa</th>
-            <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-            <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
-            <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in organizations_user" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/building/${item.id}/time-sheet`">
-                {{ item.nazwaBud }}
-                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-              </Link>
-            </td>
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
-                {{ item.workers_count }}
-              </Link>
-            </td>
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
-                <div v-if="item.inzynier_name">
-                  {{ item.inzynier_name }}
-                </div>
-                <div v-else-if="item.inzynier">
-                  {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
-                </div>
-              </Link>
-            </td>
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/building/${item.id}/time-sheet`" tabindex="-1">
-                <div v-if="item.country">
-                  {{ item.country.name }}
-                </div>
-              </Link>
-            </td>
-            <!-- Wpisywanie godzin to codzienna czynność kierownika, a dotąd
-                 nic na pulpicie nie mówiło, że wiersz prowadzi właśnie tam. -->
-            <td class="w-px border-t">
-              <Link class="flex items-center px-4 py-4" :href="`/building/${item.id}/time-sheet`">
-                <span class="whitespace-nowrap rounded bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700">Wpisz godziny</span>
-              </Link>
-            </td>
-          </tr>
-          <tr v-if="organizations_user.length === 0">
-            <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div v-if="user_owner[1]===1 || user_owner[1]===2" class="py-3 font-bold">Wszystkie aktywne budowy</div>
-    <div v-if="user_owner[1]===1 || user_owner[1]===2" class="bg-white rounded-md shadow overflow-x-auto">
-      <table class="w-full whitespace-nowrap">
-        <thead>
-          <tr class="text-left font-bold">
-            <th class="pb-4 pt-6 px-6">Nazwa</th>
-            <th class="pb-4 pt-6 px-6">Ilość Pracowników</th>
-            <th class="pb-4 pt-6 px-6">Inżynier budowy</th>
-            <th class="pb-4 pt-6 px-6" colspan="2">Kraj</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in organizations_biuro" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/budowy/${item.id}/edit`">
-                {{ item.nazwaBud }}
-                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-              </Link>
-            </td>
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                {{ item.workers_count }}
-              </Link>
-            </td>
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.inzynier_name">
-                  {{ item.inzynier_name }}
-                </div>
-                <div v-else-if="item.inzynier">
-                  {{ item.inzynier.first_name }} {{ item.inzynier.last_name }}
-                </div>
-              </Link>
-            </td>
-            <td class="border-t">
-              <Link class="flex items-center px-6 py-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <div v-if="item.country">
-                  {{ item.country.name }}
-                </div>
-              </Link>
-            </td>
-            <td class="w-px border-t">
-              <Link class="flex items-center px-4" :href="`/budowy/${item.id}/edit`" tabindex="-1">
-                <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-              </Link>
-            </td>
-          </tr>
-          <tr v-if="organizations_biuro.length === 0">
-            <td class="px-6 py-4 border-t" colspan="4">Brak danych.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 </template>
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Icon from '@/Shared/Icon'
-import pickBy from 'lodash/pickBy'
 import Layout from '@/Shared/Layout'
-import throttle from 'lodash/throttle'
-import mapValues from 'lodash/mapValues'
-import SearchFilter from '@/Shared/SearchFilter'
 
 export default {
   components: {
     Head,
     Icon,
     Link,
-    SearchFilter,
   },
   layout: Layout,
   props: {
-    filters: Object,
     stats: { type: Object, default: () => ({}) },
     do_archiwizacji: { type: Array, default: () => [] },
     zmiany_kadrowe: { type: Array, default: () => [] },
@@ -369,19 +242,11 @@ export default {
     bez_a1: { type: Array, default: () => [] },
     nieobecni_dzis: { type: Array, default: () => [] },
     expiring_items: Array,
-    organizations_user: Object,
-    organizations_biuro: Object,
-    buildings: Object,
-    inzynier: Object,
     user_owner: Array,
   },
   data() {
     return {
       wszystkieBezA1: false,
-      form: {
-        search: this.filters.search,
-        trashed: this.filters.trashed,
-      },
     }
   },
   computed: {
@@ -400,14 +265,6 @@ export default {
       return { wygasle, brak: this.bez_a1.length - wygasle }
     },
   },
-  watch: {
-    form: {
-      deep: true,
-      handler: throttle(function () {
-        this.$inertia.get('/', pickBy(this.form), { preserveState: true })
-      }, 150),
-    },
-  },
   methods: {
     opisTerminu(item) {
       if (item.dni < 0) return `po terminie od ${Math.abs(item.dni)} dni`
@@ -417,9 +274,6 @@ export default {
     klasaTerminu(item) {
       if (item.dni < 0) return 'text-red-700'
       return item.dni <= 30 ? 'text-orange-700' : 'text-gray-600'
-    },
-    reset() {
-      this.form = mapValues(this.form, () => null)
     },
   },
 }
