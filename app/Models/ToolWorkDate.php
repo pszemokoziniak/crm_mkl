@@ -10,6 +10,9 @@ class ToolWorkDate extends Model
         'narzedzia_id',
         'organization_id',
         'narzedzia_nb',
+        'start',
+        'end',
+        'komentarz',
     ];
 
     public function narzedzia()

@@ -25,6 +25,13 @@
             class="pb-8 pr-6 w-full lg:w-1/2"
             label="Ilość na tej budowie"
           />
+          <text-input
+            v-model="form.komentarz"
+            :error="form.errors.komentarz"
+            class="pb-8 pr-6 w-full"
+            label="Komentarz"
+            placeholder="np. na co wydano, w jakim stanie, komu przekazano"
+          />
 
           <div class="pb-8 pr-6 w-full lg:w-1/2">
             <label class="form-label">Dostępne w magazynie (dodatkowo):</label>
@@ -51,6 +58,7 @@
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import NumberInput from '@/Shared/NumberInput'
+import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
 import BudMenu from '@/Shared/BudMenu'
 import DeleteButton from '@/Shared/DeleteButton.vue'
@@ -61,6 +69,7 @@ export default {
     Link,
     LoadingButton,
     NumberInput,
+    TextInput,
     BudMenu,
     DeleteButton,
   },
@@ -75,6 +84,7 @@ export default {
     return {
       form: this.$inertia.form({
         narzedzia_nb: this.toolWorkDate.narzedzia_nb,
+        komentarz: this.toolWorkDate.komentarz || '',
       }),
     }
   },

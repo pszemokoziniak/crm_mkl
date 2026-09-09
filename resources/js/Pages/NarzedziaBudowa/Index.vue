@@ -16,6 +16,7 @@
             <th>Nazwa sprzętu / Szczegóły</th>
             <th class="text-center">Sztuk</th>
             <th>Badania techniczne</th>
+            <th>Komentarz</th>
             <th class="text-right">Akcje</th>
           </tr>
         </thead>
@@ -40,6 +41,7 @@
                 </span>
               </td>
               <td class="px-6 py-3" />
+              <td class="px-6 py-3" />
             </tr>
             <!-- Wiersze szczegółowe (poszczególne egzemplarze) -->
             <tr v-for="item in group.items" :key="item.id" class="hover:bg-gray-50 transition-colors">
@@ -57,6 +59,10 @@
                 </span>
                 <span v-if="item.badania_status === 'po_terminie'" class="ml-1 text-xs font-semibold text-red-700">po terminie</span>
                 <span v-else-if="item.badania_status === 'wkrotce'" class="ml-1 text-xs font-semibold text-orange-700">kończy się</span>
+              </td>
+              <!-- Notatka z wydania. Bez nowrap, bo bywa dłuższa niż kolumna. -->
+              <td class="px-6 py-3 text-sm text-gray-600 whitespace-normal max-w-xs">
+                {{ item.komentarz || '—' }}
               </td>
               <td class="px-6 py-3 text-right whitespace-nowrap">
                 <Link
@@ -79,7 +85,7 @@
             </tr>
           </template>
           <tr v-if="groupedTools.length === 0">
-            <td class="px-6 py-12 text-center text-gray-500" colspan="3">
+            <td class="px-6 py-12 text-center text-gray-500" colspan="5">
               <div class="flex flex-col items-center">
                 <icon name="office" class="w-12 h-12 fill-gray-200 mb-2" />
                 <p>Brak sprzętu przypisanego do tej budowy</p>

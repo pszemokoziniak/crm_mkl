@@ -17,6 +17,16 @@
           <label class="block text-xs text-gray-600">Do (można zostawić puste)</label>
           <input v-model="wydanie.end" type="date" class="form-input mt-1 w-40" />
         </div>
+        <div class="flex-1 min-w-[16rem]">
+          <label class="block text-xs text-gray-600">Komentarz (opcjonalnie)</label>
+          <input
+            v-model="wydanie.komentarz"
+            type="text"
+            maxlength="1000"
+            class="form-input mt-1 w-full"
+            placeholder="np. na co wydano, w jakim stanie, komu przekazano"
+          />
+        </div>
         <button class="btn-indigo" type="button" :disabled="!wydanie.start" @click="wydaj">Wydaj na budowę</button>
         <button class="text-gray-500 hover:text-gray-800 underline" type="button" @click="zaznaczone = []">Odznacz</button>
       </div>
@@ -175,6 +185,8 @@ export default {
       wydanie: {
         start: new Date().toISOString().slice(0, 10),
         end: null,
+        // Jeden komentarz dla całej partii — wydaje się zwykle kilka sztuk naraz.
+        komentarz: '',
       },
     }
   },
@@ -244,11 +256,13 @@ export default {
           narzedzia_ids: this.zaznaczone,
           start: this.wydanie.start,
           end: this.wydanie.end,
+          komentarz: this.wydanie.komentarz || null,
         },
         {
           onSuccess: () => {
             this.zaznaczone = []
             this.wydanie.end = null
+            this.wydanie.komentarz = ''
           },
           onError: (errors) => {
             this.bledy = Object.values(errors).join(' ')

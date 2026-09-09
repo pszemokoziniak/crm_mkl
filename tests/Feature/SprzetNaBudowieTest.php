@@ -95,6 +95,70 @@ class SprzetNaBudowieTest extends TestCase
         $this->assertSame(1, $a->fresh()->ilosc_budowa);
     }
 
+    public function test_komentarz_zapisuje_sie_przy_wydaniu(): void
+    {
+        // Zgłoszenie Tomasza: pole na notatkę przy wydawaniu sprzętu.
+        // Wydaje się zwykle kilka sztuk naraz, więc komentarz trafia do każdej.
+        $a = $this->sztuka('SN-A');
+        $b = $this->sztuka('SN-B');
+
+        $this->actingAs($this->biuro)
+            ->post('/budowy/'.$this->budowa->id.'/narzedzia', [
+                'narzedzia_ids' => [$a->id, $b->id],
+                'start' => '2026-09-05',
+                'komentarz' => 'Wydane do montażu hali, komplet kluczy u brygadzisty',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        foreach ([$a, $b] as $sztuka) {
+            $this->assertSame(
+                'Wydane do montażu hali, komplet kluczy u brygadzisty',
+                ToolWorkDate::firstWhere('narzedzia_id', $sztuka->id)->komentarz
+            );
+        }
+
+        // groupedTools jest na liście sprzętu budowy, nie na ekranie wydawania.
+        $lista = $this->actingAs($this->biuro)
+            ->get('/budowy/'.$this->budowa->id.'/narzedzia')->assertOk()->viewData('page')['props'];
+
+        $wiersz = collect($lista['groupedTools'])
+            ->flatMap(fn ($g) => $g['items'])
+            ->firstWhere('numer_seryjny', 'SN-A');
+        $this->assertSame('Wydane do montażu hali, komplet kluczy u brygadzisty', $wiersz['komentarz']);
+    }
+
+    public function test_wydanie_bez_komentarza_dziala_jak_dotad(): void
+    {
+        $a = $this->sztuka('SN-A');
+
+        $this->actingAs($this->biuro)
+            ->post('/budowy/'.$this->budowa->id.'/narzedzia', [
+                'narzedzia_ids' => [$a->id], 'start' => '2026-09-05',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertNull(ToolWorkDate::firstWhere('narzedzia_id', $a->id)->komentarz);
+    }
+
+    public function test_komentarz_da_sie_poprawic_pozniej(): void
+    {
+        $a = $this->sztuka('SN-A');
+        $this->actingAs($this->biuro)->post('/budowy/'.$this->budowa->id.'/narzedzia', [
+            'narzedzia_ids' => [$a->id], 'start' => '2026-09-05', 'komentarz' => 'pierwotna notatka',
+        ]);
+        $wpis = ToolWorkDate::firstWhere('narzedzia_id', $a->id);
+
+        $this->actingAs($this->biuro)
+            ->put('/budowy/'.$this->budowa->id.'/narzedzia/'.$wpis->id, [
+                'narzedzia_nb' => 1, 'komentarz' => 'poprawiona notatka',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('poprawiona notatka', $wpis->fresh()->komentarz);
+    }
+
     public function test_wydany_sprzet_znika_z_listy_dostepnych(): void
     {
         $a = $this->sztuka('SN-A');

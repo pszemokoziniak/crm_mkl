@@ -66,6 +66,8 @@ class ToolWorkDatesController extends Controller
                         // Termin pobytu sprzętu na budowie — od kiedy tu stoi.
                         'od' => $item->start ? (string) $item->start : null,
                         'do' => $item->end ? (string) $item->end : null,
+                        // Notatka z wydania — kolumna Komentarz na liście.
+                        'komentarz' => $item->komentarz,
                     ];
                 }),
             ];
@@ -119,6 +121,7 @@ class ToolWorkDatesController extends Controller
                     'badania_status' => $narzedzie ? $magazyn->statusBadan($narzedzie, $dzis) : null,
                     'od' => $wpis->start ? (string) $wpis->start : null,
                     'do' => $wpis->end ? (string) $wpis->end : null,
+                    'komentarz' => $wpis->komentarz,
                     'zakonczony' => $wpis->end !== null && (string) $wpis->end < $dzis,
                 ];
             })
@@ -133,6 +136,7 @@ class ToolWorkDatesController extends Controller
             'narzedzia_ids.*' => ['integer', 'exists:narzedzias,id'],
             'start' => ['required', 'date'],
             'end' => ['nullable', 'date', 'after_or_equal:start'],
+            'komentarz' => ['nullable', 'string', 'max:1000'],
         ], [
             'narzedzia_ids.required' => 'Zaznacz co najmniej jedną sztukę.',
             'start.required' => 'Podaj datę od.',
@@ -156,6 +160,9 @@ class ToolWorkDatesController extends Controller
                 'narzedzia_nb' => 1,
                 'start' => $dane['start'],
                 'end' => $dane['end'] ?? null,
+                // Wydajemy zwykle kilka sztuk naraz, więc komentarz z formularza
+                // trafia do każdego wpisu z tej partii.
+                'komentarz' => $dane['komentarz'] ?? null,
             ]);
 
             $narzedzie->ilosc_budowa = ($narzedzie->ilosc_budowa ?? 0) + 1;
@@ -186,6 +193,7 @@ class ToolWorkDatesController extends Controller
             'toolWorkDate' => [
                 'id' => $narzedzia->id,
                 'narzedzia_nb' => $narzedzia->narzedzia_nb,
+                'komentarz' => $narzedzia->komentarz,
                 'narzedzia' => $narzedzia->narzedzia,
             ],
             'narzedzie' => $narzedzia->narzedzia,
@@ -196,6 +204,7 @@ class ToolWorkDatesController extends Controller
     {
         $request->validate([
             'narzedzia_nb' => ['required', 'numeric', 'min:1'],
+            'komentarz' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $nowaIlosc = (int) $request->narzedzia_nb;
@@ -214,6 +223,7 @@ class ToolWorkDatesController extends Controller
         $narzedzie->save();
 
         $narzedzia->narzedzia_nb = $nowaIlosc;
+        $narzedzia->komentarz = $request->input('komentarz') ?: null;
         $narzedzia->save();
 
         return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Ilość zaktualizowana.');
