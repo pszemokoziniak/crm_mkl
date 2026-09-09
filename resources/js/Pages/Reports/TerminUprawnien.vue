@@ -156,7 +156,7 @@ export default {
       categories: ['Wszystkie', 'BHP', 'A1', 'Badania lekarskie', 'Uprawnienia', 'PBIOZ'],
       form: {
         search: this.filters.search,
-        days: this.filters.days || '30',
+        days: this.filters.days || '90',
       },
     }
   },

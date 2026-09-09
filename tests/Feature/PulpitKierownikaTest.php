@@ -319,6 +319,31 @@ class PulpitKierownikaTest extends TestCase
         $this->assertFalse($braki->contains(fn ($n) => str_contains($n, 'Obcy')));
     }
 
+    public function test_raport_terminow_domyslnie_pokazuje_90_dni(): void
+    {
+        // Uprawnienia chodzą w cyklach rocznych, więc przy oknie 30 dni raport
+        // wyglądał, jakby dotyczył wyłącznie A1 — kierownik nie widział ich wcale.
+        $pracownik = $this->pracownikNaBudowie('Mojski', $this->mojaBudowa);
+        $typ = \App\Models\UprawnieniaTyp::create(['name' => 'Praca na wysokości']);
+        \App\Models\Uprawnienia::create([
+            'contact_id' => $pracownik->id, 'uprawnieniaTyp_id' => $typ->id,
+            'start' => now()->subYear()->toDateString(),
+            'end' => now()->addDays(60)->toDateString(),
+        ]);
+
+        $props = $this->actingAs($this->kierownik)
+            ->get('/reports/koniecUprawinien')
+            ->assertOk()
+            ->viewData('page')['props'];
+
+        $this->assertSame('90', $props['filters']['days'], 'Ekran ma startować z oknem 90 dni.');
+        $this->assertContains(
+            'Praca na wysokości',
+            collect($props['data'])->where('category', 'Uprawnienia')->pluck('name'),
+            'Uprawnienie kończące się za 60 dni ma być widoczne bez zmiany filtra.'
+        );
+    }
+
     public function test_biuro_dalej_widzi_w_raporcie_wszystkich(): void
     {
         $biuro = User::factory()->create([

@@ -30,8 +30,12 @@ class ReportsController extends Controller
         $todayStr = $today->toDateString();
 
         // Okno "kończące się": przeterminowane do 7 dni wstecz + kończące się
-        // w ciągu N dni (domyślnie 30). "all" = wszystkie ważne.
-        $daysInput = $request->input('days', 30);
+        // w ciągu N dni. "all" = wszystkie ważne.
+        //
+        // Domyślnie 90 dni: przy 30 kierownicy nie widzieli na wejściu żadnych
+        // uprawnień (te chodzą w cyklach rocznych) i raport wyglądał, jakby
+        // dotyczył wyłącznie A1.
+        $daysInput = $request->input('days', 90);
         $all = $daysInput === 'all';
         $days = $all ? null : max(1, (int) $daysInput);
 
