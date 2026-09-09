@@ -69,6 +69,8 @@ class OrganizationsController extends Controller
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
                     ->whereHas('contact'),
 
+                // Które stanowiska trafiają do której kolumny — ze słownika,
+                // nie z kodu. Wcześniej zaszyte 1 i 6 gubiły 24 osoby.
                 'kierownicy_names' => ContactWorkDate::query()
                     ->join('contacts', 'contacts.id', '=', 'contact_work_dates.contact_id')
                     ->selectRaw(
@@ -76,7 +78,7 @@ class OrganizationsController extends Controller
                      ORDER BY contacts.last_name SEPARATOR ', ')"
                     )
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                    ->where('contacts.funkcja_id', 1)
+                    ->whereIn('contacts.funkcja_id', Funkcja::idsDlaRoli(Funkcja::ROLA_KIEROWNIK))
                     ->activeOn($today),
 
                 'inzynierowie_names' => ContactWorkDate::query()
@@ -86,7 +88,7 @@ class OrganizationsController extends Controller
                      ORDER BY contacts.last_name SEPARATOR ', ')"
                     )
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
-                    ->where('contacts.funkcja_id', 6)
+                    ->whereIn('contacts.funkcja_id', Funkcja::idsDlaRoli(Funkcja::ROLA_INZYNIER))
                     ->activeOn($today),
 
                 // Czy zalogowany kierownik ma na tej budowie aktywne kierownictwo (dziś)
@@ -222,8 +224,12 @@ class OrganizationsController extends Controller
         return Inertia::render('Organizations/Create', [
             'krajTyps' => KrajTyp::orderByName()->get(),
             'kierownicyProjektow' => $this->kierownicyProjektow(),
-            'kierownikBud' => Contact::where('funkcja_id', 1)->orderBy('last_name')->get(['id','first_name','last_name']),
-            'inzyniers' => Contact::where('funkcja_id', 6)->orderBy('last_name')->get(['id','first_name','last_name']),
+            // Ten sam zbiór stanowisk co kolumny na liście — inaczej dałoby się
+            // zobaczyć w kolumnie kogoś, kogo nie da się tam wybrać.
+            'kierownikBud' => Contact::whereIn('funkcja_id', Funkcja::idsDlaRoli(Funkcja::ROLA_KIEROWNIK))
+                ->orderBy('last_name')->get(['id','first_name','last_name']),
+            'inzyniers' => Contact::whereIn('funkcja_id', Funkcja::idsDlaRoli(Funkcja::ROLA_INZYNIER))
+                ->orderBy('last_name')->get(['id','first_name','last_name']),
         ]);
     }
 
@@ -336,11 +342,11 @@ class OrganizationsController extends Controller
             'kierownicyProjektow' => $this->kierownicyProjektow($organization->kierownik_projektu_id),
             'kierownikBud' => Contact::with('user')
                 ->with('funkcja')
-                ->where('funkcja_id', 1)
+                ->whereIn('funkcja_id', Funkcja::idsDlaRoli(Funkcja::ROLA_KIEROWNIK))
                 ->get(),
             'inzyniers' => Contact::with('user')
                 ->with('funkcja')
-                ->where('funkcja_id', 6)
+                ->whereIn('funkcja_id', Funkcja::idsDlaRoli(Funkcja::ROLA_INZYNIER))
                 ->get(),
             'contactsFree' => Contact::where('organization_id', null)->where('funkcja_id', '!=', 1)->get()->map->only('id','first_name','last_name'),
             'contacts' => Contact::with('funkcja')

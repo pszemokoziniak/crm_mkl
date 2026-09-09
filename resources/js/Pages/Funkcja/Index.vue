@@ -20,6 +20,8 @@
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
           <th class="pb-4 pt-6 px-6">Kierownictwo budowy</th>
+          <th class="pb-4 pt-6 px-6">Kolumna na liście budów</th>
+          <th class="pb-4 pt-6 px-6" />
         </tr>
         <tr v-for="funkcja in funkcjas" :key="funkcja.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
@@ -34,6 +36,12 @@
               <span v-if="funkcja.kierownictwo" class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-indigo-800 bg-indigo-100 border border-indigo-200 rounded-full">
                 tak
               </span>
+              <span v-else class="text-gray-300">—</span>
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4" :href="`/funkcja/${funkcja.id}/edit`" tabindex="-1">
+              <span v-if="roleBudowy[funkcja.rola_budowy]" class="text-sm text-gray-700">{{ roleBudowy[funkcja.rola_budowy] }}</span>
               <span v-else class="text-gray-300">—</span>
             </Link>
           </td>
@@ -72,6 +80,7 @@ export default {
   },
   layout: Layout,
   props: {
+    roleBudowy: { type: Object, default: () => ({}) },
     funkcjas: Object,
   },
   data() {

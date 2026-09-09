@@ -26,6 +26,8 @@ class StorePosRequest extends FormRequest
         return [
             'name' =>'required|min:3|unique:funkcjas,name',
             'kierownictwo' => 'boolean',
+            // Kolumna listy budów, do której trafiają osoby z tym stanowiskiem.
+            'rola_budowy' => ['nullable', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Funkcja::ROLE_BUDOWY))],
         ];
     }
 

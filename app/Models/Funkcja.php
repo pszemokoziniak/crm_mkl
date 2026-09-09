@@ -13,9 +13,22 @@ class Funkcja extends Model
     /** Stanowisko opiekuna kontraktu — szukamy po nazwie ze słownika, nie po id. */
     public const NAZWA_KIEROWNIK_PROJEKTU = 'Kierownik Projektu';
 
+    /** Kolumny listy budów, do których stanowisko może kierować osobę. */
+    public const ROLA_KIEROWNIK = 'kierownik';
+    public const ROLA_INZYNIER = 'inzynier';
+    public const ROLA_KIEROWNIK_PROJEKTU = 'kierownik_projektu';
+
+    /** @var array<string, string> podpisy do słownika i formularzy */
+    public const ROLE_BUDOWY = [
+        self::ROLA_KIEROWNIK => 'Kierownik budowy',
+        self::ROLA_INZYNIER => 'Inżynier',
+        self::ROLA_KIEROWNIK_PROJEKTU => 'Kierownik projektu',
+    ];
+
     protected $fillable = [
         'name',
         'kierownictwo',
+        'rola_budowy',
     ];
 
     protected $casts = [
@@ -51,5 +64,19 @@ class Funkcja extends Model
     public static function kierownictwoIds(): array
     {
         return static::where('kierownictwo', true)->pluck('id')->all();
+    }
+
+    /**
+     * Stanowiska kierujące do danej kolumny listy budów.
+     *
+     * Zwracamy identyfikatory, bo zapytania o kolumny i tak filtrują po
+     * `contacts.funkcja_id`. Pusta lista znaczy, że nikt nie jest przypisany —
+     * kolumna wyjdzie pusta, zamiast pokazać przypadkowych ludzi.
+     *
+     * @return int[]
+     */
+    public static function idsDlaRoli(string $rola): array
+    {
+        return static::where('rola_budowy', $rola)->pluck('id')->all();
     }
 }
