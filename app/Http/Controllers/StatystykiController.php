@@ -23,11 +23,12 @@ class StatystykiController extends Controller
         $lata = $statystyki->dostepneLata();
         $wybranyRok = $request->input('rok', 'wszystko');
         $rok = $wybranyRok === 'wszystko' ? null : (int) $wybranyRok;
+        $zArchiwum = $request->input('zakres', 'wszystkie') !== 'aktywne';
 
         return Inertia::render('Statystyki/Index', [
-            'budowy' => $statystyki->dlaBudow(Auth::user(), $rok),
+            'budowy' => $statystyki->dlaBudow(Auth::user(), $rok, $zArchiwum),
             'lata' => $lata,
-            'filters' => ['rok' => (string) $wybranyRok],
+            'filters' => ['rok' => (string) $wybranyRok, 'zakres' => $zArchiwum ? 'wszystkie' : 'aktywne'],
             // Statusy bez kategorii wpadają do "inne" — mówimy o tym wprost,
             // żeby liczba w tej kolumnie nie wyglądała na błąd.
             'statusyBezKategorii' => ShiftStatus::whereNull('kategoria')

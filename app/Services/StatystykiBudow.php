@@ -25,14 +25,17 @@ class StatystykiBudow
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function dlaBudow(?User $user, ?int $rok = null): array
+    public function dlaBudow(?User $user, ?int $rok = null, bool $zArchiwum = true): array
     {
+        // Domyślnie z archiwum: prawie cała historia godzin należy do budów
+        // już zamkniętych i to właśnie tam jest podsumowanie kontraktu.
+        // Bez tego ekran pokazywałby jedną budowę zamiast kilkunastu.
         $budowy = Organization::query()
+            ->when($zArchiwum, fn ($q) => $q->withTrashed())
             ->tylkoBudowy()
             ->visibleTo($user)
-            ->whereNull('deleted_at')
             ->orderBy('nazwaBud')
-            ->get(['id', 'nazwaBud']);
+            ->get(['id', 'nazwaBud', 'deleted_at']);
 
         if ($budowy->isEmpty()) {
             return [];
@@ -101,6 +104,7 @@ class StatystykiBudow
         return [
             'id' => $budowa->id,
             'nazwa' => $budowa->nazwaBud,
+            'archiwum' => $budowa->deleted_at !== null,
             'pracownikow' => $osoby,
             'dni_pracy' => $dniPracy,
             'godziny' => array_map(fn ($g) => round($g, 1), $godziny),

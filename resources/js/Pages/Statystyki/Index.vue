@@ -12,6 +12,12 @@
         <option value="wszystko">Wszystkie lata</option>
         <option v-for="r in lata" :key="r" :value="String(r)">{{ r }}</option>
       </select>
+
+      <label class="ml-4 text-sm text-gray-600" for="zakres">Budowy:</label>
+      <select id="zakres" v-model="zakres" class="form-select text-sm py-1.5" @change="przeladuj">
+        <option value="wszystkie">Wszystkie, łącznie z zakończonymi</option>
+        <option value="aktywne">Tylko trwające</option>
+      </select>
     </div>
 
     <div v-if="budowy.length" class="bg-white rounded-md shadow overflow-x-auto">
@@ -33,7 +39,12 @@
         </thead>
         <tbody>
           <tr v-for="b in budowy" :key="b.id" class="hover:bg-gray-50">
-            <td class="border-t px-6 py-3 font-medium text-gray-800">{{ b.nazwa }}</td>
+            <td class="border-t px-6 py-3 font-medium text-gray-800">
+              {{ b.nazwa }}
+              <span v-if="b.archiwum" class="ml-2 px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-full">
+                zakończona
+              </span>
+            </td>
             <td class="border-t px-6 py-3 text-right font-semibold tabular-nums">{{ godz(b.godziny.praca) }}</td>
             <td class="border-t px-6 py-3 text-right tabular-nums">{{ godz(b.godziny.urlop) }}</td>
             <td class="border-t px-6 py-3 text-right tabular-nums">{{ godz(b.godziny.zwolnienie) }}</td>
@@ -93,7 +104,10 @@ export default {
     statusyBezKategorii: { type: Array, default: () => [] },
   },
   data() {
-    return { rok: this.filters.rok || 'wszystko' }
+    return {
+      rok: this.filters.rok || 'wszystko',
+      zakres: this.filters.zakres || 'wszystkie',
+    }
   },
   computed: {
     sumaPrzerw() {
@@ -111,7 +125,7 @@ export default {
       return this.budowy.reduce((s, b) => s + ((b.godziny && b.godziny[klucz]) || 0), 0)
     },
     przeladuj() {
-      this.$inertia.get('/statystyki', { rok: this.rok }, { preserveState: true, replace: true })
+      this.$inertia.get('/statystyki', { rok: this.rok, zakres: this.zakres }, { preserveState: true, replace: true })
     },
   },
 }

@@ -72,7 +72,7 @@ class StatystykiBudowTest extends TestCase
         return ShiftStatus::create(['title' => $tytul, 'code' => substr($tytul, 0, 4), 'kategoria' => $kategoria]);
     }
 
-    private function wiersz(array $parametry = []): array
+    private function wiersz(array $parametry = []): ?array
     {
         $adres = '/statystyki'.($parametry ? '?'.http_build_query($parametry) : '');
 
@@ -149,6 +149,22 @@ class StatystykiBudowTest extends TestCase
         $this->assertSame(18.0, $this->wiersz()['godziny']['praca'], 'Bez filtra liczymy wszystko.');
         $this->assertSame(10.0, $this->wiersz(['rok' => '2026'])['godziny']['praca']);
         $this->assertSame(8.0, $this->wiersz(['rok' => '2025'])['godziny']['praca']);
+    }
+
+    public function test_zakonczone_budowy_wchodza_do_zestawienia(): void
+    {
+        // Prawie cała historia godzin należy do budów już zamkniętych —
+        // bez nich zestawienie nie pokazuje niczego sensownego.
+        $this->wpis($this->pracownik('Kowalski'), '2026-03-02', '08:00');
+        $this->budowa->delete();
+
+        $wiersz = $this->wiersz();
+        $this->assertNotNull($wiersz, 'Zakończona budowa zostaje w zestawieniu.');
+        $this->assertTrue($wiersz['archiwum']);
+        $this->assertSame(8.0, $wiersz['godziny']['praca']);
+
+        // …ale da się zawęzić do trwających.
+        $this->assertNull($this->wiersz(['zakres' => 'aktywne']));
     }
 
     public function test_kierownik_widzi_tylko_swoje_budowy(): void
