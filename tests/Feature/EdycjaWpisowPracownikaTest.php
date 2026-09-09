@@ -161,4 +161,53 @@ class EdycjaWpisowPracownikaTest extends TestCase
         $this->assertDatabaseHas('a1_s', ['id' => $moj->id, 'end' => '2027-03-31']);
         $this->assertDatabaseHas('a1_s', ['id' => $cudzy->id, 'end' => '2026-02-20']);
     }
+
+    /** @dataProvider rodzaje */
+    public function test_wpis_jednodniowy_da_sie_poprawic(string $rodzaj): void
+    {
+        // Szkolenie trwające jeden dzień: start i koniec tego samego dnia.
+        // Reguła before:end / after:start odrzucała równe daty.
+        [$m, $trasa, $tabela, $ladunek] = $this->przypadek($rodzaj);
+        $ladunek['start'] = '2026-05-04';
+        $ladunek['end'] = '2026-05-04';
+
+        $this->actingAs($this->biuro)
+            ->put("/contacts/{$this->pracownik->id}/{$trasa}/{$m->id}", $ladunek)
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertDatabaseHas($tabela, ['id' => $m->id, 'start' => '2026-05-04', 'end' => '2026-05-04']);
+    }
+
+    /** @dataProvider rodzaje */
+    public function test_odwrocone_daty_nadal_odpadaja(string $rodzaj): void
+    {
+        // Dopuszczenie równych dat nie może przepuścić końca przed początkiem.
+        [$m, $trasa, $tabela, $ladunek] = $this->przypadek($rodzaj);
+        $ladunek['start'] = '2026-05-10';
+        $ladunek['end'] = '2026-05-04';
+
+        $this->actingAs($this->biuro)
+            ->put("/contacts/{$this->pracownik->id}/{$trasa}/{$m->id}", $ladunek)
+            ->assertSessionHasErrors(['end']);
+
+        $this->assertDatabaseHas($tabela, ['id' => $m->id, 'end' => '2026-02-20']);
+    }
+
+    public function test_a1_rozroznia_zla_kolejnosc_dat_od_daty_z_przeszlosci(): void
+    {
+        // Obie reguły siedziały na kluczu end.after_or_equal, więc przy
+        // odwróconych datach wyskakiwał komunikat o przeszłości.
+        $kraj = \App\Models\KrajTyp::create(['name' => 'Austria']);
+        // Zakładanie wpisu A1 idzie przez a1/{contact_id}, nie contacts/{id}/a1.
+        $adres = "/a1/{$this->pracownik->id}";
+
+        $this->actingAs($this->biuro)
+            ->post($adres, ['kraj_typs_id' => $kraj->id, 'start' => '2027-05-10', 'end' => '2027-05-04'])
+            ->assertSessionHasErrors(['end' => 'Pole Koniec nie może być wcześniejsze niż data początkowa.']);
+
+        $this->actingAs($this->biuro)
+            ->post($adres, ['kraj_typs_id' => $kraj->id, 'start' => '2020-01-01', 'end' => '2020-01-01'])
+            ->assertSessionHasErrors(['end' => 'Data wygaśnięcia nie może być z przeszłości.']);
+    }
 }

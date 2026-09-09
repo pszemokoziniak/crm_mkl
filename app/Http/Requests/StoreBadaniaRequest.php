@@ -27,8 +27,8 @@ class StoreBadaniaRequest extends FormRequest
             // 20 MB — tyle samo, co przy wgrywaniu w zakładce Dokumenty.
             'skan' => ['nullable', 'file', 'max:20480'],
 //            'badaniaTyp_id' =>'required',
-            'start' => 'required | date | before:end',
-            'end' => 'required | date | after:start',
+            'start' => 'required | date | before_or_equal:end',
+            'end' => 'required | date | after_or_equal:start',
         ];
     }
 
@@ -36,8 +36,8 @@ class StoreBadaniaRequest extends FormRequest
         return [
             'required'  => 'Pole :attribute jest wymagane.',
             'unique' => 'Nazwa użyta',
-            'start.before' => 'Pole :attribute musi być mniejsze niż pole Koniec',
-            'end.after' => 'Pole :attribute musi być większe niż pola Początek',        ];
+            'start.before_or_equal' => 'Pole :attribute nie może być późniejsze niż data końcowa.',
+            'end.after_or_equal' => 'Pole :attribute nie może być wcześniejsze niż data początkowa.',        ];
     }
 
     public function attributes()

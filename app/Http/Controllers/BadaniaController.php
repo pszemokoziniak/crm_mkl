@@ -92,8 +92,9 @@ class BadaniaController extends Controller
         $badania->update(
             Request::validate([
                 'badaniaTyp_id' => ['required', 'max:50'],
-                'start' => 'required | date | before:end',
-                'end' => 'required | date | after:start',
+                // Równe daty są dopuszczalne: badanie jednodniowe.
+                'start' => 'required | date | before_or_equal:end',
+                'end' => 'required | date | after_or_equal:start',
             ])
         );
 
