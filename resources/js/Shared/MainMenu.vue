@@ -46,6 +46,7 @@ export default {
         { nazwa: 'Ustawienia', adres: '/tools', ikona: 'tools', dopasowanie: 'tools', widzi: ['admin', 'biuro'] },
         { nazwa: 'Zadania', adres: '/zadania', ikona: 'zadania', dopasowanie: 'zadania' },
         { nazwa: 'Baza wiedzy', adres: '/baza-wiedzy', ikona: 'baza-wiedzy', dopasowanie: 'baza-wiedzy' },
+        { nazwa: 'Statystyki', adres: '/statystyki', ikona: 'monthlyReport', dopasowanie: 'statystyki', widzi: ['admin', 'biuro', 'kierownik'] },
         { nazwa: 'Raport miesięczny', adres: '/building/time-sheet/month-report', ikona: 'monthlyReport', dopasowanie: 'month-report', widzi: ['admin', 'biuro'] },
       ],
     }

@@ -10,6 +10,17 @@
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.title" :error="form.errors.title" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa" />
           <text-input v-model="form.code" :error="form.errors.code" class="pb-8 pr-6 w-full lg:w-3/4" label="Code" />
+          <!-- Do czego zaliczyć te godziny w statystykach budów. Bez kategorii
+               wpadają do kolumny "Inne". -->
+          <select-input
+            v-model="form.kategoria"
+            :error="form.errors.kategoria"
+            class="pb-8 pr-6 w-full lg:w-3/4"
+            label="Kategoria w statystykach"
+          >
+            <option :value="null">— nieprzypisana (liczy się jako „inne") —</option>
+            <option v-for="(podpis, klucz) in kategorie" :key="klucz" :value="klucz">{{ podpis }}</option>
+          </select-input>
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
           <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj</loading-button>
@@ -24,6 +35,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
+import SelectInput from '@/Shared/SelectInput'
 
 export default {
   components: {
@@ -31,6 +43,7 @@ export default {
     Link,
     LoadingButton,
     TextInput,
+    SelectInput,
   },
   layout: Layout,
   remember: 'form',
@@ -39,6 +52,7 @@ export default {
       form: this.$inertia.form({
         title: '',
         code: '',
+        kategoria: null,
       }),
     }
   },
