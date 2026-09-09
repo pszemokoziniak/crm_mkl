@@ -13,6 +13,7 @@ use App\Models\Uprawnienia;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -67,6 +68,27 @@ class ReportsController extends Controller
             return $query;
         };
 
+        /**
+         * Wpis zastąpiony nowszym tego samego rodzaju nie jest już terminem do
+         * pilnowania — tak samo jak na pulpicie. Bez tego stare badanie wisiało
+         * w raporcie jako przeterminowane obok nowego, ważnego jeszcze latami.
+         *
+         * A1 nie ma słownika rodzajów, więc dla niego liczy się sam pracownik.
+         */
+        $tylkoNajnowszy = function ($query, string $tabela, ?string $kolumnaRodzaju = null) {
+            $query->whereNotExists(function ($q) use ($tabela, $kolumnaRodzaju) {
+                $q->select(DB::raw(1))
+                    ->from($tabela.' as nowszy')
+                    ->whereColumn('nowszy.contact_id', $tabela.'.contact_id')
+                    ->whereColumn('nowszy.end', '>', $tabela.'.end')
+                    ->whereNull('nowszy.deleted_at');
+
+                if ($kolumnaRodzaju) {
+                    $q->whereColumn('nowszy.'.$kolumnaRodzaju, $tabela.'.'.$kolumnaRodzaju);
+                }
+            });
+        };
+
         // Wspólne: pobyt tylko istniejących (nieusuniętych) pracowników.
         $rows = collect();
 
@@ -88,11 +110,13 @@ class ReportsController extends Controller
             ->join('bhp_typs', 'bhps.bhpTyp_id', '=', 'bhp_typs.id')
             ->whereNull('contacts.deleted_at')
             ->whereBetween('bhps.end', [$graceStart, $windowEnd])
+            ->tap(fn ($q) => $tylkoNajnowszy($q, 'bhps', 'bhpTyp_id'))
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'bhp_typs.name', 'bhps.start', 'bhps.end']), 'BHP');
 
         $push($moje(A1::join('contacts', 'a1_s.contact_id', '=', 'contacts.id'))
             ->whereNull('contacts.deleted_at')
             ->whereBetween('a1_s.end', [$graceStart, $windowEnd])
+            ->tap(fn ($q) => $tylkoNajnowszy($q, 'a1_s'))
             ->selectRaw("contacts.id, contacts.first_name, contacts.last_name, 'A1' as name, a1_s.start, a1_s.end")
             ->get(), 'A1');
 
@@ -100,17 +124,20 @@ class ReportsController extends Controller
             ->join('badania_typs', 'badanias.badaniaTyp_id', '=', 'badania_typs.id')
             ->whereNull('contacts.deleted_at')
             ->whereBetween('badanias.end', [$graceStart, $windowEnd])
+            ->tap(fn ($q) => $tylkoNajnowszy($q, 'badanias', 'badaniaTyp_id'))
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'badania_typs.name', 'badanias.start', 'badanias.end']), 'Badania lekarskie');
 
         $push($moje(Uprawnienia::join('contacts', 'uprawnienias.contact_id', '=', 'contacts.id'))
             ->join('uprawnienia_typs', 'uprawnienias.uprawnieniaTyp_id', '=', 'uprawnienia_typs.id')
             ->whereNull('contacts.deleted_at')
             ->whereBetween('uprawnienias.end', [$graceStart, $windowEnd])
+            ->tap(fn ($q) => $tylkoNajnowszy($q, 'uprawnienias', 'uprawnieniaTyp_id'))
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'uprawnienia_typs.name', 'uprawnienias.start', 'uprawnienias.end']), 'Uprawnienia');
 
         $push($moje(Pbioz::join('contacts', 'pbiozs.contact_id', '=', 'contacts.id'))
             ->whereNull('contacts.deleted_at')
             ->whereBetween('pbiozs.end', [$graceStart, $windowEnd])
+            ->tap(fn ($q) => $tylkoNajnowszy($q, 'pbiozs', 'name'))
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'pbiozs.name', 'pbiozs.start', 'pbiozs.end']), 'PBIOZ');
 
         // Filtr po nazwisku/nazwie

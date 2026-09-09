@@ -395,6 +395,36 @@ class PulpitKierownikaTest extends TestCase
         );
     }
 
+    public function test_raport_pomija_wpisy_zastapione_nowszymi(): void
+    {
+        // To samo co na pulpicie: stare badanie obok nowego, ważnego latami,
+        // nie jest już terminem do pilnowania.
+        //
+        // Data sprzed 3 dni, bo raport sięga tylko 7 dni wstecz — przy starszej
+        // wpis i tak wypadłby z okna i test niczego by nie sprawdzał.
+        $pracownik = $this->pracownikNaBudowie('Izdebski', $this->mojaBudowa);
+        $typ = \App\Models\BadaniaTyp::create(['name' => 'badanie okresowe']);
+
+        \App\Models\Badania::create([
+            'contact_id' => $pracownik->id, 'badaniaTyp_id' => $typ->id,
+            'start' => now()->subYears(2)->toDateString(),
+            'end' => now()->subDays(3)->toDateString(),
+        ]);
+        \App\Models\Badania::create([
+            'contact_id' => $pracownik->id, 'badaniaTyp_id' => $typ->id,
+            'start' => now()->subMonths(3)->toDateString(),
+            'end' => now()->addYears(2)->toDateString(),
+        ]);
+
+        $dane = collect(
+            $this->actingAs($this->kierownik)->get('/reports/koniecUprawinien?days=all')
+                ->assertOk()->viewData('page')['props']['data']
+        )->where('category', 'Badania lekarskie');
+
+        $this->assertCount(1, $dane, 'Zostaje sam najnowszy wpis.');
+        $this->assertTrue($dane->first()['end'] > now()->toDateString(), 'I to ten ważny.');
+    }
+
     public function test_biuro_dalej_widzi_w_raporcie_wszystkich(): void
     {
         $biuro = User::factory()->create([
