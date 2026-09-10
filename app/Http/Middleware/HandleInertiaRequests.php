@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Http\Controllers\PodszywanieController;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -60,6 +61,10 @@ class HandleInertiaRequests extends Middleware
                 ];
             },
             'permissions' => auth()->user()->permissions ?? [],
+            // Budowa z adresu — pasek podzakładek musi wiedzieć, czy pokazać
+            // zakładkę A1. Inaczej każdy z kilkunastu ekranów budowy musiałby
+            // podawać tę samą informację osobno.
+            'budowa' => fn () => $this->budowaZTrasy($request),
             // Pasek "pracujesz jako…" — żeby admin nie zapomniał, że siedzi
             // na cudzym koncie.
             'podszywanie' => function () use ($request) {
@@ -89,5 +94,32 @@ class HandleInertiaRequests extends Middleware
                 ];
             },
         ]);
+    }
+
+    /**
+     * Budowa wskazana w adresie — trasy nazywają ten parametr `organization`
+     * albo `build`. Bez obu nazw zakładka A1 zniknęłaby tylko na części
+     * ekranów budowy.
+     */
+    private function budowaZTrasy(Request $request): ?array
+    {
+        $parametr = $request->route('organization') ?: $request->route('build');
+
+        if ($parametr === null) {
+            return null;
+        }
+
+        $budowa = $parametr instanceof Organization
+            ? $parametr
+            : Organization::withTrashed()->find(is_object($parametr) ? $parametr->id : $parametr);
+
+        if (! $budowa) {
+            return null;
+        }
+
+        return [
+            'id' => $budowa->id,
+            'wymaga_a1' => $budowa->wymagaA1(),
+        ];
     }
 }

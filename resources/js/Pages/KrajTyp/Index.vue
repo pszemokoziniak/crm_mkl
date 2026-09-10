@@ -11,12 +11,19 @@
       <table class="w-full whitespace-nowrap">
         <tr class="text-left font-bold">
           <th class="pb-4 pt-6 px-6">Nazwa</th>
+          <th class="pb-4 pt-6 px-6">A1</th>
         </tr>
         <tr v-for="item in krajTypes" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/krajTyp/${item.id}/edit`">
               {{ item.name }}
               <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            </Link>
+          </td>
+          <td class="border-t">
+            <Link class="flex items-center px-6 py-4 text-sm" :href="`/krajTyp/${item.id}/edit`" tabindex="-1">
+              <span v-if="item.wymaga_a1" class="text-gray-700">wymagane</span>
+              <span v-else class="text-gray-400">niewymagane</span>
             </Link>
           </td>
           <td class="w-px border-t">

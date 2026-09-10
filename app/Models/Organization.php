@@ -52,6 +52,33 @@ class Organization extends Model
     {
         return $this->belongsTo(KrajTyp::class, 'country_id','id');
     }
+
+    /**
+     * Czy pobyt na tej budowie wymaga A1 — o tym decyduje kraj budowy.
+     * Budowa bez wskazanego kraju traktowana jest jak zagraniczna: lepiej
+     * dopomnieć się o dokument niepotrzebnie, niż wysłać kogoś bez niego.
+     */
+    public function wymagaA1(): bool
+    {
+        $kraj = $this->krajTyp;
+
+        return $kraj === null ? true : (bool) $kraj->wymaga_a1;
+    }
+
+    /**
+     * Budowy, na których A1 jest potrzebne — do zawężania alertów o brakach.
+     */
+    public function scopeWymagajaceA1($query)
+    {
+        $bezA1 = KrajTyp::idsBezA1();
+
+        // Przez `not in` zamiast `in`: budowa wskazująca kraj, którego już nie
+        // ma w słowniku, ma dopominać się o A1, a nie po cichu z niego zwalniać.
+        return $query->where(function ($q) use ($bezA1) {
+            $q->whereNull('country_id')
+                ->orWhereNotIn('country_id', $bezA1);
+        });
+    }
     /** Kierownik projektu — opiekun kontraktu, wybierany z pracowników. */
     public function kierownikProjektu()
     {

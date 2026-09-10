@@ -11,6 +11,16 @@
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa" />
+          <div class="pb-8 pr-6 w-full">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input v-model="form.wymaga_a1" type="checkbox" class="form-checkbox" />
+              <span>Kontrakt zagraniczny — pracownik potrzebuje A1</span>
+            </label>
+            <p class="mt-1 ml-6 text-xs text-gray-500">
+              Odznaczone przy Polsce: na budowie w kraju A1 nie jest wymagane,
+              więc system o nie nie przypomina i ukrywa zakładkę A1 przy budowie.
+            </p>
+          </div>
         </div>
         <div class="flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100">
           <button v-if="!kraj.deleted_at" class="text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
@@ -89,6 +99,7 @@ export default {
       form: this.$inertia.form({
         id: this.kraj.id,
         name: this.kraj.name,
+        wymaga_a1: Boolean(this.kraj.wymaga_a1),
       }),
     }
   },

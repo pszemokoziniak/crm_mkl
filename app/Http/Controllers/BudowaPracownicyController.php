@@ -447,6 +447,16 @@ class BudowaPracownicyController extends Controller
     public function a1Index(Organization $organization)
     {
         $organization->load('krajTyp');
+
+        // A1 potwierdza ubezpieczenie przy wysyłce za granicę. Na kontrakcie
+        // w kraju nie ma czego pilnować, więc zamiast pustej tabeli z alarmami
+        // odsyłamy na dane budowy z jednym zdaniem wyjaśnienia.
+        if (! $organization->wymagaA1()) {
+            return Redirect::route('organizations.edit', $organization->id)
+                ->with('success', 'Budowa w '.optional($organization->krajTyp)->name
+                    .' — A1 dotyczy wyłącznie kontraktów zagranicznych, więc ta zakładka jest tu niepotrzebna.');
+        }
+
         $orgCountryId = $organization->country_id;
         $today = Carbon::today()->toDateString();
         $search = Request::input('search');

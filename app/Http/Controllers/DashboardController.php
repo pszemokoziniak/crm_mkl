@@ -168,15 +168,21 @@ class DashboardController extends Controller
         // Rozdzielamy dwa różne przypadki: ktoś nie ma wpisu w ogóle (zadanie
         // dla kadr) i komuś A1 wygasło (zadanie do odnowienia). Wrzucone do
         // jednego worka wyglądały jak fałszywy alarm i przestawano je czytać.
+        // A1 potwierdza ubezpieczenie przy wysyłce za granicę. Na kontrakcie
+        // w Polsce nie jest potrzebne, więc pobyty w kraju nie mają czego
+        // zgłaszać — o tym, które kraje wymagają dokumentu, mówi słownik.
+        $budowyZA1 = Organization::withTrashed()->wymagajaceA1()->pluck('id');
+
         $bezWaznegoA1 = Contact::query()
             ->select(['contacts.id', 'contacts.first_name', 'contacts.last_name'])
             ->addSelect(['ostatni_a1' => A1::query()
                 ->selectRaw('MAX(a1_s.end)')
                 ->whereColumn('a1_s.contact_id', 'contacts.id'),
             ])
-            ->whereIn('contacts.id', function ($q) use ($now, $user, $myOrgIds) {
+            ->whereIn('contacts.id', function ($q) use ($now, $user, $myOrgIds, $budowyZA1) {
                 $q->select('contact_id')->from('contact_work_dates')
                     ->whereNull('deleted_at')
+                    ->whereIn('organization_id', $budowyZA1)
                     ->where(function ($w) use ($now) {
                         $w->whereNull('end')->orWhere('end', '>=', $now);
                     });

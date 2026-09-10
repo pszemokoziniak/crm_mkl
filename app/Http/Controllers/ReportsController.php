@@ -89,6 +89,19 @@ class ReportsController extends Controller
             });
         };
 
+        /**
+         * A1 potwierdza ubezpieczenie przy wysyłce za granicę — na kontrakcie
+         * w Polsce jest zbędne. Bierzemy więc pod uwagę tylko tych, których
+         * aktualny albo przyszły pobyt wypada na budowie w kraju wymagającym
+         * dokumentu; o tym, które to kraje, mówi słownik.
+         */
+        $potrzebujaA1 = ContactWorkDate::query()
+            ->whereIn('organization_id', Organization::withTrashed()->wymagajaceA1()->pluck('id'))
+            ->where(function ($q) use ($todayStr) {
+                $q->whereNull('end')->orWhere('end', '>=', $todayStr);
+            })
+            ->pluck('contact_id')->unique()->flip();
+
         // Wspólne: pobyt tylko istniejących (nieusuniętych) pracowników.
         $rows = collect();
 
@@ -115,6 +128,7 @@ class ReportsController extends Controller
 
         $push($moje(A1::join('contacts', 'a1_s.contact_id', '=', 'contacts.id'))
             ->whereNull('contacts.deleted_at')
+            ->whereIn('contacts.id', $potrzebujaA1->keys())
             ->whereBetween('a1_s.end', [$graceStart, $windowEnd])
             ->tap(fn ($q) => $tylkoNajnowszy($q, 'a1_s'))
             ->selectRaw("contacts.id, contacts.first_name, contacts.last_name, 'A1' as name, a1_s.start, a1_s.end")
@@ -169,10 +183,10 @@ class ReportsController extends Controller
         $braki = Contact::whereIn('id', $assignedIds)
             ->orderBy('last_name')->orderBy('first_name')
             ->get(['id', 'first_name', 'last_name'])
-            ->map(function ($c) use ($vBad, $vA1, $vUpr, $vBhp) {
+            ->map(function ($c) use ($vBad, $vA1, $vUpr, $vBhp, $potrzebujaA1) {
                 $missing = [];
                 if (! isset($vBad[$c->id])) $missing[] = 'Badania';
-                if (! isset($vA1[$c->id])) $missing[] = 'A1';
+                if (isset($potrzebujaA1[$c->id]) && ! isset($vA1[$c->id])) $missing[] = 'A1';
                 if (! isset($vUpr[$c->id])) $missing[] = 'Uprawnienia';
                 if (! isset($vBhp[$c->id])) $missing[] = 'BHP';
 

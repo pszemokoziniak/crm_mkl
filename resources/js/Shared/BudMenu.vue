@@ -4,7 +4,7 @@
   <nav class="mb-6 -mx-1 border-b border-gray-200">
     <div class="flex gap-4 overflow-x-auto whitespace-nowrap px-1 pb-2">
       <Link
-        v-for="zakladka in zakladki"
+        v-for="zakladka in widoczne"
         :key="zakladka.klucz"
         :href="zakladka.adres(budId)"
         class="flex-shrink-0 pb-1 border-b-2 transition-colors"
@@ -38,6 +38,22 @@ export default {
         { klucz: 'prognoza', nazwa: 'Prognoza', adres: (id) => `/budowy/${id}/prognoza` },
       ],
     }
+  },
+  computed: {
+    /**
+     * A1 potwierdza ubezpieczenie przy wysyłce za granicę, więc na budowie
+     * w Polsce ta zakładka nie ma czego pokazać. Kraj bierzemy z budowy
+     * z adresu — o wymogu decyduje słownik krajów, nie ten plik.
+     */
+    widoczne() {
+      const budowa = this.$page.props.budowa
+
+      if (budowa && budowa.wymaga_a1 === false) {
+        return this.zakladki.filter((z) => z.klucz !== 'a1')
+      }
+
+      return this.zakladki
+    },
   },
   methods: {
     isUrl(klucz) {

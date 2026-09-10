@@ -22,6 +22,7 @@ class KrajTypController extends Controller
             'kraj' => [
                 'id' => $krajTyp->id,
                 'name' => $krajTyp->name,
+                'wymaga_a1' => $krajTyp->wymaga_a1,
                 'deleted_at' => $krajTyp->deleted_at,
             ],
             'feasts' => $krajTyp->getAttribute('feasts')
@@ -33,6 +34,8 @@ class KrajTypController extends Controller
         $krajTyp->update(
             \Illuminate\Support\Facades\Request::validate([
                 'name' => ['required', 'max:100'],
+                // Znacznik decyduje o alertach o braku A1 i o zakładce przy budowie.
+                'wymaga_a1' => ['required', 'boolean'],
             ])
         );
         return Redirect::route('krajTyp')->with('success', 'Poprawiono.');
