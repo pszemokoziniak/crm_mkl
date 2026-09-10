@@ -256,6 +256,12 @@ class DashboardController extends Controller
                     ->count(),
                 'sprzet' => null,
                 'wygasajace' => $expiringItems->whereIn('status', ['po_terminie', 'wkrotce'])->count(),
+                // Kafelek ma prowadzić tam, gdzie widać te same osoby.
+                // Przy jednej budowie to jej obsada, przy kilku — lista budów
+                // z liczbą przy każdej. Bez budów nie ma dokąd iść.
+                'pracownicy_adres' => $myOrgIds->count() === 1
+                    ? '/pracownicy/'.$myOrgIds->first()
+                    : ($myOrgIds->count() > 1 ? '/budowy' : null),
             ]
             : [
                 'pracownicy' => Contact::kierownictwo(false)->count(),
@@ -263,6 +269,7 @@ class DashboardController extends Controller
                 'budowy' => Organization::tylkoBudowy()->count(),
                 'sprzet' => Narzedzia::count(),
                 'wygasajace' => $expiringItems->whereIn('status', ['po_terminie', 'wkrotce'])->count(),
+                'pracownicy_adres' => '/contacts',
             ];
 
         // Zmiany pobytów czekające na kadry — dział HR to uprawnienia biuro.

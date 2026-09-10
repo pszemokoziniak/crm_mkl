@@ -6,7 +6,8 @@
     <p class="mb-6 text-sm text-gray-500">
       Na budowie obecnie: <span class="font-bold text-gray-700">{{ naBudowie }}</span>
       z {{ contactworkdates.data.length }} wpisów na tej stronie.
-      <span v-if="zakonczone > 0">Pozostałe {{ zakonczone }} to zakończone pobyty — zostają jako historia.</span>
+      <span v-if="zakonczone > 0">Zakończonych pobytów: {{ zakonczone }} — zostają jako historia.</span>
+      <span v-if="przyszle > 0">Pobytów jeszcze niezaczętych: {{ przyszle }}.</span>
       <span v-if="sortowanie.sort === 'nazwisko'" class="block mt-1">
         Sortowanie po nazwisku: najpierw obecni na budowie, pod nimi ci, którzy zjechali.
       </span>
@@ -199,8 +200,11 @@ export default {
     naBudowie() {
       return this.contactworkdates.data.filter((item) => item.on_site).length
     },
+    przyszle() {
+      return this.contactworkdates.data.filter((item) => item.przyszly).length
+    },
     zakonczone() {
-      return this.contactworkdates.data.length - this.naBudowie
+      return this.contactworkdates.data.length - this.naBudowie - this.przyszle
     },
   },
   watch: {
@@ -238,11 +242,20 @@ export default {
         return item.nieobecnosc
       }
 
+      // Pobyt zaczynający się w przyszłości to nie jest obecność na budowie.
+      if (item.przyszly) {
+        return `Od ${item.start}`
+      }
+
       return item.on_site ? 'Pracuje' : `Zakończony ${item.end}`
     },
     klasaStatusu(item) {
       if (item.on_site && item.nieobecnosc) {
         return 'text-yellow-800 bg-yellow-100 border-yellow-200'
+      }
+
+      if (item.przyszly) {
+        return 'text-indigo-700 bg-indigo-100 border-indigo-200'
       }
 
       return item.on_site

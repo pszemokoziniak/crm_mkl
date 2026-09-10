@@ -7,11 +7,14 @@
          u niego liczbą bez odnośnika (albo ich nie ma). Raport terminów ma
          już wersję zawężoną do jego budów, więc tam wchodzi. -->
     <div class="mb-8 grid grid-cols-2 gap-4" :class="kierownik ? 'sm:grid-cols-3' : 'sm:grid-cols-4'">
+      <!-- Kierownik nie wchodzi do pełnej listy pracowników, ale ma swoją:
+           jedna budowa — prosto do jej obsady, kilka — do listy budów, gdzie
+           przy każdej stoi liczba składająca się na tę sumę. -->
       <component
-        :is="kierownik ? 'div' : 'Link'"
-        :href="kierownik ? null : '/contacts'"
+        :is="stats.pracownicy_adres ? 'Link' : 'div'"
+        :href="stats.pracownicy_adres"
         class="block bg-white rounded-md shadow p-5 border-l-4 border-indigo-500"
-        :class="kierownik ? '' : 'hover:shadow-md transition'"
+        :class="stats.pracownicy_adres ? 'hover:shadow-md transition' : ''"
       >
         <div class="text-3xl font-bold text-gray-900">{{ stats.pracownicy ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">{{ kierownik ? 'Pracownicy na Twoich budowach' : 'Pracownicy' }}</div>
@@ -192,7 +195,7 @@
                 </Link>
               </td>
               <td class="border-t">
-                <Link v-if="item.organization" class="block px-4 py-4 text-indigo-600 hover:underline" :href="kierownik ? `/building/${item.organization.id}/time-sheet` : `/budowy/${item.organization.id}/edit`">
+                <Link v-if="item.organization" class="block px-4 py-4 text-indigo-600 hover:underline" :href="`/budowy/${item.organization.id}/edit`">
                   {{ item.organization.nazwaBud }}
                 </Link>
                 <span v-else class="block px-4 py-4 text-gray-400 italic">Brak przypisanej budowy</span>
@@ -216,7 +219,7 @@
             {{ item.end }} <span class="font-normal">— {{ opisTerminu(item) }}</span>
           </div>
           <div class="mt-1 text-sm">
-            <Link v-if="item.organization" class="text-indigo-600 hover:underline" :href="kierownik ? `/building/${item.organization.id}/time-sheet` : `/budowy/${item.organization.id}/edit`">
+            <Link v-if="item.organization" class="text-indigo-600 hover:underline" :href="`/budowy/${item.organization.id}/edit`">
               {{ item.organization.nazwaBud }}
             </Link>
             <span v-else class="text-gray-400 italic">Brak przypisanej budowy</span>

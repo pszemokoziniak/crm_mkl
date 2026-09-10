@@ -121,10 +121,16 @@ class BudowaPracownicyController extends Controller
                     'funkcja' => $contactworkdate->funkcja,
                     'start' => $contactworkdate->start,
                     'end' => $contactworkdate->end,
-                    // Czy pobyt na TEJ budowie jeszcze trwa — inna rzecz niż
+                    // Czy pracownik jest na TEJ budowie dziś — inna rzecz niż
                     // status zatrudnienia pracownika w firmie.
-                    'on_site' => $contactworkdate->end === null
-                        || Carbon::parse($contactworkdate->end)->toDateString() >= Carbon::today()->toDateString(),
+                    //
+                    // Sam koniec pobytu nie wystarczy: pobyt zaczynający się za
+                    // tydzień też go nie ma, a liczył się jako obecny i przez to
+                    // nagłówek tej strony pokazywał więcej osób niż pulpit.
+                    'on_site' => Carbon::parse($contactworkdate->start)->toDateString() <= $dzis
+                        && ($contactworkdate->end === null
+                            || Carbon::parse($contactworkdate->end)->toDateString() >= $dzis),
+                    'przyszly' => Carbon::parse($contactworkdate->start)->toDateString() > $dzis,
                     // Powód nieobecności, jeśli akurat dziś go nie ma na budowie.
                     'nieobecnosc' => optional(optional($contactworkdate->contact)->holidays->first())->label,
                 ]),

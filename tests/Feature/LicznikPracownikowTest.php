@@ -75,6 +75,30 @@ class LicznikPracownikowTest extends TestCase
         return $osoba;
     }
 
+    private function zalozKierownika(Organization ...$budowy): User
+    {
+        $osoba = $this->pracownik('Kierowniczak', $this->kierownikBudowy);
+
+        $user = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'kierownik'.uniqid().'@mkl.pl',
+            'first_name' => $osoba->first_name, 'last_name' => $osoba->last_name,
+            'owner' => Role::KIEROWNIK->value, 'active' => 1,
+            'password_changed_at' => now()->toDateTimeString(),
+        ]);
+        $osoba->update(['user_id' => $user->id]);
+
+        foreach ($budowy as $budowa) {
+            ContactWorkDate::create([
+                'contact_id' => $osoba->id,
+                'organization_id' => $budowa->id,
+                'start' => now()->subMonth()->toDateString(),
+                'end' => null,
+            ]);
+        }
+
+        return $user;
+    }
+
     private function pulpit(User $user): array
     {
         return $this->actingAs($user)->get('/')->viewData('page')['props']['stats'];
@@ -148,6 +172,70 @@ class LicznikPracownikowTest extends TestCase
         ]);
 
         $this->assertSame(1, $this->pulpit($this->biuro)['pracownicy']);
+    }
+
+    /**
+     * Kierownik nie ma zakładki Pracownicy, więc kafelek prowadził donikąd —
+     * był zwykłym prostokątem. Ma działać jak sąsiedni "Twoje budowy".
+     */
+    public function test_kafelek_kierownika_prowadzi_do_obsady_jego_budowy(): void
+    {
+        $kierownik = $this->zalozKierownika($this->budowa);
+
+        $this->assertSame("/pracownicy/{$this->budowa->id}", $this->pulpit($kierownik)['pracownicy_adres']);
+
+        $this->actingAs($kierownik)->get("/pracownicy/{$this->budowa->id}")->assertOk();
+    }
+
+    public function test_kierownik_kilku_budow_trafia_na_ich_liste(): void
+    {
+        // Jedna obsada by nie wystarczyła — kafelek sumuje kilka budów.
+        $druga = Organization::create([
+            'account_id' => $this->accountId, 'nazwaBud' => 'AET Lestrem',
+        ]);
+        $kierownik = $this->zalozKierownika($this->budowa, $druga);
+
+        $this->assertSame('/budowy', $this->pulpit($kierownik)['pracownicy_adres']);
+    }
+
+    public function test_kierownik_bez_budowy_nie_dostaje_odnosnika(): void
+    {
+        $kierownik = $this->zalozKierownika();
+
+        $this->assertNull($this->pulpit($kierownik)['pracownicy_adres']);
+    }
+
+    public function test_biuro_trafia_z_kafelka_na_liste_pracownikow(): void
+    {
+        $this->assertSame('/contacts', $this->pulpit($this->biuro)['pracownicy_adres']);
+    }
+
+    /**
+     * Liczba na kafelku i liczba w nagłówku obsady budowy muszą się zgadzać.
+     * Nagłówek liczył też pobyty zaczynające się dopiero za tydzień.
+     */
+    public function test_pobyt_zaczynajacy_sie_w_przyszlosci_nie_jest_obecnoscia(): void
+    {
+        $kierownik = $this->zalozKierownika($this->budowa);
+        $this->pracownik('Cebula', $this->monter, $this->budowa);
+
+        $przyszly = $this->pracownik('Nowak', $this->monter);
+        ContactWorkDate::create([
+            'contact_id' => $przyszly->id,
+            'organization_id' => $this->budowa->id,
+            'start' => now()->addWeek()->toDateString(),
+            'end' => now()->addMonths(2)->toDateString(),
+        ]);
+
+        $wpisy = $this->actingAs($kierownik)->get("/pracownicy/{$this->budowa->id}")
+            ->viewData('page')['props']['contactworkdates']['data'];
+
+        $obecni = collect($wpisy)->where('on_site', true);
+
+        $this->assertCount(1, $obecni, 'Kto jeszcze nie przyjechał, nie jest na budowie.');
+        $this->assertSame('Cebula', $obecni->first()['contact']['last_name']);
+        $this->assertTrue(collect($wpisy)->firstWhere('contact.last_name', 'Nowak')['przyszly']);
+        $this->assertSame($this->pulpit($kierownik)['pracownicy'], $obecni->count());
     }
 
     public function test_pulpit_kierownika_liczy_tylko_pracownikow_ze_swoich_budow(): void
