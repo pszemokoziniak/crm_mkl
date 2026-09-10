@@ -31,7 +31,7 @@
           <th class="hidden pb-4 pt-6 px-4 xl:table-cell">Kierownik projektu</th>
 
           <!-- Pracownicy -->
-          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" colspan="2" @click="emitSort('active_workers_count')">
+          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" colspan="2" title="Pracownicy fizyczni obecni dziś na budowie" @click="emitSort('active_workers_count')">
             Pracownicy
             <SortIcon column="active_workers_count" :sort="sort" :direction="direction" />
           </th>
@@ -115,6 +115,15 @@
             <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
               <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded" :class="organization.active_workers_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">
                 {{ organization.active_workers_count }}
+              </span>
+              <!-- Kierownictwo dopisane szarym, żeby budowa obsadzona samą kadrą
+                   nie wyglądała na pustą. -->
+              <span
+                v-if="organization.active_leaders_count"
+                class="ml-2 text-xs text-gray-400"
+                :title="`Kierownictwo: ${organization.active_leaders_count} — w osobnych kolumnach`"
+              >
+                +{{ organization.active_leaders_count }}
               </span>
             </Link>
           </td>

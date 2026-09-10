@@ -51,9 +51,21 @@ class OrganizationsController extends Controller
         $query = Organization::query()
             ->with('krajTyp')
             ->addSelect([
+                // Kolumna "Pracownicy" liczy tylko pracowników fizycznych.
+                // Kierownictwo ma własne kolumny, więc doliczane tutaj podnosiło
+                // liczbę o osoby, których w zakładce Pracownicy w ogóle nie ma.
                 'active_workers_count' => ContactWorkDate::query()
                     ->selectRaw('count(*)')
                     ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->whereHas('contact', fn ($q) => $q->kierownictwo(false))
+                    ->activeOn($today),
+
+                // Osobno, żeby budowa obsadzona samym kierownictwem (np. biuro)
+                // nie wyglądała na pustą.
+                'active_leaders_count' => ContactWorkDate::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('contact_work_dates.organization_id', 'organizations.id')
+                    ->whereHas('contact', fn ($q) => $q->kierownictwo(true))
                     ->activeOn($today),
 
                 // Pobyty jeszcze niezakończone (łącznie z przyszłymi) — zero oznacza,
@@ -147,6 +159,7 @@ class OrganizationsController extends Controller
                         ? trim($organization->kierownikProjektu->last_name.' '.$organization->kierownikProjektu->first_name)
                         : null,
                     'active_workers_count' => (int) ($organization->active_workers_count ?? 0),
+                    'active_leaders_count' => (int) ($organization->active_leaders_count ?? 0),
                     'is_active' => (bool) ($organization->is_active_for_me ?? false),
                     // Budowa, na której wszyscy zakończyli pobyt — kandydat do archiwum.
                     'ready_to_archive' => (int) ($organization->all_workers_count ?? 0) > 0

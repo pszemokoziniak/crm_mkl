@@ -111,8 +111,10 @@ class PulpitKierownikaTest extends TestCase
         $this->actingAs($this->kierownik)
             ->get('/')
             ->assertInertia(fn (Assert $page) => $page
-                // On sam też jest na budowie, więc dwie osoby.
-                ->where('stats.pracownicy', 2)
+                // Kafelek "Pracownicy" liczy pracowników fizycznych; kierownik
+                // jest kierownictwem i idzie do drugiej liczby, nie do swoich ludzi.
+                ->where('stats.pracownicy', 1)
+                ->where('stats.kierownictwo', 1)
                 ->where('stats.budowy', 1)
                 ->where('stats.sprzet', null)
                 ->etc()
@@ -471,7 +473,8 @@ class PulpitKierownikaTest extends TestCase
             ->get('/')
             ->assertInertia(fn (Assert $page) => $page
                 ->where('stats.budowy', 2)
-                ->where('stats.pracownicy', 3)
+                ->where('stats.pracownicy', 2)
+                ->where('stats.kierownictwo', 1)
                 ->etc()
             );
     }

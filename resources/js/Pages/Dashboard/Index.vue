@@ -15,6 +15,11 @@
       >
         <div class="text-3xl font-bold text-gray-900">{{ stats.pracownicy ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">{{ kierownik ? 'Pracownicy na Twoich budowach' : 'Pracownicy' }}</div>
+        <!-- Kafelek prowadzi do zakładki Pracownicy, więc liczy tylko ich.
+             Kierownictwo dopisane niżej, żeby nie wyglądało na zgubione. -->
+        <div v-if="stats.kierownictwo" class="mt-1 text-xs text-gray-400">
+          + {{ stats.kierownictwo }} {{ stats.kierownictwo === 1 ? 'osoba kierownictwa' : 'osób kierownictwa' }}
+        </div>
       </component>
       <Link href="/budowy" class="block bg-white rounded-md shadow p-5 border-l-4 border-green-500 hover:shadow-md transition">
         <div class="text-3xl font-bold text-gray-900">{{ stats.budowy ?? 0 }}</div>

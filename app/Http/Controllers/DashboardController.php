@@ -231,12 +231,23 @@ class DashboardController extends Controller
 
         // Kierownik liczy swoje budowy i swoich ludzi; sprzętu nie prowadzi,
         // więc tego kafelka nie dostaje.
+        /**
+         * Kafelek nazywa się "Pracownicy" i prowadzi do zakładki Pracownicy,
+         * więc liczy to samo co ona: osoby fizyczne. Kierownictwo ma osobną
+         * zakładkę i jest tu dopisane obok, żeby suma się nie gubiła.
+         */
         $stats = $user->prowadziBudowy()
             ? [
                 'pracownicy' => ContactWorkDate::query()
                     ->whereIn('organization_id', $myOrgIds)
                     ->activeOn($now)
-                    ->whereHas('contact')
+                    ->whereHas('contact', fn ($q) => $q->kierownictwo(false))
+                    ->distinct()
+                    ->count('contact_id'),
+                'kierownictwo' => ContactWorkDate::query()
+                    ->whereIn('organization_id', $myOrgIds)
+                    ->activeOn($now)
+                    ->whereHas('contact', fn ($q) => $q->kierownictwo(true))
                     ->distinct()
                     ->count('contact_id'),
                 'budowy' => Organization::tylkoBudowy()
@@ -247,7 +258,8 @@ class DashboardController extends Controller
                 'wygasajace' => $expiringItems->whereIn('status', ['po_terminie', 'wkrotce'])->count(),
             ]
             : [
-                'pracownicy' => Contact::count(),
+                'pracownicy' => Contact::kierownictwo(false)->count(),
+                'kierownictwo' => Contact::kierownictwo(true)->count(),
                 'budowy' => Organization::tylkoBudowy()->count(),
                 'sprzet' => Narzedzia::count(),
                 'wygasajace' => $expiringItems->whereIn('status', ['po_terminie', 'wkrotce'])->count(),

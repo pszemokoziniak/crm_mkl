@@ -49,12 +49,15 @@
         </div>
 
         <div class="pt-2">
-          <span class="text-gray-500 mr-2">Aktywni pracownicy:</span>
+          <span class="text-gray-500 mr-2">Pracownicy fizyczni dziś:</span>
           <span
             class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded"
             :class="organization.active_workers_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'"
           >
             {{ organization.active_workers_count }}
+          </span>
+          <span v-if="organization.active_leaders_count" class="ml-2 text-xs text-gray-400">
+            + {{ organization.active_leaders_count }} z kierownictwa
           </span>
         </div>
       </div>
