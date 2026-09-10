@@ -70,7 +70,7 @@
                   :href="`/budowy/${organization.id}/narzedzia/${item.id}/edit`"
                   class="text-indigo-600 hover:underline"
                 >
-                  Popraw daty
+                  Popraw daty/Zmień komentarz
                 </Link>
                 <button
                   v-if="!$page.props.permissions.kierownik"
@@ -123,7 +123,7 @@
             <span v-else-if="item.badania_status === 'wkrotce'" class="ml-1 text-xs font-semibold text-orange-700">kończy się</span>
           </div>
           <div v-if="!$page.props.permissions.kierownik" class="mt-2">
-            <Link :href="`/budowy/${organization.id}/narzedzia/${item.id}/edit`" class="text-indigo-600">Popraw daty</Link>
+            <Link :href="`/budowy/${organization.id}/narzedzia/${item.id}/edit`" class="text-indigo-600">Popraw daty/Zmień komentarz</Link>
             <button type="button" class="ml-4 text-red-600" @click="usun(item.id)">Usuń</button>
           </div>
         </div>

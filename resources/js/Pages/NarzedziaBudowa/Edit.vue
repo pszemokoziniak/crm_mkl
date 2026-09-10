@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Head title="Edytuj ilość narzędzi" />
+    <Head title="Popraw daty i komentarz" />
     <BudMenu :budId="organization.id" />
     <h1 class="mb-8 text-3xl font-bold">
       <Link class="text-indigo-400 hover:text-indigo-600" :href="`/budowy/${organization.id}/narzedzia`">Narzędzia na budowie</Link>

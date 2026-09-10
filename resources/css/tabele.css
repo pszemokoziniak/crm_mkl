@@ -16,6 +16,23 @@
   @apply py-4 px-6 text-left text-xs font-semibold uppercase tracking-wider text-gray-500;
 }
 
+/*
+ * Wyrównanie pojedynczej kolumny. Reguła wyżej celuje w `.naglowek-tabeli th`,
+ * więc była mocniejsza niż `class="text-right"` na samym nagłówku i po cichu
+ * ją zjadała: nagłówek "Akcje" stał z lewej, nad środkiem wiersza, a w
+ * Statystykach wszystkie nagłówki liczbowe rozjeżdżały się z liczbami.
+ * Samo przeniesienie wyrównania na wiersz nie wystarczy — przeglądarka i tak
+ * centruje <th> własnym stylem, a wartość odziedziczona z niczym nie wygrywa.
+ */
+.naglowek-tabeli th.text-right {
+  /* Zwykły CSS, nie @apply — reguła nosi tę samą nazwę klasy, co narzędzie. */
+  text-align: right;
+}
+
+.naglowek-tabeli th.text-center {
+  text-align: center;
+}
+
 /* Sortowanie: przycisk ma wyglądać jak zwykły nagłówek, tylko klikalny. */
 .naglowek-tabeli th button {
   @apply text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-indigo-600;
