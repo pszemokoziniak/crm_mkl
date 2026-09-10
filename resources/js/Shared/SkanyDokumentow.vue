@@ -4,11 +4,13 @@
     <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
-          <tr class="text-left font-bold">
-            <th class="pb-4 pt-6 px-6">Nazwa</th>
-            <th class="pb-4 pt-6 px-6">Plik</th>
-            <th v-if="pokazTyp" class="pb-4 pt-6 px-6">Typ</th>
-            <th class="pb-4 pt-6 px-6" />
+          <!-- Ta sama klasa, co w tabeli wpisów wyżej: obie stoją na jednym
+               ekranie, a nagłówki miały dwa różne kroje. -->
+          <tr class="naglowek-tabeli">
+            <th>Nazwa</th>
+            <th>Plik</th>
+            <th v-if="pokazTyp">Typ</th>
+            <th />
           </tr>
         </thead>
         <tbody>
