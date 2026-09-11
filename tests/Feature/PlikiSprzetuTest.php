@@ -173,6 +173,20 @@ class PlikiSprzetuTest extends TestCase
         $this->assertSame('N3412000123', $this->karta()['narzedzia']['numer_udt']);
     }
 
+    public function test_zapis_zostawia_na_karcie_sprzetu(): void
+    {
+        // Po wgraniu zdjęcia zwykle wskazuje się je od razu jako główne —
+        // odesłanie na listę kazało wchodzić w kartę drugi raz.
+        $this->actingAs($this->biuro)
+            ->post('/narzedzia/'.$this->sprzet->id, [
+                'narzedzia_typ_id' => null,
+                'numer_seryjny' => 'SN-1',
+                'ilosc_all' => 1,
+            ])
+            ->assertRedirect('/narzedzia/'.$this->sprzet->id.'/edit')
+            ->assertSessionHas('success');
+    }
+
     public function test_sprzet_znajduje_sie_po_numerze_udt(): void
     {
         // Inspektor posługuje się swoim numerem, nie naszym seryjnym.

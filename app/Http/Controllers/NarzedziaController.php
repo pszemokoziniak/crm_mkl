@@ -311,7 +311,9 @@ class NarzedziaController extends Controller
             return Redirect::back()->with('error', 'Wystąpił błąd podczas zapisu: ' . $exception->getMessage());
         }
 
-        return Redirect::route('narzedzia')->with('success', 'Element poprawiony.');
+        // Zostajemy na karcie: po wgraniu zdjęcia zwykle wskazuje się je od
+        // razu jako główne, a odesłanie na listę kazało wchodzić tu drugi raz.
+        return Redirect::route('narzedzia.edit', $narzedzia->id)->with('success', 'Zapisano zmiany.');
     }
 
     public function destroy(Narzedzia $narzedzia, DocumentService $documentService): RedirectResponse
