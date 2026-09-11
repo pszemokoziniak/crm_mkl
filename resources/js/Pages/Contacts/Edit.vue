@@ -135,13 +135,17 @@
       </div>
     </div>
     <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
-      <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-100">
-        <span class="font-semibold text-gray-700">Budowy pracownika</span>
+      <!-- "Obecnie" stoi pośrodku paska, a nie przy prawej krawędzi. Puste
+           pole z prawej równoważy tytuł; środek bierze tyle, ile potrzebuje,
+           więc dłuższy opis (urlop z datą) nie łamie się na dwie linie. -->
+      <div class="flex flex-wrap items-center gap-3 px-6 py-4 border-b border-gray-100">
+        <span class="font-semibold text-gray-700 sm:flex-1">Budowy pracownika</span>
         <!-- Co pracownik robi dzisiaj: budowa, urlop/zwolnienie albo nic. -->
-        <span class="flex items-center gap-2">
+        <span class="flex flex-wrap items-center gap-2">
           <span class="text-xs text-gray-400 uppercase tracking-wider">Obecnie:</span>
-          <status-pracownika :status="status" />
+          <status-pracownika :status="status" duzy />
         </span>
+        <span class="hidden sm:block sm:flex-1" />
       </div>
       <div class="px-6 py-4">
         <div v-if="przypisania.length" class="space-y-1">

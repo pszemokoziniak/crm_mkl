@@ -1,18 +1,22 @@
 <template>
   <span v-if="status.typ === 'nieobecnosc'" class="inline-flex flex-wrap items-center gap-1">
-    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-yellow-800 bg-yellow-100 border border-yellow-200 rounded-full uppercase">
+    <span class="inline-flex items-center text-yellow-800 bg-yellow-100 border border-yellow-200 rounded-full uppercase" :class="klasaRozmiaru">
       {{ status.label }}
       <span v-if="status.do" class="ml-1 normal-case font-normal">do {{ status.do }}</span>
     </span>
     <!-- Nieobecność nie zdejmuje pracownika z budowy — pokazujemy obie rzeczy. -->
-    <span v-if="status.budowa" class="text-xs text-gray-400">{{ status.budowa }}</span>
+    <span v-if="status.budowa" class="text-gray-400" :class="duzy ? 'text-sm' : 'text-xs'">{{ status.budowa }}</span>
   </span>
 
-  <span v-else-if="status.typ === 'budowa'" class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 border border-green-200 rounded-full">
+  <span
+    v-else-if="status.typ === 'budowa'"
+    class="inline-flex items-center text-green-800 bg-green-100 border border-green-200 rounded-full"
+    :class="klasaRozmiaru"
+  >
     {{ status.label }}
   </span>
 
-  <span v-else class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-full">
+  <span v-else class="inline-flex items-center text-gray-500 bg-gray-100 border border-gray-200 rounded-full" :class="klasaRozmiaru">
     Nie pracuje
   </span>
 </template>
@@ -25,6 +29,17 @@ export default {
     status: {
       type: Object,
       default: () => ({ typ: 'brak', label: 'Nie pracuje' }),
+    },
+    // Na karcie pracownika plakietka jest jedyną taką informacją i ma być
+    // widoczna; na liście stoi w wierszu obok dziesiątek innych i musi
+    // zostać drobna.
+    duzy: { type: Boolean, default: false },
+  },
+  computed: {
+    klasaRozmiaru() {
+      return this.duzy
+        ? 'px-4 py-1.5 text-base font-semibold'
+        : 'px-2.5 py-0.5 text-xs font-medium'
     },
   },
 }
