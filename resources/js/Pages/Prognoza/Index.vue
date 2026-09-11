@@ -35,10 +35,10 @@
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6 cursor-pointer select-none hover:text-indigo-600" @click="sortBy('date')">Data <span class="text-gray-400">{{ sortArrow('date') }}</span></th>
-          <th class="pb-4 pt-6 px-6 cursor-pointer select-none hover:text-indigo-600" @click="sortBy('name')">Nazwa budowy <span class="text-gray-400">{{ sortArrow('name') }}</span></th>
-          <th class="pb-4 pt-6 px-6 col-2 cursor-pointer select-none hover:text-indigo-600" @click="sortBy('count')">Ilość pracowników <span class="text-gray-400">{{ sortArrow('count') }}</span></th>
+        <tr class="naglowek-tabeli">
+          <th class="cursor-pointer select-none hover:text-indigo-600" @click="sortBy('date')">Data <span class="text-gray-400">{{ sortArrow('date') }}</span></th>
+          <th class="cursor-pointer select-none hover:text-indigo-600" @click="sortBy('name')">Nazwa budowy <span class="text-gray-400">{{ sortArrow('name') }}</span></th>
+          <th class="col-2 cursor-pointer select-none hover:text-indigo-600" @click="sortBy('count')">Ilość pracowników <span class="text-gray-400">{{ sortArrow('count') }}</span></th>
         </tr>
         <tr v-for="item in displayedRows" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

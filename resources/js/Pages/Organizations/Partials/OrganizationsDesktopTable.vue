@@ -2,36 +2,36 @@
   <div class="hidden overflow-x-auto lg:block">
     <table class="w-full text-sm">
       <thead>
-        <tr class="text-left font-bold border-b">
+        <tr class="naglowek-tabeli">
           <!-- Numer Projektu -->
-          <th class="pb-4 pt-6 px-4 cursor-pointer select-none whitespace-nowrap" @click="emitSort('numerBud')">
+          <th class="px-4 cursor-pointer select-none whitespace-nowrap" @click="emitSort('numerBud')">
             Numer Projektu
             <SortIcon column="numerBud" :sort="sort" :direction="direction" />
           </th>
 
           <!-- Nazwa -->
-          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" @click="emitSort('nazwaBud')">
+          <th class="px-4 cursor-pointer select-none" @click="emitSort('nazwaBud')">
             Nazwa
             <SortIcon column="nazwaBud" :sort="sort" :direction="direction" />
           </th>
 
           <!-- Kraj -->
-          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" @click="emitSort('country')">
+          <th class="px-4 cursor-pointer select-none" @click="emitSort('country')">
             Kraj
             <SortIcon column="country" :sort="sort" :direction="direction" />
           </th>
 
           <!-- Kierownik budowy -->
-          <th class="pb-4 pt-6 px-4 lg:table-cell">Kierownik budowy</th>
+          <th class="px-4 lg:table-cell">Kierownik budowy</th>
 
           <!-- Inżynier -->
-          <th class="pb-4 pt-6 px-4 lg:table-cell">Inżynier</th>
+          <th class="px-4 lg:table-cell">Inżynier</th>
 
           <!-- Kierownik projektu — wpisywany ręcznie, to nie pracownik z bazy -->
-          <th class="hidden pb-4 pt-6 px-4 xl:table-cell">Kierownik projektu</th>
+          <th class="hidden px-4 xl:table-cell">Kierownik projektu</th>
 
           <!-- Pracownicy -->
-          <th class="pb-4 pt-6 px-4 cursor-pointer select-none" colspan="2" title="Pracownicy fizyczni obecni dziś na budowie" @click="emitSort('active_workers_count')">
+          <th class="px-4 cursor-pointer select-none" colspan="2" title="Pracownicy fizyczni obecni dziś na budowie" @click="emitSort('active_workers_count')">
             Pracownicy
             <SortIcon column="active_workers_count" :sort="sort" :direction="direction" />
           </th>

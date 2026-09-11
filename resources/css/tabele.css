@@ -33,6 +33,15 @@
   text-align: center;
 }
 
+/*
+ * Tabele z ciaśniejszymi kolumnami trzymają swoje px-4: nagłówek ma stać
+ * dokładnie nad danymi, a nie 8 px obok nich.
+ */
+.naglowek-tabeli th.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
 /* Sortowanie: przycisk ma wyglądać jak zwykły nagłówek, tylko klikalny. */
 .naglowek-tabeli th button {
   @apply text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-indigo-600;

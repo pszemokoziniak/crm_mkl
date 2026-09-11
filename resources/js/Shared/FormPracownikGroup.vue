@@ -30,10 +30,10 @@
       </div>
 
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko Imię</th>
-          <th class="pb-4 pt-6 px-6">Pozycja</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
+        <tr class="naglowek-tabeli">
+          <th>Nazwisko Imię</th>
+          <th>Pozycja</th>
+          <th colspan="2">Telefon</th>
         </tr>
         <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

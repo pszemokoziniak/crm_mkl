@@ -55,12 +55,12 @@
       <div class="bg-white rounded-md shadow overflow-x-auto">
         <table class="w-full whitespace-nowrap text-sm">
           <thead>
-            <tr class="text-left font-bold border-b bg-gray-50">
-              <th class="py-4 px-6">Pracownik</th>
-              <th class="py-4 px-6">Kategoria</th>
-              <th class="py-4 px-6">Nazwa / typ</th>
-              <th class="py-4 px-6">Koniec</th>
-              <th class="py-4 px-6">Status</th>
+            <tr class="naglowek-tabeli">
+              <th>Pracownik</th>
+              <th>Kategoria</th>
+              <th>Nazwa / typ</th>
+              <th>Koniec</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -105,9 +105,9 @@
       <div class="bg-white rounded-md shadow overflow-x-auto">
         <table class="w-full whitespace-nowrap text-sm">
           <thead>
-            <tr class="text-left font-bold border-b bg-gray-50">
-              <th class="py-4 px-6">Pracownik</th>
-              <th class="py-4 px-6">Brakujące dokumenty</th>
+            <tr class="naglowek-tabeli">
+              <th>Pracownik</th>
+              <th>Brakujące dokumenty</th>
             </tr>
           </thead>
           <tbody>

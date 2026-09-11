@@ -56,13 +56,13 @@
     <div class="bg-white rounded-md shadow overflow-hidden">
       <table class="w-full">
         <thead>
-          <tr class="text-left font-bold bg-gray-50 border-b border-gray-100">
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Sprzęt</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Sztuk</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Dostępne</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500 text-center">Na budowach</th>
-            <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Badania</th>
-            <th class="py-4 px-6" />
+          <tr class="naglowek-tabeli">
+            <th>Sprzęt</th>
+            <th class="text-center">Sztuk</th>
+            <th class="text-center">Dostępne</th>
+            <th class="text-center">Na budowach</th>
+            <th>Badania</th>
+            <th />
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">

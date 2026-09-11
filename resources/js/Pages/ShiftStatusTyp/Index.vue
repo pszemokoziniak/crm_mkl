@@ -19,9 +19,9 @@
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Typ</th>
+        <tr class="naglowek-tabeli">
+          <th>Nazwa</th>
+          <th>Typ</th>
         </tr>
         <tr v-for="item in ShiftStatusTypes" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

@@ -156,13 +156,13 @@
       <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
         <table class="w-full table-fixed">
           <thead>
-            <tr class="text-left font-bold bg-red-50">
-              <th class="pb-4 pt-6 px-4 w-1/6">Pracownik</th>
-              <th class="pb-4 pt-6 px-4 w-1/6">Kategoria</th>
-              <th class="pb-4 pt-6 px-4 w-1/5">Rodzaj / Typ</th>
-              <th class="pb-4 pt-6 px-4 w-32">Data końcowa</th>
-              <th class="pb-4 pt-6 px-4 w-1/6">Stan</th>
-              <th class="pb-4 pt-6 px-4 w-1/6">Obecna budowa</th>
+            <tr class="naglowek-tabeli">
+              <th class="px-4 w-1/6">Pracownik</th>
+              <th class="px-4 w-1/6">Kategoria</th>
+              <th class="px-4 w-1/5">Rodzaj / Typ</th>
+              <th class="px-4 w-32">Data końcowa</th>
+              <th class="px-4 w-1/6">Stan</th>
+              <th class="px-4 w-1/6">Obecna budowa</th>
             </tr>
           </thead>
           <tbody>

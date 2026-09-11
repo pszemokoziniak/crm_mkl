@@ -26,12 +26,12 @@
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwisko i imię</th>
-          <th class="pb-4 pt-6 px-6">Email</th>
-          <th class="pb-4 pt-6 px-6">Uprawnienia</th>
-          <th class="pb-4 pt-6 px-6">Logowanie</th>
-          <th class="pb-4 pt-6 px-6" />
+        <tr class="naglowek-tabeli">
+          <th>Nazwisko i imię</th>
+          <th>Email</th>
+          <th>Uprawnienia</th>
+          <th>Logowanie</th>
+          <th />
         </tr>
         <tr v-for="user in users" :key="user.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

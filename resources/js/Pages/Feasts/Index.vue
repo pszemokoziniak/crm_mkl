@@ -12,10 +12,10 @@
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Data</th>
-          <th class="pb-4 pt-6 px-6 text-right">Akcje</th>
+        <tr class="naglowek-tabeli">
+          <th>Nazwa</th>
+          <th>Data</th>
+          <th class="text-right">Akcje</th>
         </tr>
         <tr v-for="feast in feasts" :key="feast.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

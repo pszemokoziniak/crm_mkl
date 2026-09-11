@@ -40,12 +40,12 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
-          <tr class="text-left text-xs uppercase tracking-wider text-gray-500 bg-gray-50 border-b">
-            <th class="py-4 px-6">Kiedy</th>
-            <th class="py-4 px-6">Kto</th>
-            <th class="py-4 px-6">Wynik</th>
-            <th class="py-4 px-6">Adres IP</th>
-            <th class="py-4 px-6">Przeglądarka</th>
+          <tr class="naglowek-tabeli">
+            <th>Kiedy</th>
+            <th>Kto</th>
+            <th>Wynik</th>
+            <th>Adres IP</th>
+            <th>Przeglądarka</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">

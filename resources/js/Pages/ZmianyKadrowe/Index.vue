@@ -56,12 +56,12 @@
 
       <table class="w-full text-sm">
         <thead>
-          <tr class="text-left font-bold text-gray-500 border-b">
-            <th class="py-3 px-6 text-xs uppercase tracking-wider">Pracownik</th>
-            <th class="py-3 px-6 text-xs uppercase tracking-wider">Zmiana</th>
-            <th class="py-3 px-6 text-xs uppercase tracking-wider">Termin</th>
-            <th class="py-3 px-6 text-xs uppercase tracking-wider">Status</th>
-            <th class="py-3 px-6" />
+          <tr class="naglowek-tabeli">
+            <th>Pracownik</th>
+            <th>Zmiana</th>
+            <th>Termin</th>
+            <th>Status</th>
+            <th />
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">

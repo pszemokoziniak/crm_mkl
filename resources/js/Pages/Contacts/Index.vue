@@ -27,13 +27,13 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
-          <tr class="text-left font-bold border-b">
-            <th class="pb-4 pt-6 px-4 w-px whitespace-nowrap text-gray-500">Lp.</th>
-            <th class="pb-4 pt-6 px-4">Nazwisko Imię</th>
-            <th class="pb-4 pt-6 px-4">Stanowisko</th>
-            <th class="pb-4 pt-6 px-4">Obecnie</th>
-            <th class="pb-4 pt-6 px-4">Koniec pobytu na budowie</th>
-            <th class="pb-4 pt-6 px-4" />
+          <tr class="naglowek-tabeli">
+            <th class="px-4 w-px whitespace-nowrap">Lp.</th>
+            <th class="px-4">Nazwisko Imię</th>
+            <th class="px-4">Stanowisko</th>
+            <th class="px-4">Obecnie</th>
+            <th class="px-4">Koniec pobytu na budowie</th>
+            <th class="px-4" />
           </tr>
         </thead>
         <tbody>

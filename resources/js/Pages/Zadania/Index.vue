@@ -121,14 +121,14 @@
       <div class="bg-white rounded-md shadow overflow-x-auto">
         <table class="w-full whitespace-nowrap">
           <thead>
-            <tr class="text-left font-bold bg-gray-50 border-b border-gray-100">
-              <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Tytuł</th>
-              <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Status</th>
-              <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Priorytet</th>
-              <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Przypisane</th>
-              <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Zgłosił</th>
-              <th class="py-4 px-6 text-xs uppercase tracking-wider text-gray-500">Termin</th>
-              <th class="py-4 px-6" />
+            <tr class="naglowek-tabeli">
+              <th>Tytuł</th>
+              <th>Status</th>
+              <th>Priorytet</th>
+              <th>Przypisane</th>
+              <th>Zgłosił</th>
+              <th>Termin</th>
+              <th />
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">

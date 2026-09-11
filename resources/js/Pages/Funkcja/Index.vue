@@ -17,11 +17,11 @@
     </div>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
-        <tr class="text-left font-bold">
-          <th class="pb-4 pt-6 px-6">Nazwa</th>
-          <th class="pb-4 pt-6 px-6">Kierownictwo budowy</th>
-          <th class="pb-4 pt-6 px-6">Kolumna na liście budów</th>
-          <th class="pb-4 pt-6 px-6" />
+        <tr class="naglowek-tabeli">
+          <th>Nazwa</th>
+          <th>Kierownictwo budowy</th>
+          <th>Kolumna na liście budów</th>
+          <th />
         </tr>
         <tr v-for="funkcja in funkcjas" :key="funkcja.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t">

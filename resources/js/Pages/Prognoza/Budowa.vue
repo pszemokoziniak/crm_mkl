@@ -51,12 +51,12 @@
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap text-sm">
         <thead>
-          <tr class="text-left font-bold border-b">
-            <th class="pb-4 pt-6 px-6">Tydzień</th>
-            <th class="pb-4 pt-6 px-6">Zapotrzebowanie</th>
-            <th class="pb-4 pt-6 px-6">Obsadzeni</th>
-            <th class="pb-4 pt-6 px-6">Różnica</th>
-            <th v-if="!flag" class="pb-4 pt-6 px-6" />
+          <tr class="naglowek-tabeli">
+            <th>Tydzień</th>
+            <th>Zapotrzebowanie</th>
+            <th>Obsadzeni</th>
+            <th>Różnica</th>
+            <th v-if="!flag" />
           </tr>
         </thead>
         <tbody>
