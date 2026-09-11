@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\GrupaSprzetu;
 use App\Models\Narzedzia;
+use App\Models\NarzedziaTyp;
 use App\Models\ToolFile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -54,6 +56,45 @@ class NarzedziaMiniaturkiTest extends TestCase
             });
     }
 
+    public function test_kategoria_nie_bierze_zdjecia_jednego_ze_swoich_modeli(): void
+    {
+        // "Zwyżka" zbiera cztery różne maszyny, więc zdjęcie tej, którą ktoś
+        // sfotografował pierwszą, podpisywało całą kategorię.
+        $grupa = GrupaSprzetu::zNazwy('Zwyżka');
+        $jlg = NarzedziaTyp::create(['name' => 'JLG X33J Plus', 'grupa_id' => $grupa->id]);
+        $manitou = NarzedziaTyp::create(['name' => 'Manitou 160 ATJ+', 'grupa_id' => $grupa->id]);
+
+        $zeZdjeciem = $this->narzedzie('JLG X33J Plus', $jlg->id);
+        $this->plik($zeZdjeciem, 'jlg.jpg', 'photo');
+        $this->narzedzie('Manitou 160 ATJ+', $manitou->id);
+
+        $this->actingAs($this->biuro)->get('/narzedzia')->assertOk()
+            ->assertInertia(function (Assert $page) {
+                $kategoria = collect($page->toArray()['props']['grupy'])->firstWhere('nazwa', 'Zwyżka');
+
+                $this->assertNull($kategoria['photo'], 'Wiersz kategorii pokazuje ikonę, nie jedną z maszyn.');
+
+                // Przy samym modelu zdjęcie zostaje — tam opisuje, co trzeba.
+                $model = collect($kategoria['modele'])->firstWhere('nazwa', 'JLG X33J Plus');
+                $this->assertStringContainsString('jlg.jpg', urldecode($model['photo']));
+            });
+    }
+
+    public function test_sprzet_bez_kategorii_dalej_pokazuje_swoje_zdjecie(): void
+    {
+        // Taki wiersz to sam model, nie zbiorcza kategoria.
+        $narzedzie = $this->narzedzie('Zagęszczarka');
+        $this->plik($narzedzie, 'zageszczarka.jpg', 'photo');
+
+        $this->actingAs($this->biuro)->get('/narzedzia')->assertOk()
+            ->assertInertia(function (Assert $page) {
+                $wiersz = collect($page->toArray()['props']['grupy'])->firstWhere('nazwa', 'Zagęszczarka');
+
+                $this->assertFalse($wiersz['ma_modele']);
+                $this->assertStringContainsString('zageszczarka.jpg', urldecode($wiersz['photo']));
+            });
+    }
+
     public function test_sprzet_bez_zdjecia_ma_puste_pole(): void
     {
         $this->narzedzie('Młotek');
@@ -86,10 +127,11 @@ class NarzedziaMiniaturkiTest extends TestCase
         $this->assertLessThan(15, $zapytania, "Za dużo zapytań: {$zapytania}");
     }
 
-    private function narzedzie(string $nazwa): Narzedzia
+    private function narzedzie(string $nazwa, ?int $typId = null): Narzedzia
     {
         return Narzedzia::create([
             'name' => $nazwa,
+            'narzedzia_typ_id' => $typId,
             'numer_seryjny' => 'SN-'.$nazwa,
             'waznosc_badan' => '2027-01-01',
             'ilosc_all' => 3,

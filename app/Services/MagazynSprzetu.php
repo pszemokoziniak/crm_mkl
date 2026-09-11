@@ -57,7 +57,12 @@ class MagazynSprzetu
                     'klucz' => (string) $klucz,
                     'nazwa' => $bezKategorii ? $modele->first()['nazwa'] : (string) $klucz,
                     'ma_modele' => ! $bezKategorii,
-                    'photo' => $modele->firstWhere('photo', '!=', null)['photo'] ?? null,
+                    // Kategoria zbiera różne modele, więc zdjęcie jednego z nich
+                    // jej nie opisuje: "Zwyżka" pokazywała konkretną maszynę,
+                    // której zdjęcie ktoś wgrał pierwszy. Wiersz kategorii ma
+                    // ikonę; zdjęcia zostają przy modelach i sztukach.
+                    // Sprzęt bez kategorii to sam model — tam zdjęcie zostaje.
+                    'photo' => $bezKategorii ? ($modele->first()['photo'] ?? null) : null,
                     'sztuk' => $modele->sum('sztuk'),
                     'dostepne' => $modele->sum('dostepne'),
                     'na_budowie' => $modele->sum('na_budowie'),
