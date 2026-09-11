@@ -26,6 +26,12 @@
                   />
                 </div>
                 <text-input v-model="form.numer_seryjny" :error="form.errors.numer_seryjny" label="Numer seryjny" />
+                <text-input
+                  v-model="form.numer_udt"
+                  :error="form.errors.numer_udt"
+                  label="Numer ewidencyjny UDT"
+                  placeholder="np. N3412000123"
+                />
                 <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" label="Ważność badań" />
               </div>
 
@@ -100,10 +106,23 @@
               <div class="border-t border-gray-100 pt-8">
                 <div class="mb-8">
                   <div class="form-label mb-2">Zdjęcia sprzętu</div>
+                  <pliki-sprzetu
+                    :narzedzia-id="narzedzia.id"
+                    :pliki="photos"
+                    zdjecia
+                    pusto-tekst="Brak zdjęć. Pierwsze wgrane trafi na kartę sprzętu."
+                  />
+                  <div class="form-label mb-2 mt-4 text-gray-500">Dodaj zdjęcia</div>
                   <dropzone v-model="form.photos" :extensions="['jpg', 'jpeg', 'png', 'tiff']" />
                 </div>
                 <div>
                   <div class="form-label mb-2">Dokumentacja (PDF, Instrukcje, Certyfikaty)</div>
+                  <pliki-sprzetu
+                    :narzedzia-id="narzedzia.id"
+                    :pliki="documents"
+                    pusto-tekst="Brak dokumentów."
+                  />
+                  <div class="form-label mb-2 mt-4 text-gray-500">Dodaj dokumenty</div>
                   <dropzone v-model="form.documents" :extensions="['pdf', 'xls', 'xlsx', 'doc', 'docx']" />
                 </div>
               </div>
@@ -156,9 +175,9 @@ import LoadingButton from '@/Shared/LoadingButton'
 import TrashedMessage from '@/Shared/TrashedMessage'
 import DateInput from '@/Shared/DateInput.vue'
 import Dropzone from '@/Shared/Dropzone.vue'
+import PlikiSprzetu from '@/Shared/PlikiSprzetu.vue'
 import DeleteButton from '@/Shared/DeleteButton.vue'
 import Icon from '@/Shared/Icon.vue'
-import axios from 'axios'
 
 export default {
   components: {
@@ -169,6 +188,7 @@ export default {
     TextInput,
     TrashedMessage,
     Dropzone,
+    PlikiSprzetu,
     DeleteButton,
     Icon,
     WyborTypuSprzetu,
@@ -188,14 +208,17 @@ export default {
       form: this.$inertia.form({
         id: this.narzedzia.id,
         numer_seryjny: this.narzedzia.numer_seryjny,
+        numer_udt: this.narzedzia.numer_udt,
         waznosc_badan: this.narzedzia.waznosc_badan,
         name: this.narzedzia.name,
         narzedzia_typ_id: this.narzedzia.narzedzia_typ_id ?? '',
         new_typ_name: '',
         new_typ_grupa: '',
         ilosc_all: this.narzedzia.ilosc_all,
-        photos: this.photos,
-        documents: this.documents,
+        // Pola wgrywania obsługują tylko nowe pliki; zapisane mają swoją
+        // listę wyżej, z podpisem, wskazaniem zdjęcia głównego i usuwaniem.
+        photos: [],
+        documents: [],
       }),
     }
   },
@@ -223,38 +246,14 @@ export default {
       return 'text-gray-400'
     },
     update() {
+      // Usuwanie plików ma teraz własny przycisk przy każdym wierszu, więc
+      // zapis formularza tylko dokłada nowe — bez wyławiania skasowanych.
       this.form
         .transform((data) => ({
           ...data,
           narzedzia_typ_id: data.narzedzia_typ_id === '__new__' ? null : data.narzedzia_typ_id,
-          photos: data.photos.filter(file => file.deleted !== true),
-          documents: data.documents.filter(file => file.deleted !== true),
         }))
-        .post(`/narzedzia/${this.narzedzia.id}`, {
-          onBefore: () => {
-            const photosToDelete = this
-              .form
-              .photos
-              .filter(file => file.deleted === true)
-              .map(file => file.name)
-
-            const documentsToDelete = this
-              .form
-              .documents
-              .filter(file => file.deleted === true)
-              .map(file => file.name)
-
-            const filesToDelete = [...photosToDelete, ...documentsToDelete]
-
-            if (filesToDelete.length > 0) {
-              axios.delete(`/narzedzia/${this.narzedzia.id}/file`, {
-                data: {
-                  files: filesToDelete,
-                },
-              })
-            }
-          },
-        })
+        .post(`/narzedzia/${this.narzedzia.id}`)
     },
     restore() {
       if (confirm('Chcesz przywrócić?')) {

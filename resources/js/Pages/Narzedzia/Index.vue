@@ -156,6 +156,7 @@
                         />
                         <span v-else class="inline-block w-4 mr-3" />
                         <span class="font-medium text-gray-800">{{ sztuka.numer_seryjny || '—' }}</span>
+                        <span v-if="sztuka.numer_udt" class="ml-2 text-xs text-gray-500">UDT {{ sztuka.numer_udt }}</span>
                       </label>
                     </td>
                     <td class="px-6 py-2" />

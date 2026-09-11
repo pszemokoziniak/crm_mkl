@@ -28,6 +28,7 @@ class StoreNarzedziaRequest extends FormRequest
             'narzedzia_typ_id' => 'nullable|integer|exists:narzedzia_typs,id',
             'new_typ_name' => 'nullable|string|max:100',
             'numer_seryjny' =>'nullable',
+            'numer_udt' => 'nullable|string|max:100',
             'waznosc_badan' =>'nullable|date',
             'ilosc_all' =>'nullable|numeric',
             // Limit z konfiguracji serwera — wcześniej obiecywaliśmy 5 i 10 MB,

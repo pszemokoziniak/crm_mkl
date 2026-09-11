@@ -15,6 +15,7 @@ use App\Models\ToolWorkDate;
 use App\Services\DocumentService;
 use App\Services\MagazynSprzetu;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -191,6 +192,7 @@ class NarzedziaController extends Controller
                 'id' => $narzedzia->id,
                 'name' => $narzedzia->name,
                 'numer_seryjny' => $narzedzia->numer_seryjny,
+                'numer_udt' => $narzedzia->numer_udt,
                 'waznosc_badan' => $narzedzia->waznosc_badan ? $narzedzia->waznosc_badan->format('Y-m-d') : null,
                 'narzedzia_typ_id' => $narzedzia->narzedzia_typ_id,
                 'ilosc_all' => $narzedzia->ilosc_all,
@@ -219,6 +221,12 @@ class NarzedziaController extends Controller
                 ->map(fn ($toolFile) => [
                     'id' => $toolFile->id,
                     'name' => $toolFile->filename,
+                    // Własny podpis (pusty, dopóki nikt go nie nadał) i to, co
+                    // pokazujemy na ekranie. Nazwa pliku zostaje osobno, bo na
+                    // niej stoją ścieżki i odnośniki.
+                    'nazwa' => $toolFile->nazwa,
+                    'etykieta' => $toolFile->etykieta(),
+                    'glowne' => (bool) $toolFile->glowne,
                     'type' => $toolFile->type,
                     'display' => true,
                     'path' => URL::route(
@@ -235,6 +243,9 @@ class NarzedziaController extends Controller
                 ->map(fn ($toolFile) => [
                     'id' => $toolFile->id,
                     'name' => $toolFile->filename,
+                    'nazwa' => $toolFile->nazwa,
+                    'etykieta' => $toolFile->etykieta(),
+                    'glowne' => false,
                     'type' => $toolFile->type,
                     'display' => false,
                     'path' => URL::route('narzedzia.download.file',
@@ -259,6 +270,7 @@ class NarzedziaController extends Controller
             'new_typ_name' => ['nullable', 'string', 'max:100'],
             'new_typ_grupa' => ['nullable', 'string', 'max:100'],
             'numer_seryjny' => ['nullable'],
+            'numer_udt' => ['nullable', 'string', 'max:100'],
             'waznosc_badan' => ['nullable', 'date'],
             'ilosc_all' => ['nullable', 'numeric'],
         ]);
@@ -274,6 +286,7 @@ class NarzedziaController extends Controller
                 'narzedzia_typ_id' => $typId ?? $narzedzia->narzedzia_typ_id,
                 'name' => $typName ?? $narzedzia->name,
                 'numer_seryjny' => $data['numer_seryjny'] ?? null,
+                'numer_udt' => $data['numer_udt'] ?? null,
                 'waznosc_badan' => $data['waznosc_badan'] ?? null,
                 'ilosc_all' => $data['ilosc_all'] ?? $narzedzia->ilosc_all,
             ]);
@@ -379,6 +392,7 @@ class NarzedziaController extends Controller
             'narzedzia_typ_id' => $typId,
             'name' => $typName,
             'numer_seryjny' => $request->get('numer_seryjny'),
+            'numer_udt' => $request->get('numer_udt') ?: null,
             'waznosc_badan' => $request->get('waznosc_badan') ?: null,
             'ilosc_all' => $request->get('ilosc_all'),
             'ilosc_budowa' => 0,
@@ -414,6 +428,62 @@ class NarzedziaController extends Controller
         }
 
         return new JsonResponse();
+    }
+
+    /**
+     * Podpis pliku i wskazanie zdjęcia głównego — bez ruszania samego pliku.
+     */
+    public function aktualizujPlik(Narzedzia $narzedzia, ToolFile $toolFile): RedirectResponse
+    {
+        $this->plikSprzetu($narzedzia, $toolFile);
+
+        $dane = Request::validate([
+            'nazwa' => ['nullable', 'string', 'max:255'],
+            'glowne' => ['nullable', 'boolean'],
+        ]);
+
+        if (($dane['glowne'] ?? false) && $toolFile->type !== 'photo') {
+            return Redirect::back()->with('error', 'Zdjęciem głównym może być tylko zdjęcie.');
+        }
+
+        DB::transaction(function () use ($narzedzia, $toolFile, $dane) {
+            $toolFile->nazwa = trim((string) ($dane['nazwa'] ?? '')) ?: null;
+
+            if (array_key_exists('glowne', $dane)) {
+                $toolFile->glowne = (bool) $dane['glowne'];
+
+                if ($toolFile->glowne) {
+                    // Główne jest jedno — inaczej miniaturka znów zależałaby
+                    // od kolejności wgrywania.
+                    ToolFile::where('tool_id', $narzedzia->id)
+                        ->where('id', '!=', $toolFile->id)
+                        ->update(['glowne' => false]);
+                }
+            }
+
+            $toolFile->save();
+        });
+
+        return Redirect::back()->with('success', 'Zapisano.');
+    }
+
+    public function usunPlik(
+        Narzedzia $narzedzia,
+        ToolFile $toolFile,
+        DocumentService $documentService
+    ): RedirectResponse
+    {
+        $this->plikSprzetu($narzedzia, $toolFile);
+
+        $documentService->deleteToolFile($narzedzia->id, $toolFile->filename);
+
+        return Redirect::back()->with('success', 'Usunięto plik.');
+    }
+
+    /** Plik z cudzej karty nie ma prawa zmienić się przez ten adres. */
+    private function plikSprzetu(Narzedzia $narzedzia, ToolFile $toolFile): void
+    {
+        abort_unless((int) $toolFile->tool_id === (int) $narzedzia->id, 404);
     }
 
     public function download(Narzedzia $narzedzia, string $name): BinaryFileResponse

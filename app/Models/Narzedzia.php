@@ -11,6 +11,7 @@ class Narzedzia extends Model
         'name',
         'narzedzia_typ_id',
         'numer_seryjny',
+        'numer_udt',
         'waznosc_badan',
         'ilosc_all',
         'ilosc_budowa',
@@ -46,6 +47,18 @@ class Narzedzia extends Model
         return $this->hasMany(ToolFile::class, 'tool_id');
     }
 
+    /**
+     * Zdjęcie na kartę i miniaturkę: wskazane ręcznie, a jeśli nikt nie
+     * wskazał — pierwsze wgrane. Dokument nie jest zdjęciem, nawet jeśli
+     * relacja przyszła bez zawężenia.
+     */
+    public function glowneZdjecie(): ?ToolFile
+    {
+        $zdjecia = $this->files->where('type', 'photo');
+
+        return $zdjecia->firstWhere('glowne', true) ?? $zdjecia->first();
+    }
+
     public function typ()
     {
         return $this->belongsTo(NarzedziaTyp::class, 'narzedzia_typ_id');
@@ -61,7 +74,9 @@ class Narzedzia extends Model
         $query->when($filters['search'] ?? null, function ($query, $search) {
             $query->where(function ($query) use ($search) {
                 $query->where('name', 'like', '%'.$search.'%')
-                    ->orWhere('numer_seryjny', 'like', '%'.$search.'%');
+                    ->orWhere('numer_seryjny', 'like', '%'.$search.'%')
+                    // Inspektor UDT posługuje się swoim numerem, nie naszym.
+                    ->orWhere('numer_udt', 'like', '%'.$search.'%');
             });
         })->when($filters['trashed'] ?? null, function ($query, $trashed) {
             // SoftDeletes not implemented in migration yet

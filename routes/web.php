@@ -368,6 +368,15 @@ Route::delete('narzedzia/{narzedzia}/file', [NarzedziaController::class, 'delete
     ->middleware('auth', 'biuro-permission');
 
 
+// Podpis pliku i wskazanie zdjęcia głównego karty sprzętu.
+Route::put('narzedzia/{narzedzia}/pliki/{toolFile}', [NarzedziaController::class, 'aktualizujPlik'])
+    ->name('narzedzia.pliki.update')
+    ->middleware('auth', 'biuro-permission');
+
+Route::delete('narzedzia/{narzedzia}/pliki/{toolFile}', [NarzedziaController::class, 'usunPlik'])
+    ->name('narzedzia.pliki.destroy')
+    ->middleware('auth', 'biuro-permission');
+
 Route::get('narzedzia/{narzedzia}/file/{name}', [NarzedziaController::class, 'download'])
     ->name('narzedzia.download.file')
     ->middleware('auth', 'biuro-permission');

@@ -123,6 +123,7 @@ class MagazynSprzetu
         return [
             'id' => $narzedzia->id,
             'numer_seryjny' => $narzedzia->numer_seryjny ?: null,
+            'numer_udt' => $narzedzia->numer_udt ?: null,
             'waznosc_badan' => $this->dataBadan($narzedzia),
             'badania_status' => $this->statusBadan($narzedzia, $dzien),
             'photo' => $this->miniaturka($narzedzia),
@@ -136,10 +137,10 @@ class MagazynSprzetu
         ];
     }
 
-    /** Miniaturka pierwszego zdjęcia sprzętu — skalowana przez Glide. */
+    /** Miniaturka zdjęcia głównego sprzętu — skalowana przez Glide. */
     public function miniaturka(Narzedzia $narzedzia): ?string
     {
-        $photo = $narzedzia->files->first();
+        $photo = $narzedzia->glowneZdjecie();
 
         if (! $photo) {
             return null;

@@ -20,6 +20,7 @@
             />
           </div>
           <text-input v-model="form.numer_seryjny" :error="form.errors.numer_seryjny" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer seryjny" />
+          <text-input v-model="form.numer_udt" :error="form.errors.numer_udt" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer ewidencyjny UDT" placeholder="np. N3412000123" />
           <date-input v-model="form.waznosc_badan" :error="form.errors.waznosc_badan" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważność badań" />
           <div class="pb-8 pr-6 w-full lg:w-1/2">
             <number-input v-model="form.ilosc_all" :error="form.errors.ilosc_all" label="Ilość" />
@@ -82,6 +83,7 @@ export default {
     return {
       form: this.$inertia.form({
         numer_seryjny: '',
+        numer_udt: '',
         waznosc_badan: '',
         narzedzia_typ_id: '',
         new_typ_name: '',
