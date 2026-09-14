@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -24,18 +26,19 @@ class BuildsExcelExporter
         $this->createSpreadSheet();
     }
 
-    public function generate(iterable $shifts, CarbonPeriod $date)
+    public function generate(iterable $shifts, CarbonPeriod $date, ?iterable $bezWpisow = null)
     {
         $title = $date->first()?->locale('pl_PL')->isoFormat('MMMM YYYY');
         if ($title) {
-            $this->activeWorksheet->setTitle(ucfirst($title));
+            $this->activeWorksheet->setTitle('Dni miesiąca');
         }
 
         $this
             ->addMainHeaders($date)
             ->addDaysHeader($date)
             ->addData($shifts, $date)
-            ->addGeneralFormatting();
+            ->addGeneralFormatting()
+            ->addSummarySheet($shifts, $date, $bezWpisow ?? []);
 
         return $this;
     }
@@ -44,7 +47,8 @@ class BuildsExcelExporter
     {
         $this
             ->activeWorksheet
-            ->setCellValue('A1', strtoupper(
+            // mb_, bo strtoupper zostawiał ogonki małe: "WRZESIEń".
+            ->setCellValue('A1', mb_strtoupper(
                 $period->first()?->locale('pl_PL')->monthName . ' ' . $period->first()?->year
             ));
 
@@ -67,13 +71,18 @@ class BuildsExcelExporter
         return $this;
     }
 
+    /**
+     * Każdy eksport pisze do własnego pliku — wcześniej wszystkie szły do
+     * jednego `general_report.xlsx` i dwie osoby pobierające raport naraz
+     * mogły dostać cudzy plik.
+     */
     public function export(?string $filename = ''): string
     {
         $path = storage_path('app/export/');
         if (!File::exists($path)) {
             File::makeDirectory($path, 0755, true);
         }
-        $path .= 'general_report.xlsx';
+        $path .= 'raport-' . Str::random(16) . '.xlsx';
         $writer = new Xlsx($this->spreadsheet);
         $writer->save($path);
 
@@ -151,7 +160,9 @@ class BuildsExcelExporter
                 );
             $this->activeWorksheet->setCellValue('B' . $startingRowId, $lastName);
             $this->activeWorksheet->setCellValue('C' . $startingRowId, $firstName);
-            $this->activeWorksheet->setCellValue('A' . $startingRowId, str_replace('.', ',', (string)$sumHours));
+            // Liczba, nie tekst: dotąd kolumna "Suma godzin" była napisem
+            // z przecinkiem, więc Excel nie umiał jej zsumować ani posortować.
+            $this->activeWorksheet->setCellValue('A' . $startingRowId, round($sumHours, 2));
 
             $this
                 ->activeWorksheet
@@ -167,6 +178,192 @@ class BuildsExcelExporter
         }
 
         return $this;
+    }
+
+
+    /**
+     * Zakładka "Podsumowanie": jeden wiersz na pracownika, bez siatki dni.
+     *
+     * Dotąd raport dawał samą sumę godzin, więc urlopy, zwolnienia i odbiory
+     * godzin trzeba było zliczać z kratek. Tu każdy rodzaj ma własną kolumnę,
+     * a budowa mówi, gdzie ten miesiąc został przepracowany.
+     */
+    private function addSummarySheet(iterable $shifts, CarbonPeriod $period, iterable $bezWpisow): self
+    {
+        $arkusz = $this->spreadsheet->createSheet();
+        $arkusz->setTitle('Podsumowanie');
+
+        // Kolumny rodzajów tworzymy tylko dla tych, które w tym miesiącu padły.
+        $kody = [];
+
+        foreach ($shifts as $wiersze) {
+            foreach ($wiersze as $wpis) {
+                if ($wpis->code) {
+                    $kody[$wpis->code] = $wpis->status_nazwa ?? '';
+                }
+            }
+        }
+
+        ksort($kody);
+
+        $naglowki = array_merge(
+            ['Lp.', 'Nazwisko', 'Imię', 'Budowa', 'Dni pracy', 'Godziny'],
+            array_keys($kody),
+            ['Uwagi']
+        );
+
+        $arkusz->setCellValue('A1', 'PODSUMOWANIE MIESIĄCA — '
+            . mb_strtoupper($period->first()->locale('pl_PL')->monthName . ' ' . $period->first()->year));
+        $arkusz->mergeCells('A1:' . Coordinate::stringFromColumnIndex(count($naglowki)) . '1');
+        $arkusz->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $arkusz->getStyle('A1')->getAlignment()->setHorizontal('center');
+
+        $arkusz->fromArray([$naglowki], null, 'A3');
+        $arkusz->getStyle('A3:' . Coordinate::stringFromColumnIndex(count($naglowki)) . '3')
+            ->applyFromArray([
+                'font' => ['bold' => true, 'color' => ['argb' => Color::COLOR_WHITE]],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => '5b9bd5']],
+            ]);
+
+        $wiersz = 4;
+        $lp = 1;
+        $sumaGodzin = 0.0;
+        $sumaDni = 0;
+        $sumyKodow = array_fill_keys(array_keys($kody), 0);
+
+        foreach ($shifts as $wpisy) {
+            $godziny = 0.0;
+            $dniPracy = 0;
+            $liczbaKodow = array_fill_keys(array_keys($kody), 0);
+            $budowy = [];
+
+            foreach ($wpisy as $wpis) {
+                if ($wpis->nazwaBud) {
+                    $budowy[$wpis->nazwaBud] = true;
+                }
+
+                if ($wpis->code) {
+                    $liczbaKodow[$wpis->code] = ($liczbaKodow[$wpis->code] ?? 0) + 1;
+                    continue;
+                }
+
+                $wGodzinach = $this->naGodziny($wpis->effective_work_time);
+
+                if ($wGodzinach > 0) {
+                    $godziny += $wGodzinach;
+                    $dniPracy++;
+                }
+            }
+
+            $pierwszy = $wpisy->first();
+
+            $dane = array_merge(
+                [$lp, $pierwszy->last_name, $pierwszy->first_name, implode(', ', array_keys($budowy)), $dniPracy, $godziny],
+                array_values($liczbaKodow),
+                ['']
+            );
+
+            $arkusz->fromArray([$dane], null, 'A' . $wiersz);
+
+            $sumaGodzin += $godziny;
+            $sumaDni += $dniPracy;
+
+            foreach ($liczbaKodow as $kod => $ile) {
+                $sumyKodow[$kod] += $ile;
+            }
+
+            $this->pasek($arkusz, $wiersz, count($naglowki));
+            $wiersz++;
+            $lp++;
+        }
+
+        // Kto był na budowie, a nie ma ani jednego wpisu — inaczej taka osoba
+        // w ogóle nie pojawia się w raporcie i łatwo o niej zapomnieć.
+        foreach ($bezWpisow as $osoba) {
+            $dane = array_merge(
+                [$lp, $osoba->last_name, $osoba->first_name, $osoba->nazwaBud, 0, 0],
+                array_fill(0, count($kody), 0),
+                ['brak wpisów w KCP']
+            );
+
+            $arkusz->fromArray([$dane], null, 'A' . $wiersz);
+            $arkusz->getStyle('A' . $wiersz . ':' . Coordinate::stringFromColumnIndex(count($naglowki)) . $wiersz)
+                ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFFBE3E3');
+
+            $wiersz++;
+            $lp++;
+        }
+
+        // Wiersz sumy
+        $razem = array_merge(
+            ['', 'RAZEM', '', '', $sumaDni, $sumaGodzin],
+            array_values($sumyKodow),
+            ['']
+        );
+        $arkusz->fromArray([$razem], null, 'A' . $wiersz);
+        $arkusz->getStyle('A' . $wiersz . ':' . Coordinate::stringFromColumnIndex(count($naglowki)) . $wiersz)
+            ->getFont()->setBold(true);
+        $arkusz->getStyle('A' . $wiersz . ':' . Coordinate::stringFromColumnIndex(count($naglowki)) . $wiersz)
+            ->applyFromArray([
+                'borders' => ['top' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['argb' => Color::COLOR_BLACK]]],
+            ]);
+
+        // Legenda skrótów
+        $wiersz += 2;
+        $arkusz->setCellValue('B' . $wiersz, 'Oznaczenia:');
+        $arkusz->getStyle('B' . $wiersz)->getFont()->setBold(true);
+
+        foreach ($kody as $kod => $nazwa) {
+            $wiersz++;
+            $arkusz->setCellValue('B' . $wiersz, $kod);
+            $arkusz->getStyle('B' . $wiersz)->getFont()->setBold(true);
+            $arkusz->setCellValue('C' . $wiersz, $nazwa);
+            $arkusz->mergeCells('C' . $wiersz . ':E' . $wiersz);
+            $arkusz->getStyle('C' . $wiersz)->getAlignment()->setHorizontal('left');
+        }
+
+        $arkusz->freezePane('A4');
+        $arkusz->getColumnDimension('A')->setWidth(5);
+        $arkusz->getColumnDimension('B')->setWidth(20);
+        $arkusz->getColumnDimension('C')->setWidth(16);
+        $arkusz->getColumnDimension('D')->setWidth(30);
+
+        foreach (range(5, count($naglowki)) as $kolumna) {
+            $arkusz->getColumnDimension(Coordinate::stringFromColumnIndex($kolumna))->setWidth(11);
+        }
+
+        $arkusz->getStyle('E4:' . Coordinate::stringFromColumnIndex(count($naglowki) - 1) . $wiersz)
+            ->getAlignment()->setHorizontal('center');
+
+        // Raport otwiera się na podsumowaniu, siatka dni zostaje do sprawdzania.
+        $this->spreadsheet->setActiveSheetIndexByName('Podsumowanie');
+
+        return $this;
+    }
+
+    /** Naprzemienne paski, tak samo jak w siatce dni. */
+    private function pasek(Worksheet $arkusz, int $wiersz, int $kolumn): void
+    {
+        $arkusz->getStyle('A' . $wiersz . ':' . Coordinate::stringFromColumnIndex($kolumn) . $wiersz)
+            ->applyFromArray([
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => $wiersz % 2 !== 0 ? 'bdd6ee' : 'deeaf6'],
+                ],
+            ]);
+    }
+
+    /**
+     * "09:30" -> 9.5. Wcześniejsze przeliczenie zaokrąglało wszystko powyżej
+     * pół godziny w dół, więc 45 minut liczyło się jako zero.
+     */
+    private function naGodziny(?string $czas): float
+    {
+        if (! $czas || ! preg_match('/^(\d{1,2}):(\d{1,2})$/', trim($czas), $czesci)) {
+            return 0.0;
+        }
+
+        return (int) $czesci[1] + ((int) $czesci[2] / 60);
     }
 
     private function addGeneralFormatting(): self

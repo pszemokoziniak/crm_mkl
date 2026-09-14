@@ -136,11 +136,42 @@ class BuildingTimeSheet extends Controller
             ->getWorkersOnBuildForPeriod($period)
             ->groupBy('contact_id');
 
-        return response()->file(
-            (new BuildsExcelExporter())
-                ->generate($result, $period)
-                ->export()
-        );
+        $plik = (new BuildsExcelExporter())
+            ->generate($result, $period, $this->bezWpisowWMiesiacu($period, $result->keys()->all()))
+            ->export();
+
+        $nazwa = 'Podsumowanie miesiaca '.$period->first()->format('Y-m').'.xlsx';
+
+        return response()->download($plik, $nazwa)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Pracownicy przypisani w tym miesiącu do budowy, którzy nie mają ani
+     * jednego wpisu w KCP. Bez nich brak wypełnionego miesiąca wygląda w
+     * raporcie jak brak pracownika, a to właśnie tych ludzi trzeba dopytać.
+     *
+     * @param  array<int, int|string>  $zWpisami
+     */
+    private function bezWpisowWMiesiacu(CarbonPeriod $period, array $zWpisami): Collection
+    {
+        $pierwszy = $period->first()->format('Y-m-d');
+        $ostatni = $period->last()->format('Y-m-d');
+
+        return DB::table('contact_work_dates', 'cwd')
+            ->join('contacts', 'contacts.id', '=', 'cwd.contact_id')
+            ->join('organizations', 'organizations.id', '=', 'cwd.organization_id')
+            ->whereNull('cwd.deleted_at')
+            ->whereNull('contacts.deleted_at')
+            ->whereDate('cwd.start', '<=', $ostatni)
+            ->where(function ($query) use ($pierwszy) {
+                $query->whereNull('cwd.end')->orWhereDate('cwd.end', '>=', $pierwszy);
+            })
+            ->whereNotIn('contacts.id', $zWpisami ?: [0])
+            ->select('contacts.id', 'contacts.first_name', 'contacts.last_name', 'organizations.nazwaBud')
+            ->orderBy('contacts.last_name')->orderBy('contacts.first_name')
+            ->get()
+            ->unique('id')
+            ->values();
     }
 
     private function getShiftStatuses(): Collection
@@ -168,8 +199,13 @@ class BuildingTimeSheet extends Controller
             ->join('contacts', 'contacts.id', '=', 'b.contact_id')
             ->leftJoin('shift_status', 'shift_status.id', '=', 'b.shift_status_id')
             ->whereBetween('work_day', [$period->first()->format('Y-m-d'), $period->last()->format('Y-m-d')])
-            ->select('contact_id', 'work_day', 'numerBud', 'code', 'first_name', 'last_name', 'effective_work_time')
-            ->orderBy('b.contact_id')
+            ->select(
+                'contact_id', 'work_day', 'numerBud', 'organizations.nazwaBud',
+                'code', 'shift_status.title as status_nazwa',
+                'first_name', 'last_name', 'effective_work_time'
+            )
+            ->orderBy('contacts.last_name')
+            ->orderBy('contacts.first_name')
             ->orderBy('b.work_day')
             ->get();
     }
