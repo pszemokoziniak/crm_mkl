@@ -139,20 +139,50 @@ class PodsumowanieMiesiacaTest extends TestCase
         $this->assertSame(1, (int) $tabela[1][4], 'Urlop nie jest dniem pracy.');
     }
 
-    public function test_pracownik_bez_wpisow_jest_widoczny_z_uwaga(): void
+    public function test_pominiety_pracownik_na_wypelnianej_budowie_jest_widoczny(): void
     {
         // Dotąd taka osoba w ogóle nie trafiała do raportu i brak wypełnionego
         // KCP wyglądał jak brak pracownika.
+        $wypelniony = $this->pracownik('Kielak');
+        $this->wpis($wypelniony, '2026-09-01', '08:00');
         $this->pracownik('Zapomniany');
 
         $tabela = $this->tabela($this->podsumowanie());
         $wiersz = collect($tabela)->firstWhere(1, 'Zapomniany');
-
         $kolumnaUwag = array_search('Uwagi', $tabela[0], true);
 
         $this->assertNotNull($wiersz);
         $this->assertSame(0, (int) $wiersz[4]);
         $this->assertStringContainsString('brak wpisów', (string) $wiersz[$kolumnaUwag]);
+    }
+
+    public function test_budowa_bez_zadnego_wpisu_idzie_do_notki_a_nie_do_tabeli(): void
+    {
+        // Inaczej raport za wrzesień otwierał się 150 nazwiskami z budów,
+        // na których KCP w ogóle nie ruszono, i gubił wiersze, o które chodzi.
+        $wypelniony = $this->pracownik('Kielak');
+        $this->wpis($wypelniony, '2026-09-01', '08:00');
+
+        $pusta = Organization::create([
+            'account_id' => $this->accountId, 'nazwaBud' => 'Valmet Ortofta',
+        ]);
+        $ktos = Contact::create([
+            'account_id' => $this->accountId, 'first_name' => 'Jan', 'last_name' => 'Nietkniety',
+        ]);
+        ContactWorkDate::create([
+            'contact_id' => $ktos->id, 'organization_id' => $pusta->id,
+            'start' => '2026-09-01', 'end' => null,
+        ]);
+
+        $arkusz = $this->podsumowanie();
+        $tekst = implode(' ', array_map(
+            fn ($wiersz) => implode(' ', array_map(fn ($k) => (string) $k, $wiersz)),
+            $arkusz->rangeToArray('A1:N60')
+        ));
+
+        $this->assertNull(collect($this->tabela($arkusz))->firstWhere(1, 'Nietkniety'));
+        $this->assertStringContainsString('Budowy bez żadnego wpisu', $tekst);
+        $this->assertStringContainsString('Valmet Ortofta', $tekst);
     }
 
     public function test_wiersz_razem_sumuje_wszystkich(): void

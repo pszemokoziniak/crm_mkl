@@ -137,7 +137,12 @@ class BuildingTimeSheet extends Controller
             ->groupBy('contact_id');
 
         $plik = (new BuildsExcelExporter())
-            ->generate($result, $period, $this->bezWpisowWMiesiacu($period, $result->keys()->all()))
+            ->generate(
+                $result,
+                $period,
+                $this->bezWpisowWMiesiacu($period, $result->keys()->all()),
+                $this->budowyBezKcp($period)
+            )
             ->export();
 
         $nazwa = 'Podsumowanie miesiaca '.$period->first()->format('Y-m').'.xlsx';
@@ -146,9 +151,13 @@ class BuildingTimeSheet extends Controller
     }
 
     /**
-     * Pracownicy przypisani w tym miesiącu do budowy, którzy nie mają ani
-     * jednego wpisu w KCP. Bez nich brak wypełnionego miesiąca wygląda w
-     * raporcie jak brak pracownika, a to właśnie tych ludzi trzeba dopytać.
+     * Pracownicy pominięci w KCP: przypisani w tym miesiącu do budowy, która
+     * KCP prowadzi, ale bez ani jednego własnego wpisu. To ich trzeba dopytać.
+     *
+     * Budowy, gdzie nikt nic nie wypełnił, zostają poza listą — inaczej raport
+     * za wrzesień otwierał się 150 nazwiskami z budów, na których KCP w ogóle
+     * nie ruszono, i gubił dwanaście wierszy, o które chodzi. Takie budowy
+     * wymienia notka pod tabelą.
      *
      * @param  array<int, int|string>  $zWpisami
      */
@@ -157,7 +166,12 @@ class BuildingTimeSheet extends Controller
         $pierwszy = $period->first()->format('Y-m-d');
         $ostatni = $period->last()->format('Y-m-d');
 
+        $budowyZKcp = DB::table('building_time_sheets')
+            ->whereBetween('work_day', [$pierwszy, $ostatni])
+            ->distinct()->pluck('organization_id');
+
         return DB::table('contact_work_dates', 'cwd')
+            ->whereIn('cwd.organization_id', $budowyZKcp)
             ->join('contacts', 'contacts.id', '=', 'cwd.contact_id')
             ->join('organizations', 'organizations.id', '=', 'cwd.organization_id')
             ->whereNull('cwd.deleted_at')
@@ -172,6 +186,36 @@ class BuildingTimeSheet extends Controller
             ->get()
             ->unique('id')
             ->values();
+    }
+
+    /**
+     * Budowy z obsadą w tym miesiącu, na których nikt nie wypełnił ani jednego
+     * dnia. Jedna notka zamiast kilkudziesięciu wierszy "brak wpisów".
+     *
+     * @return array<int, string>
+     */
+    private function budowyBezKcp(CarbonPeriod $period): array
+    {
+        $pierwszy = $period->first()->format('Y-m-d');
+        $ostatni = $period->last()->format('Y-m-d');
+
+        $zKcp = DB::table('building_time_sheets')
+            ->whereBetween('work_day', [$pierwszy, $ostatni])
+            ->distinct()->pluck('organization_id');
+
+        return DB::table('contact_work_dates', 'cwd')
+            ->join('organizations', 'organizations.id', '=', 'cwd.organization_id')
+            ->whereNull('cwd.deleted_at')
+            ->whereNull('organizations.deleted_at')
+            ->whereDate('cwd.start', '<=', $ostatni)
+            ->where(function ($query) use ($pierwszy) {
+                $query->whereNull('cwd.end')->orWhereDate('cwd.end', '>=', $pierwszy);
+            })
+            ->whereNotIn('cwd.organization_id', $zKcp)
+            ->distinct()
+            ->orderBy('organizations.nazwaBud')
+            ->pluck('organizations.nazwaBud')
+            ->all();
     }
 
     private function getShiftStatuses(): Collection

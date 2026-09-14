@@ -26,7 +26,7 @@ class BuildsExcelExporter
         $this->createSpreadSheet();
     }
 
-    public function generate(iterable $shifts, CarbonPeriod $date, ?iterable $bezWpisow = null)
+    public function generate(iterable $shifts, CarbonPeriod $date, ?iterable $bezWpisow = null, array $budowyBezKcp = [])
     {
         $title = $date->first()?->locale('pl_PL')->isoFormat('MMMM YYYY');
         if ($title) {
@@ -38,7 +38,7 @@ class BuildsExcelExporter
             ->addDaysHeader($date)
             ->addData($shifts, $date)
             ->addGeneralFormatting()
-            ->addSummarySheet($shifts, $date, $bezWpisow ?? []);
+            ->addSummarySheet($shifts, $date, $bezWpisow ?? [], $budowyBezKcp);
 
         return $this;
     }
@@ -188,7 +188,7 @@ class BuildsExcelExporter
      * godzin trzeba było zliczać z kratek. Tu każdy rodzaj ma własną kolumnę,
      * a budowa mówi, gdzie ten miesiąc został przepracowany.
      */
-    private function addSummarySheet(iterable $shifts, CarbonPeriod $period, iterable $bezWpisow): self
+    private function addSummarySheet(iterable $shifts, CarbonPeriod $period, iterable $bezWpisow, array $budowyBezKcp = []): self
     {
         $arkusz = $this->spreadsheet->createSheet();
         $arkusz->setTitle('Podsumowanie');
@@ -307,6 +307,17 @@ class BuildsExcelExporter
             ->applyFromArray([
                 'borders' => ['top' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['argb' => Color::COLOR_BLACK]]],
             ]);
+
+        // Budowy, na których w tym miesiącu nikt nic nie wypełnił — jedna
+        // notka zamiast kilkudziesięciu wierszy "brak wpisów".
+        if ($budowyBezKcp !== []) {
+            $wiersz += 2;
+            $arkusz->setCellValue('B' . $wiersz, 'Budowy bez żadnego wpisu w tym miesiącu:');
+            $arkusz->getStyle('B' . $wiersz)->getFont()->setBold(true);
+            $arkusz->setCellValue('C' . $wiersz, implode(', ', $budowyBezKcp));
+            $arkusz->mergeCells('C' . $wiersz . ':' . Coordinate::stringFromColumnIndex(max(6, count($naglowki))) . $wiersz);
+            $arkusz->getStyle('C' . $wiersz)->getAlignment()->setHorizontal('left')->setWrapText(true);
+        }
 
         // Legenda skrótów
         $wiersz += 2;
