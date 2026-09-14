@@ -101,6 +101,10 @@ class UsersController extends Controller
             'last_name' => Request::get('last_name'),
             'email' => Request::get('email'),
             'password' => $password,
+            // Bez tego konto powstawało zablokowane: kolumna nie ma wartości
+            // domyślnej, więc baza wstawiała zero. Nowy użytkownik dostawał
+            // hasło mailem i po jego wpisaniu widział "Konto zablokowane".
+            'active' => 1,
             'owner' => Request::get('owner'),
             'contact_id' => Request::get('user_id'),
             'photo_path' => Request::file('photo') ? Request::file('photo')->store('users') : null,

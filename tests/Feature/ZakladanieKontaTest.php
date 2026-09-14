@@ -4,132 +4,140 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Enums\Role;
+use App\Mail\CreateUserPassword;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 /**
- * Zakładanie konta i komunikat o zajętym adresie.
+ * Zakładanie konta: użytkownik dostaje hasło mailem i ma się nim zalogować.
  *
- * Zgłoszenie: "przy próbie dodania nowego użytkownika wyskakuje błąd".
- * Blokada była słuszna — konto z tym adresem leżało w koszu, a adres jest
- * w bazie unikalny. Mylił komunikat: "Nazwa użyta" nie mówiło, że wystarczy
- * przywrócić konto tej samej osoby, więc wyglądało to jak awaria.
+ * Kolumna `active` jest NOT NULL i nie miała wartości domyślnej, a zapis
+ * zakładający konto jej nie ustawiał — baza wstawiała zero, czyli konto
+ * zablokowane. Każdy nowy użytkownik po wpisaniu hasła z maila widział
+ * "Konto zablokowane" i trzeba go było odblokowywać ręcznie.
  */
 class ZakladanieKontaTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $admin;
     private int $accountId;
+    private User $admin;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Mail::fake();
-
         $this->accountId = Account::create(['name' => 'MKL'])->id;
 
         $this->admin = User::factory()->create([
-            'account_id' => $this->accountId, 'email' => 'admin@mkl.pl',
-            'owner' => Role::ADMIN->value, 'active' => 1,
+            'account_id' => $this->accountId,
+            'email' => 'admin@mkl.pl',
+            'owner' => 1,
+            'active' => 1,
             'password_changed_at' => now()->toDateTimeString(),
         ]);
     }
 
-    private function zaloz(string $email): \Illuminate\Testing\TestResponse
+    /** Zakłada konto i zwraca hasło, które poszło mailem. */
+    private function zalozKonto(string $email = 'nowy.uzytkownik@mkl.pl'): string
     {
-        return $this->actingAs($this->admin)->post('/users', [
-            'first_name' => 'Marcin', 'last_name' => 'Redosz',
-            'email' => $email, 'owner' => (string) Role::BIURO->value,
-        ]);
+        Mail::fake();
+
+        $this->actingAs($this->admin)
+            ->post('/users', [
+                'first_name' => 'Karol',
+                'last_name' => 'Sidorowicz',
+                'email' => $email,
+                'owner' => 2,
+            ])
+            ->assertRedirect();
+
+        $haslo = null;
+        Mail::assertSent(CreateUserPassword::class, function (CreateUserPassword $mail) use (&$haslo) {
+            $haslo = $mail->password;
+
+            return true;
+        });
+
+        return $haslo;
     }
 
-    public function test_filtr_wyswietlania_rozroznia_aktualne_archiwum_i_wszystko(): void
+    /**
+     * Samo `/logout` nie wystarczy: `actingAs` trzyma admina w kontenerze
+     * niezależnie od sesji, więc kolejne żądanie dalej byłoby jego i test
+     * sprawdzałby cudze logowanie zamiast nowego konta.
+     */
+    private function wyloguj(): void
     {
-        // Podpisy na ekranie: Aktualne / Archiwum / Wszystko. Wartości wysyłane
-        // na serwer to kolejno brak / only / with — łatwo je przy okazji zamienić.
-        $czynne = User::factory()->create([
-            'account_id' => $this->accountId, 'email' => 'czynny@mkl.pl',
-            'owner' => Role::BIURO->value, 'active' => 1,
-            'password_changed_at' => now()->toDateTimeString(),
-        ]);
-        $wKoszu = User::factory()->create([
-            'account_id' => $this->accountId, 'email' => 'wkoszu@mkl.pl',
-            'owner' => Role::BIURO->value, 'active' => 1,
-            'password_changed_at' => now()->toDateTimeString(),
-        ]);
-        $wKoszu->delete();
-
-        $adresy = function (array $filtry) {
-            $adres = '/users'.($filtry ? '?'.http_build_query($filtry) : '');
-
-            return collect($this->actingAs($this->admin)->get($adres)->assertOk()
-                ->viewData('page')['props']['users'])->pluck('email');
-        };
-
-        $this->assertContains('czynny@mkl.pl', $adresy([]));
-        $this->assertNotContains('wkoszu@mkl.pl', $adresy([]), 'Aktualne: bez archiwum.');
-
-        $this->assertContains('wkoszu@mkl.pl', $adresy(['trashed' => 'only']));
-        $this->assertNotContains('czynny@mkl.pl', $adresy(['trashed' => 'only']), 'Archiwum: samo archiwum.');
-
-        $wszystko = $adresy(['trashed' => 'with']);
-        $this->assertContains('czynny@mkl.pl', $wszystko);
-        $this->assertContains('wkoszu@mkl.pl', $wszystko);
+        $this->post('/logout');
+        $this->flushSession();
+        $this->app['auth']->forgetGuards();
     }
 
-    public function test_adres_konta_z_kosza_mowi_o_przywroceniu(): void
+    public function test_nowe_konto_nie_jest_zablokowane(): void
     {
-        $usuniete = User::factory()->create([
-            'account_id' => $this->accountId, 'email' => 'marcin.redosz@mkl.pl',
-            'owner' => Role::BIURO->value, 'active' => 1,
-            'password_changed_at' => now()->toDateTimeString(),
-        ]);
-        $usuniete->delete();
+        $this->zalozKonto();
 
-        $this->zaloz('marcin.redosz@mkl.pl')
-            ->assertSessionHasErrors(['email' => 'Konto z tym adresem jest w koszu (usunięte '
-                .$usuniete->fresh()->deleted_at->format('d.m.Y').'). Przywróć je zamiast zakładać nowe.']);
-
-        // Blokada zostaje — drugiego konta z tym adresem nie zakładamy.
-        $this->assertSame(1, User::withTrashed()->where('email', 'marcin.redosz@mkl.pl')->count());
+        $this->assertSame(1, (int) User::where('email', 'nowy.uzytkownik@mkl.pl')->value('active'));
     }
 
-    public function test_adres_czynnego_konta_mowi_ze_juz_istnieje(): void
+    public function test_haslo_z_maila_wpuszcza_do_systemu(): void
     {
-        User::factory()->create([
-            'account_id' => $this->accountId, 'email' => 'marcin.redosz@mkl.pl',
-            'owner' => Role::BIURO->value, 'active' => 1,
-            'password_changed_at' => now()->toDateTimeString(),
-        ]);
+        $haslo = $this->zalozKonto();
 
-        $this->zaloz('marcin.redosz@mkl.pl')
-            ->assertSessionHasErrors(['email' => 'Konto z tym adresem już istnieje.']);
+        $this->wyloguj();
+
+        $this->post('/login', ['email' => 'nowy.uzytkownik@mkl.pl', 'password' => $haslo])
+            ->assertRedirect()
+            ->assertSessionMissing('error');
+
+        $this->assertAuthenticatedAs(User::where('email', 'nowy.uzytkownik@mkl.pl')->first());
     }
 
-    public function test_wolny_adres_przechodzi(): void
+    public function test_pierwsze_logowanie_dalej_wymusza_zmiane_hasla(): void
     {
-        $this->zaloz('marcin.redosz@mkl.pl')->assertSessionHasNoErrors()->assertRedirect();
+        // Odblokowanie konta nie może znieść wymogu zmiany hasła startowego.
+        $haslo = $this->zalozKonto();
+        $this->wyloguj();
+        $this->post('/login', ['email' => 'nowy.uzytkownik@mkl.pl', 'password' => $haslo]);
 
-        $this->assertDatabaseHas('users', ['email' => 'marcin.redosz@mkl.pl']);
+        $this->get('/')->assertRedirect('/password/expired');
+
+        $konto = User::where('email', 'nowy.uzytkownik@mkl.pl')->first();
+        $this->assertNull($konto->password_changed_at);
+        $this->assertTrue(Hash::check($haslo, $konto->password), 'Mailem idzie to samo hasło, które zapisujemy.');
     }
 
-    public function test_edycja_wlasnego_adresu_nie_blokuje_sie_o_siebie(): void
+    public function test_konto_zapisane_bez_wskazania_jest_aktywne(): void
     {
-        $konto = User::factory()->create([
-            'account_id' => $this->accountId, 'email' => 'jan.kowalski@mkl.pl',
-            'owner' => Role::BIURO->value, 'active' => 1,
-            'password_changed_at' => now()->toDateTimeString(),
+        // Druga linia obrony: kolumna ma wartość domyślną, więc żadna inna
+        // droga zapisu nie stworzy po cichu konta, którym nie da się wejść.
+        $konto = $this->admin->account->users()->create([
+            'first_name' => 'Aneta',
+            'last_name' => 'Woźniak',
+            'email' => 'aneta.wozniak@mkl.pl',
+            'password' => 'CokolwiekInnego1!',
+            'owner' => 2,
         ]);
 
-        $this->actingAs($this->admin)->put("/users/{$konto->id}", [
-            'first_name' => 'Jan', 'last_name' => 'Kowalski',
-            'email' => 'jan.kowalski@mkl.pl', 'owner' => (string) Role::BIURO->value,
-        ])->assertSessionHasNoErrors();
+        $this->assertSame(1, (int) User::find($konto->id)->active);
+    }
+
+    public function test_zablokowane_konto_dalej_nie_wpuszcza(): void
+    {
+        $haslo = $this->zalozKonto();
+        $konto = User::where('email', 'nowy.uzytkownik@mkl.pl')->first();
+        $konto->update(['active' => 0]);
+
+        $this->wyloguj();
+
+        $this->post('/login', ['email' => 'nowy.uzytkownik@mkl.pl', 'password' => $haslo])
+            ->assertSessionHas('error', 'Konto zablokowane.');
+
+        $this->assertGuest();
     }
 }
