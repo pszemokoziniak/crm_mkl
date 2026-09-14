@@ -200,6 +200,20 @@ class PodsumowanieMiesiacaTest extends TestCase
         $this->assertEqualsWithDelta(16.5, (float) $razem[5], 0.01);
     }
 
+    public function test_kierownik_nie_pobiera_raportu_wszystkich_budow(): void
+    {
+        // Dlatego odnośnik z ekranu KCP budowy widzi tylko biuro: raport
+        // obejmuje wszystkie budowy, także cudze.
+        $kierownik = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'kierownik@mkl.pl',
+            'owner' => 3, 'active' => 1, 'password_changed_at' => now()->toDateTimeString(),
+        ]);
+
+        $this->actingAs($kierownik)
+            ->get('/building/time-sheet/general-report?date=2026-09-15')
+            ->assertForbidden();
+    }
+
     public function test_plik_ma_obie_zakladki_i_otwiera_sie_na_podsumowaniu(): void
     {
         $osoba = $this->pracownik('Kielak');

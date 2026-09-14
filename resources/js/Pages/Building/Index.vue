@@ -4,10 +4,23 @@
   <budowa-naglowek :bud-id="buildDetails.id" :nazwa="buildDetails.nazwaBud" tytul="KCP budowy" />
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
-    <a target="_self" :href="excelUrl()" class="btn-indigo inline-flex items-center px-4 py-2 rounded">
-      <DocumentDownloadIcon class="w-5 h-5" />
-      <span>Pobierz</span>
-    </a>
+    <div class="mb-8 flex items-center gap-3">
+      <!-- Zestawienie wszystkich budów leży w menu głównym, więc trzeba było
+           o nim wiedzieć. Kierownik go nie otworzy — obejmuje cudzych ludzi. -->
+      <a
+        v-if="!prowadziBudowy(user_owner)"
+        target="_self"
+        :href="raportUrl()"
+        class="inline-flex items-center px-4 py-2 rounded border border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+      >
+        <DocumentDownloadIcon class="w-5 h-5" />
+        <span class="ml-1">Podsumowanie miesiąca (wszystkie budowy)</span>
+      </a>
+      <a target="_self" :href="excelUrl()" class="btn-indigo inline-flex items-center px-4 py-2 rounded">
+        <DocumentDownloadIcon class="w-5 h-5" />
+        <span>Pobierz</span>
+      </a>
+    </div>
   </div>
 
   <div class="px-6 py-2 bg-white rounded-lg shadow relative z-0">
@@ -322,6 +335,10 @@ export default {
     },
     excelUrl() {
       return `/building/${this.build}/time-sheet/export?date=${this.getYear()}-${(this.getMonthNumber() + 1).toString().padStart(2, '0')}`
+    },
+    // Ten sam miesiąc, który jest na ekranie, tylko dla wszystkich budów.
+    raportUrl() {
+      return `/building/time-sheet/general-report?date=${this.getYear()}-${(this.getMonthNumber() + 1).toString().padStart(2, '0')}`
     },
     getMonthNumber() {
       return new Date(this.currentDate).getMonth()
