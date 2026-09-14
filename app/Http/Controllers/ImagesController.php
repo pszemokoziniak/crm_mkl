@@ -3,18 +3,45 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use League\Glide\Responses\LaravelResponseFactory;
 use League\Glide\ServerFactory;
 
 class ImagesController extends Controller
 {
+    /**
+     * Skany dokumentów mają własną drogę (CtnDocumentsController@view), która
+     * sprawdza, czy pracownik należy do pytającego. Tędy nie wychodzą wcale.
+     */
+    private const KATALOG_SKANOW = 'documents';
+
     public function show(Request $request, $path)
     {
+        $path = ltrim(str_replace('\\', '/', (string) $path), '/');
+
+        // Ścieżka z ".." wyprowadziłaby poza katalog z danymi.
+        if (str_contains($path, '..')) {
+            abort(404);
+        }
+
         $localDisk = Storage::disk('local');
 
         // 1. Sprawdź czy plik istnieje w storage/app
         if ($localDisk->exists($path)) {
+            // Pliki wgrane do systemu to dane osobowe: zdjęcia pracowników,
+            // kont i sprzętu. Dotąd wychodziły stąd bez logowania — wystarczyło
+            // znać ścieżkę. Pliki z public/ (logo na ekranie logowania) zostają
+            // jawne, bo i tak serwuje je serwer WWW.
+            if (! Auth::check()) {
+                abort(404);
+            }
+
+            if (Str::startsWith($path, self::KATALOG_SKANOW.'/')) {
+                abort(404);
+            }
+
             $source = $localDisk->getDriver();
         }
         // 2. Jeśli nie, sprawdź w public/
