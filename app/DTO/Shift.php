@@ -45,7 +45,10 @@ class Shift implements JsonSerializable
         return new self(
             id: $shift->contact_id,
             build: $build,
-            name: $shift->first_name . ' ' . $shift->last_name,
+            // Nazwisko przed imieniem — tak samo jak przy dniu bez wpisu
+            // (createDraft) i tak samo jak sortuje się lista. Inaczej w jednym
+            // zestawieniu część nazwisk wychodziła odwrotnie niż reszta.
+            name: $shift->last_name . ' ' . $shift->first_name,
             day: $shift->work_day,
             workFrom: $shift->work_from ?? null,
             workTo: $shift->work_to ?? null,

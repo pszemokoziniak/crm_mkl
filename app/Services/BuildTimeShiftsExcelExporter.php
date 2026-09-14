@@ -7,11 +7,15 @@ namespace App\Services;
 use App\DTO\Shift;
 use App\Services\Date\ExcelTimeFormatter;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -21,7 +25,20 @@ class BuildTimeShiftsExcelExporter
     private Spreadsheet $spreadsheet;
     private Excel $rowsGenerator;
 
+    /**
+     * Kolory dobrane tak, żeby dało się czytać wpisy: wcześniej dni ze
+     * statusem miały ciemnozielone tło pod czarnym tekstem, a niedziele
+     * pełną czerwień. Te same odcienie co na ekranie KCP.
+     */
+    private const TLO_SOBOTA = 'FFFFF2CC';
+    private const TLO_NIEDZIELA = 'FFFBE3E3';
+    private const TLO_STATUS = 'FFE2EFDA';
+    private const TEKST_STATUS = 'FF375623';
+    private const TLO_NAGLOWKA = 'FFF2F2F2';
+
     private array $shiftStatuses;
+    /** Kody, które faktycznie wystąpiły w tym miesiącu — do legendy. */
+    private array $uzyteKody = [];
     private array $borderStyleThin = [
         'borders' => [
             'alignment' => [
@@ -45,16 +62,28 @@ class BuildTimeShiftsExcelExporter
     {
         $this
             ->addMainHeaders($date, $buildName)
-            ->addDaysHeaders($shifts)
+            ->addDaysHeaders($shifts, $date)
             ->addWorkersShifts($shifts)
-            ->addGeneralFormatting();
+            ->addLegend()
+            ->addGeneralFormatting($date);
 
         return $this;
     }
 
+    /**
+     * Każdy eksport pisze do własnego pliku. Wcześniej wszystkie szły do
+     * jednego `kcp.xlsx`, więc dwie osoby pobierające KCP w tej samej chwili
+     * mogły dostać nie swoją budowę.
+     */
     public function export(?string $filename = ''): string
     {
-        $path = storage_path('app/export/') . 'kcp.xlsx';
+        $katalog = storage_path('app/export');
+
+        if (! File::exists($katalog)) {
+            File::makeDirectory($katalog, 0755, true);
+        }
+
+        $path = $katalog . '/kcp-' . Str::random(16) . '.xlsx';
         $writer = new Xlsx($this->spreadsheet);
         $writer->save($path);
 
@@ -79,13 +108,15 @@ class BuildTimeShiftsExcelExporter
             ->mergeCells('D5' . ':' . 'I5');
 
         // main headers
+        // Tytuł na całą szerokość arkusza. Wcześniej siedział w wąskim
+        // scaleniu nad kolumnami dni i łamał się na trzy linijki.
         $this
             ->activeWorksheet
-            ->setCellValue('L3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN ' . $date->format('Y/m'));
+            ->setCellValue('A3', 'ZESTAWIENIE PRZEPRACOWANYCH GODZIN — '
+                . mb_strtoupper($date->locale('pl_PL')->monthName . ' ' . $date->year));
 
-        $this
-            ->activeWorksheet
-            ->mergeCells('L3' . ':' . 'V3');
+        $this->activeWorksheet->getStyle('A3')->getFont()->setBold(true)->setSize(14);
+        $this->activeWorksheet->getStyle('B5')->getFont()->setBold(true);
 
         $this
             ->activeWorksheet
@@ -93,7 +124,11 @@ class BuildTimeShiftsExcelExporter
 
         $this
             ->activeWorksheet
-            ->setCellValue('B' . $titlesRow, 'Imię i nazwisko');
+            ->setCellValue('B' . $titlesRow, 'Nazwisko i imię');
+
+        $this
+            ->activeWorksheet
+            ->setCellValue('C' . $titlesRow, 'Rodzaj');
 
         $this
             ->activeWorksheet
@@ -106,17 +141,20 @@ class BuildTimeShiftsExcelExporter
     public function createSpreadSheet(): void
     {
         $this->spreadsheet = new Spreadsheet();
-        $this->spreadsheet->getDefaultStyle()->getFont()->setBold(true);
+        // Pogrubienie tylko tam, gdzie coś znaczy — wcześniej cały arkusz był
+        // bold, więc nagłówki niczym się nie wyróżniały.
+        $this->spreadsheet->getDefaultStyle()->getFont()->setSize(10);
 
         $this->activeWorksheet = $this->spreadsheet->getActiveSheet();
     }
 
-    private function addDaysHeaders(iterable $shifts): static
+    private function addDaysHeaders(iterable $shifts, Carbon $date): static
     {
         $daysHeadersGenerator = $this->rowsGenerator->cellCoordinatesGenerator(68);
 
         $shifts = (array)$shifts;
         $monthForWorker = reset($shifts);
+        $pierwszyDzien = $date->copy()->startOfMonth();
 
         $daysRow = 7;
         foreach (range(1, count($monthForWorker)) as $key => $day) {
@@ -128,16 +166,35 @@ class BuildTimeShiftsExcelExporter
             $secondCellCoords = $secondCell . $daysRow;
             $value = $key + 1;
 
-            $this->activeWorksheet->setCellValue($firstCellCoords, $value);
-            $this->activeWorksheet->setCellValue($secondCellCoords, $value);
+            // Sam numer dnia nie mówi, czy to sobota — a od tego zależy, czy
+            // pusta kratka jest brakiem, czy wolnym. Skrót dnia jak na ekranie.
+            $dzien = $pierwszyDzien->copy()->addDays($key);
+
+            $this->activeWorksheet->setCellValue(
+                $firstCellCoords,
+                $value . "\n" . $dzien->locale('pl_PL')->shortDayName
+            );
             $this->activeWorksheet->mergeCells($firstCellCoords . ':' . $secondCellCoords);
 
             $this->activeWorksheet
                 ->getStyle($firstCellCoords . ':' . $secondCellCoords)
                 ->applyFromArray($this->borderStyleThin)
                 ->getAlignment()
-                ->setHorizontal('center');
+                ->setHorizontal('center')
+                ->setVertical('center')
+                ->setWrapText(true);
 
+            $tlo = self::TLO_NAGLOWKA;
+
+            if ($dzien->isSunday()) {
+                $tlo = self::TLO_NIEDZIELA;
+            } elseif ($dzien->isSaturday()) {
+                $tlo = self::TLO_SOBOTA;
+            }
+
+            $this->activeWorksheet
+                ->getStyle($firstCellCoords . ':' . $secondCellCoords)
+                ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($tlo);
 
             $daysHeadersGenerator->next();
         }
@@ -154,6 +211,20 @@ class BuildTimeShiftsExcelExporter
             ->applyFromArray($this->borderStyleThin)
             ->getAlignment()
             ->setHorizontal('center');
+
+        $this->activeWorksheet
+            ->getStyle('A' . $daysRow . ':' . $sumCell . $daysRow)
+            ->getFont()->setBold(true);
+
+        $this->activeWorksheet
+            ->getStyle($sumCell . $daysRow)
+            ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB(self::TLO_NAGLOWKA);
+
+        $this->activeWorksheet
+            ->getStyle('A' . $daysRow . ':C' . $daysRow)
+            ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB(self::TLO_NAGLOWKA);
+
+        $this->activeWorksheet->getRowDimension($daysRow)->setRowHeight(28);
 
         return $this;
     }
@@ -188,6 +259,7 @@ class BuildTimeShiftsExcelExporter
 
             $this->activeWorksheet->setCellValue('A' . $workHoursRow, $workerIterator);
             $this->activeWorksheet->setCellValue('B' . $workHoursRow, reset($workerShifts)->name);
+            $this->activeWorksheet->getStyle('B' . $workHoursRow)->getFont()->setBold(true);
             $this->activeWorksheet->setCellValue('C' . $workHoursRow, 'czas pracy od/do');
 
             $this->activeWorksheet->setCellValue('C' . $workingHoursRow, 'czas pracy');
@@ -292,31 +364,25 @@ class BuildTimeShiftsExcelExporter
                     ->mergeCells($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow);
 
                 if ($shift->status) {
-                    $this->activeWorksheet
-                        ->getStyle($cellFrom . ':' . $cellTo)
-                        ->getFill()
-                        ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()
-                        ->setARGB(Color::COLOR_DARKGREEN);
+                    $zakresy = [
+                        $cellFrom . ':' . $cellTo,
+                        $cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow,
+                        $cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor,
+                    ];
 
-                    $this->activeWorksheet
-                        ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
-                        ->getFill()
-                        ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()
-                        ->setARGB(Color::COLOR_DARKGREEN);
-
-                    $this->activeWorksheet
-                        ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
-                        ->getFill()
-                        ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()
-                        ->setARGB(Color::COLOR_DARKGREEN);
+                    foreach ($zakresy as $zakres) {
+                        $styl = $this->activeWorksheet->getStyle($zakres);
+                        $styl->getFill()->setFillType(Fill::FILL_SOLID)
+                            ->getStartColor()->setARGB(self::TLO_STATUS);
+                        $styl->getFont()->getColor()->setARGB(self::TEKST_STATUS);
+                    }
 
                     // set shift status code e.g. UW,OG
                     $foundShifts = array_filter($this->shiftStatuses, static fn($shiftStatus) => $shiftStatus->id === $shift->status);
                     $code = reset($foundShifts)->code;
                     $this->activeWorksheet->setCellValue($cellCoordsFrom . $paidFor, $code);
+                    $this->activeWorksheet->getStyle($cellCoordsFrom . $paidFor)->getFont()->setBold(true);
+                    $this->uzyteKody[$code] = reset($foundShifts)->title ?? '';
 
                     // only merge to align view with original
                     $this
@@ -338,7 +404,7 @@ class BuildTimeShiftsExcelExporter
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
-                        ->setARGB(Color::COLOR_YELLOW);
+                        ->setARGB(self::TLO_SOBOTA);
 
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
@@ -346,7 +412,7 @@ class BuildTimeShiftsExcelExporter
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
-                        ->setARGB(Color::COLOR_YELLOW);
+                        ->setARGB(self::TLO_SOBOTA);
 
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
@@ -354,7 +420,7 @@ class BuildTimeShiftsExcelExporter
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
-                        ->setARGB(Color::COLOR_YELLOW);
+                        ->setARGB(self::TLO_SOBOTA);
                 }
 
                 if ($shift->isSunday()) {
@@ -364,7 +430,7 @@ class BuildTimeShiftsExcelExporter
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
-                        ->setARGB(Color::COLOR_RED);
+                        ->setARGB(self::TLO_NIEDZIELA);
 
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $workingHoursRow . ':' . $cellCoordsTo . $workingHoursRow)
@@ -372,7 +438,7 @@ class BuildTimeShiftsExcelExporter
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
-                        ->setARGB(Color::COLOR_RED);
+                        ->setARGB(self::TLO_NIEDZIELA);
 
                     $this->activeWorksheet
                         ->getStyle($cellCoordsFrom . $paidFor . ':' . $cellCoordsTo . $paidFor)
@@ -380,7 +446,7 @@ class BuildTimeShiftsExcelExporter
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
-                        ->setARGB(Color::COLOR_RED);
+                        ->setARGB(self::TLO_NIEDZIELA);
                 }
 
                 if ($shift->workFrom) {
@@ -411,6 +477,11 @@ class BuildTimeShiftsExcelExporter
             $this
                 ->activeWorksheet
                 ->setCellValue($cellIndicatorGenerator->current() . $workHoursRow, ((int)$workPaidSum / 60));
+
+            $this
+                ->activeWorksheet
+                ->getStyle($cellIndicatorGenerator->current() . $workHoursRow)
+                ->getFont()->setBold(true);
 
             $this
                 ->activeWorksheet
@@ -480,17 +551,82 @@ class BuildTimeShiftsExcelExporter
         return $this;
     }
 
-    private function addGeneralFormatting(): static
+    /**
+     * Arkusz operuje skrótami (UW, OG, ZL), więc rozwijamy te, które w tym
+     * miesiącu padły. Bez tego trzeba było pytać biuro, co znaczy kod.
+     */
+    private function addLegend(): static
     {
-        $this->activeWorksheet->freezePane('D1');
+        $wiersz = $this->activeWorksheet->getHighestRow() + 2;
 
-        foreach (range('A', 'D') as $col) {
-            $this->activeWorksheet->getColumnDimension($col)->setAutoSize(true);
+        $this->activeWorksheet->setCellValue('B' . $wiersz, 'Oznaczenia:');
+        $this->activeWorksheet->getStyle('B' . $wiersz)->getFont()->setBold(true);
+
+        $this->activeWorksheet->setCellValue('C' . $wiersz, 'sobota');
+        $this->activeWorksheet->getStyle('C' . $wiersz)
+            ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB(self::TLO_SOBOTA);
+
+        $this->activeWorksheet->setCellValue('D' . $wiersz, 'niedziela / święto');
+        $this->activeWorksheet->mergeCells('D' . $wiersz . ':H' . $wiersz);
+        $this->activeWorksheet->getStyle('D' . $wiersz . ':H' . $wiersz)
+            ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB(self::TLO_NIEDZIELA);
+
+        ksort($this->uzyteKody);
+
+        foreach ($this->uzyteKody as $kod => $nazwa) {
+            $wiersz++;
+            $this->activeWorksheet->setCellValue('B' . $wiersz, $kod);
+            $this->activeWorksheet->getStyle('B' . $wiersz)->getFont()->setBold(true);
+            $this->activeWorksheet->getStyle('B' . $wiersz)
+                ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB(self::TLO_STATUS);
+            $this->activeWorksheet->setCellValue('C' . $wiersz, $nazwa);
+            $this->activeWorksheet->mergeCells('C' . $wiersz . ':F' . $wiersz);
+            $this->activeWorksheet->getStyle('C' . $wiersz)->getAlignment()->setHorizontal('left');
         }
 
-        $this->activeWorksheet->getStyle('A:Z')
+        return $this;
+    }
+
+    private function addGeneralFormatting(Carbon $date): static
+    {
+        $dni = (int) $date->copy()->endOfMonth()->day;
+        // Kolumny dni zaczynają się od D i zajmują po dwie; na końcu suma.
+        $ostatniaKolumna = Coordinate::stringFromColumnIndex(4 + 2 * $dni);
+
+        $this->activeWorksheet->mergeCells('A3:' . $ostatniaKolumna . '3');
+        $this->activeWorksheet->getStyle('A3')->getAlignment()->setHorizontal('center');
+
+        // Nazwisko i podpis wiersza mają zostać na ekranie przy przewijaniu
+        // w bok, a nagłówek dni przy przewijaniu w dół.
+        $this->activeWorksheet->freezePane('D8');
+
+        $this->activeWorksheet->getColumnDimension('A')->setWidth(5);
+        $this->activeWorksheet->getColumnDimension('B')->setWidth(26);
+        $this->activeWorksheet->getColumnDimension('C')->setWidth(17);
+
+        foreach (range(4, 4 + 2 * $dni) as $kolumna) {
+            $this->activeWorksheet
+                ->getColumnDimension(Coordinate::stringFromColumnIndex($kolumna))
+                ->setWidth(4.5);
+        }
+
+        $this->activeWorksheet->getStyle('A:' . $ostatniaKolumna)
             ->getAlignment()
             ->setHorizontal('center');
+
+        $this->activeWorksheet->getStyle('B8:B' . $this->activeWorksheet->getHighestRow())
+            ->getAlignment()
+            ->setHorizontal('left');
+
+        // Wydruk: cały miesiąc na szerokość jednej strony, z nagłówkiem dni
+        // powtórzonym na każdej kartce.
+        $wydruk = $this->activeWorksheet->getPageSetup();
+        $wydruk->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
+        $wydruk->setPaperSize(PageSetup::PAPERSIZE_A4);
+        $wydruk->setFitToWidth(1);
+        $wydruk->setFitToHeight(0);
+        $wydruk->setRowsToRepeatAtTopByStartAndEnd(7, 7);
+        $this->activeWorksheet->getPageMargins()->setTop(0.4)->setBottom(0.4)->setLeft(0.3)->setRight(0.3);
 
         return $this;
     }

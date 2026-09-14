@@ -180,19 +180,35 @@ class BuildTimeShiftCreator
     }
 
 
+    /**
+     * Obsada budowy w danym miesiącu.
+     *
+     * Zawężenie po datach było zakomentowane, więc KCP brało każdego, kto
+     * kiedykolwiek był na tej budowie — na jednej budowie dawało to 22 wiersze
+     * zamiast 12, same puste. Wcześniejsza wersja porównywała `end` wprost,
+     * przez co gubiła pobyty bez daty końca, czyli tych, którzy nadal tam są.
+     *
+     * Kto ma w tym miesiącu wpisane godziny, a pobyt już mu się skończył,
+     * i tak zostaje na liście — dokłada go `getWorkersOnBuildShifts`. Inaczej
+     * wypełnione dni zniknęłyby z zestawienia.
+     */
     private function getAllWorkersOnBuild(int $build, CarbonPeriod $date): Collection
     {
-        $query = DB::table('contact_work_dates', 'cwd')
+        $pierwszy = $date->first()->format('Y-m-d');
+        $ostatni = $date->last()->format('Y-m-d');
+
+        return DB::table('contact_work_dates', 'cwd')
             ->join('contacts', 'cwd.contact_id', '=', 'contacts.id')
             ->where('cwd.organization_id', $build)
             ->whereNull('cwd.deleted_at')
-//             @TODO to review data - workers on build
-//            ->whereDate(column: 'start', operator: '<=', value: $date->last()->format('Y-m-d'))
-//            ->whereDate(column: 'end', operator: '>=', value: $date->first()->format('Y-m-d'))
+            ->whereNull('contacts.deleted_at')
+            ->whereDate('cwd.start', '<=', $ostatni)
+            ->where(function ($query) use ($pierwszy) {
+                $query->whereNull('cwd.end')
+                    ->orWhereDate('cwd.end', '>=', $pierwszy);
+            })
             ->orderBy('contacts.last_name', 'ASC')
             ->get();
-
-        return $query;
     }
 
     private function getWorkersOnBuildShifts(int $build, CarbonPeriod $period): Collection

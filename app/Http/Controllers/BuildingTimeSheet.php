@@ -101,11 +101,19 @@ class BuildingTimeSheet extends Controller
 
         $buildName = $this->getBuildHeaders($build)->nazwaBud;
 
-        return response()->file(
-            (new BuildTimeShiftsExcelExporter($shiftStatuses))
-                ->generate($timeShifts, $buildForDate, $buildName)
-                ->export()
+        $plik = (new BuildTimeShiftsExcelExporter($shiftStatuses))
+            ->generate($timeShifts, $buildForDate, $buildName)
+            ->export();
+
+        // Nazwa pliku mówi, czego dotyczy: dotąd każdy eksport nazywał się
+        // "kcp.xlsx" i po pobraniu kilku nie dało się ich rozróżnić.
+        $nazwa = sprintf(
+            'KCP %s %s.xlsx',
+            preg_replace('/[^\p{L}\p{N} _-]+/u', '', (string) $buildName),
+            $buildForDate->format('Y-m')
         );
+
+        return response()->download($plik, $nazwa)->deleteFileAfterSend(true);
     }
 
     public function reportIndex(): Response
