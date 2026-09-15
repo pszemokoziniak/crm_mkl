@@ -134,7 +134,7 @@ class Limit183DniTest extends TestCase
 
         $wiersz = $this->wyliczenie()['Niemcy'];
 
-        $this->assertSame('przekroczony', $wiersz['status']);
+        $this->assertSame('wyczerpany', $wiersz['status']);
         $this->assertSame(0, $wiersz['pozostalo']);
         $this->assertTrue($wiersz['kiedys_przekroczony']);
         $this->assertSame('2026-01-06', $wiersz['okno_od']);
@@ -149,7 +149,20 @@ class Limit183DniTest extends TestCase
         $wiersz = $this->wyliczenie();
 
         $this->assertSame(212, $wiersz['Niemcy']['najwieksze_okno']);
-        $this->assertSame('przekroczony', $wiersz['Niemcy']['status']);
+        $this->assertSame('wyczerpany', $wiersz['Niemcy']['status']);
+    }
+
+    public function test_dawne_przekroczenie_nie_blokuje_dzisiejszego_wyjazdu(): void
+    {
+        // Borowik ma we Francji 357 dni w oknie z 2025 roku, a dziś 53 dni
+        // zapasu. Czerwień przy jego nazwisku wstrzymywałaby wyjazd bez powodu.
+        $this->pobyt($this->francja, '2025-01-12', '2025-08-31');
+
+        $wiersz = $this->wyliczenie()['Francja'];
+
+        $this->assertSame(0, $wiersz['dni_12m']);
+        $this->assertSame('ok', $wiersz['status'], 'Stan mówi o dziś.');
+        $this->assertTrue($wiersz['kiedys_przekroczony'], 'Ale fakt zostaje widoczny.');
     }
 
     public function test_podaje_date_od_ktorej_limit_sie_poluzuje(): void

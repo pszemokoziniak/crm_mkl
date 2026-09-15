@@ -58,7 +58,7 @@ class LimitPobytuZagranica
                 'okno_do' => $do,
                 'kiedys_przekroczony' => $najwieksze > self::LIMIT_DNI,
                 'wolne_od' => $pozostalo === 0 ? $this->kiedyZwolniSie($lista, $dzis) : null,
-                'status' => $this->status($pozostalo, $najwieksze),
+                'status' => $this->status($pozostalo),
             ];
         }
 
@@ -67,10 +67,16 @@ class LimitPobytuZagranica
         return $wiersze;
     }
 
-    private function status(int $pozostalo, int $najwieksze): string
+    /**
+     * Stan mówi o dziś, nie o historii. Kto przekroczył próg dwa lata temu,
+     * a teraz ma zapas 53 dni, może jechać — czerwień przy jego nazwisku
+     * wstrzymywałaby wyjazd bez powodu. Dawne przekroczenie pokazujemy
+     * osobno, przy najdłuższym oknie.
+     */
+    private function status(int $pozostalo): string
     {
-        if ($pozostalo === 0 || $najwieksze > self::LIMIT_DNI) {
-            return 'przekroczony';
+        if ($pozostalo === 0) {
+            return 'wyczerpany';
         }
 
         return $pozostalo <= self::PROG_UWAGI ? 'uwaga' : 'ok';

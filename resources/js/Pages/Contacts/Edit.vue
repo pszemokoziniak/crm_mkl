@@ -229,6 +229,11 @@
               <td class="px-6 py-3 text-xs text-gray-500 whitespace-nowrap">
                 {{ kraj.najwieksze_okno }} dni
                 <span v-if="kraj.okno_od">({{ kraj.okno_od }} → {{ kraj.okno_do }})</span>
+                <!-- Dawne przekroczenie to fakt dla księgowości, ale nie
+                     wstrzymuje dzisiejszego wyjazdu. -->
+                <span v-if="kraj.kiedys_przekroczony" class="ml-1 font-semibold text-red-700">
+                  próg przekroczony
+                </span>
               </td>
             </tr>
           </tbody>
@@ -483,20 +488,16 @@ export default {
   },
   methods: {
     klasaLimitu(status) {
-      if (status === 'przekroczony') return 'text-red-700'
+      if (status === 'wyczerpany') return 'text-red-700'
       return status === 'uwaga' ? 'text-orange-700' : 'text-gray-800'
     },
     plakietkaLimitu(status) {
-      if (status === 'przekroczony') return 'bg-red-100 text-red-800 border border-red-200'
+      if (status === 'wyczerpany') return 'bg-red-100 text-red-800 border border-red-200'
       if (status === 'uwaga') return 'bg-yellow-100 text-yellow-800 border border-yellow-200'
       return 'bg-green-100 text-green-800 border border-green-200'
     },
     opisLimitu(kraj) {
-      if (kraj.status === 'przekroczony') {
-        // Rozróżniamy "dziś nie ma zapasu" od "kiedyś próg został przekroczony".
-        return kraj.pozostalo === 0 ? 'limit wyczerpany' : 'przekroczony w przeszłości'
-      }
-
+      if (kraj.status === 'wyczerpany') return 'limit wyczerpany'
       return kraj.status === 'uwaga' ? 'blisko limitu' : 'w normie'
     },
     openAssignConfirm() {
