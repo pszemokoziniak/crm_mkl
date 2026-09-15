@@ -41,6 +41,7 @@
               </Link>
               <span v-else>{{ badanie.name ? badanie.name.name : '—' }}</span>
               <span v-if="badanie.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+              <span v-if="badanie.zastapione" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600" title="Jest nowszy wpis tego samego rodzaju">zastąpione</span>
               <!-- Skan wgrany przy tym wpisie — od razu widać, czy jest. -->
               <a
                 v-if="badanie.skan"
@@ -168,6 +169,9 @@ export default {
     // Ta sama skala co na pulpicie, żeby "po terminie" znaczyło wszędzie to samo.
     opisTerminu(badanie) {
       if (badanie.deleted_at) return 'w koszu'
+      // Wpis zastąpiony nowszym nie jest zaległością — pulpit też go
+      // pomija, więc lista nie ma powodu straszyć czerwienią.
+      if (badanie.zastapione) return 'zastąpione nowszym'
       if (badanie.dni === null || badanie.dni === undefined) return 'bez daty końca'
       if (badanie.dni < 0) return `po terminie od ${Math.abs(badanie.dni)} dni`
       if (badanie.dni === 0) return 'kończy się dziś'
@@ -175,6 +179,7 @@ export default {
     },
     klasaTerminu(badanie) {
       if (badanie.deleted_at) return 'text-gray-400'
+      if (badanie.zastapione) return 'text-gray-400'
       if (badanie.dni === null || badanie.dni === undefined) return 'text-gray-500'
       if (badanie.dni < 0) return 'text-red-700'
       return badanie.dni <= 30 ? 'text-orange-700' : 'text-gray-600'

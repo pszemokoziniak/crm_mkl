@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ZastapioneWpisy;
 use App\Http\Requests\StoreBhpRequest;
 use App\Http\Requests\UpdateBhpRequest;
 use App\Models\Bhp;
@@ -25,6 +26,10 @@ class BhpController extends Controller
         $dzis = Carbon::today();
         $zKoszem = $request->input('trashed') === 'with';
 
+        // Który wpis jest już tylko historią — ten sam podział,
+        // co na pulpicie, żeby lista mówiła to samo co alarmy.
+        $zastapione = app(ZastapioneWpisy::class)->idsDla('bhps', $contact->id, 'bhpTyp_id');
+
         $bhps = Bhp::with('skan', 'bhpTyp')
             ->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
@@ -34,6 +39,7 @@ class BhpController extends Controller
             ->withQueryString()
             ->through(fn ($bhp) => [
                 'id' => $bhp->id,
+                    'zastapione' => in_array($bhp->id, $zastapione, true),
                 'start' => $bhp->start,
                 'bhp' => $bhp->bhpTyp ? $bhp->bhpTyp : null,
                 'end' => $bhp->end,

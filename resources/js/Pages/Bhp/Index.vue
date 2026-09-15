@@ -40,6 +40,7 @@
               </Link>
               <span v-else>{{ item.bhp ? item.bhp.name : '—' }}</span>
               <span v-if="item.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+              <span v-if="item.zastapione" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600" title="Jest nowszy wpis tego samego rodzaju">zastąpione</span>
               <!-- Skan wgrany przy tym wpisie — od razu widać, czy jest. -->
               <a
                 v-if="item.skan"
@@ -161,6 +162,9 @@ export default {
     // Ta sama skala co na pulpicie i w badaniach.
     opisTerminu(item) {
       if (item.deleted_at) return 'w koszu'
+      // Wpis zastąpiony nowszym nie jest zaległością — pulpit też go
+      // pomija, więc lista nie ma powodu straszyć czerwienią.
+      if (item.zastapione) return 'zastąpione nowszym'
       if (item.dni === null || item.dni === undefined) return 'bez daty końca'
       if (item.dni < 0) return `po terminie od ${Math.abs(item.dni)} dni`
       if (item.dni === 0) return 'kończy się dziś'
@@ -168,6 +172,7 @@ export default {
     },
     klasaTerminu(item) {
       if (item.deleted_at) return 'text-gray-400'
+      if (item.zastapione) return 'text-gray-400'
       if (item.dni === null || item.dni === undefined) return 'text-gray-500'
       if (item.dni < 0) return 'text-red-700'
       return item.dni <= 30 ? 'text-orange-700' : 'text-gray-600'

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ZastapioneWpisy;
 use App\Http\Requests\StoreBadaniaRequest;
 use App\Http\Requests\StoreUprawnieniaRequest;
 use App\Http\Requests\UpdateBhpRequest;
@@ -28,6 +29,10 @@ class UprawnieniaController extends Controller
         $dzis = Carbon::today();
         $zKoszem = $request->input('trashed') === 'with';
 
+        // Który wpis jest już tylko historią — ten sam podział,
+        // co na pulpicie, żeby lista mówiła to samo co alarmy.
+        $zastapione = app(ZastapioneWpisy::class)->idsDla('uprawnienias', $contact->id, 'uprawnieniaTyp_id');
+
         $uprawnienias = Uprawnienia::with('skan', 'uprawnieniaTyp')
             ->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
@@ -37,6 +42,7 @@ class UprawnieniaController extends Controller
             ->withQueryString()
             ->through(fn ($uprawnienia) => [
                 'id' => $uprawnienia->id,
+                    'zastapione' => in_array($uprawnienia->id, $zastapione, true),
                 'start' => $uprawnienia->start,
                 'uprawnienia' => $uprawnienia->uprawnieniaTyp ? $uprawnienia->uprawnieniaTyp : null,
                 'end' => $uprawnienia->end,

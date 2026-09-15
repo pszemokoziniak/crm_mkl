@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ZastapioneWpisy;
 use App\Http\Controllers\Controller;
 
 use App\Http\Requests\StoreBadaniaRequest;
@@ -30,6 +31,10 @@ class BadaniaController extends Controller
         $dzis = Carbon::today();
         $zKoszem = Request::input('trashed') === 'with';
 
+        // Który wpis jest już tylko historią — ten sam podział,
+        // co na pulpicie, żeby lista mówiła to samo co alarmy.
+        $zastapione = app(ZastapioneWpisy::class)->idsDla('badanias', $contact->id, 'badaniaTyp_id');
+
         $bads = Badania::with('skan', 'badaniaTyp')
                 ->where('contact_id', $contact->id)
                 ->when($zKoszem, fn ($q) => $q->withTrashed())
@@ -40,6 +45,7 @@ class BadaniaController extends Controller
                 ->withQueryString()
                 ->through(fn ($badania) => [
                     'id' => $badania->id,
+                    'zastapione' => in_array($badania->id, $zastapione, true),
                     'start' => $badania->start,
                     'name' => $badania->badaniaTyp ? $badania->badaniaTyp : null,
                     'end' => $badania->end,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ZastapioneWpisy;
 use App\Http\Requests\StoreA1Request;
 use App\Models\A1;
 use App\Enums\TypDokumentu;
@@ -25,6 +26,10 @@ class A1Controller extends Controller
         $dzis = Carbon::today();
         $zKoszem = $request->input('trashed') === 'with';
 
+        // Który wpis jest już tylko historią — ten sam podział,
+        // co na pulpicie, żeby lista mówiła to samo co alarmy.
+        $zastapione = app(ZastapioneWpisy::class)->idsDla('a1_s', $contact->id, null);
+
         return Inertia::render('A1/Index', [
             'filters' => $request->only('search', 'trashed'),
             'pracownik' => $this->danePracownika($contact),
@@ -37,6 +42,7 @@ class A1Controller extends Controller
                 ->withQueryString()
                 ->through(fn ($a1) => [
                     'id' => $a1->id,
+                    'zastapione' => in_array($a1->id, $zastapione, true),
                     'start' => $a1->start,
                     'end' => $a1->end,
                     'kraj' => $a1->kraj ? $a1->kraj : null,

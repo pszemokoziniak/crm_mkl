@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ZastapioneWpisy;
 use App\Http\Requests\StorePbiozRequest;
 use App\Enums\TypDokumentu;
 use App\Http\Controllers\Concerns\ZapisujeSkan;
@@ -23,6 +24,10 @@ class PbiozController extends Controller
         $dzis = Carbon::today();
         $zKoszem = $request->input('trashed') === 'with';
 
+        // Który wpis jest już tylko historią — ten sam podział,
+        // co na pulpicie, żeby lista mówiła to samo co alarmy.
+        $zastapione = app(ZastapioneWpisy::class)->idsDla('pbiozs', $contact->id, null);
+
         $pbioz = Pbioz::with('skan')->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
             // Najświeższy wpis na górze — to on decyduje o ważności.
@@ -31,6 +36,7 @@ class PbiozController extends Controller
             ->withQueryString()
             ->through(fn ($pbioz) => [
                 'id' => $pbioz->id,
+                    'zastapione' => in_array($pbioz->id, $zastapione, true),
                 'name' => $pbioz->name,
                 'start' => $pbioz->start,
                 'end' => $pbioz->end,
