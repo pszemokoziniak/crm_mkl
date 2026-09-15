@@ -95,6 +95,27 @@ class KierownikProjektuTest extends TestCase
         $this->assertTrue($this->opiekun->prowadziBudowy());
     }
 
+    public function test_menu_pokazuje_mu_budowy(): void
+    {
+        // Zgłoszenie: po wejściu na konto Gorzkowskiego nie było zakładki
+        // Budowy. Serwer go tam wpuszczał, ale widoki pytają o znacznik
+        // "kierownik", którego ta rola w ogóle nie dostawała — więc menu
+        // gubiło Budowy, Termin uprawnień i Statystyki naraz.
+        $uprawnienia = $this->opiekun->permissions;
+
+        $this->assertTrue($uprawnienia['kierownik'], 'Na tym stoją pozycje menu i widoki budowy.');
+        $this->assertTrue($uprawnienia['kierownik_projektu']);
+        $this->assertFalse($uprawnienia['biuro']);
+        $this->assertFalse($uprawnienia['admin']);
+    }
+
+    public function test_te_same_ekrany_co_kierownik_budowy_sa_dostepne(): void
+    {
+        $this->actingAs($this->opiekun)->get('/budowy')->assertOk();
+        $this->actingAs($this->opiekun)->get('/reports/koniecUprawinien')->assertOk();
+        $this->actingAs($this->opiekun)->get('/statystyki')->assertOk();
+    }
+
     public function test_widzi_tylko_budowy_ktorych_jest_opiekunem(): void
     {
         $props = $this->actingAs($this->opiekun)->get('/budowy')->assertOk()->viewData('page')['props'];

@@ -134,9 +134,14 @@ class User extends Authenticatable
             // stanowisko — kierownictwo ma na razie ten sam zakres, więc
             // dostaje tę samą flagę i nie trzeba ruszać kilkudziesięciu v-if.
             'biuro' => $this->hasRole(Role::BIURO) || $this->hasRole(Role::KIEROWNICTWO),
-            'kierownik' => $this->hasRole(Role::KIEROWNIK),
-            // Osobna flaga na wypadek, gdy zakresy zaczną się różnić.
+            // Kierownik projektu ma ten sam zakres, co kierownik budowy — tak
+            // ustalono przy zakładaniu tej roli. Bez tej flagi menu gubiło mu
+            // Budowy, Termin uprawnień i Statystyki, mimo że serwer go tam
+            // wpuszczał: widoki pytają o "kierownik", a nie o numer roli.
+            'kierownik' => $this->hasRole(Role::KIEROWNIK) || $this->hasRole(Role::KIEROWNIK_PROJEKTU),
+            // Osobne flagi na wypadek, gdy zakresy zaczną się różnić.
             'kierownictwo' => $this->hasRole(Role::KIEROWNICTWO),
+            'kierownik_projektu' => $this->hasRole(Role::KIEROWNIK_PROJEKTU),
         ];
     }
 
