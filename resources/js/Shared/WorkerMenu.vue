@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { prowadziBudowy } from '@/role'
 import { Link } from '@inertiajs/inertia-vue3'
 
 export default {
@@ -51,7 +52,10 @@ export default {
       return this.userOwner ?? this.$page.props.auth?.user?.owner
     },
     widoczne() {
-      return this.zakladki.filter((z) => !z.tylkoBiuro || this.rola !== 3)
+      // Zaszyte "rola !== 3" gubiło kierownika projektu: widział zakładkę
+      // Umowa, a serwer odmawiał jej otwarcia. Pytamy o to samo, co reszta
+      // systemu — czy ta osoba prowadzi budowy, czy siedzi w biurze.
+      return this.zakladki.filter((z) => !z.tylkoBiuro || !prowadziBudowy(this.rola))
     },
   },
   methods: {
