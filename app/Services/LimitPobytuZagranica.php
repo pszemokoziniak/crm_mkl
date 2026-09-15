@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
 use App\Models\KrajTyp;
+use App\Models\Organization;
 use Carbon\Carbon;
 
 /**
@@ -73,6 +74,189 @@ class LimitPobytuZagranica
      * wstrzymywałaby wyjazd bez powodu. Dawne przekroczenie pokazujemy
      * osobno, przy najdłuższym oknie.
      */
+    /**
+     * Czy dopisanie pobytu przepełni limit w kraju tej budowy.
+     *
+     * Liczymy z dniami zaplanowanymi na przyszłość, bo pytanie brzmi "czy
+     * wolno go tam wysłać", a nie "ile już wykorzystał". Zwraca null, gdy
+     * jest w porządku albo gdy budowa jest w kraju macierzystym.
+     *
+     * @return array{kraj: string, dni: int, od: ?string, do: ?string}|null
+     */
+    public function przekroczenieDla(Contact $contact, Organization $budowa, string $od, string $do): ?array
+    {
+        $kraj = optional($budowa->krajTyp);
+
+        if (! $kraj->name || in_array((int) $kraj->id, KrajTyp::idsBezA1(), true)) {
+            return null;
+        }
+
+        $dni = [];
+
+        foreach ($this->pobytyWKraju($contact, $kraj->name) as $pobyt) {
+            foreach ($this->dniPobytu($pobyt, Carbon::today()->startOfDay()) as $dzien) {
+                $dni[$dzien] = true;
+            }
+        }
+
+        $poczatek = Carbon::parse($od)->startOfDay();
+        $koniec = Carbon::parse($do)->startOfDay();
+
+        for ($dzien = $poczatek->copy(); $dzien->lte($koniec); $dzien->addDay()) {
+            $dni[$dzien->toDateString()] = true;
+        }
+
+        ksort($dni);
+        [$najwieksze, $oknoOd, $oknoDo] = $this->najwiekszeOkno(array_keys($dni));
+
+        if ($najwieksze <= self::LIMIT_DNI) {
+            return null;
+        }
+
+        return ['kraj' => $kraj->name, 'dni' => $najwieksze, 'od' => $oknoOd, 'do' => $oknoDo];
+    }
+
+    /** @return \Illuminate\Support\Collection<int, ContactWorkDate> */
+    private function pobytyWKraju(Contact $contact, string $kraj)
+    {
+        return ContactWorkDate::with('organization.krajTyp')
+            ->where('contact_id', $contact->id)
+            ->whereNotNull('start')
+            ->get()
+            ->filter(fn (ContactWorkDate $p) => optional(optional($p->organization)->krajTyp)->name === $kraj);
+    }
+
+    /**
+     * Ci, którzy są dziś na budowie za granicą i mają już mało zapasu.
+     * Jedno zapytanie na wszystkich — to samo liczone po kolei dla każdego
+     * dokładałoby zapytanie na wiersz pulpitu.
+     *
+     * @param  array<int, int>|null  $tylkoPracownicy  null = wszyscy
+     * @return array<int, array<string, mixed>>
+     */
+    public function zblizajacySieDoLimitu(?array $tylkoPracownicy = null, ?string $dzien = null, ?int $prog = null): array
+    {
+        $dzis = Carbon::parse($dzien ?? Carbon::today()->toDateString())->startOfDay();
+        $prog = $prog ?? self::PROG_UWAGI;
+        $macierzyste = KrajTyp::idsBezA1();
+
+        // Kto jest dziś za granicą — tylko o nich pytamy dalej.
+        $naBudowie = ContactWorkDate::with('organization.krajTyp', 'contact')
+            ->whereHas('contact')
+            ->when($tylkoPracownicy !== null, fn ($q) => $q->whereIn('contact_id', $tylkoPracownicy ?: [0]))
+            ->activeOn($dzis->toDateString())
+            ->get()
+            ->filter(function (ContactWorkDate $pobyt) use ($macierzyste) {
+                $kraj = optional(optional($pobyt->organization)->krajTyp);
+
+                return $kraj->name && ! in_array((int) $kraj->id, $macierzyste, true);
+            });
+
+        if ($naBudowie->isEmpty()) {
+            return [];
+        }
+
+        $kalendarze = $this->kalendarzeDlaPracownikow($naBudowie->pluck('contact_id')->unique()->all(), $dzis);
+        $wiersze = [];
+
+        foreach ($naBudowie as $pobyt) {
+            $kraj = $pobyt->organization->krajTyp->name;
+            $dni = $kalendarze[$pobyt->contact_id][$kraj] ?? [];
+
+            if ($dni === []) {
+                continue;
+            }
+
+            ksort($dni);
+            $wykorzystane = $this->wOknieDo(array_keys($dni), $dzis);
+            $pozostalo = max(0, self::LIMIT_DNI - $wykorzystane);
+
+            if ($pozostalo > $prog) {
+                continue;
+            }
+
+            $klucz = $pobyt->contact_id.'-'.$kraj;
+
+            $wiersze[$klucz] = [
+                'contact' => $pobyt->contact,
+                'organization' => $pobyt->organization,
+                'kraj' => $kraj,
+                'dni_12m' => $wykorzystane,
+                'pozostalo' => $pozostalo,
+                // Dzień, w którym limit pęknie, jeśli pobyt potrwa bez przerwy.
+                'przekroczy' => $dzis->copy()->addDays($pozostalo)->toDateString(),
+                'status' => $this->status($pozostalo),
+            ];
+        }
+
+        return array_values($wiersze);
+    }
+
+    /**
+     * Ile dni zostało tym pracownikom w jednym wskazanym kraju — do listy
+     * wyboru przy wysyłaniu ludzi na budowę.
+     *
+     * @param  array<int, int>  $pracownicy
+     * @return array<int, array{dni_12m: int, pozostalo: int, status: string}>
+     */
+    public function dlaKraju(array $pracownicy, ?string $kraj, ?string $dzien = null): array
+    {
+        if ($kraj === null || $pracownicy === []) {
+            return [];
+        }
+
+        $dzis = Carbon::parse($dzien ?? Carbon::today()->toDateString())->startOfDay();
+        $kalendarze = $this->kalendarzeDlaPracownikow($pracownicy, $dzis);
+        $wynik = [];
+
+        foreach ($pracownicy as $id) {
+            $dni = $kalendarze[$id][$kraj] ?? [];
+            ksort($dni);
+            $wykorzystane = $this->wOknieDo(array_keys($dni), $dzis);
+            $pozostalo = max(0, self::LIMIT_DNI - $wykorzystane);
+
+            $wynik[$id] = [
+                'dni_12m' => $wykorzystane,
+                'pozostalo' => $pozostalo,
+                'status' => $this->status($pozostalo),
+            ];
+        }
+
+        return $wynik;
+    }
+
+    /**
+     * Kalendarze pobytów wielu pracowników naraz.
+     *
+     * @param  array<int, int>  $pracownicy
+     * @return array<int, array<string, array<string, true>>>
+     */
+    private function kalendarzeDlaPracownikow(array $pracownicy, Carbon $dzis): array
+    {
+        $macierzyste = KrajTyp::idsBezA1();
+
+        $pobyty = ContactWorkDate::with('organization.krajTyp')
+            ->whereIn('contact_id', $pracownicy ?: [0])
+            ->whereNotNull('start')
+            ->get();
+
+        $kalendarze = [];
+
+        foreach ($pobyty as $pobyt) {
+            $kraj = optional(optional($pobyt->organization)->krajTyp);
+
+            if (! $kraj->name || in_array((int) $kraj->id, $macierzyste, true)) {
+                continue;
+            }
+
+            foreach ($this->dniPobytu($pobyt, $dzis) as $dzien) {
+                $kalendarze[$pobyt->contact_id][$kraj->name][$dzien] = true;
+            }
+        }
+
+        return $kalendarze;
+    }
+
     private function status(int $pozostalo): string
     {
         if ($pozostalo === 0) {
@@ -108,25 +292,40 @@ class LimitPobytuZagranica
                 continue;
             }
 
-            $od = Carbon::parse($pobyt->start)->startOfDay();
-            // Pobyt bez daty końca wciąż trwa; przyszłości nie liczymy jako
-            // dni już wykorzystanych.
-            $do = $pobyt->end ? Carbon::parse($pobyt->end)->startOfDay() : $dzis->copy();
-
-            if ($do->gt($dzis)) {
-                $do = $dzis->copy();
-            }
-
-            if ($do->lt($od)) {
-                continue;
-            }
-
-            for ($dzien = $od->copy(); $dzien->lte($do); $dzien->addDay()) {
-                $kalendarz[$kraj->name][$dzien->toDateString()] = true;
+            foreach ($this->dniPobytu($pobyt, $dzis) as $dzien) {
+                $kalendarz[$kraj->name][$dzien] = true;
             }
         }
 
         return $kalendarz;
+    }
+
+    /**
+     * Dni jednego pobytu, razem z przyjazdem i wyjazdem. Pobyt bez daty końca
+     * wciąż trwa; przyszłości nie liczymy jako dni już wykorzystanych.
+     *
+     * @return array<int, string>
+     */
+    private function dniPobytu(ContactWorkDate $pobyt, Carbon $dzis): array
+    {
+        $od = Carbon::parse($pobyt->start)->startOfDay();
+        $do = $pobyt->end ? Carbon::parse($pobyt->end)->startOfDay() : $dzis->copy();
+
+        if ($do->gt($dzis)) {
+            $do = $dzis->copy();
+        }
+
+        if ($do->lt($od)) {
+            return [];
+        }
+
+        $dni = [];
+
+        for ($dzien = $od->copy(); $dzien->lte($do); $dzien->addDay()) {
+            $dni[] = $dzien->toDateString();
+        }
+
+        return $dni;
     }
 
     /** Ile z tych dni mieści się w oknie 365 dni kończącym się danego dnia. */

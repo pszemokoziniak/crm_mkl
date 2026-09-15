@@ -27,7 +27,7 @@
       </form>
     </div>
     <div v-if="contactsFree" class="max-w">
-      <FreeContactsList :contacts-free="contactsFree" :organization="organization" :start="form.start" :end="form.end" :specialists="specialists" />
+      <FreeContactsList :contacts-free="contactsFree" :organization="organization" :kraj-budowy="krajBudowy" :start="form.start" :end="form.end" :specialists="specialists" />
     </div>
   </div>
 
@@ -102,6 +102,7 @@ export default {
     organization: Object,
     contacts: Object,
     contactsFree: null,
+    krajBudowy: { type: String, default: null },
     specialists: Object,
   },
   remember: 'form',

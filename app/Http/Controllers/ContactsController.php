@@ -265,6 +265,12 @@ class ContactsController extends Controller
             return Redirect::back()->with('error', $blad);
         }
 
+        $budowa = Organization::find((int) $data['organization_id']);
+
+        // Sprawdzamy PRZED zapisem, żeby policzyć skutek samego dopisania.
+        $przekroczenie = app(LimitPobytuZagranica::class)
+            ->przekroczenieDla($contact, $budowa, $data['start'], $data['end']);
+
         ContactWorkDate::create([
             'contact_id' => $contact->id,
             'organization_id' => $data['organization_id'],
@@ -272,7 +278,22 @@ class ContactsController extends Controller
             'end' => $data['end'],
         ]);
 
+        // Nie blokujemy: to decyzja firmy, czy przyjąć skutek podatkowy.
+        // Ale nikt nie powinien się o tym dowiadywać pół roku później.
+        if ($przekroczenie) {
+            return Redirect::back()->with('warning', $this->opisPrzekroczenia($przekroczenie));
+        }
+
         return Redirect::back()->with('success', 'Pracownik przypisany do budowy.');
+    }
+
+    /** @param array{kraj: string, dni: int, od: ?string, do: ?string} $p */
+    private function opisPrzekroczenia(array $p): string
+    {
+        return sprintf(
+            'Zapisano, ale uwaga na limit 183 dni: po tym pobycie wychodzi %d dni w %s w okresie %s – %s.',
+            $p['dni'], $p['kraj'], $p['od'], $p['do']
+        );
     }
 
     public function update(Contact $contact, StoreContactRequest $request)

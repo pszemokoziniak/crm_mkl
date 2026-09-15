@@ -11,6 +11,7 @@ use App\Models\BuildingTimeSheet;
 use App\Models\Funkcja;
 use App\Models\Organization;
 use App\Services\KolizjaPobytu;
+use App\Services\LimitPobytuZagranica;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -186,6 +187,17 @@ class BudowaPracownicyController extends Controller
             );
         }
 
+        // Kogo ten pobyt przepełni ponad 183 dni w kraju budowy — liczymy
+        // przed zapisem, żeby zobaczyć skutek samego dopisania.
+        $limit = app(LimitPobytuZagranica::class);
+        $przekroczeni = [];
+
+        foreach (Contact::whereIn('id', $toAssign)->get() as $pracownik) {
+            if ($limit->przekroczenieDla($pracownik, $organization, $start, $end)) {
+                $przekroczeni[] = trim($pracownik->last_name.' '.$pracownik->first_name);
+            }
+        }
+
         DB::transaction(function () use ($toAssign, $organization, $start, $end) {
             foreach ($toAssign as $contactId) {
                 $data = new ContactWorkDate();
@@ -196,6 +208,14 @@ class BudowaPracownicyController extends Controller
                 $data->save();
             }
         });
+
+        if ($przekroczeni !== []) {
+            // Nie blokujemy, to decyzja firmy — ale ma być powiedziane od razu.
+            return Redirect::route('pracownicy.index', $organization->id)->with(
+                'warning',
+                'Dodani. Uwaga na limit 183 dni w kraju tej budowy: '.implode(', ', $przekroczeni).'.'
+            );
+        }
 
         return Redirect::route('pracownicy.index', $organization->id)->with('success', 'Pracownicy dodani.');
     }
@@ -294,9 +314,28 @@ class BudowaPracownicyController extends Controller
         $availableData = $this->getAvailableWorkersData($organization, $start, $end);
         $workers = $this->organizationWorkers($organization->id);
 
+        // Ile dni zostało każdemu z kandydatów w kraju TEJ budowy — decyzja
+        // zapada tutaj, więc liczba ma stać przy nazwisku, a nie dopiero
+        // w ostrzeżeniu po zapisie.
+        // Kontrakt krajowy nie uruchamia limitu, więc kolumny tam nie ma —
+        // inaczej przy każdym nazwisku stałoby "zostało 183 dni" bez sensu.
+        $kraj = $organization->wymagaA1() ? optional($organization->krajTyp)->name : null;
+        $kandydaci = $availableData['specialists']->pluck('id')
+            ->merge($availableData['contactsFree']->pluck('id'))
+            ->unique()->values()->all();
+
+        $limity = app(LimitPobytuZagranica::class)->dlaKraju($kandydaci, $kraj);
+
+        $zLimitem = fn ($lista) => $lista->map(function ($osoba) use ($limity) {
+            $osoba->limit_183 = $limity[$osoba->id] ?? null;
+
+            return $osoba;
+        });
+
         return Inertia::render('Pracownicy/Create', [
-            'specialists'  => $availableData['specialists'],
-            'contactsFree' => $availableData['contactsFree'],
+            'krajBudowy'   => $kraj,
+            'specialists'  => $zLimitem($availableData['specialists']),
+            'contactsFree' => $zLimitem($availableData['contactsFree']),
             'contacts'     => $workers,
             'organization' => $organization,
             'start'        => $start,

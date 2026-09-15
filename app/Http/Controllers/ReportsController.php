@@ -10,6 +10,7 @@ use App\Models\ContactWorkDate;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
+use App\Services\LimitPobytuZagranica;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -161,6 +162,24 @@ class ReportsController extends Controller
                 Str::contains(mb_strtolower($r['last_name'].' '.$r['first_name']), $search)
                 || Str::contains(mb_strtolower((string) $r['name']), $search)
             );
+        }
+
+        // Limit 183 dni w obcym państwie: termin jak każdy inny, tylko liczony
+        // z pobytów. "Koniec" to dzień, w którym limit pęknie, jeśli pobyt
+        // potrwa bez przerwy.
+        foreach (app(LimitPobytuZagranica::class)->zblizajacySieDoLimitu(
+            $moiPracownicy?->all(),
+            $todayStr
+        ) as $limit) {
+            $rows->push([
+                'client_id' => $limit['contact']->id,
+                'last_name' => $limit['contact']->last_name,
+                'first_name' => $limit['contact']->first_name,
+                'name' => $limit['kraj'].' — zostało '.$limit['pozostalo'].' dni',
+                'category' => 'Limit 183 dni',
+                'start' => null,
+                'end' => $limit['przekroczy'],
+            ]);
         }
 
         // Zawsze sort po dacie końca (najbliższe/przeterminowane na górze).

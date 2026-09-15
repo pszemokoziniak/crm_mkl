@@ -13,6 +13,7 @@ use App\Models\Narzedzia;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
+use App\Services\LimitPobytuZagranica;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,7 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(LimitPobytuZagranica $limitPobytu)
     {
         $user = Auth::user();
 
@@ -69,6 +70,13 @@ class DashboardController extends Controller
                     ->whereNull('nowszy.deleted_at');
             });
         };
+
+        // Kierownik pilnuje tylko swoich ludzi — ten sam zakres, co reszta pulpitu.
+        $mojiLudzie = $user->prowadziBudowy()
+            ? ContactWorkDate::whereIn('organization_id', $myOrgIds)
+                ->activeOn($now)
+                ->pluck('contact_id')->unique()->values()
+            : collect();
 
         if ($user->isOffice() || $user->prowadziBudowy()) {
             // Uprawnienia
@@ -131,7 +139,32 @@ class DashboardController extends Controller
             $bhp = $bhpQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Szkolenie BHP', $item->bhpTyp->name ?? 'Brak typu', $now));
             $pbioz = $pbiozQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'PBIOZ', 'PBIOZ', $now));
 
+            // Limit 183 dni w obcym państwie to też termin do pilnowania,
+            // tylko liczony z pobytów, nie z dokumentu. Wchodzi do tej samej
+            // tabeli, żeby biuro miało wszystkie terminy w jednym miejscu.
+            $limity = collect($limitPobytu->zblizajacySieDoLimitu(
+                $user->prowadziBudowy() ? $mojiLudzie->all() : null,
+                $now
+            ))->map(fn (array $w) => [
+                'id' => 'limit-'.$w['contact']->id.'-'.$w['kraj'],
+                'end' => $w['przekroczy'],
+                'dni' => $w['pozostalo'],
+                'status' => $w['pozostalo'] === 0 ? 'po_terminie' : 'wkrotce',
+                'category' => 'Limit 183 dni',
+                'type' => $w['kraj'],
+                'contact' => [
+                    'id' => $w['contact']->id,
+                    'first_name' => $w['contact']->first_name,
+                    'last_name' => $w['contact']->last_name,
+                ],
+                'organization' => $w['organization'] ? [
+                    'id' => $w['organization']->id,
+                    'nazwaBud' => $w['organization']->nazwaBud,
+                ] : null,
+            ]);
+
             $expiringItems = $uprawnienia->concat($badania)->concat($bhp)->concat($pbioz)
+                ->concat($limity)
                 ->sortBy('end')
                 ->values();
         }

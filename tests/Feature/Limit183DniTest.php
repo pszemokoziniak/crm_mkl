@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
+use App\Models\Funkcja;
 use App\Models\KrajTyp;
 use App\Models\Organization;
 use App\Models\User;
@@ -45,8 +46,13 @@ class Limit183DniTest extends TestCase
         $this->francja = $this->budowa('AET Lestrem', $francja->id);
         $this->polska = $this->budowa('Cementownia Kielce', $polska->id);
 
+        // Lista kandydatów łączy pracowników ze słownikiem stanowisk,
+        // więc bez stanowiska ten pracownik w ogóle by się tam nie pojawił.
+        $monter = Funkcja::create(['name' => 'Monter', 'kierownictwo' => false]);
+
         $this->pracownik = Contact::create([
             'account_id' => $this->accountId, 'first_name' => 'Jan', 'last_name' => 'Kowalski',
+            'funkcja_id' => $monter->id, 'status_zatrudnienia' => Contact::STATUS_AKTYWNY,
         ]);
     }
 
@@ -183,6 +189,105 @@ class Limit183DniTest extends TestCase
 
         $this->assertSame(3, $wiersz['pozostalo']);
         $this->assertSame('uwaga', $wiersz['status']);
+    }
+
+    private function biuro(): User
+    {
+        return User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'biuro'.uniqid().'@mkl.pl',
+            'owner' => 2, 'active' => 1, 'password_changed_at' => now()->toDateTimeString(),
+        ]);
+    }
+
+    public function test_pulpit_ostrzega_gdy_zostalo_malo_dni(): void
+    {
+        // Pobyt trwa nadal, więc licznik biegnie — to jest moment, w którym
+        // biuro ma się dowiedzieć, a nie pół roku później.
+        $this->pobyt($this->niemcy, '2026-03-20', null);
+
+        $props = $this->actingAs($this->biuro())->get('/')->viewData('page')['props'];
+        $wiersz = collect($props['expiring_items'])->firstWhere('category', 'Limit 183 dni');
+
+        $this->assertNotNull($wiersz, 'Limit to termin jak każdy inny.');
+        $this->assertSame('Niemcy', $wiersz['type']);
+        $this->assertSame('Kowalski', $wiersz['contact']['last_name']);
+    }
+
+    public function test_pulpit_milczy_gdy_zapasu_jest_duzo(): void
+    {
+        $this->pobyt($this->niemcy, '2026-09-01', null);
+
+        $props = $this->actingAs($this->biuro())->get('/')->viewData('page')['props'];
+
+        $this->assertNull(collect($props['expiring_items'])->firstWhere('category', 'Limit 183 dni'));
+    }
+
+    public function test_raport_terminow_wymienia_limit(): void
+    {
+        $this->pobyt($this->niemcy, '2026-03-20', null);
+
+        $props = $this->actingAs($this->biuro())
+            ->get('/reports/koniecUprawinien')->viewData('page')['props'];
+
+        $wiersz = collect($props['data'])->firstWhere('category', 'Limit 183 dni');
+
+        $this->assertNotNull($wiersz);
+        $this->assertStringContainsString('Niemcy', $wiersz['name']);
+    }
+
+    public function test_przypisanie_do_budowy_ostrzega_o_przekroczeniu(): void
+    {
+        $this->pobyt($this->niemcy, '2026-01-06', '2026-06-30');
+
+        $this->actingAs($this->biuro())
+            ->post('/contacts/'.$this->pracownik->id.'/przypisz-budowe', [
+                'organization_id' => $this->niemcy->id,
+                'start' => '2026-10-01',
+                'end' => '2026-11-30',
+            ])
+            ->assertSessionHas('warning');
+
+        $this->assertDatabaseCount('contact_work_dates', 2, );
+    }
+
+    public function test_przypisanie_w_granicach_limitu_nie_straszy(): void
+    {
+        $this->actingAs($this->biuro())
+            ->post('/contacts/'.$this->pracownik->id.'/przypisz-budowe', [
+                'organization_id' => $this->niemcy->id,
+                'start' => '2026-10-01',
+                'end' => '2026-10-31',
+            ])
+            ->assertSessionHas('success');
+    }
+
+    public function test_lista_kandydatow_pokazuje_pozostale_dni_w_kraju_budowy(): void
+    {
+        $this->pobyt($this->niemcy, '2026-03-20', '2026-09-10');
+
+        $props = $this->actingAs($this->biuro())
+            ->post('/pracownicy/'.$this->niemcy->id.'/create', [
+                'start' => '2026-10-01', 'end' => '2026-10-31',
+            ])
+            ->viewData('page')['props'];
+
+        $this->assertSame('Niemcy', $props['krajBudowy']);
+
+        $kandydat = collect($props['contactsFree'])->concat($props['specialists'])
+            ->firstWhere('id', $this->pracownik->id);
+
+        $this->assertNotNull($kandydat['limit_183'] ?? null, 'Liczba ma stać przy nazwisku w chwili wyboru.');
+    }
+
+    public function test_przy_budowie_w_kraju_nie_ma_kolumny_limitu(): void
+    {
+        $props = $this->actingAs($this->biuro())
+            ->post('/pracownicy/'.$this->polska->id.'/create', [
+                'start' => '2026-10-01', 'end' => '2026-10-31',
+            ])
+            ->viewData('page')['props'];
+
+        $this->assertNull($props['krajBudowy'], 'W kraju macierzystym limit nie biegnie.');
     }
 
     public function test_karta_pracownika_podaje_zestawienie(): void

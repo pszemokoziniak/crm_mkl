@@ -57,6 +57,8 @@ class HandleInertiaRequests extends Middleware
             'flash' => function () use ($request) {
                 return [
                     'success' => $request->session()->get('success'),
+                    // Ostrzeżenie: zapis się udał, ale warto o czymś wiedzieć.
+                    'warning' => $request->session()->get('warning'),
                     'error' => $request->session()->get('error'),
                 ];
             },

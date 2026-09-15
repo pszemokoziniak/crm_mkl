@@ -10,6 +10,9 @@
           <th>Nazwisko Imię</th>
           <th>Pozycja</th>
           <th>Status</th>
+          <!-- Limit 183 dni w kraju tej budowy. Pokazujemy tylko za granicą,
+               bo w kraju macierzystym nic nie biegnie. -->
+          <th v-if="krajBudowy" class="whitespace-nowrap">Limit {{ krajBudowy }}</th>
           <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
         </tr>
         <tr v-for="free in paginatedContacts" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
@@ -27,6 +30,12 @@
             <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
               {{ free.status_zatrudnienia }}
             </Link>
+          </td>
+          <td v-if="krajBudowy" class="border-t px-6 py-4 whitespace-nowrap">
+            <span v-if="free.limit_183" :class="klasaLimitu(free.limit_183.status)">
+              zostało {{ free.limit_183.pozostalo }} dni
+            </span>
+            <span v-else class="text-gray-300">—</span>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
@@ -86,6 +95,7 @@ export default {
     contactsFree: Object,
     specialists: Object,
     organization: Object,
+    krajBudowy: { type: String, default: null },
     start: String,
     end: String,
   },
@@ -130,6 +140,10 @@ export default {
     },
   },
   methods: {
+    klasaLimitu(limit) {
+      if (limit.status === 'wyczerpany') return 'font-semibold text-red-700'
+      return limit.status === 'uwaga' ? 'font-semibold text-orange-700' : 'text-gray-600'
+    },
     store() {
       this.form.post(`/pracownicy/${this.organization.id}/`, {
         onSuccess: () => {
