@@ -61,10 +61,19 @@ class Organization extends Model
     /**
      * Zakład podatkowy: podatek należy się za granicą od pierwszego dnia,
      * więc próg 183 dni nie ma tu znaczenia i nie ma o czym ostrzegać.
+     *
+     * Czytamy pole "Zakład podatkowy" z formularza budowy. Poza tak/nie
+     * bywają tam wpisane kody krajów (SE, PL, FI) — takich nie zgadujemy,
+     * dopóki ktoś nie ustawi pola wprost.
      */
     public function liczySieDoLimitu183(): bool
     {
-        return $this->wymagaA1() && ! $this->zaklad_podatkowy;
+        return $this->wymagaA1() && ! $this->jestZaklademPodatkowym();
+    }
+
+    public function jestZaklademPodatkowym(): bool
+    {
+        return mb_strtolower(trim((string) $this->zaklad)) === 'tak';
     }
 
     public function wymagaA1(): bool

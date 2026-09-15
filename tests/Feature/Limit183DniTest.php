@@ -336,7 +336,8 @@ class Limit183DniTest extends TestCase
     public function test_zaklad_podatkowy_nie_wchodzi_do_limitu(): void
     {
         // Podatek należy się tam od pierwszego dnia, więc próg nie ma znaczenia.
-        $this->niemcy->update(['zaklad_podatkowy' => true]);
+        // Decyduje pole "Zakład podatkowy" z formularza budowy.
+        $this->niemcy->update(['zaklad' => 'tak']);
         $this->pobyt($this->niemcy, '2026-01-06', '2026-09-15');
 
         $this->assertArrayNotHasKey('Niemcy', $this->wyliczenie());
@@ -344,7 +345,7 @@ class Limit183DniTest extends TestCase
 
     public function test_przypisanie_na_zaklad_podatkowy_nie_straszy(): void
     {
-        $this->niemcy->update(['zaklad_podatkowy' => true]);
+        $this->niemcy->update(['zaklad' => 'tak']);
         $this->pobyt($this->niemcy, '2026-01-06', '2026-06-30');
 
         $this->actingAs($this->biuro())
@@ -394,6 +395,16 @@ class Limit183DniTest extends TestCase
             ->assertRedirect();
 
         $this->assertSame(150, $this->wyliczenie()['Francja']['dni_12m']);
+    }
+
+    public function test_kod_kraju_w_polu_zakladu_nie_wylacza_limitu(): void
+    {
+        // W tym polu bywają wpisane kody krajów (SE, PL, FI). Nie zgadujemy,
+        // co autor miał na myśli — limit liczy się dalej.
+        $this->niemcy->update(['zaklad' => 'SE']);
+        $this->pobyt($this->niemcy, '2026-01-06', '2026-09-15');
+
+        $this->assertArrayHasKey('Niemcy', $this->wyliczenie());
     }
 
     public function test_karta_pracownika_podaje_zestawienie(): void

@@ -39,20 +39,17 @@
           <text-input v-model="form.numerBud" :error="form.errors.numerBud" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Numer Projektu" />
           <text-input v-model="form.city" :error="form.errors.city" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Miasto" />
           <client-picker v-model="form.name" v-model:clientId="form.crm_client_id" :error="form.errors.name" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Nazwa Klienta" />
-          <select-input v-model="form.zaklad" :error="form.errors.zaklad" :disabled="flag" class="pb-8 pr-6 w-full lg:w-1/2" label="Zakład podatkowy">
-            <option :value="null">—</option>
-            <option value="TAK">TAK</option>
-            <option value="NIE">NIE</option>
-          </select-input>
-          <!-- Zakład podatkowy: podatek należny za granicą od pierwszego dnia,
-               więc próg 183 dni tej budowy nie dotyczy. -->
+          <!-- To pole decyduje też o limicie 183 dni: przy zakładzie podatkowym
+               podatek należy się od pierwszego dnia, więc próg nie ma znaczenia. -->
           <div class="pb-8 pr-6 w-full lg:w-1/2">
-            <label class="flex items-center gap-2 text-sm text-gray-700">
-              <input v-model="form.zaklad_podatkowy" type="checkbox" class="form-checkbox" :disabled="flag" />
-              <span>Zakład podatkowy (limit 183 dni nie dotyczy)</span>
-            </label>
+            <select-input v-model="form.zaklad" :error="form.errors.zaklad" :disabled="flag" label="Zakład podatkowy">
+              <option :value="null">—</option>
+              <option value="tak">TAK</option>
+              <option value="nie">NIE</option>
+            </select-input>
             <p class="mt-1 text-xs text-gray-500">
-              Zaznacz, gdy podatek od wynagrodzenia należy się za granicą od pierwszego dnia pracy.
+              TAK oznacza, że podatek należy się za granicą od pierwszego dnia pracy.
+              Przy takiej budowie nie liczymy limitu 183 dni i nie ostrzegamy o nim.
             </p>
           </div>
           <!-- Warsztat prowadzimy jak budowę (przypisania, godziny),
@@ -156,7 +153,6 @@ export default {
         zaklad: this.organization.zaklad,
         kierownik_projektu_id: this.organization.kierownik_projektu_id,
         warsztat: this.organization.warsztat,
-        zaklad_podatkowy: this.organization.zaklad_podatkowy,
         country_id: this.organization.country_id,
         addressBud: this.organization.addressBud,
         addressKwat: this.organization.addressKwat,
