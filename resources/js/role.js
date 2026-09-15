@@ -7,6 +7,7 @@ export const ROLE = {
   KIEROWNIK: 3,
   KIEROWNICTWO: 4,
   KIEROWNIK_PROJEKTU: 5,
+  KADRY: 6,
 }
 
 export const ETYKIETY_ROL = {
@@ -15,10 +16,11 @@ export const ETYKIETY_ROL = {
   [ROLE.KIEROWNIK]: 'Kierownik budowy',
   [ROLE.KIEROWNICTWO]: 'Kierownictwo',
   [ROLE.KIEROWNIK_PROJEKTU]: 'Kierownik projektu',
+  [ROLE.KADRY]: 'Kadry',
 }
 
 /** Do list rozwijanych — kolejność jak w formularzu. */
-export const OPCJE_ROL = [ROLE.ADMIN, ROLE.BIURO, ROLE.KIEROWNIK, ROLE.KIEROWNIK_PROJEKTU, ROLE.KIEROWNICTWO].map((wartosc) => ({
+export const OPCJE_ROL = [ROLE.ADMIN, ROLE.BIURO, ROLE.KADRY, ROLE.KIEROWNIK, ROLE.KIEROWNIK_PROJEKTU, ROLE.KIEROWNICTWO].map((wartosc) => ({
   wartosc,
   etykieta: ETYKIETY_ROL[wartosc],
 }))

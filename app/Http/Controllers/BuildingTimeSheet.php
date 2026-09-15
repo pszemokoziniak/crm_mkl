@@ -21,12 +21,51 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\BuildingTimeSheet as BuildingTimeSheetModel;
+use App\Models\PobranieKcp;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class BuildingTimeSheet extends Controller
 {
+    /**
+     * Ile dni wstecz kierownik budowy może jeszcze uzupełnić KCP.
+     * Dotąd reguła istniała tylko w przeglądarce (i liczyła 3 dni od
+     * początku wyświetlanego miesiąca, nie od konkretnego dnia), więc
+     * samo wysłanie żądania omijało ją w całości.
+     */
+    public const DNI_WSTECZ_KIEROWNIK = 7;
+
+    /**
+     * Czy ten użytkownik może ruszyć ten dzień na tej budowie.
+     * Biuro i kadry mogą zawsze — poprawki po zamknięciu miesiąca to ich
+     * rola. Kierownika ogranicza okno 7 dni i zamknięcie miesiąca.
+     *
+     * @return string|null powód odmowy albo null, gdy wolno
+     */
+    private function powodOdmowy(int $build, string $dzien): ?string
+    {
+        $user = Auth::user();
+
+        if (! $user || ! $user->prowadziBudowy()) {
+            return null;
+        }
+
+        $data = Carbon::parse($dzien)->startOfDay();
+
+        if (PobranieKcp::czyZamkniete($build, $data)) {
+            return 'KCP za '.$data->format('m.Y').' zostało pobrane przez kadry i jest zamknięte. '
+                .'Poprawki zgłoś do biura.';
+        }
+
+        if ($data->lt(Carbon::today()->subDays(self::DNI_WSTECZ_KIEROWNIK))) {
+            return 'Kierownik budowy uzupełnia KCP najwyżej '.self::DNI_WSTECZ_KIEROWNIK
+                .' dni wstecz. Ten dzień jest starszy — zgłoś go do biura.';
+        }
+
+        return null;
+    }
+
     public function view(int $build, Request $request): Response
     {
         $date = $request->query->get('date');
@@ -43,6 +82,9 @@ class BuildingTimeSheet extends Controller
                 'shiftStatuses' => $this->getShiftStatuses()->all(),
                 'user_owner' => Auth::user()->owner,
                 'diffDays' => Carbon::today()->diffInDays($date),
+                'dniWstecz' => self::DNI_WSTECZ_KIEROWNIK,
+                // Miesiąc zamknięty przez kadry — kierownik już go nie rusza.
+                'zamkniety' => $this->opisZamkniecia($build, $date),
                 'buildDetails' => $this->getBuildHeaders($build)
             ]
         );
@@ -50,6 +92,12 @@ class BuildingTimeSheet extends Controller
 
     public function store(BuildTimeShiftRequest $request): JsonResponse
     {
+        $odmowa = $this->powodOdmowy((int) $request->get('build'), $request->get('day'));
+
+        if ($odmowa) {
+            return new JsonResponse(['status' => 'error', 'message' => $odmowa], ResponseAlias::HTTP_FORBIDDEN);
+        }
+
         try {
             BuildingTimeSheetModel::updateOrCreate(
                 [
@@ -82,8 +130,13 @@ class BuildingTimeSheet extends Controller
 
     public function delete(BuildTimeShiftRequest $request): RedirectResponse
     {
+        $odmowa = $this->powodOdmowy((int) $request->get('build'), $request->get('day'));
+
+        if ($odmowa) {
+            return Redirect::back()->with('error', $odmowa);
+        }
+
         $work_day = new DateTimeImmutable($request->get('day'));
-        echo $work_day->format('Y-m-d H:i:s');
         BuildingTimeSheetModel::where('organization_id', $request->get('build'))
             ->where('contact_id', $request->get('id'))
             ->where('work_day', $work_day->format('Y-m-d H:i:s'))->delete();
@@ -100,6 +153,9 @@ class BuildingTimeSheet extends Controller
         $shiftStatuses = $this->getShiftStatuses()->all();
 
         $buildName = $this->getBuildHeaders($build)->nazwaBud;
+
+        // Pobranie przez kadry po zakończeniu miesiąca zamyka ten miesiąc.
+        PobranieKcp::zapiszJesliZamyka($build, $buildForDate, Auth::user());
 
         $plik = (new BuildTimeShiftsExcelExporter($shiftStatuses))
             ->generate($timeShifts, $buildForDate, $buildName)
@@ -216,6 +272,27 @@ class BuildingTimeSheet extends Controller
             ->orderBy('organizations.nazwaBud')
             ->pluck('organizations.nazwaBud')
             ->all();
+    }
+
+    /**
+     * @return array{okres: string, kiedy: string, kto: ?string}|null
+     */
+    private function opisZamkniecia(int $build, Carbon $miesiac): ?array
+    {
+        $pobranie = PobranieKcp::with('user')
+            ->where('organization_id', $build)
+            ->where('okres', PobranieKcp::okres($miesiac))
+            ->first();
+
+        if (! $pobranie) {
+            return null;
+        }
+
+        return [
+            'okres' => $miesiac->format('m.Y'),
+            'kiedy' => optional($pobranie->created_at)->format('d.m.Y'),
+            'kto' => $pobranie->user ? trim($pobranie->user->last_name.' '.$pobranie->user->first_name) : null,
+        ];
     }
 
     private function getShiftStatuses(): Collection

@@ -146,7 +146,7 @@ class ZakladkiRolTest extends TestCase
             ['/building/time-sheet/month-report', ['admin', 'biuro']],
         ];
 
-        foreach ([1, 2, 3, 4, 5] as $owner) {
+        foreach ([1, 2, 3, 4, 5, 6] as $owner) {
             $user = User::factory()->create([
                 'account_id' => $this->accountId, 'email' => 'menu'.$owner.'@mkl.pl',
                 'owner' => $owner, 'active' => 1, 'password_changed_at' => now()->toDateTimeString(),

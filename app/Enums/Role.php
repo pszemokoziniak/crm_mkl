@@ -14,6 +14,9 @@ namespace App\Enums;
  * KIEROWNIK_PROJEKTU ma zakres taki sam jak kierownik budowy, ale jego
  * budowy wynikają z pola `organizations.kierownik_projektu_id`, a nie
  * z obecności w kierownictwie budowy.
+ *
+ * KADRY to zakres biura, ale rozpoznawany osobno: pobranie KCP za miniony
+ * miesiąc przez kadry zamyka ten miesiąc kierownikowi budowy.
  */
 enum Role: int
 {
@@ -22,9 +25,10 @@ enum Role: int
     case KIEROWNIK = 3;
     case KIEROWNICTWO = 4;
     case KIEROWNIK_PROJEKTU = 5;
+    case KADRY = 6;
 
     /** Role z pełnym dostępem (biurowym) — widzą wszystkie budowy. */
-    public const OFFICE = [self::ADMIN, self::BIURO, self::KIEROWNICTWO];
+    public const OFFICE = [self::ADMIN, self::BIURO, self::KIEROWNICTWO, self::KADRY];
 
     /**
      * @return int[]
@@ -52,6 +56,7 @@ enum Role: int
             self::KIEROWNIK => 'Kierownik budowy',
             self::KIEROWNICTWO => 'Kierownictwo',
             self::KIEROWNIK_PROJEKTU => 'Kierownik projektu',
+            self::KADRY => 'Kadry',
         };
     }
 }

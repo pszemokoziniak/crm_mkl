@@ -133,7 +133,9 @@ class User extends Authenticatable
             // W widokach "biuro" znaczy "uprawnienia biurowe", a nie samo
             // stanowisko — kierownictwo ma na razie ten sam zakres, więc
             // dostaje tę samą flagę i nie trzeba ruszać kilkudziesięciu v-if.
-            'biuro' => $this->hasRole(Role::BIURO) || $this->hasRole(Role::KIEROWNICTWO),
+            'biuro' => $this->hasRole(Role::BIURO)
+                || $this->hasRole(Role::KIEROWNICTWO)
+                || $this->hasRole(Role::KADRY),
             // Kierownik projektu ma ten sam zakres, co kierownik budowy — tak
             // ustalono przy zakładaniu tej roli. Bez tej flagi menu gubiło mu
             // Budowy, Termin uprawnień i Statystyki, mimo że serwer go tam
@@ -142,6 +144,9 @@ class User extends Authenticatable
             // Osobne flagi na wypadek, gdy zakresy zaczną się różnić.
             'kierownictwo' => $this->hasRole(Role::KIEROWNICTWO),
             'kierownik_projektu' => $this->hasRole(Role::KIEROWNIK_PROJEKTU),
+            // Kadry mają zakres biura, ale rozpoznajemy je osobno: to ich
+            // pobranie KCP zamyka miniony miesiąc kierownikowi budowy.
+            'kadry' => $this->hasRole(Role::KADRY),
         ];
     }
 

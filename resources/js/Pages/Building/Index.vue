@@ -2,6 +2,15 @@
   <Head title="KCP" />
   <BudMenu :bud-id="build" />
   <budowa-naglowek :bud-id="buildDetails.id" :nazwa="buildDetails.nazwaBud" tytul="KCP budowy" />
+  <!-- Miesiąc zamknięty przez kadry: kierownik ma wiedzieć, czemu nie
+       może już nic poprawić, zanim spróbuje. -->
+  <div v-if="zamkniety" class="mb-6 px-4 py-3 rounded-md bg-orange-50 border border-orange-200 text-sm text-orange-800">
+    KCP za {{ zamkniety.okres }} zostało pobrane przez kadry
+    <template v-if="zamkniety.kiedy"> {{ zamkniety.kiedy }}</template>
+    <template v-if="zamkniety.kto"> ({{ zamkniety.kto }})</template>
+    — miesiąc jest zamknięty.
+    <template v-if="prowadziBudowy(user_owner)"> Poprawki zgłoś do biura.</template>
+  </div>
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
     <div class="mb-8 flex items-center gap-3">
@@ -135,10 +144,14 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="(calculateDiffDays() < 3 && prowadziBudowy(user_owner)) || !prowadziBudowy(user_owner)" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+                <div v-if="mozeEdytowacDzien" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
                   <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-white text-base font-medium bg-green-600 hover:bg-green-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
                   <button ref="cancelButtonRef" type="button" class="inline-flex justify-center mt-3 px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
                   <button class="mr-auto text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
+                </div>
+                <div v-else class="px-4 py-3 bg-gray-50 text-sm text-gray-600 sm:px-6">
+                  {{ powodBlokady }}
+                  <button type="button" class="ml-3 text-indigo-600 hover:underline" @click="open = false">Zamknij</button>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -196,6 +209,8 @@ export default {
     month: String,
     shiftStatuses: Array,
     diffDays: Number,
+    dniWstecz: { type: Number, default: 7 },
+    zamkniety: { type: Object, default: null },
     user_owner: Number,
     buildDetails: Object,
   },
@@ -236,6 +251,34 @@ export default {
     }
   },
   computed: {
+    /**
+     * Biuro i kadry poprawiają zawsze. Kierownika ogranicza okno siedmiu dni
+     * liczone od KONKRETNEGO dnia (dotąd liczyło się od początku wyświetlanego
+     * miesiąca, więc w połowie miesiąca blokowało też dzisiejszy dzień)
+     * oraz zamknięcie miesiąca przez kadry.
+     */
+    mozeEdytowacDzien() {
+      if (!prowadziBudowy(this.user_owner)) return true
+      if (this.zamkniety) return false
+      if (!this.modalForm.day) return true
+
+      const dzien = new Date(this.modalForm.day)
+      dzien.setHours(0, 0, 0, 0)
+
+      const granica = new Date()
+      granica.setHours(0, 0, 0, 0)
+      granica.setDate(granica.getDate() - this.dniWstecz)
+
+      return dzien >= granica
+    },
+    powodBlokady() {
+      if (this.zamkniety) {
+        return `KCP za ${this.zamkniety.okres} jest zamknięte — pobrały je kadry. Poprawki zgłoś do biura.`
+      }
+
+      return `Kierownik budowy uzupełnia KCP najwyżej ${this.dniWstecz} dni wstecz. `
+        + 'Ten dzień jest starszy — zgłoś go do biura.'
+    },
     sortedTimeSheets() {
       return this.timeSheetsOrder.map((id) => {
         const sheet = this.timeSheets[id]
@@ -512,7 +555,12 @@ export default {
          * How to work with callback functions on $inertia
          * @see resources/js/Pages/Users/Edit.vue:73
          */
-        axios.post(`/building/${this.build}/time-sheet`, this.modalForm)
+        // Bez await odmowa serwera ginęła po cichu, a na ekranie zostawał
+        // wpis, którego w bazie nie ma.
+        axios.post(`/building/${this.build}/time-sheet`, this.modalForm).catch((blad) => {
+          alert(blad.response?.data?.message || 'Nie udało się zapisać dnia.')
+          this.$inertia.reload({ only: ['timeSheets'] })
+        })
 
         this.timeSheets[workerId][dayIndex] = {
           name: this.modalForm.name,
