@@ -259,6 +259,7 @@ class OrganizationsController extends Controller
         $org->zaklad = $req->zaklad;
         $org->kierownik_projektu_id = $req->kierownik_projektu_id;
         $org->warsztat = $req->boolean('warsztat');
+        $org->zaklad_podatkowy = $req->boolean('zaklad_podatkowy');
         $org->country_id = $req->country_id;
         $org->addressBud = $req->addressBud;
         $org->addressKwat = $req->addressKwat;
@@ -333,6 +334,7 @@ class OrganizationsController extends Controller
                 'zaklad' => $organization->zaklad,
                 'kierownik_projektu_id' => $organization->kierownik_projektu_id,
                 'warsztat' => (bool) $organization->warsztat,
+                'zaklad_podatkowy' => (bool) $organization->zaklad_podatkowy,
                 'country_id' => $organization->country_id,
                 'addressBud' => $organization->addressBud,
                 'addressKwat' => $organization->addressKwat,
@@ -397,6 +399,9 @@ class OrganizationsController extends Controller
                 'zaklad' => ['nullable', 'max:2000'],
                 'kierownik_projektu_id' => ['nullable', 'integer', 'exists:contacts,id'],
                 'warsztat' => ['boolean'],
+                // Zakład podatkowy: podatek od pierwszego dnia, próg 183 dni
+                // nie ma tu znaczenia i nie ma o czym ostrzegać.
+                'zaklad_podatkowy' => ['boolean'],
                 'country_id' => ['nullable', 'max:25'],
                 'addressBud' => ['nullable', 'max:2000'],
                 'addressKwat' => ['nullable', 'max:2500'],

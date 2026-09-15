@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePosRequest;
 use App\Models\KrajTyp;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,10 +20,12 @@ class KrajTypController extends Controller
     public function edit(KrajTyp $krajTyp): Response
     {
         return Inertia::render('KrajTyp/Edit', [
+            'sposoby183' => KrajTyp::SPOSOBY_183,
             'kraj' => [
                 'id' => $krajTyp->id,
                 'name' => $krajTyp->name,
                 'wymaga_a1' => $krajTyp->wymaga_a1,
+                'sposob_183' => $krajTyp->sposob_183,
                 'deleted_at' => $krajTyp->deleted_at,
             ],
             'feasts' => $krajTyp->getAttribute('feasts')
@@ -36,6 +39,9 @@ class KrajTypController extends Controller
                 'name' => ['required', 'max:100'],
                 // Znacznik decyduje o alertach o braku A1 i o zakładce przy budowie.
                 'wymaga_a1' => ['required', 'boolean'],
+                // Rok podatkowy czy każde ruchome 12 miesięcy — zależy od kraju.
+                // "sometimes": zapis, który tego pola nie rusza, zostawia je bez zmian.
+                'sposob_183' => ['sometimes', Rule::in(array_keys(KrajTyp::SPOSOBY_183))],
             ])
         );
         return Redirect::route('krajTyp')->with('success', 'Poprawiono.');

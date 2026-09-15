@@ -11,6 +11,16 @@
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa" />
+          <div class="pb-8 pr-6 w-full lg:w-1/2">
+            <label class="form-label">Sposób liczenia 183 dni:</label>
+            <select v-model="form.sposob_183" class="form-select mt-1 w-full">
+              <option v-for="(opis, klucz) in sposoby183" :key="klucz" :value="klucz">{{ opis }}</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500">
+              Rok podatkowy: Austria, Francja, Hiszpania, Luksemburg, Włochy.
+              Każde 12 miesięcy: Niemcy, Belgia, Dania, Finlandia, Holandia, Portugalia, Szwecja i pozostałe.
+            </p>
+          </div>
           <div class="pb-8 pr-6 w-full">
             <label class="flex items-center gap-2 text-sm text-gray-700">
               <input v-model="form.wymaga_a1" type="checkbox" class="form-checkbox" />
@@ -91,6 +101,7 @@ export default {
   layout: Layout,
   props: {
     kraj: Object,
+    sposoby183: { type: Object, default: () => ({}) },
     feasts: Object,
   },
   remember: 'form',
@@ -100,6 +111,7 @@ export default {
         id: this.kraj.id,
         name: this.kraj.name,
         wymaga_a1: Boolean(this.kraj.wymaga_a1),
+        sposob_183: this.kraj.sposob_183,
       }),
     }
   },

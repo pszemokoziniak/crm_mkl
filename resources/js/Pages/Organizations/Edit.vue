@@ -44,6 +44,17 @@
             <option value="TAK">TAK</option>
             <option value="NIE">NIE</option>
           </select-input>
+          <!-- Zakład podatkowy: podatek należny za granicą od pierwszego dnia,
+               więc próg 183 dni tej budowy nie dotyczy. -->
+          <div class="pb-8 pr-6 w-full lg:w-1/2">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input v-model="form.zaklad_podatkowy" type="checkbox" class="form-checkbox" :disabled="flag" />
+              <span>Zakład podatkowy (limit 183 dni nie dotyczy)</span>
+            </label>
+            <p class="mt-1 text-xs text-gray-500">
+              Zaznacz, gdy podatek od wynagrodzenia należy się za granicą od pierwszego dnia pracy.
+            </p>
+          </div>
           <!-- Warsztat prowadzimy jak budowę (przypisania, godziny),
                ale nie liczy się do obsady budów ani do prognozy. -->
           <select-input
@@ -145,6 +156,7 @@ export default {
         zaklad: this.organization.zaklad,
         kierownik_projektu_id: this.organization.kierownik_projektu_id,
         warsztat: this.organization.warsztat,
+        zaklad_podatkowy: this.organization.zaklad_podatkowy,
         country_id: this.organization.country_id,
         addressBud: this.organization.addressBud,
         addressKwat: this.organization.addressKwat,

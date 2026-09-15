@@ -205,7 +205,7 @@
           <thead>
             <tr class="naglowek-tabeli">
               <th>Kraj</th>
-              <th class="text-right">Ostatnie 12 mies.</th>
+              <th class="text-right">Wykorzystane</th>
               <th class="text-right">Pozostało</th>
               <th>Stan</th>
               <th>Najdłuższe 12 miesięcy</th>
@@ -214,7 +214,11 @@
           <tbody class="divide-y divide-gray-100">
             <tr v-for="kraj in limit_183" :key="kraj.kraj">
               <td class="px-6 py-3 font-medium text-gray-800">{{ kraj.kraj }}</td>
-              <td class="px-6 py-3 text-right tabular-nums">{{ kraj.dni_12m }}</td>
+              <td class="px-6 py-3 text-right tabular-nums">
+                {{ kraj.dni_12m }}
+                <!-- Okres zależy od kraju: rok podatkowy albo ruchome 12 miesięcy. -->
+                <span class="block text-xs font-normal text-gray-400">{{ kraj.okres }}</span>
+              </td>
               <td class="px-6 py-3 text-right tabular-nums font-semibold" :class="klasaLimitu(kraj.status)">
                 {{ kraj.pozostalo }}
               </td>
@@ -242,7 +246,9 @@
       <p class="px-6 py-3 text-xs text-gray-400 border-t border-gray-100">
         Liczone są całe pobyty na budowach, razem z dniem przyjazdu i wyjazdu. System nie wie o powrotach
         do domu na weekendy, więc to górna granica — do pilnowania terminu, nie do rozliczenia podatku.
-        Okno jest ruchome: brane jest każde kolejne 12 miesięcy, a nie rok kalendarzowy.
+        Sposób liczenia zależy od kraju i ustawia się go w Ustawieniach przy kraju: rok podatkowy
+        (Austria, Francja, Hiszpania, Luksemburg, Włochy) albo każde kolejne 12 miesięcy (pozostałe).
+        Budowy oznaczone jako zakład podatkowy tu nie wchodzą.
       </p>
     </div>
 

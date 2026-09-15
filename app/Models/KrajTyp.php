@@ -11,6 +11,17 @@ class KrajTyp extends Model
 {
     use HasFactory;
 
+    /** Rok podatkowy: Austria, Francja, Hiszpania, Luksemburg, Włochy. */
+    public const SPOSOB_ROK = 'rok_kalendarzowy';
+
+    /** Każde ruchome 12 miesięcy: Niemcy, Belgia, Dania, Holandia i reszta. */
+    public const SPOSOB_12M = 'dwanascie_miesiecy';
+
+    public const SPOSOBY_183 = [
+        self::SPOSOB_12M => 'Każde 12 miesięcy (ruchome okno)',
+        self::SPOSOB_ROK => 'Rok podatkowy (kalendarzowy)',
+    ];
+
     protected $casts = [
         'wymaga_a1' => 'boolean',
     ];

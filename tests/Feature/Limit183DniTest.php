@@ -38,8 +38,12 @@ class Limit183DniTest extends TestCase
 
         $this->accountId = Account::create(['name' => 'MKL'])->id;
 
-        $niemcy = KrajTyp::create(['name' => 'Niemcy', 'wymaga_a1' => true]);
-        $francja = KrajTyp::create(['name' => 'Francja', 'wymaga_a1' => true]);
+        $niemcy = KrajTyp::create([
+            'name' => 'Niemcy', 'wymaga_a1' => true, 'sposob_183' => KrajTyp::SPOSOB_12M,
+        ]);
+        $francja = KrajTyp::create([
+            'name' => 'Francja', 'wymaga_a1' => true, 'sposob_183' => KrajTyp::SPOSOB_ROK,
+        ]);
         $polska = KrajTyp::create(['name' => 'Polska', 'wymaga_a1' => false]);
 
         $this->niemcy = $this->budowa('Siemens Berlin', $niemcy->id);
@@ -288,6 +292,108 @@ class Limit183DniTest extends TestCase
             ->viewData('page')['props'];
 
         $this->assertNull($props['krajBudowy'], 'W kraju macierzystym limit nie biegnie.');
+    }
+
+    public function test_kraj_rozliczany_rocznie_zeruje_licznik_w_styczniu(): void
+    {
+        // Francja liczy rok podatkowy, więc grudniowy pobyt nie obciąża
+        // stycznia. Przy liczeniu ruchomym obciążałby.
+        $this->pobyt($this->francja, '2025-11-01', '2025-12-31');   // 61 dni
+        $this->pobyt($this->francja, '2026-01-02', '2026-03-31');   // 89 dni
+
+        $wiersz = $this->wyliczenie()['Francja'];
+
+        $this->assertSame(89, $wiersz['dni_12m'], 'Liczy się tylko rok 2026.');
+        $this->assertSame('rok 2026', $wiersz['okres']);
+        $this->assertSame(89, $wiersz['najwieksze_okno'], 'Najcięższy rok, nie suma z dwóch.');
+    }
+
+    public function test_ten_sam_uklad_dni_daje_inny_wynik_zaleznie_od_kraju(): void
+    {
+        // Ta sama para pobytów przez przełom roku: w Niemczech sumuje się,
+        // we Francji nie. To jest sedno uwagi Tomasza.
+        $this->pobyt($this->niemcy, '2025-11-01', '2025-12-31');
+        $this->pobyt($this->niemcy, '2026-01-02', '2026-03-31');
+        $this->pobyt($this->francja, '2025-11-01', '2025-12-31');
+        $this->pobyt($this->francja, '2026-01-02', '2026-03-31');
+
+        $wynik = $this->wyliczenie();
+
+        $this->assertSame(150, $wynik['Niemcy']['dni_12m'], 'Ruchome 12 miesięcy bierze oba pobyty.');
+        $this->assertSame(89, $wynik['Francja']['dni_12m'], 'Rok podatkowy bierze tylko ten z 2026.');
+    }
+
+    public function test_przy_liczeniu_rocznym_limit_zwalnia_pierwszego_stycznia(): void
+    {
+        $this->pobyt($this->francja, '2026-01-02', '2026-09-15');
+
+        $wiersz = $this->wyliczenie()['Francja'];
+
+        $this->assertSame(0, $wiersz['pozostalo']);
+        $this->assertSame('2027-01-01', $wiersz['wolne_od']);
+    }
+
+    public function test_zaklad_podatkowy_nie_wchodzi_do_limitu(): void
+    {
+        // Podatek należy się tam od pierwszego dnia, więc próg nie ma znaczenia.
+        $this->niemcy->update(['zaklad_podatkowy' => true]);
+        $this->pobyt($this->niemcy, '2026-01-06', '2026-09-15');
+
+        $this->assertArrayNotHasKey('Niemcy', $this->wyliczenie());
+    }
+
+    public function test_przypisanie_na_zaklad_podatkowy_nie_straszy(): void
+    {
+        $this->niemcy->update(['zaklad_podatkowy' => true]);
+        $this->pobyt($this->niemcy, '2026-01-06', '2026-06-30');
+
+        $this->actingAs($this->biuro())
+            ->post('/contacts/'.$this->pracownik->id.'/przypisz-budowe', [
+                'organization_id' => $this->niemcy->id,
+                'start' => '2026-10-01',
+                'end' => '2026-11-30',
+            ])
+            ->assertSessionHas('success')
+            ->assertSessionMissing('warning');
+    }
+
+    public function test_dodanie_do_kierownictwa_tez_ostrzega(): void
+    {
+        // Kierownictwo jeździ za granicę tak samo jak montaż.
+        $this->pobyt($this->niemcy, '2026-01-06', '2026-06-30');
+
+        $this->actingAs($this->biuro())
+            ->post('/budowy/'.$this->niemcy->id.'/kierownictwo', [
+                'contact_id' => $this->pracownik->id,
+                'start' => '2026-10-01',
+                'end' => '2026-11-30',
+            ])
+            ->assertSessionHas('warning');
+    }
+
+    public function test_slownik_krajow_pozwala_zmienic_sposob_liczenia(): void
+    {
+        $admin = User::factory()->create([
+            'account_id' => $this->accountId, 'email' => 'admin@mkl.pl',
+            'owner' => 1, 'active' => 1, 'password_changed_at' => now()->toDateTimeString(),
+        ]);
+        $francja = KrajTyp::where('name', 'Francja')->first();
+
+        $this->pobyt($this->francja, '2025-11-01', '2025-12-31');
+        $this->pobyt($this->francja, '2026-01-02', '2026-03-31');
+
+        $this->assertSame(89, $this->wyliczenie()['Francja']['dni_12m']);
+
+        // Zmiana przepisów albo nowy kontrakt — biuro przestawia to samo.
+        $this->actingAs($admin)
+            ->put('/krajTyp/'.$francja->id, [
+                'name' => 'Francja',
+                'wymaga_a1' => true,
+                'sposob_183' => KrajTyp::SPOSOB_12M,
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(150, $this->wyliczenie()['Francja']['dni_12m']);
     }
 
     public function test_karta_pracownika_podaje_zestawienie(): void

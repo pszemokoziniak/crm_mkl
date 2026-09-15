@@ -473,12 +473,24 @@ class BudowaPracownicyController extends Controller
             return Redirect::back()->with('error', $blad);
         }
 
+        // Kierownictwo jeździ za granicę tak samo jak montaż, więc limit
+        // 183 dni dotyczy go identycznie.
+        $przekroczenie = app(LimitPobytuZagranica::class)
+            ->przekroczenieDla($contact, $organization, Request::get('start'), Request::get('end'));
+
         ContactWorkDate::create([
             'organization_id' => $organization->id,
             'contact_id' => Request::get('contact_id'),
             'start' => Request::get('start'),
             'end' => Request::get('end'),
         ]);
+
+        if ($przekroczenie) {
+            return Redirect::back()->with('warning', sprintf(
+                'Dodano, ale uwaga na limit 183 dni: po tym pobycie wychodzi %d dni w %s w okresie %s – %s.',
+                $przekroczenie['dni'], $przekroczenie['kraj'], $przekroczenie['od'], $przekroczenie['do']
+            ));
+        }
 
         return Redirect::back()->with('success', 'Dodano do kierownictwa.');
     }

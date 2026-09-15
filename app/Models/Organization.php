@@ -58,6 +58,15 @@ class Organization extends Model
      * Budowa bez wskazanego kraju traktowana jest jak zagraniczna: lepiej
      * dopomnieć się o dokument niepotrzebnie, niż wysłać kogoś bez niego.
      */
+    /**
+     * Zakład podatkowy: podatek należy się za granicą od pierwszego dnia,
+     * więc próg 183 dni nie ma tu znaczenia i nie ma o czym ostrzegać.
+     */
+    public function liczySieDoLimitu183(): bool
+    {
+        return $this->wymagaA1() && ! $this->zaklad_podatkowy;
+    }
+
     public function wymagaA1(): bool
     {
         $kraj = $this->krajTyp;

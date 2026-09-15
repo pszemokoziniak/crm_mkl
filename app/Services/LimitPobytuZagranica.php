@@ -13,14 +13,20 @@ use Carbon\Carbon;
 /**
  * Limit 183 dni pobytu w obcym państwie.
  *
- * Umowy o unikaniu podwójnego opodatkowania liczą dni nie w roku
- * kalendarzowym, tylko w KAŻDYM dwunastomiesięcznym okresie — liczonym
- * w przód od przyjazdu i wstecz od wyjazdu. Dlatego bierzemy największą
- * liczbę dni, jaka wypada w dowolnym oknie 365 dni, a nie sumę za rok.
+ * Sposób liczenia nie jest wszędzie taki sam i siedzi przy kraju w słowniku:
+ *
+ *  - rok podatkowy (Austria, Francja, Hiszpania, Luksemburg, Włochy) — liczy
+ *    się rok kalendarzowy, 1 stycznia licznik rusza od zera;
+ *  - każde 12 miesięcy (Niemcy, Belgia, Dania, Holandia, Portugalia, Szwecja
+ *    i reszta) — liczy się KAŻDY kolejny okres 365 dni, w przód od przyjazdu
+ *    i wstecz od wyjazdu, więc pobyty z dwóch różnych lat sumują się.
  *
  * Liczymy całe pobyty, razem z dniem przyjazdu i wyjazdu. System nie wie,
  * czy ktoś wracał do domu na weekendy, więc wynik jest GÓRNĄ GRANICĄ:
  * nadaje się na ostrzeżenie, nie zastępuje wyliczenia księgowości.
+ *
+ * Budowa oznaczona jako zakład podatkowy w ogóle tu nie wchodzi — tam
+ * podatek należy się od pierwszego dnia i próg nie ma znaczenia.
  */
 class LimitPobytuZagranica
 {
@@ -38,27 +44,32 @@ class LimitPobytuZagranica
     public function dlaPracownika(Contact $contact, ?string $dzien = null): array
     {
         $dzis = Carbon::parse($dzien ?? Carbon::today()->toDateString())->startOfDay();
-        $kalendarz = $this->dniPobytuWgKraju($contact, $dzis);
+        [$kalendarz, $sposoby] = $this->kalendarzPracownika($contact, $dzis);
 
         $wiersze = [];
 
         foreach ($kalendarz as $kraj => $dni) {
             ksort($dni);
             $lista = array_keys($dni);
+            $sposob = $sposoby[$kraj];
 
-            $wykorzystane = $this->wOknieDo($lista, $dzis);
+            $wykorzystane = $this->wOknie($lista, $dzis, $sposob);
             $pozostalo = max(0, self::LIMIT_DNI - $wykorzystane);
-            [$najwieksze, $od, $do] = $this->najwiekszeOkno($lista);
+            [$najwieksze, $od, $do] = $this->najwiekszeOkno($lista, $sposob);
 
             $wiersze[] = [
                 'kraj' => $kraj,
+                'sposob' => $sposob,
+                'okres' => $sposob === KrajTyp::SPOSOB_ROK
+                    ? 'rok '.$dzis->year
+                    : 'ostatnie 12 mies.',
                 'dni_12m' => $wykorzystane,
                 'pozostalo' => $pozostalo,
                 'najwieksze_okno' => $najwieksze,
                 'okno_od' => $od,
                 'okno_do' => $do,
                 'kiedys_przekroczony' => $najwieksze > self::LIMIT_DNI,
-                'wolne_od' => $pozostalo === 0 ? $this->kiedyZwolniSie($lista, $dzis) : null,
+                'wolne_od' => $pozostalo === 0 ? $this->kiedyZwolniSie($lista, $dzis, $sposob) : null,
                 'status' => $this->status($pozostalo),
             ];
         }
@@ -69,28 +80,24 @@ class LimitPobytuZagranica
     }
 
     /**
-     * Stan mówi o dziś, nie o historii. Kto przekroczył próg dwa lata temu,
-     * a teraz ma zapas 53 dni, może jechać — czerwień przy jego nazwisku
-     * wstrzymywałaby wyjazd bez powodu. Dawne przekroczenie pokazujemy
-     * osobno, przy najdłuższym oknie.
-     */
-    /**
      * Czy dopisanie pobytu przepełni limit w kraju tej budowy.
      *
      * Liczymy z dniami zaplanowanymi na przyszłość, bo pytanie brzmi "czy
      * wolno go tam wysłać", a nie "ile już wykorzystał". Zwraca null, gdy
-     * jest w porządku albo gdy budowa jest w kraju macierzystym.
+     * jest w porządku, gdy budowa jest w kraju macierzystym albo gdy to
+     * zakład podatkowy.
      *
-     * @return array{kraj: string, dni: int, od: ?string, do: ?string}|null
+     * @return array{kraj: string, dni: int, od: ?string, do: ?string, sposob: string}|null
      */
     public function przekroczenieDla(Contact $contact, Organization $budowa, string $od, string $do): ?array
     {
-        $kraj = optional($budowa->krajTyp);
-
-        if (! $kraj->name || in_array((int) $kraj->id, KrajTyp::idsBezA1(), true)) {
+        // Budowa bez rozpoznanego kraju wymaga A1 (ostrożnie), ale limitu
+        // nie ma jak liczyć — nie wiadomo, którego państwa miałby dotyczyć.
+        if (! $budowa->liczySieDoLimitu183() || ! $budowa->krajTyp) {
             return null;
         }
 
+        $kraj = $budowa->krajTyp;
         $dni = [];
 
         foreach ($this->pobytyWKraju($contact, $kraj->name) as $pobyt) {
@@ -107,23 +114,20 @@ class LimitPobytuZagranica
         }
 
         ksort($dni);
-        [$najwieksze, $oknoOd, $oknoDo] = $this->najwiekszeOkno(array_keys($dni));
+        $sposob = $this->sposob($kraj);
+        [$najwieksze, $oknoOd, $oknoDo] = $this->najwiekszeOkno(array_keys($dni), $sposob);
 
         if ($najwieksze <= self::LIMIT_DNI) {
             return null;
         }
 
-        return ['kraj' => $kraj->name, 'dni' => $najwieksze, 'od' => $oknoOd, 'do' => $oknoDo];
-    }
-
-    /** @return \Illuminate\Support\Collection<int, ContactWorkDate> */
-    private function pobytyWKraju(Contact $contact, string $kraj)
-    {
-        return ContactWorkDate::with('organization.krajTyp')
-            ->where('contact_id', $contact->id)
-            ->whereNotNull('start')
-            ->get()
-            ->filter(fn (ContactWorkDate $p) => optional(optional($p->organization)->krajTyp)->name === $kraj);
+        return [
+            'kraj' => $kraj->name,
+            'dni' => $najwieksze,
+            'od' => $oknoOd,
+            'do' => $oknoDo,
+            'sposob' => $sposob,
+        ];
     }
 
     /**
@@ -138,25 +142,25 @@ class LimitPobytuZagranica
     {
         $dzis = Carbon::parse($dzien ?? Carbon::today()->toDateString())->startOfDay();
         $prog = $prog ?? self::PROG_UWAGI;
-        $macierzyste = KrajTyp::idsBezA1();
 
-        // Kto jest dziś za granicą — tylko o nich pytamy dalej.
         $naBudowie = ContactWorkDate::with('organization.krajTyp', 'contact')
             ->whereHas('contact')
             ->when($tylkoPracownicy !== null, fn ($q) => $q->whereIn('contact_id', $tylkoPracownicy ?: [0]))
             ->activeOn($dzis->toDateString())
             ->get()
-            ->filter(function (ContactWorkDate $pobyt) use ($macierzyste) {
-                $kraj = optional(optional($pobyt->organization)->krajTyp);
-
-                return $kraj->name && ! in_array((int) $kraj->id, $macierzyste, true);
-            });
+            ->filter(fn (ContactWorkDate $pobyt) => $pobyt->organization
+                && $pobyt->organization->krajTyp
+                && $pobyt->organization->liczySieDoLimitu183());
 
         if ($naBudowie->isEmpty()) {
             return [];
         }
 
-        $kalendarze = $this->kalendarzeDlaPracownikow($naBudowie->pluck('contact_id')->unique()->all(), $dzis);
+        [$kalendarze, $sposoby] = $this->kalendarzeDlaPracownikow(
+            $naBudowie->pluck('contact_id')->unique()->all(),
+            $dzis
+        );
+
         $wiersze = [];
 
         foreach ($naBudowie as $pobyt) {
@@ -168,23 +172,31 @@ class LimitPobytuZagranica
             }
 
             ksort($dni);
-            $wykorzystane = $this->wOknieDo(array_keys($dni), $dzis);
+            $sposob = $sposoby[$kraj] ?? KrajTyp::SPOSOB_12M;
+            $wykorzystane = $this->wOknie(array_keys($dni), $dzis, $sposob);
             $pozostalo = max(0, self::LIMIT_DNI - $wykorzystane);
 
             if ($pozostalo > $prog) {
                 continue;
             }
 
-            $klucz = $pobyt->contact_id.'-'.$kraj;
+            // Dzień, w którym limit pęknie, jeśli pobyt potrwa bez przerwy.
+            $przekroczy = $dzis->copy()->addDays($pozostalo);
 
-            $wiersze[$klucz] = [
+            // Przy liczeniu rocznym 1 stycznia licznik rusza od zera, więc
+            // termin przypadający na przyszły rok w ogóle nie nadejdzie.
+            if ($sposob === KrajTyp::SPOSOB_ROK && $przekroczy->year > $dzis->year) {
+                continue;
+            }
+
+            $wiersze[$pobyt->contact_id.'-'.$kraj] = [
                 'contact' => $pobyt->contact,
                 'organization' => $pobyt->organization,
                 'kraj' => $kraj,
+                'sposob' => $sposob,
                 'dni_12m' => $wykorzystane,
                 'pozostalo' => $pozostalo,
-                // Dzień, w którym limit pęknie, jeśli pobyt potrwa bez przerwy.
-                'przekroczy' => $dzis->copy()->addDays($pozostalo)->toDateString(),
+                'przekroczy' => $przekroczy->toDateString(),
                 'status' => $this->status($pozostalo),
             ];
         }
@@ -206,13 +218,14 @@ class LimitPobytuZagranica
         }
 
         $dzis = Carbon::parse($dzien ?? Carbon::today()->toDateString())->startOfDay();
-        $kalendarze = $this->kalendarzeDlaPracownikow($pracownicy, $dzis);
+        [$kalendarze, $sposoby] = $this->kalendarzeDlaPracownikow($pracownicy, $dzis);
+        $sposob = $sposoby[$kraj] ?? KrajTyp::SPOSOB_12M;
         $wynik = [];
 
         foreach ($pracownicy as $id) {
             $dni = $kalendarze[$id][$kraj] ?? [];
             ksort($dni);
-            $wykorzystane = $this->wOknieDo(array_keys($dni), $dzis);
+            $wykorzystane = $this->wOknie(array_keys($dni), $dzis, $sposob);
             $pozostalo = max(0, self::LIMIT_DNI - $wykorzystane);
 
             $wynik[$id] = [
@@ -226,37 +239,11 @@ class LimitPobytuZagranica
     }
 
     /**
-     * Kalendarze pobytów wielu pracowników naraz.
-     *
-     * @param  array<int, int>  $pracownicy
-     * @return array<int, array<string, array<string, true>>>
+     * Stan mówi o dziś, nie o historii. Kto przekroczył próg dwa lata temu,
+     * a teraz ma zapas 53 dni, może jechać — czerwień przy jego nazwisku
+     * wstrzymywałaby wyjazd bez powodu. Dawne przekroczenie pokazujemy
+     * osobno, przy najdłuższym oknie.
      */
-    private function kalendarzeDlaPracownikow(array $pracownicy, Carbon $dzis): array
-    {
-        $macierzyste = KrajTyp::idsBezA1();
-
-        $pobyty = ContactWorkDate::with('organization.krajTyp')
-            ->whereIn('contact_id', $pracownicy ?: [0])
-            ->whereNotNull('start')
-            ->get();
-
-        $kalendarze = [];
-
-        foreach ($pobyty as $pobyt) {
-            $kraj = optional(optional($pobyt->organization)->krajTyp);
-
-            if (! $kraj->name || in_array((int) $kraj->id, $macierzyste, true)) {
-                continue;
-            }
-
-            foreach ($this->dniPobytu($pobyt, $dzis) as $dzien) {
-                $kalendarze[$pobyt->contact_id][$kraj->name][$dzien] = true;
-            }
-        }
-
-        return $kalendarze;
-    }
-
     private function status(int $pozostalo): string
     {
         if ($pozostalo === 0) {
@@ -266,38 +253,57 @@ class LimitPobytuZagranica
         return $pozostalo <= self::PROG_UWAGI ? 'uwaga' : 'ok';
     }
 
-    /**
-     * Dni pobytu w obcych państwach, bez powtórzeń — nakładające się pobyty
-     * na dwóch budowach w tym samym kraju to wciąż jeden dzień za granicą.
-     *
-     * Kraj macierzysty rozpoznajemy po tym samym znaczniku, co przy A1:
-     * gdzie A1 nie jest potrzebne, tam jesteśmy u siebie i limit nie biegnie.
-     *
-     * @return array<string, array<string, true>>
-     */
-    private function dniPobytuWgKraju(Contact $contact, Carbon $dzis): array
+    private function sposob(?KrajTyp $kraj): string
     {
-        $macierzyste = KrajTyp::idsBezA1();
-        $kalendarz = [];
+        return $kraj && $kraj->sposob_183 ? $kraj->sposob_183 : KrajTyp::SPOSOB_12M;
+    }
 
+    /**
+     * @return array{0: array<string, array<string, true>>, 1: array<string, string>}
+     */
+    private function kalendarzPracownika(Contact $contact, Carbon $dzis): array
+    {
+        [$kalendarze, $sposoby] = $this->kalendarzeDlaPracownikow([$contact->id], $dzis);
+
+        return [$kalendarze[$contact->id] ?? [], $sposoby];
+    }
+
+    /**
+     * Kalendarze pobytów wielu pracowników naraz, bez powtórzeń — dwie budowy
+     * w tym samym kraju to wciąż jeden dzień za granicą.
+     *
+     * Kraj macierzysty poznajemy po tym samym znaczniku, co przy A1: gdzie A1
+     * nie jest potrzebne, tam jesteśmy u siebie i limit nie biegnie.
+     *
+     * @param  array<int, int>  $pracownicy
+     * @return array{0: array<int, array<string, array<string, true>>>, 1: array<string, string>}
+     */
+    private function kalendarzeDlaPracownikow(array $pracownicy, Carbon $dzis): array
+    {
         $pobyty = ContactWorkDate::with('organization.krajTyp')
-            ->where('contact_id', $contact->id)
+            ->whereIn('contact_id', $pracownicy ?: [0])
             ->whereNotNull('start')
             ->get();
 
-        foreach ($pobyty as $pobyt) {
-            $kraj = optional(optional($pobyt->organization)->krajTyp);
+        $kalendarze = [];
+        $sposoby = [];
 
-            if (! $kraj->name || in_array((int) $kraj->id, $macierzyste, true)) {
+        foreach ($pobyty as $pobyt) {
+            if (! $pobyt->organization
+                || ! $pobyt->organization->krajTyp
+                || ! $pobyt->organization->liczySieDoLimitu183()) {
                 continue;
             }
 
+            $kraj = $pobyt->organization->krajTyp;
+            $sposoby[$kraj->name] = $this->sposob($kraj);
+
             foreach ($this->dniPobytu($pobyt, $dzis) as $dzien) {
-                $kalendarz[$kraj->name][$dzien] = true;
+                $kalendarze[$pobyt->contact_id][$kraj->name][$dzien] = true;
             }
         }
 
-        return $kalendarz;
+        return [$kalendarze, $sposoby];
     }
 
     /**
@@ -328,10 +334,13 @@ class LimitPobytuZagranica
         return $dni;
     }
 
-    /** Ile z tych dni mieści się w oknie 365 dni kończącym się danego dnia. */
-    private function wOknieDo(array $lista, Carbon $koniec): int
+    /** Ile dni wchodzi do okresu rozliczeniowego kończącego się danego dnia. */
+    private function wOknie(array $lista, Carbon $koniec, string $sposob): int
     {
-        $poczatek = $koniec->copy()->subDays(self::OKNO_DNI - 1)->toDateString();
+        $poczatek = $sposob === KrajTyp::SPOSOB_ROK
+            ? $koniec->copy()->startOfYear()->toDateString()
+            : $koniec->copy()->subDays(self::OKNO_DNI - 1)->toDateString();
+
         $koniecTekst = $koniec->toDateString();
 
         return count(array_filter(
@@ -341,13 +350,34 @@ class LimitPobytuZagranica
     }
 
     /**
-     * Najgorsze okno: tyle dni, ile najwięcej wypada w dowolnych kolejnych
-     * 365 dniach. To jest liczba, o którą pyta urząd.
+     * Najgorszy okres: przy liczeniu rocznym najcięższy rok kalendarzowy,
+     * przy dwunastomiesięcznym najcięższe dowolne kolejne 365 dni.
      *
      * @return array{0: int, 1: ?string, 2: ?string}
      */
-    private function najwiekszeOkno(array $lista): array
+    private function najwiekszeOkno(array $lista, string $sposob): array
     {
+        if ($lista === []) {
+            return [0, null, null];
+        }
+
+        if ($sposob === KrajTyp::SPOSOB_ROK) {
+            $poLatach = [];
+
+            foreach ($lista as $dzien) {
+                $poLatach[substr($dzien, 0, 4)][] = $dzien;
+            }
+
+            $najgorszy = [];
+            foreach ($poLatach as $dni) {
+                if (count($dni) > count($najgorszy)) {
+                    $najgorszy = $dni;
+                }
+            }
+
+            return [count($najgorszy), reset($najgorszy), end($najgorszy)];
+        }
+
         $ile = count($lista);
         $najlepsze = 0;
         $od = null;
@@ -370,16 +400,20 @@ class LimitPobytuZagranica
     }
 
     /**
-     * Kiedy limit sam się poluzuje: pierwszy dzień, w którym stare dni wypadną
-     * z okna na tyle, że znów zmieści się choć jeden nowy.
+     * Kiedy limit sam się poluzuje: przy liczeniu rocznym 1 stycznia, przy
+     * dwunastomiesięcznym wtedy, gdy z okna wypadnie dość starych dni.
      */
-    private function kiedyZwolniSie(array $lista, Carbon $dzis): ?string
+    private function kiedyZwolniSie(array $lista, Carbon $dzis, string $sposob): ?string
     {
+        if ($sposob === KrajTyp::SPOSOB_ROK) {
+            return $dzis->copy()->addYear()->startOfYear()->toDateString();
+        }
+
         $dzien = $dzis->copy();
         $granica = $dzis->copy()->addDays(self::OKNO_DNI);
 
         while ($dzien->lte($granica)) {
-            if ($this->wOknieDo($lista, $dzien) < self::LIMIT_DNI) {
+            if ($this->wOknie($lista, $dzien, $sposob) < self::LIMIT_DNI) {
                 return $dzien->toDateString();
             }
 
@@ -387,5 +421,17 @@ class LimitPobytuZagranica
         }
 
         return null;
+    }
+
+    /** @return \Illuminate\Support\Collection<int, ContactWorkDate> */
+    private function pobytyWKraju(Contact $contact, string $kraj)
+    {
+        return ContactWorkDate::with('organization.krajTyp')
+            ->where('contact_id', $contact->id)
+            ->whereNotNull('start')
+            ->get()
+            ->filter(fn (ContactWorkDate $p) => $p->organization
+                && $p->organization->liczySieDoLimitu183()
+                && optional($p->organization->krajTyp)->name === $kraj);
     }
 }
