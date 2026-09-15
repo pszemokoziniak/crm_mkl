@@ -15,9 +15,24 @@
           <option value="na_budowie">Na budowie</option>
         </select>
       </search-filter>
-      <Link class="btn-indigo" href="/narzedzia/create">
-        <span>Dodaj nowy sprzęt</span>
-      </Link>
+      <div class="flex items-center gap-3">
+        <!-- Żeby zobaczyć, gdzie stoi sprzęt, trzeba było rozwijać każdą
+             pozycję z osobna. -->
+        <button type="button" class="text-sm text-indigo-600 hover:underline whitespace-nowrap" @click="rozwinWszystko">
+          Rozwiń wszystko
+        </button>
+        <button
+          v-if="rozwiniete.length"
+          type="button"
+          class="text-sm text-gray-600 hover:underline whitespace-nowrap"
+          @click="zwinWszystko"
+        >
+          Zwiń wszystko
+        </button>
+        <Link class="btn-indigo" href="/narzedzia/create">
+          <span>Dodaj nowy sprzęt</span>
+        </Link>
+      </div>
     </div>
 
     <!-- Pasek wydania pojawia się dopiero, gdy coś jest zaznaczone. -->
@@ -259,6 +274,26 @@ export default {
     },
   },
   methods: {
+    // Klucze wszystkich poziomów: kategorie i modele w nich.
+    wszystkieKlucze() {
+      const klucze = []
+
+      this.grupy.forEach((grupa) => {
+        klucze.push(grupa.klucz)
+
+        if (grupa.ma_modele) {
+          grupa.modele.forEach((model) => klucze.push(grupa.klucz + '/' + model.klucz))
+        }
+      })
+
+      return klucze
+    },
+    rozwinWszystko() {
+      this.rozwiniete = this.wszystkieKlucze()
+    },
+    zwinWszystko() {
+      this.rozwiniete = []
+    },
     przelacz(klucz) {
       const i = this.rozwiniete.indexOf(klucz)
       if (i === -1) {
