@@ -16,6 +16,7 @@ use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use App\Services\KolizjaPobytu;
+use App\Services\LimitPobytuZagranica;
 use App\Services\StatusPracownika;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -212,6 +213,8 @@ class ContactsController extends Controller
             'uprawnienia' => Uprawnienia::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'pbioz' => Pbioz::select('start', 'end')->where('contact_id', $contact->id)->latest()->get()->map->only('end'),
             'przypisania' => $przypisania,
+            // Ile dni pobytu za granicą zostało w ruchomym oknie 12 miesięcy.
+            'limit_183' => app(LimitPobytuZagranica::class)->dlaPracownika($contact),
             'status' => $statusPracownika->dla($contact),
             'wszystkiePobyty' => $wszystkiePobyty,
             'czyKierownictwo' => $czyKierownictwo,

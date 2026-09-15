@@ -194,6 +194,53 @@
       </div>
     </div>
 
+    <!-- Limit 183 dni: pokazujemy tylko tym, którzy w ogóle bywają za granicą. -->
+    <div v-if="limit_183.length" class="mb-6 bg-white rounded-md shadow overflow-hidden">
+      <div class="flex flex-wrap items-center gap-2 px-6 py-4 border-b border-gray-100">
+        <span class="font-semibold text-gray-700">Pobyty zagraniczne</span>
+        <span class="text-xs text-gray-400 uppercase tracking-wider">limit 183 dni w 12 miesiącach</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="naglowek-tabeli">
+              <th>Kraj</th>
+              <th class="text-right">Ostatnie 12 mies.</th>
+              <th class="text-right">Pozostało</th>
+              <th>Stan</th>
+              <th>Najdłuższe 12 miesięcy</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr v-for="kraj in limit_183" :key="kraj.kraj">
+              <td class="px-6 py-3 font-medium text-gray-800">{{ kraj.kraj }}</td>
+              <td class="px-6 py-3 text-right tabular-nums">{{ kraj.dni_12m }}</td>
+              <td class="px-6 py-3 text-right tabular-nums font-semibold" :class="klasaLimitu(kraj.status)">
+                {{ kraj.pozostalo }}
+              </td>
+              <td class="px-6 py-3">
+                <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full" :class="plakietkaLimitu(kraj.status)">
+                  {{ opisLimitu(kraj) }}
+                </span>
+                <span v-if="kraj.wolne_od" class="ml-2 text-xs text-gray-500">
+                  wolne od {{ kraj.wolne_od }}
+                </span>
+              </td>
+              <td class="px-6 py-3 text-xs text-gray-500 whitespace-nowrap">
+                {{ kraj.najwieksze_okno }} dni
+                <span v-if="kraj.okno_od">({{ kraj.okno_od }} → {{ kraj.okno_do }})</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="px-6 py-3 text-xs text-gray-400 border-t border-gray-100">
+        Liczone są całe pobyty na budowach, razem z dniem przyjazdu i wyjazdu. System nie wie o powrotach
+        do domu na weekendy, więc to górna granica — do pilnowania terminu, nie do rozliczenia podatku.
+        Okno jest ruchome: brane jest każde kolejne 12 miesięcy, a nie rok kalendarzowy.
+      </p>
+    </div>
+
     <teleport to="body">
       <div v-if="showAssignConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4" @keydown.esc.window="showAssignConfirm = false">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showAssignConfirm = false" />
@@ -337,6 +384,7 @@ export default {
     pbioz: Object,
     uprawnienia: Object,
     przypisania: { type: Array, default: () => [] },
+    limit_183: { type: Array, default: () => [] },
     status: { type: Object, default: () => ({ typ: 'brak', label: 'Nie pracuje' }) },
     wszystkiePobyty: { type: Array, default: () => [] },
     czyKierownictwo: { type: Boolean, default: false },
@@ -434,6 +482,23 @@ export default {
     },
   },
   methods: {
+    klasaLimitu(status) {
+      if (status === 'przekroczony') return 'text-red-700'
+      return status === 'uwaga' ? 'text-orange-700' : 'text-gray-800'
+    },
+    plakietkaLimitu(status) {
+      if (status === 'przekroczony') return 'bg-red-100 text-red-800 border border-red-200'
+      if (status === 'uwaga') return 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+      return 'bg-green-100 text-green-800 border border-green-200'
+    },
+    opisLimitu(kraj) {
+      if (kraj.status === 'przekroczony') {
+        // Rozróżniamy "dziś nie ma zapasu" od "kiedyś próg został przekroczony".
+        return kraj.pozostalo === 0 ? 'limit wyczerpany' : 'przekroczony w przeszłości'
+      }
+
+      return kraj.status === 'uwaga' ? 'blisko limitu' : 'w normie'
+    },
     openAssignConfirm() {
       // Popup pokazujemy tylko z kompletem danych; walidację reszty robi serwer.
       if (!this.assignForm.organization_id || !this.assignForm.start || !this.assignForm.end) {
