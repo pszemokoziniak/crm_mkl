@@ -10,6 +10,15 @@
         <input type="checkbox" class="form-checkbox" :checked="pokazKosz" @change="przelaczKosz" />
         <span>Pokaż usunięte</span>
       </label>
+      <!-- Historia jest zwinięta, ale ma być widać, że istnieje i ile jej jest. -->
+      <button
+        v-if="ukrytych > 0 || pokazHistorie"
+        type="button"
+        class="text-sm text-indigo-600 hover:underline"
+        @click="przelaczHistorie"
+      >
+        {{ pokazHistorie ? 'Ukryj poprzednie wpisy' : `Pokaż poprzednie wpisy (${ukrytych})` }}
+      </button>
       <Link v-if="!kierownik" class="btn-indigo" :href="`/contacts/${contactId}/pbioz/create`">
         <span>Dodaj</span>
       </Link>
@@ -138,6 +147,7 @@ export default {
   layout: Layout,
   props: {
     filters: { type: Object, default: () => ({}) },
+    ukrytych: { type: Number, default: 0 },
     pracownik: { type: Object, default: null },
     contact: Object,
     pbioz: Object,
@@ -150,6 +160,9 @@ export default {
     },
     kierownik() {
       return prowadziBudowy(this.userOwner)
+    },
+    pokazHistorie() {
+      return this.filters.historia === 'with'
     },
     pokazKosz() {
       return this.filters.trashed === 'with'
@@ -177,10 +190,24 @@ export default {
       if (item.dni < 0) return 'text-red-700'
       return item.dni <= 30 ? 'text-orange-700' : 'text-gray-600'
     },
+    przelaczHistorie() {
+      // Zachowujemy stan kosza, żeby jeden przełącznik nie kasował drugiego.
+      this.$inertia.get(
+        `/contacts/${this.contactId}/pbioz`,
+        {
+          ...(this.pokazKosz ? { trashed: 'with' } : {}),
+          ...(this.pokazHistorie ? {} : { historia: 'with' }),
+        },
+        { preserveScroll: true, replace: true }
+      )
+    },
     przelaczKosz(zdarzenie) {
       this.$inertia.get(
         `/contacts/${this.contactId}/pbioz`,
-        zdarzenie.target.checked ? { trashed: 'with' } : {},
+        {
+          ...(zdarzenie.target.checked ? { trashed: 'with' } : {}),
+          ...(this.pokazHistorie ? { historia: 'with' } : {}),
+        },
         { preserveScroll: true, replace: true }
       )
     },

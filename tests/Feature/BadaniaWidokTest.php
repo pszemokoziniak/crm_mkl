@@ -103,7 +103,9 @@ class BadaniaWidokTest extends TestCase
         $this->badanie(now()->addYear()->toDateString());
         $this->badanie(now()->addMonth()->toDateString());
 
-        $konce = collect($this->props()['bads']['data'])->pluck('end')->all();
+        // Z historią, bo wpisy zastąpione nowszym są domyślnie zwinięte,
+        // a tu sprawdzamy kolejność całej listy.
+        $konce = collect($this->props(['historia' => 'with'])['bads']['data'])->pluck('end')->all();
 
         $this->assertSame([
             now()->addYear()->toDateString(),
@@ -117,7 +119,7 @@ class BadaniaWidokTest extends TestCase
         $this->badanie(now()->addDays(10)->toDateString());
         $this->badanie(now()->subDays(3)->toDateString());
 
-        $dni = collect($this->props()['bads']['data'])->pluck('dni')->all();
+        $dni = collect($this->props(['historia' => 'with'])['bads']['data'])->pluck('dni')->all();
 
         // Dodatnie = ile zostało, ujemne = ile po terminie.
         $this->assertSame([10, -3], $dni);

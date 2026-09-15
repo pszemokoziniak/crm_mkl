@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\IstniejaceWpisy;
 use App\Services\ZastapioneWpisy;
 use App\Http\Requests\StoreA1Request;
 use App\Models\A1;
@@ -30,12 +31,18 @@ class A1Controller extends Controller
         // co na pulpicie, żeby lista mówiła to samo co alarmy.
         $zastapione = app(ZastapioneWpisy::class)->idsDla('a1_s', $contact->id, null);
 
+        // Historia domyślnie zwinięta: wpisy zastąpione nowszym tylko
+        // wydłużają listę. Przycisk nad tabelą mówi, ile ich jest.
+        $zHistoria = $request->input('historia') === 'with';
+
         return Inertia::render('A1/Index', [
-            'filters' => $request->only('search', 'trashed'),
+            'filters' => $request->only('search', 'trashed', 'historia'),
+            'ukrytych' => $zHistoria ? 0 : count($zastapione),
             'pracownik' => $this->danePracownika($contact),
             'a1s' => A1::with('skan', 'kraj')
                 ->where('contact_id', $contact->id)
                 ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->when(! $zHistoria, fn ($q) => $q->whereNotIn('id', $zastapione ?: [0]))
                 // Najświeższy wpis na górze — to on mówi, czy papier jest ważny.
                 ->orderByRaw('`end` IS NULL, `end` DESC')
                 ->paginate(10)
@@ -103,6 +110,9 @@ class A1Controller extends Controller
 //        $a1s   = A1::all();
         return Inertia('A1/Create', compact('contact_id', 'countries') + [
             'pracownik' => $this->danePracownika($contact),
+            // Co już jest wpisane tego rodzaju — formularz mówi, co się
+            // stanie z poprzednim wpisem, zamiast pytać o zgodę na kasowanie.
+            'istniejace' => app(IstniejaceWpisy::class)->dla('a1_s', $contact->id, null),
         ]);
     }
 

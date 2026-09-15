@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\IstniejaceWpisy;
 use App\Services\ZastapioneWpisy;
 use App\Http\Controllers\Controller;
 
@@ -35,9 +36,14 @@ class BadaniaController extends Controller
         // co na pulpicie, żeby lista mówiła to samo co alarmy.
         $zastapione = app(ZastapioneWpisy::class)->idsDla('badanias', $contact->id, 'badaniaTyp_id');
 
+        // Historia domyślnie zwinięta: wpisy zastąpione nowszym tylko
+        // wydłużają listę. Przycisk nad tabelą mówi, ile ich jest.
+        $zHistoria = Request::input('historia') === 'with';
+
         $bads = Badania::with('skan', 'badaniaTyp')
                 ->where('contact_id', $contact->id)
                 ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->when(! $zHistoria, fn ($q) => $q->whereNotIn('id', $zastapione ?: [0]))
                 // Najświeższe badanie na górze — to ono decyduje, czy człowiek
                 // może być na budowie. Bez daty końca na sam dół.
                 ->orderByRaw('`end` IS NULL, `end` DESC')
@@ -58,7 +64,8 @@ class BadaniaController extends Controller
 
 
         return Inertia::render('Badania/Index', [
-            'filters' => Request::all('search', 'trashed'),
+            'filters' => Request::all('search', 'trashed', 'historia'),
+            'ukrytych' => $zHistoria ? 0 : count($zastapione),
             'pracownik' => $this->danePracownika($contact),
             'contact' => $contact,
             'bads' => $bads,
@@ -113,6 +120,9 @@ class BadaniaController extends Controller
         $badanias = BadaniaTyp::all();
         return Inertia('Badania/Create', compact('contact_id', 'badanias') + [
             'pracownik' => $this->danePracownika($contact),
+            // Co już jest wpisane tego rodzaju — formularz mówi, co się
+            // stanie z poprzednim wpisem, zamiast pytać o zgodę na kasowanie.
+            'istniejace' => app(IstniejaceWpisy::class)->dla('badanias', $contact->id, 'badaniaTyp_id'),
         ]);
     }
 

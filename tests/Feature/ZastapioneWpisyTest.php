@@ -60,12 +60,17 @@ class ZastapioneWpisyTest extends TestCase
         ]);
     }
 
-    /** @return array<int, array<string, mixed>> wpisy z listy, po id */
+    /**
+     * Wpisy z listy, po id. Z rozwiniętą historią, bo te sprawdzenia dotyczą
+     * oznaczania wpisów, a nie ich chowania — zwinięcie ma własne testy.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function lista(): array
     {
         return collect(
             $this->actingAs($this->biuro)
-                ->get('/contacts/'.$this->pracownik->id.'/badania')
+                ->get('/contacts/'.$this->pracownik->id.'/badania?historia=with')
                 ->viewData('page')['props']['bads']['data']
         )->keyBy('id')->all();
     }
@@ -115,6 +120,76 @@ class ZastapioneWpisyTest extends TestCase
 
         $this->assertCount(2, $this->lista());
         $this->assertNull(Badania::find($stare->id)->deleted_at);
+    }
+
+    public function test_historia_jest_domyslnie_zwinieta(): void
+    {
+        $stare = $this->badanie($this->okresowe, '2022-06-13', '2024-06-13');
+        $nowe = $this->badanie($this->okresowe, '2026-06-02', '2028-06-02');
+
+        $props = $this->actingAs($this->biuro)
+            ->get('/contacts/'.$this->pracownik->id.'/badania')
+            ->viewData('page')['props'];
+
+        $widoczne = collect($props['bads']['data'])->pluck('id');
+
+        $this->assertContains($nowe->id, $widoczne);
+        $this->assertNotContains($stare->id, $widoczne, 'Historia chowa się pod przyciskiem.');
+        $this->assertSame(1, $props['ukrytych'], 'Przycisk musi powiedzieć, ile jest schowane.');
+    }
+
+    public function test_przycisk_rozwija_historie(): void
+    {
+        $stare = $this->badanie($this->okresowe, '2022-06-13', '2024-06-13');
+        $this->badanie($this->okresowe, '2026-06-02', '2028-06-02');
+
+        $props = $this->actingAs($this->biuro)
+            ->get('/contacts/'.$this->pracownik->id.'/badania?historia=with')
+            ->viewData('page')['props'];
+
+        $this->assertContains($stare->id, collect($props['bads']['data'])->pluck('id'));
+        $this->assertSame(0, $props['ukrytych']);
+    }
+
+    public function test_zalegly_wpis_nie_chowa_sie_nigdy(): void
+    {
+        // Brak do uzupełnienia musi zostać na wierzchu, nawet zwinięty widok
+        // ma go pokazać.
+        $samotne = $this->badanie($this->okresowe, '2022-06-13', '2024-06-13');
+
+        $props = $this->actingAs($this->biuro)
+            ->get('/contacts/'.$this->pracownik->id.'/badania')
+            ->viewData('page')['props'];
+
+        $this->assertContains($samotne->id, collect($props['bads']['data'])->pluck('id'));
+        $this->assertSame(0, $props['ukrytych']);
+    }
+
+    public function test_formularz_mowi_ze_wpis_tego_rodzaju_juz_jest(): void
+    {
+        $this->badanie($this->okresowe, '2022-06-13', '2024-06-13');
+        $this->badanie($this->wysokosciowe, '2026-01-01', null);
+
+        $props = $this->actingAs($this->biuro)
+            ->get('/contacts/'.$this->pracownik->id.'/badania/create')
+            ->viewData('page')['props'];
+
+        $istniejace = $props['istniejace'];
+
+        $this->assertSame('2024-06-13', $istniejace[$this->okresowe->id]['do']);
+        $this->assertFalse($istniejace[$this->okresowe->id]['bezterminowy']);
+        $this->assertTrue($istniejace[$this->wysokosciowe->id]['bezterminowy'], 'Wpis bez daty końca obowiązuje bezterminowo.');
+    }
+
+    public function test_formularz_milczy_o_rodzajach_ktorych_nie_ma(): void
+    {
+        $this->badanie($this->okresowe, '2022-06-13', '2024-06-13');
+
+        $props = $this->actingAs($this->biuro)
+            ->get('/contacts/'.$this->pracownik->id.'/badania/create')
+            ->viewData('page')['props'];
+
+        $this->assertArrayNotHasKey($this->wysokosciowe->id, $props['istniejace']);
     }
 
     public function test_kilka_pokolen_wpisow_oznacza_wszystkie_poza_najnowszym(): void

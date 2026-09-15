@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\IstniejaceWpisy;
 use App\Services\ZastapioneWpisy;
 use App\Http\Requests\StoreBhpRequest;
 use App\Http\Requests\UpdateBhpRequest;
@@ -30,9 +31,14 @@ class BhpController extends Controller
         // co na pulpicie, żeby lista mówiła to samo co alarmy.
         $zastapione = app(ZastapioneWpisy::class)->idsDla('bhps', $contact->id, 'bhpTyp_id');
 
+        // Historia domyślnie zwinięta: wpisy zastąpione nowszym tylko
+        // wydłużają listę. Przycisk nad tabelą mówi, ile ich jest.
+        $zHistoria = $request->input('historia') === 'with';
+
         $bhps = Bhp::with('skan', 'bhpTyp')
             ->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->when(! $zHistoria, fn ($q) => $q->whereNotIn('id', $zastapione ?: [0]))
             // Najświeższy wpis na górze — to on decyduje o ważności.
             ->orderByRaw('`end` IS NULL, `end` DESC')
             ->paginate(10)
@@ -51,7 +57,8 @@ class BhpController extends Controller
             ]);
 
         return Inertia::render('Bhp/Index', [
-            'filters' => $request->only('search', 'trashed'),
+            'filters' => $request->only('search', 'trashed', 'historia'),
+            'ukrytych' => $zHistoria ? 0 : count($zastapione),
             'pracownik' => $this->danePracownika($contact),
             'contact' => $contact,
             'bhps' => $bhps,
@@ -103,6 +110,9 @@ class BhpController extends Controller
         $bhpTyps = BhpTyp::all();
         return Inertia('Bhp/Create', compact('contact_id', 'bhpTyps') + [
             'pracownik' => $this->danePracownika($contact),
+            // Co już jest wpisane tego rodzaju — formularz mówi, co się
+            // stanie z poprzednim wpisem, zamiast pytać o zgodę na kasowanie.
+            'istniejace' => app(IstniejaceWpisy::class)->dla('bhps', $contact->id, 'bhpTyp_id'),
         ]);
     }
 

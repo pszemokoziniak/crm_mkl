@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\IstniejaceWpisy;
 use App\Services\ZastapioneWpisy;
 use App\Http\Requests\StorePbiozRequest;
 use App\Enums\TypDokumentu;
@@ -28,8 +29,13 @@ class PbiozController extends Controller
         // co na pulpicie, żeby lista mówiła to samo co alarmy.
         $zastapione = app(ZastapioneWpisy::class)->idsDla('pbiozs', $contact->id, null);
 
+        // Historia domyślnie zwinięta: wpisy zastąpione nowszym tylko
+        // wydłużają listę. Przycisk nad tabelą mówi, ile ich jest.
+        $zHistoria = $request->input('historia') === 'with';
+
         $pbioz = Pbioz::with('skan')->where('contact_id', $contact->id)
             ->when($zKoszem, fn ($q) => $q->withTrashed())
+                ->when(! $zHistoria, fn ($q) => $q->whereNotIn('id', $zastapione ?: [0]))
             // Najświeższy wpis na górze — to on decyduje o ważności.
             ->orderByRaw('`end` IS NULL, `end` DESC')
             ->paginate(10)
@@ -48,7 +54,8 @@ class PbiozController extends Controller
             ]);
 
         return Inertia::render('Pbioz/Index', [
-            'filters' => $request->only('search', 'trashed'),
+            'filters' => $request->only('search', 'trashed', 'historia'),
+            'ukrytych' => $zHistoria ? 0 : count($zastapione),
             'pracownik' => $this->danePracownika($contact),
             'contact' => $contact,
             'pbioz' => $pbioz,
@@ -98,6 +105,9 @@ class PbiozController extends Controller
         $contact_id = $contact->id;
         return Inertia('Pbioz/Create', compact('contact_id') + [
             'pracownik' => $this->danePracownika($contact),
+            // Co już jest wpisane tego rodzaju — formularz mówi, co się
+            // stanie z poprzednim wpisem, zamiast pytać o zgodę na kasowanie.
+            'istniejace' => app(IstniejaceWpisy::class)->dla('pbiozs', $contact->id, null),
         ]);
     }
 

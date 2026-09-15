@@ -12,6 +12,9 @@
             <option v-for="item in countries" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
           <text-input v-model="form.contact_id" type="hidden" value="@{{contact_id}}" :error="form.errors.contact_id" />
+          <!-- Nie pytamy "czy skasować poprzedni", bo razem z wpisem zniknąłby
+               skan. Mówimy tylko, co się stanie. -->
+          <p v-if="podpowiedz" class="-mt-4 pb-8 pr-6 w-full text-sm text-orange-700">{{ podpowiedz }}</p>
           <!-- Skan przy wpisie, żeby nie trzeba było wracać do zakładki
                Dokumenty i wgrywać go osobno. Dokument zostaje powiązany
                z tym wpisem. -->
@@ -57,6 +60,7 @@ export default {
   props: {
     pracownik: { type: Object, default: null },
     contact_id: Number,
+    istniejace: { type: Object, default: () => ({}) },
     countries: Object,
   },
   remember: 'form',
@@ -73,6 +77,18 @@ export default {
       }),
       minDate: minDate,
     }
+  },
+  computed: {
+    podpowiedz() {
+      const wpis = this.istniejace[0]
+
+      if (!wpis) return ''
+
+      const waznosc = wpis.bezterminowy ? 'bez daty końca' : `ważny do ${wpis.do}`
+
+      return `Jest już wpis A1 (${waznosc}). `
+        + 'Nowy wpis stanie się aktualny, a poprzedni zostanie w historii.'
+    },
   },
   methods: {
     store(contact_id) {

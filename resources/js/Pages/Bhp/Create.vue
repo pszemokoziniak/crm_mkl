@@ -9,6 +9,9 @@
           <select-input v-model="form.bhpTyp_id" :error="form.errors.bhpTyp_id" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa">
             <option v-for="item in bhpTyps" :key="item.id" :value="item.id">{{ item.name }}</option>
           </select-input>
+          <!-- Nie pytamy "czy skasować poprzedni", bo razem z wpisem zniknąłby
+               skan. Mówimy tylko, co się stanie. -->
+          <p v-if="podpowiedz" class="-mt-4 pb-8 pr-6 w-full text-sm text-orange-700">{{ podpowiedz }}</p>
           <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Start badań" />
           <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec badań" />
           <text-input type="hidden" value="@{{contact_id}}" v-model="form.contact_id" :error="form.errors.contact_id" />
@@ -57,6 +60,7 @@ export default {
   props: {
     pracownik: { type: Object, default: null },
     contact_id: Number,
+    istniejace: { type: Object, default: () => ({}) },
     bhpTyps: Object,
   },
   remember: 'form',
@@ -70,6 +74,19 @@ export default {
         contact_id: '',
       }),
     }
+  },
+  computed: {
+    podpowiedz() {
+      const wpis = this.istniejace[this.form.bhpTyp_id]
+
+      if (!wpis) return ''
+
+      const nazwa = (this.bhpTyps.find((p) => p.id === Number(this.form.bhpTyp_id)) || {}).name || 'tego rodzaju'
+      const waznosc = wpis.bezterminowy ? 'bez daty końca' : `ważne do ${wpis.do}`
+
+      return `Jest już szkolenie tego rodzaju: ${nazwa}, ${waznosc}. `
+        + 'Nowy wpis stanie się aktualny, a poprzedni zostanie w historii.'
+    },
   },
   methods: {
     store(contact_id) {
