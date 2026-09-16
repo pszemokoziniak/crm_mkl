@@ -59,7 +59,9 @@ class BuildingTimeSheet extends Controller
         }
 
         if ($data->lt(Carbon::today()->subDays(self::DNI_WSTECZ_KIEROWNIK))) {
-            return 'Kierownik budowy uzupełnia KCP najwyżej '.self::DNI_WSTECZ_KIEROWNIK
+            // Bez nazwy roli: ten sam limit obowiązuje kierownika projektu,
+            // a komunikat mówił mu "Kierownik budowy".
+            return 'KCP uzupełnia się najwyżej '.self::DNI_WSTECZ_KIEROWNIK
                 .' dni wstecz. Ten dzień jest starszy — zgłoś go do biura.';
         }
 

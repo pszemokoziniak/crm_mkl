@@ -123,6 +123,8 @@ class ZamkniecieKcpTest extends TestCase
 
         $odpowiedz->assertForbidden();
         $this->assertStringContainsString('7 dni wstecz', $odpowiedz->json('message'));
+        $this->assertStringNotContainsString('Kierownik budowy', $odpowiedz->json('message'),
+            'Ten sam limit obowiązuje kierownika projektu — komunikat nie nazywa roli.');
         $this->assertDatabaseCount('building_time_sheets', 0);
     }
 

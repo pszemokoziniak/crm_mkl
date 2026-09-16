@@ -276,7 +276,7 @@ export default {
         return `KCP za ${this.zamkniety.okres} jest zamknięte — pobrały je kadry. Poprawki zgłoś do biura.`
       }
 
-      return `Kierownik budowy uzupełnia KCP najwyżej ${this.dniWstecz} dni wstecz. `
+      return `KCP uzupełnia się najwyżej ${this.dniWstecz} dni wstecz. `
         + 'Ten dzień jest starszy — zgłoś go do biura.'
     },
     sortedTimeSheets() {
