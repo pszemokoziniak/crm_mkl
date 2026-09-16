@@ -1,0 +1,2939 @@
+[
+    {
+        "uri": "sanctum/csrf-cookie",
+        "methods": [
+            "GET"
+        ],
+        "name": null,
+        "middleware": []
+    },
+    {
+        "uri": "api/user",
+        "methods": [
+            "GET"
+        ],
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum"
+        ]
+    },
+    {
+        "uri": "login",
+        "methods": [
+            "GET"
+        ],
+        "name": "login",
+        "middleware": [
+            "guest"
+        ]
+    },
+    {
+        "uri": "login",
+        "methods": [
+            "POST"
+        ],
+        "name": "login.store",
+        "middleware": [
+            "guest"
+        ]
+    },
+    {
+        "uri": "logout",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "logout",
+        "middleware": []
+    },
+    {
+        "uri": "users/{user}/wejdz-jako",
+        "methods": [
+            "POST"
+        ],
+        "name": "podszywanie.wejdz",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "wroc-do-siebie",
+        "methods": [
+            "POST"
+        ],
+        "name": "podszywanie.wroc",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "password/expired",
+        "methods": [
+            "GET"
+        ],
+        "name": "password.expired",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "password/expired",
+        "methods": [
+            "POST"
+        ],
+        "name": "password.expired.post",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "/",
+        "methods": [
+            "GET"
+        ],
+        "name": "dashboard",
+        "middleware": [
+            "auth",
+            "password_expired"
+        ]
+    },
+    {
+        "uri": "users",
+        "methods": [
+            "GET"
+        ],
+        "name": "users",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "users.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "users",
+        "methods": [
+            "POST"
+        ],
+        "name": "users.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/{user}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "users.edit",
+        "middleware": [
+            "auth",
+            "self-or-biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/{user}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "users.update",
+        "middleware": [
+            "auth",
+            "self-or-biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/{user}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "users.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/{user}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "users.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/{user}/block",
+        "methods": [
+            "POST"
+        ],
+        "name": "users.block",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/{user}/unblock",
+        "methods": [
+            "POST"
+        ],
+        "name": "users.unblock",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "users/{user}/disconnect",
+        "methods": [
+            "POST"
+        ],
+        "name": "users.disconnect",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy",
+        "methods": [
+            "GET"
+        ],
+        "name": "organizations",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "budowy/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "organizations.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "crm/klienci",
+        "methods": [
+            "GET"
+        ],
+        "name": "crm.klienci",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/prognoza",
+        "methods": [
+            "GET"
+        ],
+        "name": "budowy.prognoza",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/prognoza",
+        "methods": [
+            "POST"
+        ],
+        "name": "budowy.prognoza.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/prognoza/{prognoza}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "budowy.prognoza.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/prognoza/{prognoza}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "budowy.prognoza.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy",
+        "methods": [
+            "POST"
+        ],
+        "name": "organizations.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "organizations.edit",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "organizations.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "organizations.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "organizations.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/klient",
+        "methods": [
+            "GET"
+        ],
+        "name": "klient.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/klient/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "klient.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "klient",
+        "methods": [
+            "POST"
+        ],
+        "name": "klient.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/klient/{klient}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "klient.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "klient/{klient}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "klient.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "klient/{klient}/delete",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "klient.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{klient}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "klient.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "ustawienia",
+        "methods": [
+            "GET"
+        ],
+        "name": "ustawienia",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "ustawienia",
+        "methods": [
+            "PUT"
+        ],
+        "name": "ustawienia.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "prognoza",
+        "methods": [
+            "GET"
+        ],
+        "name": "prognoza",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "prognoza/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "prognoza.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "prognoza",
+        "methods": [
+            "POST"
+        ],
+        "name": "prognoza.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "prognoza/{prognoza}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "prognoza.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "prognoza/building",
+        "methods": [
+            "GET"
+        ],
+        "name": "prognoza.building",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "prognoza/{prognoza}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "prognoza.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts",
+        "methods": [
+            "GET"
+        ],
+        "name": "contacts",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "kierownicy",
+        "methods": [
+            "GET"
+        ],
+        "name": "kierownicy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "contacts.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts",
+        "methods": [
+            "POST"
+        ],
+        "name": "contacts.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "contacts.edit",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/przypisz-budowe",
+        "methods": [
+            "POST"
+        ],
+        "name": "contacts.przypisz-budowe",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}",
+        "methods": [
+            "POST"
+        ],
+        "name": "contacts.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "contacts.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "contacts.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/history",
+        "methods": [
+            "GET"
+        ],
+        "name": "contacts.history",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia",
+        "methods": [
+            "GET"
+        ],
+        "name": "narzedzia",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/przypisz",
+        "methods": [
+            "POST"
+        ],
+        "name": "narzedzia.przypisz",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/przypisanie/{toolWorkDate}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "narzedzia.zdejmij",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "narzedzia.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia",
+        "methods": [
+            "POST"
+        ],
+        "name": "narzedzia.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "narzedzia.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}",
+        "methods": [
+            "POST"
+        ],
+        "name": "narzedzia.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "narzedzia.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "narzedzia.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}/file",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "narzedzia.delete.document",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}/pliki/{toolFile}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "narzedzia.pliki.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}/pliki/{toolFile}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "narzedzia.pliki.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedzia/{narzedzia}/file/{name}",
+        "methods": [
+            "GET"
+        ],
+        "name": "narzedzia.download.file",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/holiday",
+        "methods": [
+            "GET"
+        ],
+        "name": "holiday.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/holiday/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "holiday.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "holiday/{contact_id}",
+        "methods": [
+            "POST"
+        ],
+        "name": "holiday.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/holiday/{holiday}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "holiday.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/holiday/{holiday}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "holiday.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "holiday/{holiday}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "holiday.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "holiday/{holiday}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "holiday.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/narzedzia",
+        "methods": [
+            "GET"
+        ],
+        "name": "budowy.narzedzia",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/narzedzia/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "budowy.narzedzia.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/narzedzia",
+        "methods": [
+            "POST"
+        ],
+        "name": "budowy.narzedzia.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/narzedzia/{narzedzia}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "budowy.narzedzia.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/narzedzia/{narzedzia}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "budowy.narzedzia.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/narzedzia/{toolWorkDate}/destroy",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "budowy.narzedzia.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/narzedzia/{narzedzia}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "budowy.narzedzia.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "dokumentyTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "dokumentyTyp",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "dokumentyTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "dokumentyTyp.create",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "dokumentyTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "dokumentyTyp.store",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "dokumentyTyp/{dokumentyTyp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "dokumentyTyp.edit",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "dokumentyTyp/{dokumentyTyp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "dokumentyTyp.update",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "dokumentyTyp/{dokumentyTyp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "dokumentyTyp.destroy",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "dokumentyTyp/{account}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "dokumentyTyp.restore",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{organization}",
+        "methods": [
+            "GET"
+        ],
+        "name": "pracownicy.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{organization}/data-konca",
+        "methods": [
+            "PUT"
+        ],
+        "name": "pracownicy.data-konca",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{contactWorkDate}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "pracownicy.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{organization}/create",
+        "methods": [
+            "POST"
+        ],
+        "name": "pracownicy.create.post",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{organization}/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "pracownicy.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{organization}/edit/{contactWorkDate}",
+        "methods": [
+            "GET"
+        ],
+        "name": "pracownicy.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{organization}",
+        "methods": [
+            "POST"
+        ],
+        "name": "pracownicy.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/{contactWorkDate}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "pracownicy.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pracownicy/destroystore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "pracownicy.destroystore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/kierownictwo",
+        "methods": [
+            "GET"
+        ],
+        "name": "budowy.management",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/kierownictwo",
+        "methods": [
+            "POST"
+        ],
+        "name": "budowy.management.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/budowa/destroy",
+        "methods": [
+            "GET"
+        ],
+        "name": "contacts.destroyPracownikBudowa",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/badania",
+        "methods": [
+            "GET"
+        ],
+        "name": "badania.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/badania/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "badania.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "badania/{contact_id}",
+        "methods": [
+            "POST"
+        ],
+        "name": "badania.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/badania/{badania}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "badania.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/badania/{badania}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "badania.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "badania/{badania}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "badania.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "badania/{badania}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "badania.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/bhp",
+        "methods": [
+            "GET"
+        ],
+        "name": "bhp.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/bhp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "bhp.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "bhp/{contact_id}",
+        "methods": [
+            "POST"
+        ],
+        "name": "bhp.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/bhp/{bhp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "bhp.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/bhp/{bhp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "bhp.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "bhp/{bhp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "bhp.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "bhp/{bhp}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "bhp.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/pbioz",
+        "methods": [
+            "GET"
+        ],
+        "name": "pbioz.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/pbioz/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "pbioz.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pbioz/{contact_id}",
+        "methods": [
+            "POST"
+        ],
+        "name": "pbioz.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/pbioz/{pbioz}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "pbioz.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/pbioz/{pbioz}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "pbioz.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pbioz/{pbioz}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "pbioz.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "pbioz/{pbioz}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "pbioz.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/a1",
+        "methods": [
+            "GET"
+        ],
+        "name": "a1.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/a1/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "a1.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "a1/{contact_id}",
+        "methods": [
+            "POST"
+        ],
+        "name": "a1.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/a1/{a1}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "a1.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/a1/{a1}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "a1.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "a1/{a1}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "a1.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "a1/{a1}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "a1.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "budowy/{organization}/a1",
+        "methods": [
+            "GET"
+        ],
+        "name": "budowy.a1.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/uprawnienia",
+        "methods": [
+            "GET"
+        ],
+        "name": "uprawnienia.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/uprawnienia/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "uprawnienia.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnienia/{contact_id}",
+        "methods": [
+            "POST"
+        ],
+        "name": "uprawnienia.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/uprawnienia/{uprawnienia}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "uprawnienia.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/uprawnienia/{uprawnienia}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "uprawnienia.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnienia/{uprawnienia}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "uprawnienia.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnienia/{uprawnienia}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "uprawnienia.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedziaTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "narzedziaTyp",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedziaTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "narzedziaTyp.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedziaTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "narzedziaTyp.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedziaTyp/{narzedziaTyp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "narzedziaTyp.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedziaTyp/{narzedziaTyp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "narzedziaTyp.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedziaTyp/{narzedziaTyp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "narzedziaTyp.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "narzedziaTyp/{narzedziaTyp}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "narzedziaTyp.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/jezyk",
+        "methods": [
+            "GET"
+        ],
+        "name": "jezyk.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/jezyk/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "jezyk.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "jezyk/{contact_id}",
+        "methods": [
+            "POST"
+        ],
+        "name": "jezyk.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/jezyk/{jezyk}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "jezyk.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/jezyk/{jezyk}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "jezyk.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "jezyk/{jezyk}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "jezyk.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "jezyk/{jezyk}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "jezyk.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "position",
+        "methods": [
+            "GET"
+        ],
+        "name": "position",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "position/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "position.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "position",
+        "methods": [
+            "POST"
+        ],
+        "name": "position.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "position/{account}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "position.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "position/{account}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "position.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "position/{account}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "position.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "position/{account}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "position.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "funkcja",
+        "methods": [
+            "GET"
+        ],
+        "name": "funkcja",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "funkcja/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "funkcja.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "funkcja",
+        "methods": [
+            "POST"
+        ],
+        "name": "funkcja.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "funkcja/{funkcja}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "funkcja.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "funkcja/{funkcja}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "funkcja.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "funkcja/{funkcja}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "funkcja.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "badaniaTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "badaniaTyp",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "badaniaTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "badaniaTyp.create",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "badaniaTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "badaniaTyp.store",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "badaniaTyp/{badaniaTyp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "badaniaTyp.edit",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "badaniaTyp/{badaniaTyp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "badaniaTyp.update",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "badaniaTyp/{badaniaTyp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "badaniaTyp.destroy",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "badaniaTyp/{badaniaTyp}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "badaniaTyp.restore",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "bhpTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "bhpTyp",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "bhpTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "bhpTyp.create",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "bhpTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "bhpTyp.store",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "bhpTyp/{bhpTyp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "bhpTyp.edit",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "bhpTyp/{bhpTyp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "bhpTyp.update",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "bhpTyp/{bhpTyp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "bhpTyp.destroy",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "bhpTyp/{bhpTyp}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "bhpTyp.restore",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "uprawnieniaTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "uprawnieniaTyp",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnieniaTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "uprawnieniaTyp.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnieniaTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "uprawnieniaTyp.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnieniaTyp/{uprawnieniaTyp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "uprawnieniaTyp.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnieniaTyp/{uprawnieniaTyp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "uprawnieniaTyp.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnieniaTyp/{uprawnieniaTyp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "uprawnieniaTyp.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "uprawnieniaTyp/{uprawnieniaTyp}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "uprawnieniaTyp.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "jezykTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "jezykTyp",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "jezykTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "jezykTyp.create",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "jezykTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "jezykTyp.store",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "jezykTyp/{jezykTyp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "jezykTyp.edit",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "jezykTyp/{jezykTyp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "jezykTyp.update",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "jezykTyp/{jezykTyp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "jezykTyp.destroy",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "jezykTyp/{jezykTyp}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "jezykTyp.restore",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "krajTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "krajTyp",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "krajTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "krajTyp.create",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "krajTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "krajTyp.store",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "krajTyp/{krajTyp}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "krajTyp.edit",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "krajTyp/{krajTyp}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "krajTyp.update",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "krajTyp/{krajTyp}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "krajTyp.destroy",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "krajTyp/{krajTyp}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "krajTyp.restore",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "shiftStatusTyp",
+        "methods": [
+            "GET"
+        ],
+        "name": "shiftStatusTyp",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "shiftStatusTyp/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "shiftStatusTyp.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "shiftStatusTyp",
+        "methods": [
+            "POST"
+        ],
+        "name": "shiftStatusTyp.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "shiftStatusTyp/{shiftStatus}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "shiftStatusTyp.edit",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "shiftStatusTyp/{shiftStatus}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "shiftStatusTyp.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "shiftStatusTyp/{shiftStatus}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "shiftStatusTyp.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "shiftStatusTyp/{shiftStatus}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "shiftStatusTyp.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "reports",
+        "methods": [
+            "GET"
+        ],
+        "name": "reports",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "reports/koniecUprawinien",
+        "methods": [
+            "GET"
+        ],
+        "name": "reports.koniecUprawinien",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "logowania",
+        "methods": [
+            "GET"
+        ],
+        "name": "logowania",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "tools",
+        "methods": [
+            "GET"
+        ],
+        "name": "tools",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "zadania",
+        "methods": [
+            "GET"
+        ],
+        "name": "zadania.index",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "zadania.create",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania",
+        "methods": [
+            "POST"
+        ],
+        "name": "zadania.store",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}",
+        "methods": [
+            "GET"
+        ],
+        "name": "zadania.show",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "zadania.edit",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "zadania.update",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}/status",
+        "methods": [
+            "PUT"
+        ],
+        "name": "zadania.status",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "zadania.destroy",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "zadania.restore",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}/files",
+        "methods": [
+            "POST"
+        ],
+        "name": "zadania.files.store",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}/files/{file}",
+        "methods": [
+            "GET"
+        ],
+        "name": "zadania.files.show",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "zadania/{zadanie}/files/{file}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "zadania.files.destroy",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "notes",
+        "methods": [
+            "POST"
+        ],
+        "name": "notes.store",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "notes/{note}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "notes.update",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "notes/{note}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "notes.destroy",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "notifications/{id}/read",
+        "methods": [
+            "POST"
+        ],
+        "name": "notifications.read",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "notifications/read-all",
+        "methods": [
+            "POST"
+        ],
+        "name": "notifications.readAll",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/umowa",
+        "methods": [
+            "GET"
+        ],
+        "name": "umowy.formularz",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/umowa/podglad",
+        "methods": [
+            "GET"
+        ],
+        "name": "umowy.podglad",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact}/umowa/doc",
+        "methods": [
+            "GET"
+        ],
+        "name": "umowy.doc",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "zmiany-kadrowe",
+        "methods": [
+            "GET"
+        ],
+        "name": "zmiany-kadrowe",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "zmiany-kadrowe",
+        "methods": [
+            "PUT"
+        ],
+        "name": "zmiany-kadrowe.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "img/{path}",
+        "methods": [
+            "GET"
+        ],
+        "name": "image",
+        "middleware": []
+    },
+    {
+        "uri": "contacts/{contact_id}/documents",
+        "methods": [
+            "GET"
+        ],
+        "name": "documents.index",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "documents.create",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/store",
+        "methods": [
+            "POST"
+        ],
+        "name": "documents.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}",
+        "methods": [
+            "GET"
+        ],
+        "name": "documents.view",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}/restore",
+        "methods": [
+            "PUT"
+        ],
+        "name": "documents.restore",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "documents.delete",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}/lekarskie",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "documentsLek.delete",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}/bhp",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "documentsBhp.delete",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}/uprawnienia",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "documentsUpr.delete",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}/pbioz",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "documentsPbioz.delete",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "contacts/{contact_id}/documents/{document_id}/a1",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "documentsA1.delete",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "building/{build}/time-sheet",
+        "methods": [
+            "GET"
+        ],
+        "name": "workTimeSheet.view",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "building/{build}/time-sheet",
+        "methods": [
+            "POST"
+        ],
+        "name": "workTimeSheet.store",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "building/{build}/time-sheet/delete",
+        "methods": [
+            "POST"
+        ],
+        "name": "workTimeSheet.delete",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "building/{build}/time-sheet/export",
+        "methods": [
+            "GET"
+        ],
+        "name": "workTimeSheet.excelExport",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "building/time-sheet/general-report",
+        "methods": [
+            "GET"
+        ],
+        "name": "workTimeSheet.buildsReport",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "building/time-sheet/month-report",
+        "methods": [
+            "GET"
+        ],
+        "name": "workTimeSheet.reportIndex",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "country/{country}/feasts",
+        "methods": [
+            "GET"
+        ],
+        "name": "country_feasts.index",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "country/{country}/feasts/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "country_feasts.create",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "country/{country}/feasts/{feast}",
+        "methods": [
+            "GET"
+        ],
+        "name": "country_feasts.edit",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "country/{country}/feasts",
+        "methods": [
+            "POST"
+        ],
+        "name": "country_feasts.store",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "country/{country}/feasts/{feast}/delete",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "country_feasts.delete",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "baza-wiedzy",
+        "methods": [
+            "GET"
+        ],
+        "name": "bazaWiedzy",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "baza-wiedzy/create",
+        "methods": [
+            "GET"
+        ],
+        "name": "bazaWiedzy.create",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "baza-wiedzy",
+        "methods": [
+            "POST"
+        ],
+        "name": "bazaWiedzy.store",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "baza-wiedzy/{artykul}",
+        "methods": [
+            "GET"
+        ],
+        "name": "bazaWiedzy.show",
+        "middleware": [
+            "auth"
+        ]
+    },
+    {
+        "uri": "baza-wiedzy/{artykul}/edit",
+        "methods": [
+            "GET"
+        ],
+        "name": "bazaWiedzy.edit",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "baza-wiedzy/{artykul}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "bazaWiedzy.update",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "baza-wiedzy/{artykul}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "bazaWiedzy.destroy",
+        "middleware": [
+            "auth",
+            "admin-permission"
+        ]
+    },
+    {
+        "uri": "statystyki",
+        "methods": [
+            "GET"
+        ],
+        "name": "statystyki",
+        "middleware": [
+            "auth",
+            "biuro-kierownik-permission"
+        ]
+    },
+    {
+        "uri": "grupy-sprzetu",
+        "methods": [
+            "GET"
+        ],
+        "name": "grupySprzetu",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "grupy-sprzetu",
+        "methods": [
+            "POST"
+        ],
+        "name": "grupySprzetu.store",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "grupy-sprzetu/{grupa}",
+        "methods": [
+            "PUT"
+        ],
+        "name": "grupySprzetu.update",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "grupy-sprzetu/{grupa}",
+        "methods": [
+            "DELETE"
+        ],
+        "name": "grupySprzetu.destroy",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    },
+    {
+        "uri": "grupy-sprzetu/przypisz",
+        "methods": [
+            "POST"
+        ],
+        "name": "grupySprzetu.przypisz",
+        "middleware": [
+            "auth",
+            "biuro-permission"
+        ]
+    }
+]

@@ -310,7 +310,7 @@ class OrganizationsController extends Controller
 
     public function edit(Organization $organization)
     {
-        // Dostęp do budowy autoryzuje middleware biuro-kierownik-permission
+        // Dostęp do budowy autoryzuje middleware moze (uprawnienie + zakres)
         // (OrganizationPolicy@view => Organization::scopeManagedBy). Tu tylko tryb read-only dla kierownika.
         $flag = Auth::user()->owner === 3;
 
@@ -393,7 +393,7 @@ class OrganizationsController extends Controller
 
     public function update(Organization $organization)
     {
-        // Mutacje budowy są tylko dla admina/biura — kierownika blokuje middleware biuro-permission (read-only).
+        // Mutacje budowy wymagają uprawnienia budowy.edycja — kierownika zatrzymuje middleware moze.
         $organization->update(
             Request::validate([
                 'name' => ['required', 'max:100'],

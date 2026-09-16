@@ -65,10 +65,9 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'biuro-permission' => \App\Http\Middleware\BiuroPermission::class,
-        'kierownik-permission' => \App\Http\Middleware\KierownikPermission::class,
-        'admin-permission' => \App\Http\Middleware\AdminPermission::class,
-        'biuro-kierownik-permission' => \App\Http\Middleware\BiuroKierownikPermission::class,
-        'self-or-biuro-permission' => \App\Http\Middleware\SelfOrBiuroPermission::class,
+        // Jeden strażnik z nazwą uprawnienia zamiast strażnika na rolę —
+        // zakres roli zmienia się w App\Uprawnienia\Macierz, nie w trasach.
+        'moze' => \App\Http\Middleware\Moze::class,
+        'wlasny-profil-lub' => \App\Http\Middleware\WlasnyProfilLub::class,
     ];
 }

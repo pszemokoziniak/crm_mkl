@@ -31,23 +31,23 @@ export default {
   components: { Icon, Link },
   data() {
     return {
-      // Kolejność wg ustaleń z Tomaszem. "widzi" mówi, kto ma pozycję
-      // zobaczyć; brak pola = każdy zalogowany.
+      // Kolejność wg ustaleń z Tomaszem. "moze" to uprawnienie, o które
+      // pyta też trasa pod adresem — nikt nie widzi linku, w który nie
+      // wejdzie. Brak pola = każdy zalogowany.
       pozycje: [
         { nazwa: 'Home', adres: '/', ikona: 'home', dopasowanie: '' },
-        { nazwa: 'Budowy', adres: '/budowy', ikona: 'office', dopasowanie: 'budowy', widzi: ['admin', 'biuro', 'kierownik'] },
-        { nazwa: 'Pracownicy', adres: '/contacts', ikona: 'users', dopasowanie: 'contacts', widzi: ['admin', 'biuro'] },
-        { nazwa: 'Kierownicy / Inżynierowie', adres: '/kierownicy', ikona: 'kierownictwo', dopasowanie: 'kierownicy', widzi: ['admin', 'biuro'] },
-        { nazwa: 'Zmiany kadrowe', adres: '/zmiany-kadrowe', ikona: 'zmiany', dopasowanie: 'zmiany-kadrowe', widzi: ['admin', 'biuro'] },
-        { nazwa: 'Sprzęt', adres: '/narzedzia', ikona: 'sprzet2', dopasowanie: 'narzedzia', widzi: ['admin', 'biuro'] },
-        // Kierownik ma tu wersję zawężoną do swoich budów, więc też widzi pozycję.
-        { nazwa: 'Termin uprawnień', adres: '/reports/koniecUprawinien', ikona: 'eligibility', dopasowanie: 'reports', widzi: ['admin', 'biuro', 'kierownik'] },
-        { nazwa: 'Prognoza pracowników', adres: '/prognoza', ikona: 'forecast-workers', dopasowanie: 'prognoza', widzi: ['admin', 'biuro'] },
-        { nazwa: 'Ustawienia', adres: '/tools', ikona: 'tools', dopasowanie: 'tools', widzi: ['admin', 'biuro'] },
+        { nazwa: 'Budowy', adres: '/budowy', ikona: 'office', dopasowanie: 'budowy', moze: 'budowy.podglad' },
+        { nazwa: 'Pracownicy', adres: '/contacts', ikona: 'users', dopasowanie: 'contacts', moze: 'kartoteki.lista' },
+        { nazwa: 'Kierownicy / Inżynierowie', adres: '/kierownicy', ikona: 'kierownictwo', dopasowanie: 'kierownicy', moze: 'kartoteki.lista' },
+        { nazwa: 'Zmiany kadrowe', adres: '/zmiany-kadrowe', ikona: 'zmiany', dopasowanie: 'zmiany-kadrowe', moze: 'zmiany_kadrowe.obsluga' },
+        { nazwa: 'Sprzęt', adres: '/narzedzia', ikona: 'sprzet2', dopasowanie: 'narzedzia', moze: 'sprzet.obsluga' },
+        { nazwa: 'Termin uprawnień', adres: '/reports/koniecUprawinien', ikona: 'eligibility', dopasowanie: 'reports', moze: 'raport_terminow.podglad' },
+        { nazwa: 'Prognoza pracowników', adres: '/prognoza', ikona: 'forecast-workers', dopasowanie: 'prognoza', moze: 'prognoza.obsluga' },
+        { nazwa: 'Ustawienia', adres: '/tools', ikona: 'tools', dopasowanie: 'tools', moze: 'slowniki.biura' },
         { nazwa: 'Zadania', adres: '/zadania', ikona: 'zadania', dopasowanie: 'zadania' },
         { nazwa: 'Baza wiedzy', adres: '/baza-wiedzy', ikona: 'baza-wiedzy', dopasowanie: 'baza-wiedzy' },
-        { nazwa: 'Statystyki', adres: '/statystyki', ikona: 'monthlyReport', dopasowanie: 'statystyki', widzi: ['admin', 'biuro', 'kierownik'] },
-        { nazwa: 'Raport miesięczny', adres: '/building/time-sheet/month-report', ikona: 'monthlyReport', dopasowanie: 'month-report', widzi: ['admin', 'biuro'] },
+        { nazwa: 'Statystyki', adres: '/statystyki', ikona: 'monthlyReport', dopasowanie: 'statystyki', moze: 'statystyki.podglad' },
+        { nazwa: 'Raport miesięczny', adres: '/building/time-sheet/month-report', ikona: 'monthlyReport', dopasowanie: 'month-report', moze: 'kcp.raporty' },
       ],
     }
   },
@@ -55,7 +55,9 @@ export default {
     widoczne() {
       const uprawnienia = this.$page.props.permissions || {}
 
-      return this.pozycje.filter((p) => !p.widzi || p.widzi.some((rola) => uprawnienia[rola]))
+      const moze = uprawnienia.moze || {}
+
+      return this.pozycje.filter((p) => !p.moze || moze[p.moze])
     },
   },
   methods: {

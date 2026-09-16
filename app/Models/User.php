@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use App\Enums\Uprawnienie;
+use App\Uprawnienia\Macierz;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -147,7 +149,36 @@ class User extends Authenticatable
             // Kadry mają zakres biura, ale rozpoznajemy je osobno: to ich
             // pobranie KCP zamyka miniony miesiąc kierownikowi budowy.
             'kadry' => $this->hasRole(Role::KADRY),
+            // Te same nazwy, o które pytają trasy (`moze:...`) — menu
+            // i przyciski mają pytać o nie, a nie o numer roli.
+            'moze' => $this->uprawnieniaJakoMapa(),
         ];
+    }
+
+    /**
+     * Czy rola użytkownika ma dane uprawnienie — patrz App\Uprawnienia\Macierz.
+     * Nieznana wartość `owner` = brak wszystkiego.
+     */
+    public function moze(Uprawnienie $uprawnienie): bool
+    {
+        $rola = Role::tryFrom((int) $this->owner);
+
+        return $rola !== null && Macierz::ma($rola, $uprawnienie);
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    private function uprawnieniaJakoMapa(): array
+    {
+        $rola = Role::tryFrom((int) $this->owner);
+        $moje = $rola ? Macierz::dla($rola) : [];
+        $mapa = [];
+        foreach (Uprawnienie::cases() as $u) {
+            $mapa[$u->value] = in_array($u, $moje, true);
+        }
+
+        return $mapa;
     }
 
     public function hasRole(Role $role): bool

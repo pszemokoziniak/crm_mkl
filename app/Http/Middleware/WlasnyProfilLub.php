@@ -2,31 +2,27 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Uprawnienie;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class SelfOrBiuroPermission
+/**
+ * `wlasny-profil-lub:uzytkownicy.edycja` — własne konto edytuje każdy,
+ * cudze tylko ten, kto ma podane uprawnienie.
+ */
+class WlasnyProfilLub
 {
-    /**
-     * Dostęp do profilu użytkownika (users/{user}).
-     * Admin/biuro — do każdego. Pozostali (np. kierownik) — tylko do
-     * WŁASNEGO profilu (route `user` === zalogowany). Zmianę roli/konta
-     * i tak blokuje UsersController@update (owner/contact tylko dla biura).
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, string $uprawnienie)
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(403);
         }
 
-        if ($user->isOffice()) {
+        if ($user->moze(Uprawnienie::from($uprawnienie))) {
             return $next($request);
         }
 
