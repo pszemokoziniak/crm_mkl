@@ -39,7 +39,7 @@ class BuildTimeShiftCreator
         }, SORT_NATURAL)
         ->toArray();
 
-        // Cache shift status ID for 'UW' (Urlop wypoczynkowy)
+        // Zapasowy rodzaj, gdy wpis nieobecności nie ma wskazanego swojego.
         $holidayStatusId = DB::table('shift_status')->where('code', 'UW')->value('id');
 
         foreach ($buildWorkersSavedShifts as $workerId => $shifts) {
@@ -66,6 +66,7 @@ class BuildTimeShiftCreator
 
                 // Skąd wzięła się blokada: który wpis nieobecności ją zakłada.
                 $blokada = null;
+                $nieobecnosc = null;
 
                 if ($isHolidayType) {
                     $nieobecnosc = $holidays->first(fn ($h) => $day->between($h->start, $h->end));
@@ -80,6 +81,19 @@ class BuildTimeShiftCreator
                     }
                 }
 
+                /**
+                 * Sobota w środku nieobecności zostaje pusta: w KCP nie wpisuje
+                 * się nic, gdy pracownika nie ma w pracy. Niedziele i święta
+                 * przechwytują wcześniejsze ograniczenia, więc tam nigdy nic
+                 * nie malowaliśmy.
+                 */
+                $malujNieobecnosc = $isHolidayType && ! $day->isSaturday();
+
+                // Rodzaj bierzemy z wpisu nieobecności. Dotąd szło na sztywno
+                // UW, więc komuś na zwolnieniu lekarskim wychodził na KCP
+                // urlop wypoczynkowy — dwie różne rzeczy przy wypłacie.
+                $statusNieobecnosci = $nieobecnosc?->shift_status_id ?: $holidayStatusId;
+
                 $dayIndex = $day->day;
 
                 if (
@@ -91,8 +105,8 @@ class BuildTimeShiftCreator
                     // Only if no work time is recorded.
                     $hasWork = !empty($shift->effective_work_time) && $shift->effective_work_time !== '00:00';
 
-                    if (!$shift->shift_status_id && $isHolidayType && !$hasWork) {
-                        $shift->shift_status_id = $holidayStatusId;
+                    if (!$shift->shift_status_id && $malujNieobecnosc && !$hasWork) {
+                        $shift->shift_status_id = $statusNieobecnosci;
                     }
 
                     $buildWorkersSavedShifts[$workerId][$dayIndex] = Shift::createFromShift(
@@ -106,8 +120,8 @@ class BuildTimeShiftCreator
                 }
 
                 $status = null;
-                if ($isHolidayType) {
-                    $status = $holidayStatusId;
+                if ($malujNieobecnosc) {
+                    $status = $statusNieobecnosci;
                 }
 
                 // Fallback for name if worker data is missing (should not happen for drafts as drafts imply no shift, so worker must be in workersOnBuildData)
@@ -261,6 +275,9 @@ class BuildTimeShiftCreator
                 $query->where('holidays.start', '<=', $period->last()->format('Y-m-d'))
                       ->where('holidays.end', '>=', $period->first()->format('Y-m-d'));
             })
-            ->get(['holidays.start', 'holidays.end', 'shift_status.title as rodzaj', 'shift_status.code as kod']);
+            ->get([
+                'holidays.start', 'holidays.end', 'holidays.shift_status_id',
+                'shift_status.title as rodzaj', 'shift_status.code as kod',
+            ]);
     }
 }
