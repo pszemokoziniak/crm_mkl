@@ -125,4 +125,36 @@ class TerminyPrzegladowSprzetuTest extends TestCase
         // Kierownik nie ma wstępu do magazynu — link prowadzi do sprzętu jego budowy.
         $this->assertSame('/budowy/'.$moja->id.'/narzedzia', $sprzet['Zwyżka']['url']);
     }
+
+    public function test_pulpit_biura_i_kierownika_liczy_przeglady_w_terminach_do_pilnowania(): void
+    {
+        $moja = Organization::create(['account_id' => $this->accountId, 'nazwaBud' => 'Moja']);
+        $kierownik = $this->user(3, 'kb@mkl.pl');
+        $szef = Contact::create([
+            'account_id' => $this->accountId, 'first_name' => 'Jan', 'last_name' => 'Szef',
+            'funkcja_id' => Funkcja::KIEROWNIK, 'user_id' => $kierownik->id,
+        ]);
+        ContactWorkDate::create([
+            'contact_id' => $szef->id, 'organization_id' => $moja->id,
+            'start' => now()->subMonth()->toDateString(), 'end' => null,
+        ]);
+
+        $this->sztuka('Zwyżka', now()->addDays(10)->toDateString(), $moja);      // wkrótce, u kierownika
+        $this->sztuka('Agregat', now()->subDays(3)->toDateString());             // po terminie, magazyn
+        $this->sztuka('Spawarka', now()->addDays(50)->toDateString(), $moja);    // w oknie 60 dni, ale "dalej"
+
+        $biuro = $this->actingAs($this->user(2, 'biuro@mkl.pl'))->get('/')->viewData('page')['props'];
+        $sprzetBiura = collect($biuro['expiring_items'])->where('category', 'Sprzęt');
+        $this->assertEqualsCanonicalizing(['Zwyżka SN-Zwyżka', 'Agregat SN-Agregat', 'Spawarka SN-Spawarka'], $sprzetBiura->pluck('sprzet.nazwa')->all());
+        $this->assertSame(2, $biuro['stats']['wygasajace'], 'Licznik: po terminie + wkrótce, bez odległych.');
+        $this->assertSame('/narzedzia/'.Narzedzia::where('name', 'Agregat')->value('id').'/edit', $sprzetBiura->firstWhere('sprzet.nazwa', 'Agregat SN-Agregat')['sprzet']['url']);
+        $this->assertNull($sprzetBiura->firstWhere('sprzet.nazwa', 'Agregat SN-Agregat')['organization']);
+
+        $pulpit = $this->actingAs($kierownik)->get('/')->viewData('page')['props'];
+        $sprzetKierownika = collect($pulpit['expiring_items'])->where('category', 'Sprzęt');
+        $this->assertEqualsCanonicalizing(['Zwyżka SN-Zwyżka', 'Spawarka SN-Spawarka'], $sprzetKierownika->pluck('sprzet.nazwa')->all());
+        $this->assertSame(1, $pulpit['stats']['wygasajace']);
+        $this->assertSame('/budowy/'.$moja->id.'/narzedzia', $sprzetKierownika->first()['sprzet']['url']);
+        $this->assertSame('Moja', $sprzetKierownika->first()['organization']['nazwaBud']);
+    }
 }

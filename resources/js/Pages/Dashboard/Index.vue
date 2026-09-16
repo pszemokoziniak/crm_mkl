@@ -157,7 +157,7 @@
         <table class="w-full table-fixed">
           <thead>
             <tr class="naglowek-tabeli">
-              <th class="px-4 w-1/6">Pracownik</th>
+              <th class="px-4 w-1/6">Pracownik / sprzęt</th>
               <th class="px-4 w-1/6">Kategoria</th>
               <th class="px-4 w-1/5">Rodzaj / Typ</th>
               <th class="px-4 w-32">Data końcowa</th>
@@ -170,27 +170,27 @@
                  ostatnia kolumna, ktora ma wlasny cel — budowe. -->
             <tr v-for="(item, index) in expiring_items" :key="index" class="hover:bg-gray-100 focus-within:bg-gray-100">
               <td class="border-t">
-                <Link class="block px-4 py-4 text-indigo-600 hover:underline" :href="`/contacts/${item.contact.id}/edit`">
-                  {{ item.contact.first_name }} {{ item.contact.last_name }}
+                <Link class="block px-4 py-4 text-indigo-600 hover:underline" :href="adresTerminu(item)">
+                  {{ nazwaTerminu(item) }}
                 </Link>
               </td>
               <td class="border-t">
-                <Link class="block px-4 py-4" :href="`/contacts/${item.contact.id}/edit`">
+                <Link class="block px-4 py-4" :href="adresTerminu(item)">
                   <span class="inline-block px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
                 </Link>
               </td>
               <td class="border-t">
-                <Link class="block px-4 py-4" :href="`/contacts/${item.contact.id}/edit`">
+                <Link class="block px-4 py-4" :href="adresTerminu(item)">
                   {{ item.type }}
                 </Link>
               </td>
               <td class="border-t">
-                <Link class="block px-4 py-4 font-bold tabular-nums whitespace-nowrap" :class="klasaTerminu(item)" :href="`/contacts/${item.contact.id}/edit`">
+                <Link class="block px-4 py-4 font-bold tabular-nums whitespace-nowrap" :class="klasaTerminu(item)" :href="adresTerminu(item)">
                   {{ item.end }}
                 </Link>
               </td>
               <td class="border-t">
-                <Link class="block px-4 py-4 text-sm" :class="klasaTerminu(item)" :href="`/contacts/${item.contact.id}/edit`">
+                <Link class="block px-4 py-4 text-sm" :class="klasaTerminu(item)" :href="adresTerminu(item)">
                   {{ opisTerminu(item) }}
                 </Link>
               </td>
@@ -198,7 +198,7 @@
                 <Link v-if="item.organization" class="block px-4 py-4 text-indigo-600 hover:underline" :href="`/budowy/${item.organization.id}/edit`">
                   {{ item.organization.nazwaBud }}
                 </Link>
-                <span v-else class="block px-4 py-4 text-gray-400 italic">Brak przypisanej budowy</span>
+                <span v-else class="block px-4 py-4 text-gray-400 italic">{{ item.sprzet ? 'Magazyn' : 'Brak przypisanej budowy' }}</span>
               </td>
             </tr>
           </tbody>
@@ -208,8 +208,8 @@
       <!-- Telefon: karty zamiast szesciu kolumn sciscietych do niczego. -->
       <div class="sm:hidden space-y-3">
         <div v-for="(item, index) in expiring_items" :key="`karta-${index}`" class="bg-white rounded-md shadow p-4">
-          <Link class="font-medium text-indigo-600 hover:underline" :href="`/contacts/${item.contact.id}/edit`">
-            {{ item.contact.first_name }} {{ item.contact.last_name }}
+          <Link class="font-medium text-indigo-600 hover:underline" :href="adresTerminu(item)">
+            {{ nazwaTerminu(item) }}
           </Link>
           <div class="mt-2">
             <span class="inline-block px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
@@ -222,7 +222,7 @@
             <Link v-if="item.organization" class="text-indigo-600 hover:underline" :href="`/budowy/${item.organization.id}/edit`">
               {{ item.organization.nazwaBud }}
             </Link>
-            <span v-else class="text-gray-400 italic">Brak przypisanej budowy</span>
+            <span v-else class="text-gray-400 italic">{{ item.sprzet ? 'Magazyn' : 'Brak przypisanej budowy' }}</span>
           </div>
         </div>
       </div>
@@ -279,6 +279,15 @@ export default {
       if (item.dni < 0) return `po terminie od ${Math.abs(item.dni)} dni`
       if (item.dni === 0) return 'kończy się dziś'
       return `zostało ${item.dni} dni`
+    },
+    // Wiersz terminu to pracownik albo sztuka sprzętu — link i nazwa zależą od tego, co to jest.
+    adresTerminu(item) {
+      if (item.sprzet) return item.sprzet.url || '/narzedzia'
+      return `/contacts/${item.contact.id}/edit`
+    },
+    nazwaTerminu(item) {
+      if (item.sprzet) return item.sprzet.nazwa
+      return `${item.contact.first_name} ${item.contact.last_name}`
     },
     klasaTerminu(item) {
       if (item.dni < 0) return 'text-red-700'

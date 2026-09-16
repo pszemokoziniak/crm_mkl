@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Uprawnienie;
 use App\Models\A1;
 use App\Models\Badania;
 use App\Models\Bhp;
@@ -14,6 +15,7 @@ use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use App\Services\LimitPobytuZagranica;
+use App\Services\MagazynSprzetu;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -163,8 +165,52 @@ class DashboardController extends Controller
                 ] : null,
             ]);
 
+            // Przeglądy sprzętu: to samo okno i te same stany, co dokumenty
+            // ludzi. Kierownik widzi sztuki stojące dziś na jego budowach,
+            // biuro wszystkie — także te w magazynie.
+            $magazyn = app(MagazynSprzetu::class);
+            $mojeBudowy = $user->prowadziBudowy() ? $myOrgIds->flip() : null;
+            $obslugujeSprzet = $user->moze(Uprawnienie::SPRZET_OBSLUGA);
+            $sprzet = collect();
+
+            foreach (Narzedzia::with('toolWorkDates.organization')->get() as $sztuka) {
+                $data = $magazyn->dataBadan($sztuka);
+                if (! $data || $data < $odKiedy || $data > $in30Days) {
+                    continue;
+                }
+                $pobyt = $magazyn->trwajacePrzypisanie($sztuka, $now);
+                if ($mojeBudowy !== null && (! $pobyt || ! isset($mojeBudowy[$pobyt->organization_id]))) {
+                    continue;
+                }
+                $budowa = $pobyt?->organization;
+                $dni = (int) Carbon::parse($now)->startOfDay()->diffInDays(Carbon::parse($data)->startOfDay(), false);
+
+                $sprzet->push([
+                    'id' => 'sprzet-'.$sztuka->id,
+                    'end' => $data,
+                    'dni' => $dni,
+                    'status' => $dni < 0 ? 'po_terminie' : ($dni <= 30 ? 'wkrotce' : 'dalej'),
+                    'category' => 'Sprzęt',
+                    'type' => 'Przegląd',
+                    'contact' => null,
+                    'sprzet' => [
+                        'id' => $sztuka->id,
+                        'nazwa' => trim($sztuka->name.' '.($sztuka->numer_seryjny ?: $sztuka->numer_udt ?: '')),
+                        // Kierownik nie wejdzie do magazynu — dostaje sprzęt swojej budowy.
+                        'url' => $obslugujeSprzet
+                            ? '/narzedzia/'.$sztuka->id.'/edit'
+                            : ($budowa ? '/budowy/'.$budowa->id.'/narzedzia' : null),
+                    ],
+                    'organization' => $budowa ? [
+                        'id' => $budowa->id,
+                        'nazwaBud' => $budowa->nazwaBud,
+                    ] : null,
+                ]);
+            }
+
             $expiringItems = $uprawnienia->concat($badania)->concat($bhp)->concat($pbioz)
                 ->concat($limity)
+                ->concat($sprzet)
                 ->sortBy('end')
                 ->values();
         }
