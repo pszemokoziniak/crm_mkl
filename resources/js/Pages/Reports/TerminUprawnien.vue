@@ -56,7 +56,7 @@
         <table class="w-full whitespace-nowrap text-sm">
           <thead>
             <tr class="naglowek-tabeli">
-              <th>Pracownik</th>
+              <th>Pracownik / sprzęt</th>
               <th>Kategoria</th>
               <th>Nazwa / typ</th>
               <th>Koniec</th>
@@ -66,9 +66,10 @@
           <tbody>
             <tr v-for="(item, index) in displayed" :key="index" class="hover:bg-gray-50">
               <td class="border-t px-6 py-3">
-                <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${item.client_id}/edit`">
+                <Link v-if="item.url || item.client_id" class="font-medium text-gray-900 hover:text-indigo-600" :href="item.url || `/contacts/${item.client_id}/edit`">
                   {{ item.last_name }} {{ item.first_name }}
                 </Link>
+                <span v-else class="font-medium text-gray-900">{{ item.last_name }} {{ item.first_name }}</span>
               </td>
               <td class="border-t px-6 py-3">
                 <span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700">{{ item.category }}</span>
@@ -93,7 +94,7 @@
         </table>
       </div>
       <p class="mt-3 text-xs text-gray-400">
-        Pokazujemy terminy przeterminowane (do 7 dni wstecz) oraz kończące się w wybranym oknie. Kliknij pracownika, aby przejść do profilu.
+        Pokazujemy terminy przeterminowane (do 7 dni wstecz) oraz kończące się w wybranym oknie, w tym przeglądy sprzętu. Kliknij pracownika lub sprzęt, aby przejść dalej.
       </p>
     </div>
 
@@ -153,7 +154,7 @@ export default {
     return {
       tab: 'koncze',
       activeCategory: 'Wszystkie',
-      categories: ['Wszystkie', 'BHP', 'A1', 'Badania lekarskie', 'Uprawnienia', 'Certyfikaty KJ'],
+      categories: ['Wszystkie', 'BHP', 'A1', 'Badania lekarskie', 'Uprawnienia', 'Certyfikaty KJ', 'Limit 183 dni', 'Sprzęt'],
       form: {
         search: this.filters.search,
         days: this.filters.days || '90',

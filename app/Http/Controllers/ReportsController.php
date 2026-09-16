@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Uprawnienie;
 use App\Models\A1;
 use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
+use App\Models\Narzedzia;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use App\Services\LimitPobytuZagranica;
+use App\Services\MagazynSprzetu;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -154,6 +157,44 @@ class ReportsController extends Controller
             ->whereBetween('pbiozs.end', [$graceStart, $windowEnd])
             ->tap(fn ($q) => $tylkoNajnowszy($q, 'pbiozs', 'name'))
             ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'pbiozs.name', 'pbiozs.start', 'pbiozs.end']), 'Certyfikaty KJ');
+
+        /**
+         * Sprzęt: termin przeglądu (ważność badań) pilnuje się tak samo jak
+         * badań ludzi. Kierownik widzi sztuki przypisane dziś do jego budów,
+         * biuro wszystkie — także te w magazynie. Daty-zaślepki z importu
+         * odsiewa MagazynSprzetu::dataBadan(), sztuki bez daty tu nie trafiają.
+         */
+        $magazyn = app(MagazynSprzetu::class);
+        $mojeBudowy = $moiPracownicy !== null ? Organization::mojeBudowy($user)->pluck('id')->flip() : null;
+        $obslugujeSprzet = $user && $user->moze(Uprawnienie::SPRZET_OBSLUGA);
+
+        foreach (Narzedzia::with('toolWorkDates.organization')->get() as $sztuka) {
+            $data = $magazyn->dataBadan($sztuka);
+            if (! $data || $data < $graceStart || $data > $windowEnd) {
+                continue;
+            }
+
+            $pobyt = $magazyn->trwajacePrzypisanie($sztuka, $todayStr);
+            if ($mojeBudowy !== null && (! $pobyt || ! isset($mojeBudowy[$pobyt->organization_id]))) {
+                continue;
+            }
+
+            $budowa = $pobyt?->organization;
+            $rows->push([
+                'client_id' => null,
+                // Kierownik nie wejdzie w kartę sprzętu w magazynie — dostaje
+                // zakładkę sprzętu swojej budowy.
+                'url' => $obslugujeSprzet
+                    ? '/narzedzia/'.$sztuka->id.'/edit'
+                    : ($budowa ? '/budowy/'.$budowa->id.'/narzedzia' : null),
+                'last_name' => $sztuka->name,
+                'first_name' => trim((string) ($sztuka->numer_seryjny ?: $sztuka->numer_udt ?: '')),
+                'name' => 'Przegląd — '.($budowa ? $budowa->nazwaBud : 'magazyn'),
+                'category' => 'Sprzęt',
+                'start' => null,
+                'end' => $data,
+            ]);
+        }
 
         // Filtr po nazwisku/nazwie
         if ($request->filled('search')) {
