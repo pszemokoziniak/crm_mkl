@@ -108,7 +108,24 @@
                   <div class="sm:flex sm:items-start">
                     <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                       <DialogTitle as="h3" class="text-gray-900 text-lg font-medium leading-6"> Wprowadź dane dla dnia: {{ new Date(modalForm.day).toLocaleDateString('pl-PL', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) }}</DialogTitle>
-                      <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+                      <!-- Dzień z nieobecności: nie ma tu czego edytować,
+                           bo źródłem jest wpis na karcie pracownika. -->
+                      <div v-if="blokada" class="max-w-3xl mt-4 text-sm text-gray-700">
+                        <p>
+                          Ten dzień pochodzi z nieobecności:
+                          <span class="font-semibold">{{ blokada.rodzaj }}</span>
+                          <span v-if="blokada.kod"> ({{ blokada.kod }})</span>
+                          <span v-if="blokada.od && blokada.do"> od {{ blokada.od }} do {{ blokada.do }}</span>.
+                        </p>
+                        <p class="mt-2 text-gray-500">
+                          Jeśli pracownik wrócił wcześniej, skróć ten wpis — KCP poprawi się samo.
+                        </p>
+                        <a
+                          :href="`/contacts/${blokada.pracownikId}/holiday`"
+                          class="inline-block mt-4 btn-indigo px-4 py-2 rounded"
+                        >Przejdź do nieobecności</a>
+                      </div>
+                      <div v-else class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
                         <fieldset>
                           <form @submit.prevent="update">
                             <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -144,12 +161,15 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="mozeEdytowacDzien" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+                <div v-if="blokada" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+                  <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md sm:w-auto sm:text-sm" @click="open = false">Zamknij</button>
+                </div>
+                <div v-else-if="mozeEdytowacDzien" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
                   <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-white text-base font-medium bg-green-600 hover:bg-green-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
                   <button ref="cancelButtonRef" type="button" class="inline-flex justify-center mt-3 px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
                   <button class="mr-auto text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
                 </div>
-                <div v-else class="px-4 py-3 bg-gray-50 text-sm text-gray-600 sm:px-6">
+                <div v-else-if="!blokada" class="px-4 py-3 bg-gray-50 text-sm text-gray-600 sm:px-6">
                   {{ powodBlokady }}
                   <button type="button" class="ml-3 text-indigo-600 hover:underline" @click="open = false">Zamknij</button>
                 </div>
@@ -179,6 +199,9 @@ import { DocumentDownloadIcon } from '@heroicons/vue/solid'
 const DEFAULT_RANGES = {
   from: { hours: '07', minutes: '00' },
   to: { hours: '17', minutes: '00' },
+  // W soboty pracuje się krócej, a przy trzydziestu osobach przeklikiwanie
+  // z 17 na 13 przy każdej z nich to kilkaset kliknięć w miesiącu.
+  toSobota: { hours: '13', minutes: '00' },
   shift: { hours: '09', minutes: '30' },
 }
 
@@ -236,6 +259,8 @@ export default {
       years: [],
       open: false,
       isStatus: false,
+      // Wypełnione, gdy otwarty dzień pochodzi z wpisu nieobecności.
+      blokada: null,
       modalForm: useForm({
         id: null,
         day: null,
@@ -467,6 +492,19 @@ export default {
       return new Date(shift.day).getDay() === 6
     },
     showModal(shift) {
+      // Dzień zakryty nieobecnością: dotąd kliknięcie nie robiło nic i
+      // wyglądało na usterkę. Pokazujemy, skąd się wziął i gdzie go poprawić,
+      // bo poprawia się go przy nieobecności, nie w kratce KCP.
+      this.blokada = null
+
+      if (shift.isBlocked && shift.blockedType === 'holiday') {
+        this.blokada = { ...(shift.blokada || {}), pracownikId: shift.id }
+        this.open = true
+        this.modalForm.day = shift.day
+
+        return
+      }
+
       // exception for feasts
       if (shift.isBlocked && shift.blockedType !== 'feast') {
         return
@@ -478,7 +516,9 @@ export default {
       this.modalForm.id = shift.id ?? null
       this.modalForm.day = shift.day
       this.modalForm.from = this.formatTimeObject(shift.from) ? this.formatTimeObject(shift.from) : DEFAULT_RANGES.from
-      this.modalForm.to = this.formatTimeObject(shift.to) ? this.formatTimeObject(shift.to) : DEFAULT_RANGES.to
+      this.modalForm.to = this.formatTimeObject(shift.to)
+        ? this.formatTimeObject(shift.to)
+        : (this.isSaturday(shift) ? DEFAULT_RANGES.toSobota : DEFAULT_RANGES.to)
       this.modalForm.workTime = this.formatTimeToObject(shift.work)
       this.modalForm.status = shift.status ?? null
       this.modalForm.reducedWorkingHours = shift.reducedWorkingHours ?? false

@@ -64,6 +64,22 @@ class BuildTimeShiftCreator
                 $blockedType = $constraintResult?->getType();
                 $isHolidayType = $blockedType === 'holiday';
 
+                // Skąd wzięła się blokada: który wpis nieobecności ją zakłada.
+                $blokada = null;
+
+                if ($isHolidayType) {
+                    $nieobecnosc = $holidays->first(fn ($h) => $day->between($h->start, $h->end));
+
+                    if ($nieobecnosc) {
+                        $blokada = [
+                            'rodzaj' => $nieobecnosc->rodzaj ?: 'nieobecność',
+                            'kod' => $nieobecnosc->kod,
+                            'od' => (string) $nieobecnosc->start,
+                            'do' => (string) $nieobecnosc->end,
+                        ];
+                    }
+                }
+
                 $dayIndex = $day->day;
 
                 if (
@@ -83,7 +99,8 @@ class BuildTimeShiftCreator
                         $shift,
                         $build,
                         $isBlocked,
-                        $blockedType
+                        $blockedType,
+                        $blokada
                     );
                     continue;
                 }
@@ -115,7 +132,8 @@ class BuildTimeShiftCreator
                     day: $day->toString(),
                     isBlocked: $isBlocked,
                     blockedType: $blockedType,
-                    status: $status
+                    status: $status,
+                    blokada: $blokada
                 );
             }
         }
@@ -234,12 +252,15 @@ class BuildTimeShiftCreator
 
     private function getHolidays(int $workerId, CarbonPeriod $period): Collection
     {
+        // Razem z nazwą rodzaju, żeby ekran KCP mógł powiedzieć, skąd wziął
+        // się zablokowany dzień, zamiast tylko nie reagować na kliknięcie.
         return DB::table('holidays')
-            ->where('contact_id', $workerId)
+            ->leftJoin('shift_status', 'shift_status.id', '=', 'holidays.shift_status_id')
+            ->where('holidays.contact_id', $workerId)
             ->where(function ($query) use ($period) {
-                $query->where('start', '<=', $period->last()->format('Y-m-d'))
-                      ->where('end', '>=', $period->first()->format('Y-m-d'));
+                $query->where('holidays.start', '<=', $period->last()->format('Y-m-d'))
+                      ->where('holidays.end', '>=', $period->first()->format('Y-m-d'));
             })
-            ->get();
+            ->get(['holidays.start', 'holidays.end', 'shift_status.title as rodzaj', 'shift_status.code as kod']);
     }
 }

@@ -21,6 +21,8 @@ class Shift implements JsonSerializable
         public ?bool $isBlocked = null,
         public ?string $blockedType = null,
         public bool $reducedWorkingHours = false,
+        /** Skąd blokada dnia: wpis nieobecności, który go zakrywa. */
+        public ?array $blokada = null,
     ) {}
 
     public function jsonSerialize(): array
@@ -37,10 +39,11 @@ class Shift implements JsonSerializable
             'isBlocked' => $this->isBlocked,
             'blockedType' => $this->blockedType,
             'reducedWorkingHours' => $this->reducedWorkingHours,
+            'blokada' => $this->blokada,
         ];
     }
 
-    public static function createFromShift(\stdClass $shift, int $build, bool $isBlocked, ?string $blockedType): self
+    public static function createFromShift(\stdClass $shift, int $build, bool $isBlocked, ?string $blockedType, ?array $blokada = null): self
     {
         return new self(
             id: $shift->contact_id,
@@ -57,10 +60,11 @@ class Shift implements JsonSerializable
             isBlocked: $isBlocked,
             blockedType: $blockedType,
             reducedWorkingHours: (bool) $shift->reduced_working_hours,
+            blokada: $blokada,
         );
     }
 
-    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked, ?string $blockedType, ?int $status = null): Shift
+    public static function createDraft(int $id, int $build, string $fullName, string $day, bool $isBlocked, ?string $blockedType, ?int $status = null, ?array $blokada = null): Shift
     {
         return new self(
             id: $id,
@@ -70,6 +74,7 @@ class Shift implements JsonSerializable
             status: $status,
             isBlocked: $isBlocked,
             blockedType: $blockedType,
+            blokada: $blokada,
         );
     }
 
