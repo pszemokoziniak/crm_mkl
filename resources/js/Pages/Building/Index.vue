@@ -51,45 +51,73 @@
       <select v-model="selectedYear" class="ml-1 border-none bg-transparent text-gray-600 text-lg font-normal focus:ring-0 cursor-pointer p-0" @change="goToDate">
         <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
       </select>
+
+      <!-- Powiększenie siatki: miesiąc to prawie 4000 px kratek, więc bez
+           pomniejszenia widać tydzień. Ustawienie pamiętane w przeglądarce. -->
+      <label class="ml-auto flex items-center gap-2 text-sm text-gray-600 select-none">
+        <span>Powiększenie</span>
+        <input
+          v-model.number="skala"
+          type="range"
+          :min="SKALA_MIN"
+          :max="SKALA_MAX"
+          step="10"
+          class="w-32 cursor-pointer"
+          title="Pomniejsz, żeby zobaczyć więcej dni naraz"
+        />
+        <span class="w-10 tabular-nums text-right">{{ skala }}%</span>
+        <button
+          v-if="skala !== SKALA_MAX"
+          type="button"
+          class="text-xs text-indigo-600 hover:underline"
+          @click="skala = SKALA_MAX"
+        >
+          100%
+        </button>
+      </label>
     </div>
 
     <!-- Container with fixed height and custom scrollbar -->
     <div ref="printTable" class="overflow-auto border rounded-lg custom-scrollbar relative z-0" style="max-height: 70vh;">
-      <!-- Header Row -->
-      <div v-if="sortedTimeSheets.length > 0" class="flex sticky top-0 z-10 bg-gray-100 border-b min-w-max">
-        <div class="sticky left-0 z-20 bg-gray-100 border-r px-2 py-2 font-bold text-sm text-center flex items-center justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 48px">
-          Pracownik
+      <!-- `zoom`, nie `transform: scale` — zoom zmienia układ, więc przewijanie
+            i przyklejona kolumna z nazwiskiem liczą się od pomniejszonych kratek. -->
+      <div class="min-w-max" :style="{ zoom: skala / 100 }">
+        <!-- Header Row -->
+        <div v-if="sortedTimeSheets.length > 0" class="flex sticky top-0 z-10 bg-gray-100 border-b min-w-max">
+          <div class="sticky left-0 z-20 bg-gray-100 border-r px-2 py-2 font-bold text-sm text-center flex items-center justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 48px">
+            Pracownik
+          </div>
+          <div v-for="shift in daysHeader" :key="shift.day" class="border-r flex flex-col justify-center items-center text-gray-700 bg-gray-50" style="width: 127px; min-width: 127px; height: 48px">
+            <div class="text-xs font-bold">{{ new Date(shift.day).getDate() }}</div>
+            <div class="text-xs">{{ dayOfWeek(new Date(shift.day)) }}</div>
+          </div>
         </div>
-        <div v-for="shift in daysHeader" :key="shift.day" class="border-r flex flex-col justify-center items-center text-gray-700 bg-gray-50" style="width: 127px; min-width: 127px; height: 48px">
-          <div class="text-xs font-bold">{{ new Date(shift.day).getDate() }}</div>
-          <div class="text-xs">{{ dayOfWeek(new Date(shift.day)) }}</div>
+
+        <!-- Worker Rows -->
+        <div v-for="(timeSheet, index) in sortedTimeSheets" :key="timeSheetsOrder[index]" class="flex border-b min-w-max">
+          <!-- Worker Info Column - FIXED -->
+          <div class="sticky left-0 z-10 bg-gray-100 border-r px-2 text-gray-700 cursor-pointer flex flex-col justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 68px">
+            <div class="text-center text-xs font-bold leading-tight break-words">{{ timeSheet[0]?.name }}</div>
+            <div class="text-center text-[10px] mt-1 text-indigo-600">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
+          </div>
+
+          <!-- Day Cells -->
+          <div v-for="shift in timeSheet" :key="shift.id" :class="shiftBackground(shift)" class="border-r relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 cursor-pointer flex flex-col justify-center" style="width: 127px; min-width: 127px; height: 68px" @click="showModal(shift)">
+            <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="text-center overflow-y-auto">
+              {{ shift.status === 8 ? getStatusName(shift.status) : 'Święto' }}
+            </div>
+            <div v-else-if="shift.status" class="text-center overflow-y-auto">
+              {{ getStatusName(shift.status) }}
+            </div>
+            <div v-else class="text-center overflow-y-auto">
+              <div class="whitespace-nowrap text-xs">{{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }}</div>
+              <div class="text-sm font-bold">{{ shift.work }}</div>
+            </div>
+          </div>
         </div>
+
+        <div v-if="sortedTimeSheets.length < 1" class="flex pt-2 px-4">Brak pracowników</div>
       </div>
-
-      <!-- Worker Rows -->
-      <div v-for="(timeSheet, index) in sortedTimeSheets" :key="timeSheetsOrder[index]" class="flex border-b min-w-max">
-        <!-- Worker Info Column - FIXED -->
-        <div class="sticky left-0 z-10 bg-gray-100 border-r px-2 text-gray-700 cursor-pointer flex flex-col justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 68px">
-          <div class="text-center text-xs font-bold leading-tight break-words">{{ timeSheet[0]?.name }}</div>
-          <div class="text-center text-[10px] mt-1 text-indigo-600">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
-        </div>
-
-        <!-- Day Cells -->
-        <div v-for="shift in timeSheet" :key="shift.id" :class="shiftBackground(shift)" class="border-r relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 cursor-pointer flex flex-col justify-center" style="width: 127px; min-width: 127px; height: 68px" @click="showModal(shift)">
-          <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="text-center overflow-y-auto">
-            {{ shift.status === 8 ? getStatusName(shift.status) : 'Święto' }}
-          </div>
-          <div v-else-if="shift.status" class="text-center overflow-y-auto">
-            {{ getStatusName(shift.status) }}
-          </div>
-          <div v-else class="text-center overflow-y-auto">
-            <div class="whitespace-nowrap text-xs">{{ formatTimeRange(shift.from) }} - {{ formatTimeRange(shift.to) }}</div>
-            <div class="text-sm font-bold">{{ shift.work }}</div>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="sortedTimeSheets.length < 1" class="flex pt-2 px-4">Brak pracowników</div>
     </div>
   </div>
 
@@ -196,6 +224,22 @@ import BudMenu from '@/Shared/BudMenu.vue'
 import { Head, Link, useForm } from '@inertiajs/inertia-vue3'
 import { DocumentDownloadIcon } from '@heroicons/vue/solid'
 
+const KLUCZ_SKALI = 'kcp.skala'
+
+/**
+ * Zapamiętane powiększenie siatki. Poza zakresem albo śmieci w pamięci
+ * przeglądarki → 100%, żeby nikt nie dostał nieczytelnego KCP bez wyjścia.
+ */
+function wczytajSkale() {
+  try {
+    const zapisana = Number(localStorage.getItem(KLUCZ_SKALI))
+    if (zapisana >= 50 && zapisana <= 100) return zapisana
+  } catch (e) {
+    // Bez dostępu do pamięci przeglądarki — zostaje domyślne.
+  }
+  return 100
+}
+
 const DEFAULT_RANGES = {
   from: { hours: '07', minutes: '00' },
   to: { hours: '17', minutes: '00' },
@@ -257,6 +301,9 @@ export default {
         { id: 12, name: 'Grudzień' },
       ],
       years: [],
+      SKALA_MIN: 50,
+      SKALA_MAX: 100,
+      skala: wczytajSkale(),
       open: false,
       isStatus: false,
       // Wypełnione, gdy otwarty dzień pochodzi z wpisu nieobecności.
@@ -312,6 +359,15 @@ export default {
     },
     daysHeader() {
       return this.sortedTimeSheets.length > 0 ? this.sortedTimeSheets[0] : []
+    },
+  },
+  watch: {
+    skala(wartosc) {
+      try {
+        localStorage.setItem(KLUCZ_SKALI, String(wartosc))
+      } catch (e) {
+        // Prywatne okno albo zablokowane dane strony — działa, tylko nie pamięta.
+      }
     },
   },
   /**
