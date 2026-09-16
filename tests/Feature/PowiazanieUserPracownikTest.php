@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Contact;
+use App\Models\Funkcja;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -28,11 +29,12 @@ class PowiazanieUserPracownikTest extends TestCase
 
         $this->accountId = Account::create(['name' => 'MKL'])->id;
 
-        // Funkcje z FK na contacts — 1 i 6 to te, które można powiązać z kontem.
+        // Z kontem łączy się stanowiska z rolą na budowie — o tym decyduje
+        // słownik (rola_budowy), nie numer stanowiska.
         DB::table('funkcjas')->insert([
-            ['id' => 1, 'name' => 'Kierownik Budowy'],
-            ['id' => 2, 'name' => 'monter konstrukcji stalowych'],
-            ['id' => 6, 'name' => 'Inżynier budowy'],
+            ['id' => 1, 'name' => 'Kierownik Budowy', 'rola_budowy' => Funkcja::ROLA_KIEROWNIK],
+            ['id' => 2, 'name' => 'monter konstrukcji stalowych', 'rola_budowy' => null],
+            ['id' => 6, 'name' => 'Inżynier budowy', 'rola_budowy' => Funkcja::ROLA_INZYNIER],
         ]);
     }
 
@@ -130,5 +132,37 @@ class PowiazanieUserPracownikTest extends TestCase
             'last_name' => $nazwisko,
             'funkcja_id' => $funkcjaId,
         ]);
+    }
+
+    /**
+     * Lista "Połącz User z Pracownikiem": po nazwisku, ze wszystkich stanowisk
+     * z rolą na budowie (nie z numerów 1 i 6 na sztywno — te gubiły
+     * "Kierownik - budowy GW Polska" i kierowników projektu), bez osób
+     * już połączonych z kontem.
+     */
+    public function test_lista_do_polaczenia_po_nazwisku_i_ze_slownika_stanowisk(): void
+    {
+        DB::table('funkcjas')->insert([
+            ['id' => 14, 'name' => 'Kierownik Projektu', 'rola_budowy' => Funkcja::ROLA_KIEROWNIK_PROJEKTU],
+            ['id' => 16, 'name' => 'Kierownik - budowy GW Polska', 'rola_budowy' => Funkcja::ROLA_KIEROWNIK],
+        ]);
+
+        $this->pracownik('Zieliński', 'Adam');
+        $this->pracownik('Adamski', 'Zenon', 16);
+        $this->pracownik('Kowalski', 'Jan', 14);
+        $this->pracownik('Kowalski', 'Adam', 6);
+        $this->pracownik('Monter', 'Bez', 2);
+        $polaczony = $this->pracownik('Abacki', 'Już');
+        $konto = $this->user(3, 'abacki@mkl.pl');
+        $polaczony->forceFill(['user_id' => $konto->id])->save();
+
+        $props = $this->actingAs($this->user(2, 'biuro@mkl.pl'))
+            ->get('/users/'.$konto->id.'/edit')
+            ->viewData('page')['props'];
+
+        $this->assertSame(
+            ['Adamski Zenon', 'Kowalski Adam', 'Kowalski Jan', 'Zieliński Adam'],
+            collect($props['contacts'])->map(fn ($c) => $c['last_name'].' '.$c['first_name'])->all(),
+        );
     }
 }

@@ -240,9 +240,15 @@ class UsersController extends Controller
                 'active' => $user->active,
                 'powiadomienia_kadrowe' => (bool) $user->powiadomienia_kadrowe,
             ],
+            // Lista do połączenia konta z pracownikiem: każde stanowisko z rolą
+            // na budowie (kierownik, inżynier, kierownik projektu) — zbiór ze
+            // słownika, nie numery na sztywno: [1,6] gubiło "Kierownik - budowy
+            // GW Polska" i kierowników projektu, których nie dało się połączyć.
+            // Po nazwisku, bo lista ma prawie 30 osób.
             'contacts' => Contact::query()
-                ->whereIn('funkcja_id', [1,6])
+                ->whereIn('funkcja_id', Funkcja::whereNotNull('rola_budowy')->pluck('id'))
                 ->where('user_id', null)
+                ->orderBy('last_name')->orderBy('first_name')
                 ->get()->map->only('id', 'first_name', 'last_name', 'user_id'),
 
             'contact' => Contact::where('user_id', $user->id)->get()->map->only('id', 'first_name', 'last_name', 'user_id')->first(),
