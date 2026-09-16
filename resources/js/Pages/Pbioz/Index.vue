@@ -1,9 +1,9 @@
 <template>
   <div>
-    <Head title="PBIOZ" />
+    <Head title="Certyfikaty Kontroli Jakości" />
     <WorkerMenu :contactId="contactId" :userOwner="userOwner" />
 
-    <pracownik-naglowek :pracownik="pracownik" tytul="PBIOZ" />
+    <pracownik-naglowek :pracownik="pracownik" tytul="Certyfikaty Kontroli Jakości" />
 
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <label class="flex items-center gap-2 text-sm text-gray-600">
@@ -28,7 +28,7 @@
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="naglowek-tabeli">
-            <th>Nazwa</th>
+            <th>Rodzaj certyfikatu</th>
             <th>Od</th>
             <th>Do</th>
             <th>Stan</th>
@@ -127,7 +127,7 @@
       :contact-id="contactId"
       :documents="documents"
       :kierownik="kierownik"
-      tytul="Skany PBIOZ"
+      tytul="Skany certyfikatów"
       trasa-usuwania="pbioz"
     />
   </div>

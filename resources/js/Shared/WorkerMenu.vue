@@ -33,7 +33,7 @@ export default {
         { adres: 'edit', nazwa: 'Dane osobowe' },
         { adres: 'badania', nazwa: 'Badania lekarskie' },
         { adres: 'bhp', nazwa: 'Szkolenia BHP' },
-        { adres: 'pbioz', nazwa: 'PBiOZ' },
+        { adres: 'pbioz', nazwa: 'CertKJ' },
         { adres: 'uprawnienia', nazwa: 'Uprawnienia' },
         { adres: 'documents', nazwa: 'Dokumenty' },
         { adres: 'jezyk', nazwa: 'Języki' },

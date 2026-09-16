@@ -153,7 +153,7 @@ export default {
     return {
       tab: 'koncze',
       activeCategory: 'Wszystkie',
-      categories: ['Wszystkie', 'BHP', 'A1', 'Badania lekarskie', 'Uprawnienia', 'PBIOZ'],
+      categories: ['Wszystkie', 'BHP', 'A1', 'Badania lekarskie', 'Uprawnienia', 'Certyfikaty KJ'],
       form: {
         search: this.filters.search,
         days: this.filters.days || '90',

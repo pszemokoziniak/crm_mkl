@@ -1,14 +1,14 @@
 <template>
   <div>
-    <Head title="Dodaj PBiOZ" />
+    <Head title="Dodaj certyfikat" />
     <worker-menu :contact-id="contact_id" />
-    <pracownik-naglowek :pracownik="pracownik" tytul="PBiOZ — dodaj" />
+    <pracownik-naglowek :pracownik="pracownik" tytul="Certyfikaty Kontroli Jakości — dodaj" />
     <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
       <form @submit.prevent="store(contact_id)">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
-          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa" />
-          <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Start badań" />
-          <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Koniec badań" />
+          <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Rodzaj certyfikatu" />
+          <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważny od" />
+          <text-input type="date" v-model="form.end" :error="form.errors.end" class="pb-8 pr-6 w-full lg:w-1/2" label="Ważny do" />
           <text-input type="hidden" value="@{{contact_id}}" v-model="form.contact_id" :error="form.errors.contact_id" />
           <!-- Nie pytamy "czy skasować poprzedni", bo razem z wpisem zniknąłby
                skan. Mówimy tylko, co się stanie. -->
@@ -26,7 +26,7 @@
           />
         </div>
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">
-          <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj PBiOZ</loading-button>
+          <loading-button :loading="form.processing" class="btn-indigo" type="submit">Dodaj certyfikat</loading-button>
         </div>
       </form>
     </div>
@@ -78,7 +78,7 @@ export default {
 
       const waznosc = wpis.bezterminowy ? 'bez daty końca' : `ważny do ${wpis.do}`
 
-      return `Jest już wpis PBiOZ (${waznosc}). `
+      return `Jest już certyfikat (${waznosc}). `
         + 'Nowy wpis stanie się aktualny, a poprzedni zostanie w historii.'
     },
   },

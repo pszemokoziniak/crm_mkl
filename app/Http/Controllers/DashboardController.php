@@ -137,7 +137,7 @@ class DashboardController extends Controller
             $uprawnienia = $uprawnieniaQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Uprawnienia', $item->uprawnieniaTyp->name ?? 'Brak typu', $now));
             $badania = $badaniaQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Badania lekarskie', $item->badaniaTyp->name ?? 'Brak typu', $now));
             $bhp = $bhpQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Szkolenie BHP', $item->bhpTyp->name ?? 'Brak typu', $now));
-            $pbioz = $pbiozQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'PBIOZ', 'PBIOZ', $now));
+            $pbioz = $pbiozQuery->get()->map(fn($item) => $this->mapExpiringItem($item, 'Certyfikaty KJ', 'Certyfikat kontroli jakości', $now));
 
             // Limit 183 dni w obcym państwie to też termin do pilnowania,
             // tylko liczony z pobytów, nie z dokumentu. Wchodzi do tej samej

@@ -153,7 +153,7 @@ class ReportsController extends Controller
             ->whereNull('contacts.deleted_at')
             ->whereBetween('pbiozs.end', [$graceStart, $windowEnd])
             ->tap(fn ($q) => $tylkoNajnowszy($q, 'pbiozs', 'name'))
-            ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'pbiozs.name', 'pbiozs.start', 'pbiozs.end']), 'PBIOZ');
+            ->get(['contacts.id', 'contacts.first_name', 'contacts.last_name', 'pbiozs.name', 'pbiozs.start', 'pbiozs.end']), 'Certyfikaty KJ');
 
         // Filtr po nazwisku/nazwie
         if ($request->filled('search')) {

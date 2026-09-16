@@ -67,7 +67,8 @@ enum TypDokumentu: int
             self::BHP => 'Szkolenia BHP',
             self::UPRAWNIENIA => 'Uprawnienia',
             self::A1 => 'A1',
-            self::PBIOZ => 'PBiOZ',
+            // Nazwa ze słownika typów dokumentów — dawniej PBiOZ.
+            self::PBIOZ => 'Certyfikaty Kontroli Jakości',
         };
     }
 }

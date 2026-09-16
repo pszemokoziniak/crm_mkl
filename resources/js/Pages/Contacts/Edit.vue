@@ -95,7 +95,7 @@
           </div>
 
           <div v-if="latestTermin(pbioz)">
-            <p class="text-[10px] text-gray-400 font-bold uppercase">PBIOZ</p>
+            <p class="text-[10px] text-gray-400 font-bold uppercase">Certyfikat KJ</p>
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(pbioz).end)">
               {{ latestTermin(pbioz).end }}
               <span v-if="isExpiringSoon(latestTermin(pbioz).end)" title="Zbliża się termin — do 30 dni">🔔</span>
