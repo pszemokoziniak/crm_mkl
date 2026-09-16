@@ -54,7 +54,8 @@
 
       <!-- Powiększenie siatki: miesiąc to prawie 4000 px kratek, więc bez
            pomniejszenia widać tydzień. Ustawienie pamiętane w przeglądarce. -->
-      <!-- SZKIC: trzy sposoby pokazania miesiąca -->
+      <!-- Skrócony pokazuje cały miesiąc naraz (do sprawdzania), pełny ma
+           godziny od–do (do wpisywania), tygodnie są jak papierowe KCP. -->
       <div class="ml-auto inline-flex rounded border border-gray-300 overflow-hidden text-sm">
         <button
           v-for="w in WIDOKI"
@@ -90,7 +91,7 @@
       </label>
     </div>
 
-    <!-- SZKIC: wybór tygodnia -->
+    <!-- Wybór tygodnia pon–nie; pierwszy i ostatni bywają krótsze. -->
     <div v-if="widok === 'tygodnie'" class="flex flex-wrap items-center gap-2 pb-3 text-sm">
       <button
         v-for="(t, i) in tygodnie"
@@ -104,22 +105,30 @@
       </button>
     </div>
 
-    <!-- SZKIC: widok skrócony — jedna wąska kolumna na dzień -->
+    <!-- Widok skrócony: jedna wąska kolumna na dzień, w kratce tylko godziny
+         albo kod nieobecności. Kolumny dni dzielą się szerokością okna, żeby
+         miesiąc mieścił się bez przewijania; dopiero na wąskim ekranie tabela
+         przewija się w bok. -->
     <div v-if="widok === 'skrocony'" class="overflow-auto border rounded-lg custom-scrollbar relative z-0" style="max-height: 70vh;">
-      <table class="text-xs border-collapse">
+      <table class="w-full table-fixed text-xs border-collapse" :style="{ minWidth: minSzerokoscSkroconego + 'px' }">
+        <colgroup>
+          <col style="width: 130px" />
+          <col v-for="shift in daysHeader" :key="shift.day" />
+          <col style="width: 56px" />
+        </colgroup>
         <thead class="sticky top-0 z-10 bg-gray-100">
           <tr>
-            <th class="sticky left-0 z-20 bg-gray-100 border-r border-b px-2 py-1 text-left font-bold" style="min-width: 128px">Pracownik</th>
-            <th v-for="shift in daysHeader" :key="shift.day" class="border-r border-b px-0 py-1 font-normal text-center" :class="tloDnia(shift)" style="width: 29px; min-width: 29px">
+            <th class="sticky left-0 z-20 bg-gray-100 border-r border-b px-2 py-1 text-left font-bold">Pracownik</th>
+            <th v-for="shift in daysHeader" :key="shift.day" class="border-r border-b px-0 py-1 font-normal text-center" :class="tloDnia(shift)">
               <div class="font-bold">{{ new Date(shift.day).getDate() }}</div>
               <div class="text-[10px] text-gray-500">{{ dayOfWeek(new Date(shift.day)).slice(0, 2) }}</div>
             </th>
-            <th class="sticky right-0 z-20 bg-gray-100 border-l border-b px-2 py-1 text-right font-bold" style="min-width: 54px">Suma</th>
+            <th class="sticky right-0 z-20 bg-gray-100 border-l border-b px-2 py-1 text-right font-bold">Suma</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(timeSheet, index) in sortedTimeSheets" :key="timeSheetsOrder[index]" class="hover:bg-gray-50">
-            <td class="sticky left-0 z-10 bg-gray-100 border-r border-b px-2 py-1 font-bold whitespace-nowrap" style="height: 32px">{{ timeSheet[0]?.name }}</td>
+            <td class="sticky left-0 z-10 bg-gray-100 border-r border-b px-2 py-1 font-bold truncate" style="height: 32px" :title="timeSheet[0]?.name">{{ timeSheet[0]?.name }}</td>
             <td
               v-for="shift in timeSheet"
               :key="shift.id"
@@ -285,6 +294,24 @@ import { Head, Link, useForm } from '@inertiajs/inertia-vue3'
 import { DocumentDownloadIcon } from '@heroicons/vue/solid'
 
 const KLUCZ_SKALI = 'kcp.skala'
+const KLUCZ_WIDOKU = 'kcp.widok'
+
+const WIDOKI = [
+  { id: 'skrocony', nazwa: 'Skrócony' },
+  { id: 'pelny', nazwa: 'Pełny' },
+  { id: 'tygodnie', nazwa: 'Tygodnie' },
+]
+
+/** Ostatnio wybrany widok; domyślnie skrócony, bo w nim widać cały miesiąc. */
+function wczytajWidok() {
+  try {
+    const zapisany = localStorage.getItem(KLUCZ_WIDOKU)
+    if (WIDOKI.some((w) => w.id === zapisany)) return zapisany
+  } catch (e) {
+    // Bez dostępu do pamięci przeglądarki — zostaje domyślne.
+  }
+  return 'skrocony'
+}
 
 /**
  * Zapamiętane powiększenie siatki. Poza zakresem albo śmieci w pamięci
@@ -364,14 +391,9 @@ export default {
       SKALA_MIN: 50,
       SKALA_MAX: 100,
       skala: wczytajSkale(),
-      WIDOKI: [
-        { id: 'pelny', nazwa: 'Pełny' },
-        { id: 'tygodnie', nazwa: 'Tygodnie' },
-        { id: 'skrocony', nazwa: 'Skrócony' },
-      ],
-      // SZKIC: wybór widoku i tygodnia z adresu, żeby dało się zrobić zrzuty
-      widok: new URLSearchParams(window.location.search).get('widok') || 'pelny',
-      tydzien: Number(new URLSearchParams(window.location.search).get('tydzien') || 0),
+      WIDOKI,
+      widok: wczytajWidok(),
+      tydzien: 0,
       open: false,
       isStatus: false,
       // Wypełnione, gdy otwarty dzień pochodzi z wpisu nieobecności.
@@ -443,8 +465,19 @@ export default {
       })
       return wynik
     },
+    /** Poniżej tej szerokości kratki dnia zrobiłyby się węższe niż "10" lub "UW". */
+    minSzerokoscSkroconego() {
+      return 130 + 56 + this.daysHeader.length * 26
+    },
   },
   watch: {
+    widok(wartosc) {
+      try {
+        localStorage.setItem(KLUCZ_WIDOKU, wartosc)
+      } catch (e) {
+        // Jak wyżej.
+      }
+    },
     skala(wartosc) {
       try {
         localStorage.setItem(KLUCZ_SKALI, String(wartosc))
@@ -467,6 +500,11 @@ export default {
       this.years.push(this.selectedYear)
       this.years.sort()
     }
+
+    // W bieżącym miesiącu zaczynamy od tygodnia z dzisiejszym dniem.
+    // Dni przychodzą jako "2026-09-16 00:00:00", więc porównujemy przez moment.
+    const biezacy = this.tygodnie.findIndex((t) => t.dni.some((d) => moment(d).isSame(moment(), 'day')))
+    if (biezacy >= 0) this.tydzien = biezacy
 
     this.shiftStatuses.push({
       id: 0,
