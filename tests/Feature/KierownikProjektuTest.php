@@ -125,6 +125,23 @@ class KierownikProjektuTest extends TestCase
         $this->assertNotContains('Berkes Lachendorf', $nazwy);
     }
 
+    public function test_lista_budow_pozwala_kliknac_jego_budowe(): void
+    {
+        // Zgłoszenie: kierownik projektu widział swoje budowy z kłódką i nie
+        // mógł w nie wejść, choć serwer go wpuszczał — do budowy trafiał
+        // dopiero naokoło, przez kartę pracownika.
+        $wiersze = collect($this->actingAs($this->opiekun)->get('/budowy')
+            ->viewData('page')['props']['organizations']['data'] ?? []);
+
+        $moja = $wiersze->firstWhere('id', $this->mojaBudowa->id);
+
+        $this->assertNotNull($moja);
+        $this->assertTrue($moja['can_open'], 'Kłódka ma znaczyć to samo, co odmowa serwera.');
+
+        // I faktycznie wchodzi.
+        $this->actingAs($this->opiekun)->get('/budowy/'.$this->mojaBudowa->id.'/edit')->assertOk();
+    }
+
     public function test_wchodzi_na_swoja_budowe_a_na_cudza_nie(): void
     {
         $this->actingAs($this->opiekun)->get("/budowy/{$this->mojaBudowa->id}/edit")->assertOk();

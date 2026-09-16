@@ -140,6 +140,14 @@ class OrganizationsController extends Controller
             $query->orderBy('organizations.created_at', 'desc');
         }
 
+        // Które budowy ta osoba naprawdę otworzy — tym samym warunkiem, co
+        // OrganizationPolicy@view. Lista rysowała kłódkę na podstawie
+        // "aktywnego kierownictwa dziś", więc kierownik projektu, którego
+        // dostęp bierze się z pola przy budowie, widział kłódkę wszędzie.
+        $moge = Auth::user() && Auth::user()->isOffice()
+            ? null
+            : Organization::query()->mojeAktywneBudowy(Auth::user())->pluck('id')->flip();
+
         return Inertia::render('Organizations/Index', [
             'filters' => Request::all('search', 'trashed', 'sort', 'direction'),
             'organizations' => $query
@@ -161,6 +169,7 @@ class OrganizationsController extends Controller
                     'active_workers_count' => (int) ($organization->active_workers_count ?? 0),
                     'active_leaders_count' => (int) ($organization->active_leaders_count ?? 0),
                     'is_active' => (bool) ($organization->is_active_for_me ?? false),
+                    'can_open' => $moge === null || isset($moge[$organization->id]),
                     // Budowa, na której wszyscy zakończyli pobyt — kandydat do archiwum.
                     'ready_to_archive' => (int) ($organization->all_workers_count ?? 0) > 0
                         && (int) ($organization->unfinished_workers_count ?? 0) === 0,

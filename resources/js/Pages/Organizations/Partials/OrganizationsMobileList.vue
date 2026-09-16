@@ -80,8 +80,10 @@ export default {
   },
   methods: {
     canOpen(org) {
-      const p = (this.$page && this.$page.props && this.$page.props.permissions) || {}
-      return !!org.is_active || !!p.admin || !!p.biuro
+      // Pyta serwer, tym samym warunkiem, co przy wejściu na budowę.
+      // Dawne "aktywne kierownictwo dziś" gubiło kierownika projektu:
+      // jego dostęp bierze się z pola przy budowie, nie z obecności w niej.
+      return !!org.can_open
     },
   },
 }
