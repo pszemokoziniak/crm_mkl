@@ -54,7 +54,20 @@
 
       <!-- Powiększenie siatki: miesiąc to prawie 4000 px kratek, więc bez
            pomniejszenia widać tydzień. Ustawienie pamiętane w przeglądarce. -->
-      <label class="ml-auto flex items-center gap-2 text-sm text-gray-600 select-none">
+      <!-- SZKIC: trzy sposoby pokazania miesiąca -->
+      <div class="ml-auto inline-flex rounded border border-gray-300 overflow-hidden text-sm">
+        <button
+          v-for="w in WIDOKI"
+          :key="w.id"
+          type="button"
+          class="px-3 py-1"
+          :class="widok === w.id ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+          @click="widok = w.id"
+        >
+          {{ w.nazwa }}
+        </button>
+      </div>
+      <label v-if="widok !== 'skrocony'" class="ml-6 flex items-center gap-2 text-sm text-gray-600 select-none">
         <span>Powiększenie</span>
         <input
           v-model.number="skala"
@@ -77,8 +90,54 @@
       </label>
     </div>
 
+    <!-- SZKIC: wybór tygodnia -->
+    <div v-if="widok === 'tygodnie'" class="flex flex-wrap items-center gap-2 pb-3 text-sm">
+      <button
+        v-for="(t, i) in tygodnie"
+        :key="t.od"
+        type="button"
+        class="px-3 py-1 rounded border"
+        :class="tydzien === i ? 'bg-indigo-50 border-indigo-400 text-indigo-800 font-bold' : 'border-gray-300 text-gray-700 hover:bg-gray-100'"
+        @click="tydzien = i"
+      >
+        Tydzień {{ i + 1 }} <span class="text-gray-500 font-normal">({{ t.etykieta }})</span>
+      </button>
+    </div>
+
+    <!-- SZKIC: widok skrócony — jedna wąska kolumna na dzień -->
+    <div v-if="widok === 'skrocony'" class="overflow-auto border rounded-lg custom-scrollbar relative z-0" style="max-height: 70vh;">
+      <table class="text-xs border-collapse">
+        <thead class="sticky top-0 z-10 bg-gray-100">
+          <tr>
+            <th class="sticky left-0 z-20 bg-gray-100 border-r border-b px-2 py-1 text-left font-bold" style="min-width: 128px">Pracownik</th>
+            <th v-for="shift in daysHeader" :key="shift.day" class="border-r border-b px-0 py-1 font-normal text-center" :class="tloDnia(shift)" style="width: 29px; min-width: 29px">
+              <div class="font-bold">{{ new Date(shift.day).getDate() }}</div>
+              <div class="text-[10px] text-gray-500">{{ dayOfWeek(new Date(shift.day)).slice(0, 2) }}</div>
+            </th>
+            <th class="sticky right-0 z-20 bg-gray-100 border-l border-b px-2 py-1 text-right font-bold" style="min-width: 54px">Suma</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(timeSheet, index) in sortedTimeSheets" :key="timeSheetsOrder[index]" class="hover:bg-gray-50">
+            <td class="sticky left-0 z-10 bg-gray-100 border-r border-b px-2 py-1 font-bold whitespace-nowrap" style="height: 32px">{{ timeSheet[0]?.name }}</td>
+            <td
+              v-for="shift in timeSheet"
+              :key="shift.id"
+              class="border-r border-b text-center cursor-pointer hover:bg-gray-200"
+              :class="[tloDnia(shift), skrot(shift).klasa]"
+              :title="shift.status ? getStatusName(shift.status) : (shift.work ? formatTimeRange(shift.from) + ' - ' + formatTimeRange(shift.to) : '')"
+              @click="showModal(shift)"
+            >
+              {{ skrot(shift).tekst }}
+            </td>
+            <td class="sticky right-0 z-10 bg-gray-100 border-l border-b px-2 py-1 text-right font-bold text-indigo-700">{{ formatRangeToDisplay(summarize(timeSheet)) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- Container with fixed height and custom scrollbar -->
-    <div ref="printTable" class="overflow-auto border rounded-lg custom-scrollbar relative z-0" style="max-height: 70vh;">
+    <div v-else ref="printTable" class="overflow-auto border rounded-lg custom-scrollbar relative z-0" style="max-height: 70vh;">
       <!-- `zoom`, nie `transform: scale` — zoom zmienia układ, więc przewijanie
             i przyklejona kolumna z nazwiskiem liczą się od pomniejszonych kratek. -->
       <div class="min-w-max" :style="{ zoom: skala / 100 }">
@@ -87,7 +146,7 @@
           <div class="sticky left-0 z-20 bg-gray-100 border-r px-2 py-2 font-bold text-sm text-center flex items-center justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 48px">
             Pracownik
           </div>
-          <div v-for="shift in daysHeader" :key="shift.day" class="border-r flex flex-col justify-center items-center text-gray-700 bg-gray-50" style="width: 127px; min-width: 127px; height: 48px">
+          <div v-for="shift in widoczneKratki(daysHeader)" :key="shift.day" class="border-r flex flex-col justify-center items-center text-gray-700 bg-gray-50" style="width: 127px; min-width: 127px; height: 48px">
             <div class="text-xs font-bold">{{ new Date(shift.day).getDate() }}</div>
             <div class="text-xs">{{ dayOfWeek(new Date(shift.day)) }}</div>
           </div>
@@ -98,11 +157,12 @@
           <!-- Worker Info Column - FIXED -->
           <div class="sticky left-0 z-10 bg-gray-100 border-r px-2 text-gray-700 cursor-pointer flex flex-col justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 68px">
             <div class="text-center text-xs font-bold leading-tight break-words">{{ timeSheet[0]?.name }}</div>
-            <div class="text-center text-[10px] mt-1 text-indigo-600">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
+            <div v-if="widok === 'tygodnie'" class="text-center text-[10px] mt-1 text-gray-600">Tydzień: {{ formatRangeToDisplay(summarize(widoczneKratki(timeSheet))) }}</div>
+            <div class="text-center text-[10px] mt-1 text-indigo-600">{{ widok === 'tygodnie' ? 'Miesiąc' : 'Suma' }}: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
           </div>
 
           <!-- Day Cells -->
-          <div v-for="shift in timeSheet" :key="shift.id" :class="shiftBackground(shift)" class="border-r relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 cursor-pointer flex flex-col justify-center" style="width: 127px; min-width: 127px; height: 68px" @click="showModal(shift)">
+          <div v-for="shift in widoczneKratki(timeSheet)" :key="shift.id" :class="shiftBackground(shift)" class="border-r relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 cursor-pointer flex flex-col justify-center" style="width: 127px; min-width: 127px; height: 68px" @click="showModal(shift)">
             <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="text-center overflow-y-auto">
               {{ shift.status === 8 ? getStatusName(shift.status) : 'Święto' }}
             </div>
@@ -304,6 +364,14 @@ export default {
       SKALA_MIN: 50,
       SKALA_MAX: 100,
       skala: wczytajSkale(),
+      WIDOKI: [
+        { id: 'pelny', nazwa: 'Pełny' },
+        { id: 'tygodnie', nazwa: 'Tygodnie' },
+        { id: 'skrocony', nazwa: 'Skrócony' },
+      ],
+      // SZKIC: wybór widoku i tygodnia z adresu, żeby dało się zrobić zrzuty
+      widok: new URLSearchParams(window.location.search).get('widok') || 'pelny',
+      tydzien: Number(new URLSearchParams(window.location.search).get('tydzien') || 0),
       open: false,
       isStatus: false,
       // Wypełnione, gdy otwarty dzień pochodzi z wpisu nieobecności.
@@ -359,6 +427,21 @@ export default {
     },
     daysHeader() {
       return this.sortedTimeSheets.length > 0 ? this.sortedTimeSheets[0] : []
+    },
+    /** Miesiąc pocięty na tygodnie pon–nie; pierwszy i ostatni bywają krótsze. */
+    tygodnie() {
+      const wynik = []
+      this.daysHeader.forEach((shift) => {
+        const data = new Date(shift.day)
+        if (wynik.length === 0 || data.getDay() === 1) {
+          wynik.push({ od: shift.day, do: shift.day, dni: [] })
+        }
+        const t = wynik[wynik.length - 1]
+        t.do = shift.day
+        t.dni.push(shift.day)
+        t.etykieta = `${new Date(t.od).getDate()}–${data.getDate()}`
+      })
+      return wynik
     },
   },
   watch: {
@@ -546,6 +629,37 @@ export default {
     },
     isSaturday(shift) {
       return new Date(shift.day).getDay() === 6
+    },
+    widoczneKratki(kratki) {
+      if (this.widok !== 'tygodnie' || !this.tygodnie[this.tydzien]) return kratki
+      const dni = this.tygodnie[this.tydzien].dni
+      return kratki.filter((shift) => dni.includes(shift.day))
+    },
+    /** Tło kratki w widoku skróconym: weekend i święto, reszta biała. */
+    tloDnia(shift) {
+      if (this.isSunday(shift) || shift.status === 8) return 'bg-red-100'
+      if (this.isSaturday(shift)) return 'bg-yellow-100'
+      if (shift.isBlocked && shift.blockedType === 'feast') return 'bg-red-100'
+      return ''
+    },
+    /** Treść kratki w widoku skróconym: liczba godzin albo kod nieobecności. */
+    skrot(shift) {
+      if (shift.isBlocked && shift.blockedType === 'feast') {
+        return { tekst: shift.status === 8 ? this.getStatusName(shift.status) : 'Ś', klasa: 'text-red-700' }
+      }
+      if (shift.status) {
+        return { tekst: this.getStatusName(shift.status), klasa: 'text-green-800 font-bold' }
+      }
+      if (!shift.work) {
+        return { tekst: '', klasa: '' }
+      }
+      const d = moment.duration(shift.work)
+      const godz = Math.floor(d.asHours())
+      const min = d.minutes()
+      return {
+        tekst: min ? `${godz}:${String(min).padStart(2, '0')}` : String(godz),
+        klasa: d.asHours() > 12 ? 'text-red-700 font-bold' : 'text-gray-800 font-bold',
+      }
     },
     showModal(shift) {
       // Dzień zakryty nieobecnością: dotąd kliknięcie nie robiło nic i
