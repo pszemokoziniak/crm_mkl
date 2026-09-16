@@ -114,24 +114,87 @@ class Contact extends Model
         });
     }
 
+    /**
+     * Słowa oddzielone spacją; "-słowo" wyklucza, "+słowo" to to samo, co
+     * samo słowo (ludzie tak piszą, więc nie ma co ich karać). Sam "-" albo
+     * "+" bez słowa nie znaczy nic.
+     *
+     * @return array{0: string[], 1: string[]} [muszą pasować, nie mogą pasować]
+     */
+    public static function rozbijWyszukiwanie(string $szukane): array
+    {
+        $musza = [];
+        $nieMoga = [];
+
+        foreach (preg_split('/\s+/u', trim($szukane)) ?: [] as $slowo) {
+            $znak = mb_substr($slowo, 0, 1);
+            $tresc = in_array($znak, ['-', '+'], true) ? mb_substr($slowo, 1) : $slowo;
+            if ($tresc === '') {
+                continue;
+            }
+            if ($znak === '-') {
+                $nieMoga[] = $tresc;
+            } else {
+                $musza[] = $tresc;
+            }
+        }
+
+        return [$musza, $nieMoga];
+    }
+
+    private static function pasujeDo($query, string $slowo): void
+    {
+        $query->where('first_name', 'like', '%'.$slowo.'%')
+            ->orWhere('last_name', 'like', '%'.$slowo.'%')
+            ->orWhereHas('funkcja', function ($query) use ($slowo) {
+                $query->where('name', 'like', '%'.$slowo.'%');
+            })
+            // Szukanie po budowie — po nazwie albo po numerze. Bierzemy
+            // wszystkie pobyty, także zakończone: kolumna "Koniec pobytu"
+            // i tak pokazuje byłych, a zawężenie do obecnych daje filtr
+            // Status → "Na budowie".
+            ->orWhereHas('workDates.organization', function ($query) use ($slowo) {
+                $query->where('nazwaBud', 'like', '%'.$slowo.'%')
+                    ->orWhere('numerBud', 'like', '%'.$slowo.'%');
+            });
+    }
+
+    private static function niePasujeDo($query, string $slowo): void
+    {
+        $dzis = now()->toDateString();
+
+        $query->where('first_name', 'not like', '%'.$slowo.'%')
+            ->where('last_name', 'not like', '%'.$slowo.'%')
+            ->whereDoesntHave('funkcja', function ($query) use ($slowo) {
+                $query->where('name', 'like', '%'.$slowo.'%');
+            })
+            ->whereDoesntHave('workDates', function ($query) use ($slowo, $dzis) {
+                $query->activeOn($dzis)
+                    ->whereHas('organization', function ($query) use ($slowo) {
+                        $query->where('nazwaBud', 'like', '%'.$slowo.'%')
+                            ->orWhere('numerBud', 'like', '%'.$slowo.'%');
+                    });
+            });
+    }
+
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {
-            $query->where(function ($query) use ($search) {
-                $query->where('first_name', 'like', '%'.$search.'%')
-                    ->orWhere('last_name', 'like', '%'.$search.'%')
-                    ->orWhereHas('funkcja', function ($query) use ($search) {
-                        $query->where('name', 'like', '%'.$search.'%');
-                    })
-                    // Szukanie po budowie — po nazwie albo po numerze. Bierzemy
-                    // wszystkie pobyty, także zakończone: kolumna "Koniec pobytu"
-                    // i tak pokazuje byłych, a zawężenie do obecnych daje filtr
-                    // Status → "Na budowie".
-                    ->orWhereHas('workDates.organization', function ($query) use ($search) {
-                        $query->where('nazwaBud', 'like', '%'.$search.'%')
-                            ->orWhere('numerBud', 'like', '%'.$search.'%');
-                    });
-            });
+            [$musza, $nieMoga] = self::rozbijWyszukiwanie($search);
+
+            // Każde słowo musi pasować gdzieś (imię, nazwisko, stanowisko,
+            // budowa), ale niekoniecznie w tym samym polu — "Jan Kowalski"
+            // znajduje Jana Kowalskiego, choć imię i nazwisko to osobne kolumny.
+            foreach ($musza as $slowo) {
+                $query->where(fn ($q) => self::pasujeDo($q, $slowo));
+            }
+
+            // "-GW" odrzuca każdego, do kogo słowo pasuje. Przy budowie liczy
+            // się tylko dzisiejszy pobyt: "bez tych, którzy pracują na GW"
+            // ma nie wyrzucać kogoś, kto był tam dwa lata temu.
+            foreach ($nieMoga as $slowo) {
+                $query->where(fn ($q) => self::niePasujeDo($q, $slowo));
+            }
         })->when($filters['trashed'] ?? null, function ($query, $trashed) {
             if ($trashed === 'with') {
                 $query->withTrashed();

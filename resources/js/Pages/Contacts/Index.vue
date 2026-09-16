@@ -24,6 +24,10 @@
         <span class="hidden md:inline">&nbsp;Pracownika</span>
       </Link>
     </div>
+    <p class="-mt-3 mb-4 text-xs text-gray-400">
+      Kilka słów: wszystkie muszą pasować (imię, nazwisko, stanowisko, budowa).
+      Słowo z minusem wyklucza, np. <span class="font-mono">-GW</span> ukrywa osoby ze stanowiskiem lub dzisiejszą budową „GW”.
+    </p>
     <div class="bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
