@@ -245,9 +245,11 @@ class UsersController extends Controller
             // słownika, nie numery na sztywno: [1,6] gubiło "Kierownik - budowy
             // GW Polska" i kierowników projektu, których nie dało się połączyć.
             // Po nazwisku, bo lista ma prawie 30 osób.
+            // Osoba już połączona z TYM kontem też jest na liście — inaczej pole
+            // pokazywało pustkę, choć konto było połączone (Boryczka, users/15).
             'contacts' => Contact::query()
                 ->whereIn('funkcja_id', Funkcja::whereNotNull('rola_budowy')->pluck('id'))
-                ->where('user_id', null)
+                ->where(fn ($q) => $q->whereNull('user_id')->orWhere('user_id', $user->id))
                 ->orderBy('last_name')->orderBy('first_name')
                 ->get()->map->only('id', 'first_name', 'last_name', 'user_id'),
 

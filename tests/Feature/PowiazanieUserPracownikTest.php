@@ -156,13 +156,17 @@ class PowiazanieUserPracownikTest extends TestCase
         $konto = $this->user(3, 'abacki@mkl.pl');
         $polaczony->forceFill(['user_id' => $konto->id])->save();
 
-        $props = $this->actingAs($this->user(2, 'biuro@mkl.pl'))
+        // Abacki jest połączony z TYM kontem, więc ma być na liście (i wybrany);
+        // osoba połączona z innym kontem — nie.
+        $this->pracownik('Cudzy', 'Konto')->forceFill(['user_id' => $this->user(3, 'cudzy@mkl.pl')->id])->save();
+        $props = $this->actingAs($this->user(2, 'biuro2@mkl.pl'))
             ->get('/users/'.$konto->id.'/edit')
             ->viewData('page')['props'];
 
         $this->assertSame(
-            ['Adamski Zenon', 'Kowalski Adam', 'Kowalski Jan', 'Zieliński Adam'],
+            ['Abacki Już', 'Adamski Zenon', 'Kowalski Adam', 'Kowalski Jan', 'Zieliński Adam'],
             collect($props['contacts'])->map(fn ($c) => $c['last_name'].' '.$c['first_name'])->all(),
         );
+        $this->assertSame($polaczony->id, $props['user']['contact_id']);
     }
 }
