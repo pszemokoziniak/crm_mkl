@@ -1,223 +1,180 @@
 <template>
   <div>
-    <Head title="Uprawnienia" />
-    <WorkerMenu :contactId="contactId" :userOwner="userOwner" />
+    <Head title="Uprawnienia ról" />
+    <h1 class="mb-2 text-3xl font-bold text-gray-900">Uprawnienia ról</h1>
+    <p class="mb-6 text-sm text-gray-500 max-w-3xl">
+      Zaznaczone = rola wchodzi w dany obszar. Zakres „tylko swoje budowy i ludzie” kierownika budowy
+      i kierownika projektu działa niezależnie od tej tabeli. Zaznaczenie edycji dokłada podgląd samo,
+      odznaczenie podglądu zabiera wszystko, co go wymaga. Administrator ma zawsze wszystko.
+    </p>
 
-    <pracownik-naglowek :pracownik="pracownik" tytul="Uprawnienia" />
-
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-      <label class="flex items-center gap-2 text-sm text-gray-600">
-        <input type="checkbox" class="form-checkbox" :checked="pokazKosz" @change="przelaczKosz" />
-        <span>Pokaż usunięte</span>
-      </label>
-      <!-- Historia jest zwinięta, ale ma być widać, że istnieje i ile jej jest. -->
-      <button
-        v-if="ukrytych > 0 || pokazHistorie"
-        type="button"
-        class="text-sm text-indigo-600 hover:underline"
-        @click="przelaczHistorie"
-      >
-        {{ pokazHistorie ? 'Ukryj poprzednie wpisy' : `Pokaż poprzednie wpisy (${ukrytych})` }}
-      </button>
-      <Link v-if="!kierownik" class="btn-indigo" :href="`/contacts/${contactId}/uprawnienia/create`">
-        <span>Dodaj</span>
-      </Link>
-    </div>
-
-    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
-      <table class="w-full whitespace-nowrap">
-        <thead>
-          <tr class="naglowek-tabeli">
-            <th>Rodzaj uprawnienia</th>
-            <th>Od</th>
-            <th>Do</th>
-            <th>Stan</th>
-            <th />
+    <div class="bg-white rounded-md shadow overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="naglowek-tabeli">
+          <tr>
+            <th class="px-4 py-3 text-left" style="min-width: 260px">Obszar / uprawnienie</th>
+            <th v-for="rola in stan" :key="rola.id" class="px-3 py-3 text-center align-top" style="min-width: 128px">
+              <div class="font-bold">{{ rola.nazwa }}</div>
+              <div class="mt-1 text-xs font-normal">
+                <span v-if="!rola.edytowalna" class="text-gray-500">zawsze wszystko</span>
+                <span v-else-if="zmieniona(rola)" class="text-yellow-700">niezapisane zmiany</span>
+                <span v-else-if="rola.nadpisana" class="text-indigo-700">ustawione ręcznie</span>
+                <span v-else class="text-gray-500">domyślne</span>
+              </div>
+              <div v-if="rola.edytowalna" class="mt-2 flex flex-col items-center gap-1">
+                <button
+                  type="button"
+                  class="px-3 py-1 rounded text-xs font-medium"
+                  :class="zmieniona(rola) ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-100 text-gray-400 cursor-default'"
+                  :disabled="!zmieniona(rola) || zapisywanie"
+                  @click="zapisz(rola)"
+                >
+                  Zapisz
+                </button>
+                <button
+                  v-if="rola.nadpisana || zmieniona(rola)"
+                  type="button"
+                  class="text-xs text-gray-500 hover:text-gray-800 hover:underline"
+                  :disabled="zapisywanie"
+                  @click="przywroc(rola)"
+                >
+                  {{ rola.nadpisana ? 'Przywróć domyślne' : 'Cofnij zmiany' }}
+                </button>
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="item in wiersze"
-            :key="item.id"
-            class="hover:bg-gray-100 focus-within:bg-gray-100"
-            :class="item.deleted_at ? 'text-gray-400' : ''"
-          >
-            <td class="border-t px-6 py-4">
-              <!-- Kierownik ma tu podgląd, więc zamiast martwego href="" tekst. -->
-              <Link v-if="!kierownik" class="text-indigo-600 hover:underline" :href="`/contacts/${contactId}/uprawnienia/${item.id}/edit`">
-                {{ item.uprawnienia ? item.uprawnienia.name : '—' }}
-              </Link>
-              <span v-else>{{ item.uprawnienia ? item.uprawnienia.name : '—' }}</span>
-              <span v-if="item.deleted_at" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
-              <span v-if="item.zastapione" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600" title="Jest nowszy wpis tego samego rodzaju">zastąpione</span>
-              <!-- Skan wgrany przy tym wpisie — od razu widać, czy jest. -->
-              <a
-                v-if="item.skan"
-                target="_blank"
-                :href="`/contacts/${contactId}/documents/${item.skan}`"
-                class="ml-2 text-xs text-indigo-600 hover:underline"
-              >skan</a>
-            </td>
-            <td class="border-t px-6 py-4 tabular-nums">{{ item.start || '—' }}</td>
-            <td class="border-t px-6 py-4 tabular-nums font-medium" :class="klasaTerminu(item)">{{ item.end || '—' }}</td>
-            <td class="border-t px-6 py-4 text-sm" :class="klasaTerminu(item)">{{ opisTerminu(item) }}</td>
-            <td class="border-t px-6 py-4 text-right">
-              <!-- Dotad jedynym wejsciem w edycje byla nazwa wpisu, ktora nie wygladala na odnosnik. -->
-              <Link
-                v-if="!kierownik && !item.deleted_at"
-                class="mr-4 text-sm text-indigo-600 hover:text-indigo-800"
-                :href="`/contacts/${contactId}/uprawnienia/${item.id}/edit`"
-              >
-                Edytuj
-              </Link>
-              <button
-                v-if="!kierownik && item.deleted_at"
-                type="button"
-                class="text-sm text-indigo-600 hover:text-indigo-800"
-                @click="przywroc(item)"
-              >Przywróć</button>
-              <button
-                v-else-if="!kierownik"
-                type="button"
-                class="text-sm text-red-600 hover:text-red-800"
-                @click="usun(item)"
-              >Usuń</button>
-            </td>
-          </tr>
-          <tr v-if="wiersze.length === 0">
-            <td class="px-6 py-6 border-t text-gray-400" colspan="5">Brak wpisów dla tego pracownika.</td>
-          </tr>
+          <template v-for="obszar in obszary" :key="obszar.nazwa">
+            <tr class="bg-gray-50">
+              <td :colspan="stan.length + 1" class="px-4 py-2 text-xs font-bold uppercase tracking-wide text-gray-600">
+                {{ obszar.nazwa }}
+              </td>
+            </tr>
+            <tr v-for="u in obszar.uprawnienia" :key="u.id" class="border-t border-gray-100 hover:bg-gray-50">
+              <td class="px-4 py-2 text-gray-800">
+                {{ u.etykieta }}
+                <span v-if="u.tylkoAdmin" class="ml-1 text-xs text-gray-400">(tylko administrator)</span>
+              </td>
+              <td v-for="rola in stan" :key="rola.id" class="px-3 py-2 text-center">
+                <input
+                  type="checkbox"
+                  class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-40"
+                  :checked="rola.zaznaczone.includes(u.id)"
+                  :disabled="!rola.edytowalna || u.tylkoAdmin"
+                  :title="tytul(rola, u)"
+                  @change="przelacz(rola, u, $event.target.checked)"
+                />
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
 
-    <!-- Telefon: karty zamiast przewijanej w bok tabeli. -->
-    <div class="sm:hidden space-y-3">
-      <div
-        v-for="item in wiersze"
-        :key="item.id"
-        class="bg-white rounded-md shadow p-4"
-        :class="item.deleted_at ? 'text-gray-400' : ''"
-      >
-        <div class="flex items-start justify-between gap-2">
-          <div class="font-medium break-words">{{ item.uprawnienia ? item.uprawnienia.name : '—' }}</div>
-          <span v-if="item.deleted_at" class="flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
-          <a
-            v-if="item.skan"
-            target="_blank"
-            :href="`/contacts/${contactId}/documents/${item.skan}`"
-            class="flex-shrink-0 text-xs text-indigo-600"
-          >skan</a>
+    <h2 class="mt-10 mb-3 text-xl font-bold text-gray-900">Ostatnie zmiany</h2>
+    <p v-if="historia.length === 0" class="text-sm text-gray-400 italic">Nikt jeszcze niczego nie zmieniał — wszystkie role mają domyślne uprawnienia.</p>
+    <div v-else class="bg-white rounded-md shadow divide-y divide-gray-100">
+      <div v-for="(z, i) in historia" :key="i" class="px-6 py-3 text-sm">
+        <div class="text-gray-800">
+          <span class="font-semibold">{{ z.rola }}</span>
+          <span v-if="z.przywrocenie"> — przywrócono domyślne</span>
+          <span class="text-gray-500"> · {{ z.kto }}, {{ z.kiedy }}</span>
         </div>
-        <div class="mt-1 text-sm text-gray-500 tabular-nums">{{ item.start || '—' }} → {{ item.end || '—' }}</div>
-        <div class="mt-1 text-sm" :class="klasaTerminu(item)">{{ opisTerminu(item) }}</div>
-        <div v-if="!kierownik" class="mt-3 flex items-center gap-4">
-          <Link class="text-sm text-indigo-600" :href="`/contacts/${contactId}/uprawnienia/${item.id}/edit`">Edytuj</Link>
-          <button v-if="item.deleted_at" type="button" class="text-sm text-indigo-600" @click="przywroc(item)">Przywróć</button>
-          <button v-else type="button" class="text-sm text-red-600" @click="usun(item)">Usuń</button>
-        </div>
+        <div v-if="z.dodane.length" class="text-green-700 text-xs mt-1">+ {{ z.dodane.join('; ') }}</div>
+        <div v-if="z.odebrane.length" class="text-red-700 text-xs mt-1">− {{ z.odebrane.join('; ') }}</div>
       </div>
-      <p v-if="wiersze.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-400">
-        Brak wpisów dla tego pracownika.
-      </p>
     </div>
-    <pagination v-if="uprawnienias.links" class="mt-4" :links="uprawnienias.links" />
-
-    <SkanyDokumentow
-      :contact-id="contactId"
-      :documents="documents"
-      :kierownik="kierownik"
-      tytul="Skany uprawnień"
-      trasa-usuwania="uprawnienia"
-    />
   </div>
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
-import { prowadziBudowy } from '@/role'
+import { Head } from '@inertiajs/inertia-vue3'
+import { Inertia } from '@inertiajs/inertia'
 import Layout from '@/Shared/Layout'
-import Pagination from '@/Shared/Pagination'
-import PracownikNaglowek from '@/Shared/PracownikNaglowek'
-import SkanyDokumentow from '@/Shared/SkanyDokumentow'
-import WorkerMenu from '@/Shared/WorkerMenu'
 
 export default {
-  components: { Head, Link, Pagination, PracownikNaglowek, SkanyDokumentow, WorkerMenu },
+  components: { Head },
   layout: Layout,
   props: {
-    filters: { type: Object, default: () => ({}) },
-    ukrytych: { type: Number, default: 0 },
-    pracownik: { type: Object, default: null },
-    contact: Object,
-    uprawnienias: Object,
-    documents: Object,
-    userOwner: Number,
+    obszary: Array,
+    role: Array,
+    historia: Array,
+  },
+  data() {
+    return {
+      zapisywanie: false,
+      // Kopia robocza: co jest zaznaczone na ekranie, zanim admin kliknie Zapisz.
+      stan: this.role.map((r) => ({ ...r, zaznaczone: [...r.uprawnienia] })),
+    }
   },
   computed: {
-    contactId() {
-      return this.contact.id
+    wszystkie() {
+      return this.obszary.flatMap((o) => o.uprawnienia)
     },
-    kierownik() {
-      return prowadziBudowy(this.userOwner)
-    },
-    pokazHistorie() {
-      return this.filters.historia === 'with'
-    },
-    pokazKosz() {
-      return this.filters.trashed === 'with'
-    },
-    wiersze() {
-      return this.uprawnienias.data || this.uprawnienias
+  },
+  watch: {
+    role(nowe) {
+      this.stan = nowe.map((r) => ({ ...r, zaznaczone: [...r.uprawnienia] }))
     },
   },
   methods: {
-    // Ta sama skala co na pulpicie i w badaniach.
-    opisTerminu(item) {
-      if (item.deleted_at) return 'w koszu'
-      // Wpis zastąpiony nowszym nie jest zaległością — pulpit też go
-      // pomija, więc lista nie ma powodu straszyć czerwienią.
-      if (item.zastapione) return 'zastąpione nowszym'
-      if (item.dni === null || item.dni === undefined) return 'bez daty końca'
-      if (item.dni < 0) return `po terminie od ${Math.abs(item.dni)} dni`
-      if (item.dni === 0) return 'kończy się dziś'
-      return `zostało ${item.dni} dni`
+    zmieniona(rola) {
+      const a = [...rola.zaznaczone].sort().join(',')
+      const b = [...rola.uprawnienia].sort().join(',')
+      return a !== b
     },
-    klasaTerminu(item) {
-      if (item.deleted_at) return 'text-gray-400'
-      if (item.zastapione) return 'text-gray-400'
-      if (item.dni === null || item.dni === undefined) return 'text-gray-500'
-      if (item.dni < 0) return 'text-red-700'
-      return item.dni <= 30 ? 'text-orange-700' : 'text-gray-600'
+    tytul(rola, u) {
+      if (!rola.edytowalna) return 'Administrator ma zawsze wszystkie uprawnienia'
+      if (u.tylkoAdmin) return 'Tego uprawnienia nie da się nadać nikomu poza administratorem'
+      return u.wymaga.length ? 'Wymaga: ' + u.wymaga.map((id) => this.nazwa(id)).join(', ') : ''
     },
-    przelaczHistorie() {
-      // Zachowujemy stan kosza, żeby jeden przełącznik nie kasował drugiego.
-      this.$inertia.get(
-        `/contacts/${this.contactId}/uprawnienia`,
-        {
-          ...(this.pokazKosz ? { trashed: 'with' } : {}),
-          ...(this.pokazHistorie ? {} : { historia: 'with' }),
-        },
-        { preserveScroll: true, replace: true }
-      )
+    nazwa(id) {
+      const u = this.wszystkie.find((x) => x.id === id)
+      return u ? u.etykieta : id
     },
-    przelaczKosz(zdarzenie) {
-      this.$inertia.get(
-        `/contacts/${this.contactId}/uprawnienia`,
-        {
-          ...(zdarzenie.target.checked ? { trashed: 'with' } : {}),
-          ...(this.pokazHistorie ? { historia: 'with' } : {}),
-        },
-        { preserveScroll: true, replace: true }
-      )
-    },
-    usun(item) {
-      if (confirm('Przenieść ten wpis do kosza?')) {
-        this.$inertia.delete(`/uprawnienia/${item.id}`, { preserveScroll: true })
+    // Zaznaczenie dokłada wszystko, czego uprawnienie wymaga (przechodnio);
+    // odznaczenie zabiera wszystko, co wymagało odznaczonego.
+    przelacz(rola, u, zaznacz) {
+      const zbior = new Set(rola.zaznaczone)
+      if (zaznacz) {
+        const kolejka = [u.id]
+        while (kolejka.length) {
+          const id = kolejka.shift()
+          if (zbior.has(id)) continue
+          zbior.add(id)
+          const def = this.wszystkie.find((x) => x.id === id)
+          if (def) kolejka.push(...def.wymaga)
+        }
+      } else {
+        const kolejka = [u.id]
+        while (kolejka.length) {
+          const id = kolejka.shift()
+          if (!zbior.has(id)) continue
+          zbior.delete(id)
+          this.wszystkie.filter((x) => x.wymaga.includes(id)).forEach((x) => kolejka.push(x.id))
+        }
       }
+      rola.zaznaczone = this.wszystkie.map((x) => x.id).filter((id) => zbior.has(id))
     },
-    przywroc(item) {
-      this.$inertia.put(`/uprawnienia/${item.id}/restore`, {}, { preserveScroll: true })
+    zapisz(rola) {
+      this.zapisywanie = true
+      Inertia.put(`/uprawnienia-rol/${rola.id}`, { uprawnienia: rola.zaznaczone }, {
+        preserveScroll: true,
+        onFinish: () => { this.zapisywanie = false },
+      })
+    },
+    przywroc(rola) {
+      if (!rola.nadpisana) {
+        rola.zaznaczone = [...rola.uprawnienia]
+        return
+      }
+      if (!confirm(`Przywrócić roli ${rola.nazwa} domyślne uprawnienia?`)) return
+      this.zapisywanie = true
+      Inertia.delete(`/uprawnienia-rol/${rola.id}`, {
+        preserveScroll: true,
+        onFinish: () => { this.zapisywanie = false },
+      })
     },
   },
 }

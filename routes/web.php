@@ -36,6 +36,7 @@ use App\Http\Controllers\StatystykiController;
 use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
+use App\Http\Controllers\UprawnieniaRolController;
 use App\Http\Controllers\UprawnieniaTypController;
 use App\Http\Controllers\UmowyController;
 use App\Http\Controllers\UsersController;
@@ -236,6 +237,19 @@ Route::get('ustawienia', [SettingsController::class, 'index'])
 Route::put('ustawienia', [SettingsController::class, 'update'])
     ->name('ustawienia.update')
     ->middleware('auth', 'moze:slowniki.biura');
+
+// Ustawienia → Uprawnienia ról: macierz rola × uprawnienie, tylko admin.
+Route::get('uprawnienia-rol', [UprawnieniaRolController::class, 'index'])
+    ->name('uprawnieniaRol')
+    ->middleware('auth', 'moze:uprawnienia.zarzadzanie');
+
+Route::put('uprawnienia-rol/{rola}', [UprawnieniaRolController::class, 'update'])
+    ->name('uprawnieniaRol.update')
+    ->middleware('auth', 'moze:uprawnienia.zarzadzanie');
+
+Route::delete('uprawnienia-rol/{rola}', [UprawnieniaRolController::class, 'reset'])
+    ->name('uprawnieniaRol.reset')
+    ->middleware('auth', 'moze:uprawnienia.zarzadzanie');
 
 //Prognoza pracowników na budowach
 
