@@ -151,13 +151,15 @@
           <ul class="space-y-4 text-sm">
             <li class="flex justify-between border-b border-gray-50 pb-2">
               <span class="text-gray-500">Ostatnia aktualizacja:</span>
-              <span class="font-medium text-gray-700">{{ new Date().toLocaleDateString() }}</span>
+              <span class="font-medium text-gray-700">{{ narzedzia.zaktualizowano || '—' }}</span>
             </li>
-            <li class="flex justify-between border-b border-gray-50 pb-2">
-              <span class="text-gray-500">Badania techniczne:</span>
-              <span :class="['font-medium', isExpired(narzedzia.waznosc_badan) ? 'text-red-600' : 'text-green-600']">
-                {{ narzedzia.waznosc_badan || 'Brak danych' }}
-              </span>
+            <li class="border-b border-gray-50 pb-2">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Ważność badań:</span>
+                <span class="font-medium" :class="stanBadan.klasa">{{ dataBadan }}</span>
+              </div>
+              <!-- Ta sama ocena, co w raporcie terminów i na pulpicie. -->
+              <div class="mt-1 text-right text-xs" :class="stanBadan.klasa">{{ stanBadan.opis }}</div>
             </li>
           </ul>
         </div>
@@ -223,6 +225,17 @@ export default {
     }
   },
   computed: {
+    dataBadan() {
+      return this.formatujDate(this.narzedzia.badania_data) || 'brak daty'
+    },
+    stanBadan() {
+      const n = this.narzedzia.badania_dni
+      if (n === null || n === undefined) return { opis: 'bez daty sprzęt nie trafia do terminów do pilnowania', klasa: 'text-gray-400' }
+      if (n < 0) return { opis: `po terminie (${-n} dni)`, klasa: 'text-red-600' }
+      if (n === 0) return { opis: 'kończy się dziś', klasa: 'text-red-600' }
+      if (n <= 30) return { opis: `kończy się za ${n} dni`, klasa: 'text-orange-600' }
+      return { opis: `ważne jeszcze ${n} dni`, klasa: 'text-green-600' }
+    },
     // Pliki większe niż limit serwera — sprawdzamy w przeglądarce, bo taki
     // formularz nie dociera nawet do walidacji i zapis kończy się ciszą.
     zaDuzePliki() {
@@ -260,9 +273,10 @@ export default {
         this.$inertia.put(`/narzedzia/${this.narzedzia.id}/restore`)
       }
     },
-    isExpired(date) {
-      if (!date) return false
-      return new Date(date) < new Date()
+    formatujDate(iso) {
+      if (!iso) return null
+      const [r, m, d] = iso.split('-')
+      return `${d}.${m}.${r}`
     },
   },
 }

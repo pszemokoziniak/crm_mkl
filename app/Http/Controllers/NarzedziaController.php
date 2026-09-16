@@ -201,6 +201,15 @@ class NarzedziaController extends Controller
                 // Gdzie sztuka jest teraz — null oznacza magazyn.
                 'gdzie_jest' => $magazyn->sztuka($narzedzia, $dzis)['budowa'],
                 'badania_status' => $magazyn->statusBadan($narzedzia, $dzis),
+                // Data po odsianiu zaślepek z importu — ta sama, którą liczą
+                // raport terminów i pulpit; null = "brak daty".
+                'badania_data' => $magazyn->dataBadan($narzedzia),
+                'badania_dni' => $magazyn->dataBadan($narzedzia)
+                    ? (int) Carbon::parse($dzis)->startOfDay()->diffInDays(Carbon::parse($magazyn->dataBadan($narzedzia))->startOfDay(), false)
+                    : null,
+                // Dotąd panel pokazywał tu dzisiejszą datę, niezależnie od tego,
+                // kiedy ktoś naprawdę ruszał kartę.
+                'zaktualizowano' => $narzedzia->updated_at?->format('d.m.Y'),
                 // Cała historia pobytów, od najnowszego.
                 'pobyty' => $narzedzia->toolWorkDates
                     ->sortByDesc(fn (ToolWorkDate $t) => (string) ($t->start ?: ''))

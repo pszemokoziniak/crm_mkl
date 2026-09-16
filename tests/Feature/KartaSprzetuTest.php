@@ -139,4 +139,26 @@ class KartaSprzetuTest extends TestCase
                 ->etc()
             );
     }
+
+    /**
+     * Panel "Status urządzenia" ocenia ważność badań tak samo jak raport
+     * terminów, i pokazuje prawdziwą datę ostatniej zmiany karty — dotąd
+     * stała tam dzisiejsza data, niezależnie od tego, kiedy ktoś ją ruszał.
+     */
+    public function test_status_urzadzenia_ocenia_waznosc_badan(): void
+    {
+        $karta = $this->karta();
+        $this->assertSame(now()->addYear()->toDateString(), $karta['badania_data']);
+        $this->assertSame(365 + (now()->isLeapYear() && now()->month <= 2 ? 1 : 0), $karta['badania_dni']);
+        $this->assertSame(now()->format('d.m.Y'), $karta['zaktualizowano']);
+
+        $this->sprzet->forceFill(['waznosc_badan' => now()->subDays(12)->toDateString()])->save();
+        $this->assertSame(-12, $this->karta()['badania_dni']);
+
+        // Zaślepka z importu to nie data — panel mówi "brak", nie "po terminie od 56 lat".
+        $this->sprzet->forceFill(['waznosc_badan' => '1970-01-01'])->save();
+        $karta = $this->karta();
+        $this->assertNull($karta['badania_data']);
+        $this->assertNull($karta['badania_dni']);
+    }
 }
