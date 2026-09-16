@@ -2,7 +2,7 @@
     "private": true,
     "scripts": {
         "dev": "npm run development",
-        "development": "mix && npm run ssr:build",
+        "development": "mix",
         "fix:eslint": "eslint --ext .js,.vue resources/js/ --fix",
         "fix:prettier": "prettier --write --loglevel warn 'resources/js/**/*.vue'",
         "fix-code-style": "npm run fix:prettier && npm run fix:eslint",
@@ -10,7 +10,7 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production && npm run ssr:build",
+        "production": "mix --production",
         "heroku-postbuild": "npm run prod",
         "ssr:build": "mix --production --mix-config=webpack.ssr.mix.js",
         "ssr:serve": "node public/js/ssr.js"
