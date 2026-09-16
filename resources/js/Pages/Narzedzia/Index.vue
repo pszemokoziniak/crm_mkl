@@ -72,6 +72,7 @@
       <table class="w-full">
         <thead>
           <tr class="naglowek-tabeli">
+            <th class="w-px whitespace-nowrap">Lp.</th>
             <th>Sprzęt</th>
             <th class="text-center">Sztuk</th>
             <th class="text-center">Dostępne</th>
@@ -81,9 +82,12 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <template v-for="grupa in grupy" :key="grupa.klucz">
-            <!-- Poziom 1: grupa (Kontener, Manitou) albo pojedynczy model. -->
+          <template v-for="(grupa, gi) in grupy" :key="grupa.klucz">
+            <!-- Poziom 1: grupa (Kontener, Manitou) albo pojedynczy model.
+                 Numeracja jak w Pracownikach; poziomy niżej dostają 2.1, 2.1.3,
+                 żeby było widać, do czego sztuka należy. -->
             <tr class="hover:bg-gray-50 transition-colors cursor-pointer" @click="przelacz(grupa.klucz)">
+              <td class="px-4 py-4 text-gray-400 tabular-nums">{{ gi + 1 }}</td>
               <td class="px-6 py-4">
                 <div class="flex items-center font-medium text-gray-900">
                   <img v-if="grupa.photo" :src="grupa.photo" :alt="grupa.nazwa" class="flex-shrink-0 mr-3 w-12 h-12 object-cover rounded border border-gray-200" />
@@ -132,8 +136,9 @@
             <!-- Poziom 2: modele i sztuki w tej samej tabeli, żeby daty badań
                  i miejsce pobytu stały pod swoimi nagłówkami. -->
             <template v-if="rozwiniete.includes(grupa.klucz)">
-              <template v-for="model in grupa.modele" :key="model.klucz">
+              <template v-for="(model, mi) in grupa.modele" :key="model.klucz">
                 <tr v-if="grupa.ma_modele" class="bg-gray-50 cursor-pointer hover:bg-gray-100" @click="przelacz(grupa.klucz + '/' + model.klucz)">
+                  <td class="px-4 py-3 text-xs text-gray-400 tabular-nums">{{ gi + 1 }}.{{ mi + 1 }}</td>
                   <td class="pl-16 pr-6 py-3 font-medium text-gray-700">{{ model.nazwa }}</td>
                   <td class="px-6 py-3 text-center text-sm text-gray-700">{{ model.sztuk }}</td>
                   <td class="px-6 py-3 text-center text-sm" :class="model.dostepne > 0 ? 'text-green-700' : 'text-red-700'">
@@ -159,7 +164,8 @@
                 </tr>
 
                 <template v-if="!grupa.ma_modele || rozwiniete.includes(grupa.klucz + '/' + model.klucz)">
-                  <tr v-for="sztuka in model.sztuki" :key="sztuka.id" class="hover:bg-gray-50">
+                  <tr v-for="(sztuka, si) in model.sztuki" :key="sztuka.id" class="hover:bg-gray-50">
+                    <td class="px-4 py-2 text-xs text-gray-400 tabular-nums">{{ grupa.ma_modele ? `${gi + 1}.${mi + 1}.${si + 1}` : `${gi + 1}.${si + 1}` }}</td>
                     <td class="pl-16 pr-6 py-2">
                       <label class="flex items-center" :class="sztuka.budowa ? 'cursor-default' : 'cursor-pointer'">
                         <input
@@ -209,7 +215,7 @@
           </template>
 
           <tr v-if="grupy.length === 0">
-            <td class="px-6 py-12 text-center text-gray-500" colspan="6">
+            <td class="px-6 py-12 text-center text-gray-500" colspan="7">
               <div class="flex flex-col items-center">
                 <icon name="office" class="w-12 h-12 fill-gray-200 mb-2" />
                 <p>Nie znaleziono żadnego sprzętu w magazynie</p>
