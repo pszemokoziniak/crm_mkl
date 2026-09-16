@@ -55,7 +55,8 @@
       <!-- Powiększenie siatki: miesiąc to prawie 4000 px kratek, więc bez
            pomniejszenia widać tydzień. Ustawienie pamiętane w przeglądarce. -->
       <!-- Skrócony pokazuje cały miesiąc naraz (do sprawdzania), pełny ma
-           godziny od–do (do wpisywania), tygodnie są jak papierowe KCP. -->
+           godziny od–do (do wpisywania). Widok tygodniowy był i odpadł:
+           nie dawał nic ponad suwak, a dokładał klikanie. -->
       <div class="ml-auto inline-flex rounded border border-gray-300 overflow-hidden text-sm">
         <button
           v-for="w in WIDOKI"
@@ -89,20 +90,6 @@
           100%
         </button>
       </label>
-    </div>
-
-    <!-- Wybór tygodnia pon–nie; pierwszy i ostatni bywają krótsze. -->
-    <div v-if="widok === 'tygodnie'" class="flex flex-wrap items-center gap-2 pb-3 text-sm">
-      <button
-        v-for="(t, i) in tygodnie"
-        :key="t.od"
-        type="button"
-        class="px-3 py-1 rounded border"
-        :class="tydzien === i ? 'bg-indigo-50 border-indigo-400 text-indigo-800 font-bold' : 'border-gray-300 text-gray-700 hover:bg-gray-100'"
-        @click="tydzien = i"
-      >
-        Tydzień {{ i + 1 }} <span class="text-gray-500 font-normal">({{ t.etykieta }})</span>
-      </button>
     </div>
 
     <!-- Widok skrócony: jedna wąska kolumna na dzień, w kratce tylko godziny
@@ -155,7 +142,7 @@
           <div class="sticky left-0 z-20 bg-gray-100 border-r px-2 py-2 font-bold text-sm text-center flex items-center justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 48px">
             Pracownik
           </div>
-          <div v-for="shift in widoczneKratki(daysHeader)" :key="shift.day" class="border-r flex flex-col justify-center items-center text-gray-700 bg-gray-50" style="width: 127px; min-width: 127px; height: 48px">
+          <div v-for="shift in daysHeader" :key="shift.day" class="border-r flex flex-col justify-center items-center text-gray-700 bg-gray-50" style="width: 127px; min-width: 127px; height: 48px">
             <div class="text-xs font-bold">{{ new Date(shift.day).getDate() }}</div>
             <div class="text-xs">{{ dayOfWeek(new Date(shift.day)) }}</div>
           </div>
@@ -166,12 +153,11 @@
           <!-- Worker Info Column - FIXED -->
           <div class="sticky left-0 z-10 bg-gray-100 border-r px-2 text-gray-700 cursor-pointer flex flex-col justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 68px">
             <div class="text-center text-xs font-bold leading-tight break-words">{{ timeSheet[0]?.name }}</div>
-            <div v-if="widok === 'tygodnie'" class="text-center text-[10px] mt-1 text-gray-600">Tydzień: {{ formatRangeToDisplay(summarize(widoczneKratki(timeSheet))) }}</div>
-            <div class="text-center text-[10px] mt-1 text-indigo-600">{{ widok === 'tygodnie' ? 'Miesiąc' : 'Suma' }}: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
+            <div class="text-center text-[10px] mt-1 text-indigo-600">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
           </div>
 
           <!-- Day Cells -->
-          <div v-for="shift in widoczneKratki(timeSheet)" :key="shift.id" :class="shiftBackground(shift)" class="border-r relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 cursor-pointer flex flex-col justify-center" style="width: 127px; min-width: 127px; height: 68px" @click="showModal(shift)">
+          <div v-for="shift in timeSheet" :key="shift.id" :class="shiftBackground(shift)" class="border-r relative pt-2 px-4 text-gray-500 text-sm hover:bg-gray-200 cursor-pointer flex flex-col justify-center" style="width: 127px; min-width: 127px; height: 68px" @click="showModal(shift)">
             <div v-if="shift.isBlocked && shift.blockedType === 'feast'" class="text-center overflow-y-auto">
               {{ shift.status === 8 ? getStatusName(shift.status) : 'Święto' }}
             </div>
@@ -299,7 +285,6 @@ const KLUCZ_WIDOKU = 'kcp.widok'
 const WIDOKI = [
   { id: 'skrocony', nazwa: 'Skrócony' },
   { id: 'pelny', nazwa: 'Pełny' },
-  { id: 'tygodnie', nazwa: 'Tygodnie' },
 ]
 
 /** Ostatnio wybrany widok; domyślnie skrócony, bo w nim widać cały miesiąc. */
@@ -393,7 +378,6 @@ export default {
       skala: wczytajSkale(),
       WIDOKI,
       widok: wczytajWidok(),
-      tydzien: 0,
       open: false,
       isStatus: false,
       // Wypełnione, gdy otwarty dzień pochodzi z wpisu nieobecności.
@@ -450,21 +434,6 @@ export default {
     daysHeader() {
       return this.sortedTimeSheets.length > 0 ? this.sortedTimeSheets[0] : []
     },
-    /** Miesiąc pocięty na tygodnie pon–nie; pierwszy i ostatni bywają krótsze. */
-    tygodnie() {
-      const wynik = []
-      this.daysHeader.forEach((shift) => {
-        const data = new Date(shift.day)
-        if (wynik.length === 0 || data.getDay() === 1) {
-          wynik.push({ od: shift.day, do: shift.day, dni: [] })
-        }
-        const t = wynik[wynik.length - 1]
-        t.do = shift.day
-        t.dni.push(shift.day)
-        t.etykieta = `${new Date(t.od).getDate()}–${data.getDate()}`
-      })
-      return wynik
-    },
     /** Poniżej tej szerokości kratki dnia zrobiłyby się węższe niż "10" lub "UW". */
     minSzerokoscSkroconego() {
       return 130 + 56 + this.daysHeader.length * 26
@@ -500,11 +469,6 @@ export default {
       this.years.push(this.selectedYear)
       this.years.sort()
     }
-
-    // W bieżącym miesiącu zaczynamy od tygodnia z dzisiejszym dniem.
-    // Dni przychodzą jako "2026-09-16 00:00:00", więc porównujemy przez moment.
-    const biezacy = this.tygodnie.findIndex((t) => t.dni.some((d) => moment(d).isSame(moment(), 'day')))
-    if (biezacy >= 0) this.tydzien = biezacy
 
     this.shiftStatuses.push({
       id: 0,
@@ -667,11 +631,6 @@ export default {
     },
     isSaturday(shift) {
       return new Date(shift.day).getDay() === 6
-    },
-    widoczneKratki(kratki) {
-      if (this.widok !== 'tygodnie' || !this.tygodnie[this.tydzien]) return kratki
-      const dni = this.tygodnie[this.tydzien].dni
-      return kratki.filter((shift) => dni.includes(shift.day))
     },
     /** Tło kratki w widoku skróconym: weekend i święto, reszta biała. */
     tloDnia(shift) {
