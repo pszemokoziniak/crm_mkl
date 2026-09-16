@@ -72,7 +72,10 @@
         <tr v-for="(item, index) in management" :key="item.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
           <td class="border-t px-6 py-4 text-gray-400 tabular-nums">{{ index + 1 }}</td>
           <td class="border-t px-6 py-4">
-            {{ item.last_name }} {{ item.first_name }}
+            <!-- Jak w zakładce Pracownicy: nazwisko prowadzi do karty osoby. -->
+            <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${item.contact_id}/edit`">
+              {{ item.last_name }} {{ item.first_name }}
+            </Link>
           </td>
           <td class="border-t px-6 py-4 tabular-nums">
             <span class="block whitespace-nowrap">od: {{ item.start }}</span>
@@ -104,7 +107,7 @@
     <div class="bg-white rounded-md shadow divide-y divide-gray-100 md:hidden">
       <div v-for="item in management" :key="item.id" class="p-4">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="font-medium text-gray-900">{{ item.last_name }} {{ item.first_name }}</span>
+          <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${item.contact_id}/edit`">{{ item.last_name }} {{ item.first_name }}</Link>
           <span :class="klasaStatusu(item)" class="inline-block px-2 py-0.5 text-xs font-medium border rounded-full">
             {{ etykietaStatusu(item) }}
           </span>
