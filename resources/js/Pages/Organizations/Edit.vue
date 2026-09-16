@@ -47,9 +47,16 @@
               <option value="tak">TAK</option>
               <option value="nie">NIE</option>
             </select-input>
-            <p class="mt-1 text-xs text-gray-500">
+            <p v-if="krajZagraniczny" class="mt-1 text-xs text-gray-500">
               TAK oznacza, że podatek należy się za granicą od pierwszego dnia pracy.
               Przy takiej budowie nie liczymy limitu 183 dni i nie ostrzegamy o nim.
+            </p>
+            <!-- Na budowie krajowej limit i tak nie biegnie, więc to pole go
+                 nie dotyczy. Bez tego zdania biuro wypełniało je „na wszelki
+                 wypadek", żeby wyłączyć limit, którego i tak nie ma. -->
+            <p v-else class="mt-1 text-xs text-gray-500">
+              Limit 183 dni dotyczy tylko kontraktów zagranicznych, więc przy tej budowie
+              to pole nie ma na niego wpływu.
             </p>
           </div>
           <!-- Warsztat prowadzimy jak budowę (przypisania, godziny),
@@ -161,6 +168,12 @@ export default {
     }
   },
   computed: {
+    /** Czy wybrany kraj budowy jest zagraniczny — po tym samym znaczniku, co A1. */
+    krajZagraniczny() {
+      const kraj = (this.krajTyps || []).find((k) => Number(k.id) === Number(this.form.country_id))
+
+      return Boolean(kraj && kraj.wymaga_a1)
+    },
     gap() {
       if (!this.summary || this.summary.peak === null) return null
       return this.summary.assigned - this.summary.peak

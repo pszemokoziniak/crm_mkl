@@ -343,6 +343,36 @@ class Limit183DniTest extends TestCase
         $this->assertArrayNotHasKey('Niemcy', $this->wyliczenie());
     }
 
+    public function test_budowa_w_polsce_jest_poza_limitem_niezaleznie_od_pola(): void
+    {
+        // Pytanie Tomasza: czy projekty w Polsce da się wyłączyć automatycznie.
+        // Są wyłączone od początku — pole "Zakład podatkowy" niczego tu nie
+        // zmienia, bo limit dotyczy tylko kontraktów zagranicznych.
+        foreach ([null, 'nie', 'tak'] as $wartosc) {
+            $this->polska->update(['zaklad' => $wartosc]);
+            $this->pobyt($this->polska, '2026-01-06', '2026-09-15');
+
+            $this->assertArrayNotHasKey('Polska', $this->wyliczenie(), 'Pole = '.var_export($wartosc, true));
+            $this->assertFalse($this->polska->fresh()->liczySieDoLimitu183());
+
+            ContactWorkDate::where('organization_id', $this->polska->id)->delete();
+        }
+    }
+
+    public function test_przypisanie_na_budowe_w_polsce_nie_straszy(): void
+    {
+        $this->pobyt($this->polska, '2026-01-06', '2026-06-30');
+
+        $this->actingAs($this->biuro())
+            ->post('/contacts/'.$this->pracownik->id.'/przypisz-budowe', [
+                'organization_id' => $this->polska->id,
+                'start' => '2026-10-01',
+                'end' => '2026-12-30',
+            ])
+            ->assertSessionHas('success')
+            ->assertSessionMissing('warning');
+    }
+
     public function test_przypisanie_na_zaklad_podatkowy_nie_straszy(): void
     {
         $this->niemcy->update(['zaklad' => 'tak']);
