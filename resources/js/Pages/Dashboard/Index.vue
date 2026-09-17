@@ -107,6 +107,27 @@
         </div>
       </div>
 
+      <!-- Urlop wpisany w KCP bez skanu wniosku: kierownik dokłada skan
+           w KCP przyciskiem "Dodaj wniosek". -->
+      <div v-if="kierownik" class="bg-white rounded-md shadow overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="font-semibold text-gray-700">Urlopy bez wniosku</h2>
+          <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="urlopy_bez_wniosku.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ urlopy_bez_wniosku.length }}</span>
+        </div>
+        <div class="max-h-72 overflow-y-auto">
+          <Link
+            v-for="u in urlopy_bez_wniosku"
+            :key="`${u.organization_id}-${u.contact_id}-${u.od}`"
+            :href="`/building/${u.organization_id}/time-sheet?date=${u.od}`"
+            class="flex items-baseline justify-between gap-3 px-6 py-2 border-t border-gray-50 hover:bg-gray-50 text-sm"
+          >
+            <span>{{ u.pracownik }}</span>
+            <span class="text-xs text-gray-500 whitespace-nowrap">{{ u.kod }} {{ u.od }} – {{ u.do }}</span>
+          </Link>
+          <p v-if="!urlopy_bez_wniosku.length" class="px-6 py-4 text-sm text-gray-400">Każdy urlop w KCP ma wniosek.</p>
+        </div>
+      </div>
+
       <div class="bg-white rounded-md shadow overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">{{ kierownik ? 'Twoi pracownicy bez ważnego A1' : 'Pracownicy bez ważnego A1' }}</h2>
@@ -247,6 +268,7 @@ export default {
     stats: { type: Object, default: () => ({}) },
     do_archiwizacji: { type: Array, default: () => [] },
     zmiany_kadrowe: { type: Array, default: () => [] },
+    urlopy_bez_wniosku: { type: Array, default: () => [] },
     zmiany_kadrowe_licznik: { type: Number, default: 0 },
     bez_a1: { type: Array, default: () => [] },
     nieobecni_dzis: { type: Array, default: () => [] },

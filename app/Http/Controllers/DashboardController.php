@@ -16,6 +16,7 @@ use App\Models\Pbioz;
 use App\Models\Uprawnienia;
 use App\Services\LimitPobytuZagranica;
 use App\Services\MagazynSprzetu;
+use App\Services\UrlopyBezWniosku;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -390,6 +391,10 @@ class DashboardController extends Controller
             'do_archiwizacji' => $doArchiwizacji,
             'bez_a1' => $bezWaznegoA1,
             'nieobecni_dzis' => $nieobecniDzis,
+            // Kierownik: urlopy wpisane w KCP jego budów bez skanu wniosku.
+            'urlopy_bez_wniosku' => $user->prowadziBudowy()
+                ? app(UrlopyBezWniosku::class)->dla($myOrgIds->all(), now()->subMonth()->startOfMonth()->toDateString(), now()->toDateString())
+                : collect(),
             'expiring_items' => $expiringItems,
             'user_owner' => [$user->id, $user->owner, $contact_id],
         ]);

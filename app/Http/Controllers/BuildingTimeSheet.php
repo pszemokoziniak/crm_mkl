@@ -18,6 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use App\Services\UrlopyBezWniosku;
+use App\Models\ZgloszenieKierownika;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\BuildingTimeSheet as BuildingTimeSheetModel;
@@ -87,6 +89,14 @@ class BuildingTimeSheet extends Controller
                 'dniWstecz' => self::DNI_WSTECZ_KIEROWNIK,
                 // Miesiąc zamknięty przez kadry — kierownik już go nie rusza.
                 'zamkniety' => $this->opisZamkniecia($build, $date),
+                // Urlopy wpisane w tym miesiącu bez skanu wniosku — kierownik
+                // dokłada skan przez zgłoszenie do kadr, nie przez blokadę zapisu.
+                'urlopyBezWniosku' => app(UrlopyBezWniosku::class)->dla(
+                    [$build],
+                    $date->copy()->startOfMonth()->toDateString(),
+                    $date->copy()->endOfMonth()->toDateString(),
+                ),
+                'rodzajeZgloszen' => ZgloszenieKierownika::RODZAJE,
                 'buildDetails' => $this->getBuildHeaders($build)
             ]
         );

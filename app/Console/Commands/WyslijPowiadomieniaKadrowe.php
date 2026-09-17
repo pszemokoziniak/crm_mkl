@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Mail\ZgloszeniaKierownikowMail;
 use App\Mail\ZmianyKadroweMail;
 use App\Models\User;
+use App\Models\ZgloszenieKierownika;
 use App\Models\ZmianaKadrowa;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -39,6 +41,8 @@ class WyslijPowiadomieniaKadrowe extends Command
             return self::SUCCESS;
         }
 
+        $this->wyslijZgloszenia($odbiorcy);
+
         $granica = Carbon::now()->subMinutes((int) $this->option('minuty'));
 
         $paczki = ZmianaKadrowa::whereNull('mail_wyslany_at')
@@ -58,6 +62,35 @@ class WyslijPowiadomieniaKadrowe extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Zgłoszenia od kierowników idą do tego samego grona, ale od razu —
+     * zgłoszenie jest kompletne w chwili wysłania, nie rośnie jak paczka.
+     */
+    private function wyslijZgloszenia($odbiorcy): void
+    {
+        $zgloszenia = ZgloszenieKierownika::with(['contact', 'organization', 'autor'])
+            ->whereNull('mail_wyslany_at')
+            ->orderBy('id')
+            ->get();
+
+        if ($zgloszenia->isEmpty()) {
+            return;
+        }
+
+        $adres = rtrim(config('app.url'), '/').'/zmiany-kadrowe';
+
+        try {
+            foreach ($odbiorcy as $odbiorca) {
+                Mail::to($odbiorca->email)->send(new ZgloszeniaKierownikowMail($zgloszenia, $adres));
+            }
+            ZgloszenieKierownika::whereIn('id', $zgloszenia->pluck('id'))->update(['mail_wyslany_at' => Carbon::now()]);
+            $this->info('Wysłano '.$zgloszenia->count().' zgłoszeń od kierowników do '.$odbiorcy->count().' odbiorców.');
+        } catch (\Throwable $e) {
+            Log::warning('Nie udało się wysłać e-maila o zgłoszeniach kierowników: '.$e->getMessage());
+            $this->error('Zgłoszenia — błąd wysyłki: '.$e->getMessage());
+        }
     }
 
     private function wyslij(string $paczka, $odbiorcy): void

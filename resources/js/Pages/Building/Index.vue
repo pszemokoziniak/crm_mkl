@@ -11,6 +11,31 @@
     — miesiąc jest zamknięty.
     <template v-if="prowadziBudowy(user_owner)"> Poprawki zgłoś do biura.</template>
   </div>
+  <!-- Urlop wpisany w KCP bez skanu wniosku: nie blokujemy zapisu, ale
+       brak jest widoczny, dopóki kierownik nie dołączy skanu przez
+       zgłoszenie do kadr (kadry wstawiają wtedy nieobecność). -->
+  <div v-if="urlopyBezWniosku.length" class="mb-6 px-4 py-3 rounded-md bg-yellow-50 border border-yellow-200 text-sm text-yellow-900">
+    <div class="font-semibold">Urlopy bez wniosku: {{ urlopyBezWniosku.length }}</div>
+    <ul class="mt-1 space-y-1">
+      <li v-for="u in urlopyBezWniosku" :key="`${u.contact_id}-${u.od}`" class="flex flex-wrap items-center gap-x-2">
+        <span>{{ u.pracownik }}: {{ u.kod }} {{ u.od }} – {{ u.do }} ({{ u.dni }} {{ u.dni === 1 ? 'dzień' : 'dni' }})</span>
+        <button type="button" class="text-indigo-700 hover:underline font-medium" @click="dodajWniosek(u)">Dodaj wniosek</button>
+      </li>
+    </ul>
+  </div>
+  <zgloszenie-do-kadr
+    :otwarte="wniosek.otwarte"
+    :organization-id="build"
+    :budowa="buildDetails.nazwaBud"
+    :pracownik="wniosek.pracownik"
+    :rodzaje="rodzajeZgloszen"
+    :start="wniosek.start"
+    tytul="Dodaj wniosek urlopowy"
+    wymagaj-pliku
+    tylko-urlop
+    @zamknij="wniosek.otwarte = false"
+    @wyslane="$inertia.reload({ only: ['urlopyBezWniosku'] })"
+  />
   <div class="flex items-center justify-between mb-6">
     <h1 class="mb-8 text-3xl font-bold">KCP</h1>
     <div class="mb-8 flex items-center gap-3">
@@ -237,6 +262,9 @@
                               <select-input v-model="modalForm.status" class="lg:w-1/1 pb-8 pr-6 w-full" label="Powód nieobecności" @change="statusChanged($event)">
                                 <option v-for="status in shiftStatuses" :key="status.id" :value="status.id">{{ status.title }}({{ status.code }})</option>
                               </select-input>
+                              <p v-if="wymagaWniosku(modalForm.status)" class="-mt-6 mb-6 pr-6 text-xs text-yellow-800">
+                                Do urlopu potrzebny jest skan wniosku. Po zapisaniu dołącz go przyciskiem „Dodaj wniosek” nad tabelą.
+                              </p>
                             </div>
                           </form>
                         </fieldset>
@@ -276,6 +304,7 @@ import SelectInput from '@/Shared/SelectInput'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import BudMenu from '@/Shared/BudMenu.vue'
+import ZgloszenieDoKadr from '@/Shared/ZgloszenieDoKadr.vue'
 import { Head, Link, useForm } from '@inertiajs/inertia-vue3'
 import { DocumentDownloadIcon } from '@heroicons/vue/solid'
 
@@ -323,6 +352,7 @@ const DEFAULT_RANGES = {
 
 export default {
   components: {
+    ZgloszenieDoKadr,
     BudowaNaglowek,
     Link,
     DocumentDownloadIcon,
@@ -350,6 +380,8 @@ export default {
     diffDays: Number,
     dniWstecz: { type: Number, default: 7 },
     zamkniety: { type: Object, default: null },
+    urlopyBezWniosku: { type: Array, default: () => [] },
+    rodzajeZgloszen: { type: Object, default: () => ({}) },
     user_owner: Number,
     buildDetails: Object,
   },
@@ -382,6 +414,7 @@ export default {
       isStatus: false,
       // Wypełnione, gdy otwarty dzień pochodzi z wpisu nieobecności.
       blokada: null,
+      wniosek: { otwarte: false, pracownik: { id: null, nazwa: '' }, start: {} },
       modalForm: useForm({
         id: null,
         day: null,
@@ -478,6 +511,16 @@ export default {
   },
   methods: {
     prowadziBudowy,
+    // Te same kody, co w App\Services\UrlopyBezWniosku.
+    wymagaWniosku(statusId) {
+      const status = this.shiftStatuses.find((s) => s.id === Number(statusId))
+      return !!status && ['UW', 'UO', 'UB', 'UŻ'].includes(status.code)
+    },
+    dodajWniosek(u) {
+      this.wniosek.pracownik = { id: u.contact_id, nazwa: u.pracownik }
+      this.wniosek.start = { rodzaj: 'urlop', od: u.od, do: u.do }
+      this.wniosek.otwarte = true
+    },
     printData() {
       var divToPrint = this.$refs.printTable
       var newWin = window.open('')
@@ -764,10 +807,16 @@ export default {
          */
         // Bez await odmowa serwera ginęła po cichu, a na ekranie zostawał
         // wpis, którego w bazie nie ma.
-        axios.post(`/building/${this.build}/time-sheet`, this.modalForm).catch((blad) => {
-          alert(blad.response?.data?.message || 'Nie udało się zapisać dnia.')
-          this.$inertia.reload({ only: ['timeSheets'] })
-        })
+        axios.post(`/building/${this.build}/time-sheet`, this.modalForm)
+          .then(() => {
+            // Lista urlopów bez wniosku liczy się na serwerze — po zapisie
+            // urlopu odświeżamy tylko ją, nie całą siatkę.
+            if (this.wymagaWniosku(this.modalForm.status)) this.$inertia.reload({ only: ['urlopyBezWniosku'] })
+          })
+          .catch((blad) => {
+            alert(blad.response?.data?.message || 'Nie udało się zapisać dnia.')
+            this.$inertia.reload({ only: ['timeSheets'] })
+          })
 
         this.timeSheets[workerId][dayIndex] = {
           name: this.modalForm.name,

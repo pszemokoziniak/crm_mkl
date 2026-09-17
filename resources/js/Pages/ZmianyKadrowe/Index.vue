@@ -67,6 +67,38 @@
       </div>
     </div>
 
+    <!-- Urlopy wpisane w KCP bez skanu wniosku — ten i poprzedni miesiąc. -->
+    <h2 class="mb-3 text-xl font-bold text-gray-900">
+      Urlopy w KCP bez wniosku
+      <span class="ml-1 text-sm font-bold px-2 py-0.5 rounded-full" :class="urlopy_bez_wniosku.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ urlopy_bez_wniosku.length }}</span>
+    </h2>
+    <p v-if="urlopy_bez_wniosku.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+      Każdy urlop wpisany w KCP w tym i poprzednim miesiącu ma wniosek albo nieobecność w kartotece.
+    </p>
+    <div v-else class="mb-8 bg-white rounded-md shadow overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="naglowek-tabeli">
+            <th>Pracownik</th>
+            <th>Budowa</th>
+            <th>Urlop w KCP</th>
+            <th class="text-right">KCP</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr v-for="u in urlopy_bez_wniosku" :key="`${u.organization_id}-${u.contact_id}-${u.od}`" class="hover:bg-gray-50">
+            <td class="px-6 py-3"><Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${u.contact_id}/edit`">{{ u.pracownik }}</Link></td>
+            <td class="px-6 py-3 text-gray-700">{{ u.budowa }}</td>
+            <td class="px-6 py-3 tabular-nums text-gray-700">{{ u.kod }} {{ u.od }} – {{ u.do }} ({{ u.dni }} {{ u.dni === 1 ? 'dzień' : 'dni' }})</td>
+            <td class="px-6 py-3 text-right"><Link class="text-indigo-600 hover:underline" :href="`/building/${u.organization_id}/time-sheet?date=${u.od}`">otwórz</Link></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="px-6 py-3 text-xs text-gray-500 border-t border-gray-100">
+        Kierownik dołącza skan przyciskiem „Dodaj wniosek” w KCP; po wstawieniu nieobecności w kartotece pozycja znika sama.
+      </p>
+    </div>
+
     <h2 class="mb-3 text-xl font-bold text-gray-900">Zmiany pobytów</h2>
     <p v-if="paczki.length === 0" class="p-8 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
       Nic do obsłużenia.
@@ -204,6 +236,7 @@ export default {
     licznik: { type: Number, default: 0 },
     zgloszenia: { type: Array, default: () => [] },
     zgloszenia_licznik: { type: Number, default: 0 },
+    urlopy_bez_wniosku: { type: Array, default: () => [] },
   },
   methods: {
     obsluzZgloszenie(z, status) {
