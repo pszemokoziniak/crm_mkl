@@ -9,7 +9,7 @@
         <div class="text-xs text-gray-500">
           <template v-if="pracownik.budowa">
             {{ pracownik.budowa }}
-            <span class="text-gray-400">· pobyt {{ pracownik.pobyt_od }} – {{ pracownik.pobyt_do || 'bezterminowo' }}</span>
+            <span class="text-gray-400">· {{ opisPobytu }}</span>
           </template>
           <template v-else>bez przypisanej budowy</template>
         </div>
@@ -42,6 +42,13 @@
               <div v-if="form.errors.do" class="form-error">{{ form.errors.do }}</div>
             </div>
           </div>
+          <!-- Zanim wyśle: ile dni wybrał i czy nie wychodzi poza pobyt. -->
+          <p v-if="wybraneDni" class="text-sm text-gray-700">
+            Wybrano <span class="font-semibold">{{ wybraneDni }} {{ odmianaDni(wybraneDni) }}</span>: {{ data(form.od) }} – {{ data(form.do) }}
+          </p>
+          <p v-if="pozaPobytem" class="p-2 rounded bg-orange-50 text-sm text-orange-800">
+            Urlop wykracza poza koniec Twojego pobytu na budowie ({{ data(pracownik.pobyt_do) }}). Możesz wysłać, ale kierownik może odrzucić.
+          </p>
           <div>
             <label class="form-label" for="uwaga">Uwaga dla kierownika (nieobowiązkowo):</label>
             <textarea id="uwaga" v-model="form.uwaga" rows="2" class="form-input w-full text-base" placeholder="np. wesele brata"></textarea>
@@ -53,14 +60,31 @@
       <section class="bg-white rounded-xl shadow">
         <h2 class="font-bold text-gray-900 px-4 pt-4 pb-2">Moje wnioski</h2>
         <p v-if="wnioski.length === 0" class="px-4 pb-4 text-sm text-gray-400">Jeszcze nic nie składałeś.</p>
-        <div v-for="w in wnioski" :key="w.id" class="px-4 py-3 border-t border-gray-100">
-          <div class="flex items-center justify-between gap-2">
-            <div class="font-medium text-gray-900">{{ w.od }} – {{ w.do }} <span class="text-gray-500 font-normal">({{ w.dni }} {{ w.dni === 1 ? 'dzień' : 'dni' }})</span></div>
-            <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full border whitespace-nowrap" :class="klasa(w.status)">{{ w.status_label }}</span>
+        <template v-else>
+          <p v-if="nadchodzace.length === 0" class="px-4 pb-3 text-sm text-gray-400">Brak nadchodzących urlopów.</p>
+          <div v-for="w in nadchodzace" :key="w.id" class="px-4 py-3 border-t border-gray-100">
+            <div class="flex items-center justify-between gap-2">
+              <div class="font-medium text-gray-900">{{ data(w.od) }} – {{ data(w.do) }} <span class="text-gray-500 font-normal">({{ w.dni }} {{ odmianaDni(w.dni) }})</span></div>
+              <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full border whitespace-nowrap" :class="klasa(w.status)">{{ w.status_label }}</span>
+            </div>
+            <div class="text-sm text-gray-600">{{ w.rodzaj }} · złożony {{ w.zlozony }}</div>
+            <div v-if="w.odpowiedz" class="mt-1 text-sm italic text-gray-700">„{{ w.odpowiedz }}”</div>
           </div>
-          <div class="text-sm text-gray-600">{{ w.rodzaj }} · złożony {{ w.zlozony }}</div>
-          <div v-if="w.odpowiedz" class="mt-1 text-sm italic text-gray-700">„{{ w.odpowiedz }}”</div>
-        </div>
+          <!-- Minione zwinięte: pracownik szuka tego, co przed nim, nie historii. -->
+          <button v-if="minione.length" type="button" class="w-full px-4 py-3 border-t border-gray-100 text-sm text-left text-gray-500 hover:text-gray-800" @click="pokazMinione = !pokazMinione">
+            {{ pokazMinione ? 'Ukryj minione' : `Minione (${minione.length})` }}
+          </button>
+          <template v-if="pokazMinione">
+            <div v-for="w in minione" :key="w.id" class="px-4 py-3 border-t border-gray-100 bg-gray-50">
+              <div class="flex items-center justify-between gap-2">
+                <div class="text-gray-700">{{ data(w.od) }} – {{ data(w.do) }} <span class="text-gray-500">({{ w.dni }} {{ odmianaDni(w.dni) }})</span></div>
+                <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full border whitespace-nowrap opacity-70" :class="klasa(w.status)">{{ w.status_label }}</span>
+              </div>
+              <div class="text-xs text-gray-500">{{ w.rodzaj }} · złożony {{ w.zlozony }}</div>
+              <div v-if="w.odpowiedz" class="mt-1 text-xs italic text-gray-600">„{{ w.odpowiedz }}”</div>
+            </div>
+          </template>
+        </template>
       </section>
 
       <p class="text-xs text-gray-400 text-center">Zatwierdzony urlop trafia do kadr i do KCP. Dodaj tę stronę do ekranu głównego telefonu, żeby mieć ją pod ręką.</p>
@@ -81,9 +105,51 @@ export default {
     wnioski: { type: Array, default: () => [] },
   },
   data() {
-    return { form: useForm({ rodzaj: 'UW', od: '', do: '', uwaga: '' }) }
+    return {
+      form: useForm({ rodzaj: 'UW', od: '', do: '', uwaga: '' }),
+      pokazMinione: false,
+    }
+  },
+  computed: {
+    dzis() {
+      return new Date().toISOString().slice(0, 10)
+    },
+    opisPobytu() {
+      if (!this.pracownik.pobyt_do) return 'pobyt bezterminowy'
+      const dni = this.roznicaDni(this.dzis, this.pracownik.pobyt_do)
+      if (dni < 0) return `pobyt zakończył się ${this.data(this.pracownik.pobyt_do)}`
+      if (dni === 0) return 'ostatni dzień pobytu'
+      return `do ${this.data(this.pracownik.pobyt_do)} · jeszcze ${dni} ${this.odmianaDni(dni)}`
+    },
+    wybraneDni() {
+      if (!this.form.od || !this.form.do || this.form.do < this.form.od) return 0
+      return this.roznicaDni(this.form.od, this.form.do) + 1
+    },
+    pozaPobytem() {
+      return !!this.pracownik.pobyt_do && !!this.form.do && this.form.do > this.pracownik.pobyt_do
+    },
+    nadchodzace() {
+      return this.wnioski.filter((w) => w.do >= this.dzis)
+    },
+    minione() {
+      return this.wnioski.filter((w) => w.do < this.dzis)
+    },
   },
   methods: {
+    roznicaDni(od, doDaty) {
+      return Math.round((new Date(doDaty) - new Date(od)) / 86400000)
+    },
+    // "20 września" zamiast "2026-09-20" — pracownik czyta datę, nie parsuje.
+    data(iso) {
+      if (!iso) return ''
+      const d = new Date(iso)
+      const tenRok = d.getFullYear() === new Date().getFullYear()
+      return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', ...(tenRok ? {} : { year: 'numeric' }) })
+    },
+    odmianaDni(n) {
+      if (n === 1) return 'dzień'
+      return 'dni'
+    },
     wyslij() {
       this.form.post(`/u/${this.token}/wniosek`, { onSuccess: () => this.form.reset() })
     },
