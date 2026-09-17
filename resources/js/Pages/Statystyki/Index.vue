@@ -20,7 +20,40 @@
       </select>
     </div>
 
-    <div v-if="budowy.length" class="bg-white rounded-md shadow overflow-x-auto">
+    <!-- Telefon: jedenaście kolumn nie ma szans, więc karta na budowę
+         z roboczogodzinami na wierzchu i resztą w siatce; "Razem" jako pierwsza. -->
+    <div v-if="budowy.length" class="sm:hidden space-y-3">
+      <div class="bg-indigo-50 border border-indigo-100 rounded-md p-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-indigo-700">Razem</div>
+        <div class="mt-1 text-2xl font-bold tabular-nums text-gray-900">{{ godz(suma('praca')) }} <span class="text-sm font-normal text-gray-500">roboczogodzin</span></div>
+        <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          <dt class="text-gray-500">Urlopy</dt><dd class="text-right tabular-nums">{{ godz(suma('urlop')) }}</dd>
+          <dt class="text-gray-500">Zwolnienia</dt><dd class="text-right tabular-nums">{{ godz(suma('zwolnienie')) }}</dd>
+          <dt class="text-gray-500">Nieobecności</dt><dd class="text-right tabular-nums">{{ godz(suma('nieobecnosc')) }}</dd>
+          <dt class="text-gray-500">Święta</dt><dd class="text-right tabular-nums">{{ godz(suma('swieto')) }}</dd>
+        </dl>
+      </div>
+      <div v-for="b in budowy" :key="`k-${b.id}`" class="bg-white rounded-md shadow p-4">
+        <div class="font-medium text-gray-900">
+          {{ b.nazwa }}
+          <span v-if="b.archiwum" class="ml-1 px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-full">zakończona</span>
+        </div>
+        <div class="mt-1 text-xl font-bold tabular-nums text-gray-900">{{ godz(b.godziny.praca) }} <span class="text-sm font-normal text-gray-500">roboczogodzin</span></div>
+        <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          <dt class="text-gray-500">Urlopy</dt><dd class="text-right tabular-nums">{{ godz(b.godziny.urlop) }}</dd>
+          <dt class="text-gray-500">Zwolnienia</dt><dd class="text-right tabular-nums">{{ godz(b.godziny.zwolnienie) }}</dd>
+          <dt class="text-gray-500">Nieobecności</dt><dd class="text-right tabular-nums" :class="b.godziny.nieobecnosc > 0 ? 'text-red-700 font-medium' : ''">{{ godz(b.godziny.nieobecnosc) }}</dd>
+          <dt class="text-gray-500">Święta</dt><dd class="text-right tabular-nums">{{ godz(b.godziny.swieto) }}</dd>
+          <dt class="text-gray-500">Inne</dt><dd class="text-right tabular-nums text-gray-500">{{ godz(b.godziny.inne) }}</dd>
+          <dt class="text-gray-500">Przerwy</dt><dd class="text-right tabular-nums text-gray-500">{{ godz(b.przerwy) }}</dd>
+          <dt class="text-gray-500">Osób</dt><dd class="text-right tabular-nums">{{ b.pracownikow }}</dd>
+          <dt class="text-gray-500">Dniówek</dt><dd class="text-right tabular-nums">{{ b.dni_pracy }}</dd>
+          <dt class="text-gray-500">Śr. dniówka</dt><dd class="text-right tabular-nums">{{ b.srednia_dniowka !== null ? godz(b.srednia_dniowka) : '—' }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div v-if="budowy.length" class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">

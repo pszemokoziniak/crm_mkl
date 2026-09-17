@@ -122,6 +122,8 @@
             <span v-if="item.badania_status === 'po_terminie'" class="ml-1 text-xs font-semibold text-red-700">po terminie</span>
             <span v-else-if="item.badania_status === 'wkrotce'" class="ml-1 text-xs font-semibold text-orange-700">kończy się</span>
           </div>
+          <!-- Notatka z wydania była tylko w tabeli; na telefonie kierownik też ma ją widzieć. -->
+          <div v-if="item.komentarz" class="mt-0.5 text-gray-600 italic">{{ item.komentarz }}</div>
           <div v-if="!$page.props.permissions.kierownik" class="mt-2">
             <Link :href="`/budowy/${organization.id}/narzedzia/${item.id}/edit`" class="text-indigo-600">Popraw daty/Zmień komentarz</Link>
             <button type="button" class="ml-4 text-red-600" @click="usun(item.id)">Usuń</button>
