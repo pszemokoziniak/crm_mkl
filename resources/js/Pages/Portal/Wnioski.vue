@@ -44,7 +44,7 @@
           </div>
           <!-- Zanim wyśle: ile dni wybrał i czy nie wychodzi poza pobyt. -->
           <p v-if="wybraneDni" class="text-sm text-gray-700">
-            Wybrano <span class="font-semibold">{{ wybraneDni }} {{ odmianaDni(wybraneDni) }}</span>: {{ data(form.od) }} – {{ data(form.do) }}
+            Wybrano <span class="font-semibold">{{ wybraneDni }} {{ odmianaDni(wybraneDni) }}</span>: {{ zakres(form.od, form.do) }}
           </p>
           <p v-if="pozaPobytem" class="p-2 rounded bg-orange-50 text-sm text-orange-800">
             Urlop wykracza poza koniec Twojego pobytu na budowie ({{ data(pracownik.pobyt_do) }}). Możesz wysłać, ale kierownik może odrzucić.
@@ -63,8 +63,9 @@
         <template v-else>
           <p v-if="nadchodzace.length === 0" class="px-4 pb-3 text-sm text-gray-400">Brak nadchodzących urlopów.</p>
           <div v-for="w in nadchodzace" :key="w.id" class="px-4 py-3 border-t border-gray-100">
-            <div class="flex items-center justify-between gap-2">
-              <div class="font-medium text-gray-900">{{ data(w.od) }} – {{ data(w.do) }} <span class="text-gray-500 font-normal">({{ w.dni }} {{ odmianaDni(w.dni) }})</span></div>
+            <!-- Zakres dat nie łamie się w środku; gdy brakuje miejsca, plakietka schodzi pod spód. -->
+            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <div class="font-medium text-gray-900 whitespace-nowrap">{{ zakres(w.od, w.do) }} <span class="text-gray-500 font-normal">({{ w.dni }}&nbsp;{{ odmianaDni(w.dni) }})</span></div>
               <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full border whitespace-nowrap" :class="klasa(w.status)">{{ w.status_label }}</span>
             </div>
             <div class="text-sm text-gray-600">{{ w.rodzaj }} · złożony {{ w.zlozony }}</div>
@@ -76,8 +77,8 @@
           </button>
           <template v-if="pokazMinione">
             <div v-for="w in minione" :key="w.id" class="px-4 py-3 border-t border-gray-100 bg-gray-50">
-              <div class="flex items-center justify-between gap-2">
-                <div class="text-gray-700">{{ data(w.od) }} – {{ data(w.do) }} <span class="text-gray-500">({{ w.dni }} {{ odmianaDni(w.dni) }})</span></div>
+              <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                <div class="text-gray-700 whitespace-nowrap">{{ zakres(w.od, w.do) }} <span class="text-gray-500">({{ w.dni }}&nbsp;{{ odmianaDni(w.dni) }})</span></div>
                 <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full border whitespace-nowrap opacity-70" :class="klasa(w.status)">{{ w.status_label }}</span>
               </div>
               <div class="text-xs text-gray-500">{{ w.rodzaj }} · złożony {{ w.zlozony }}</div>
@@ -145,6 +146,18 @@ export default {
       const d = new Date(iso)
       const tenRok = d.getFullYear() === new Date().getFullYear()
       return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', ...(tenRok ? {} : { year: 'numeric' }) })
+    },
+    // "5–9 października" zamiast "5 października – 9 października":
+    // krócej i nie łamie się w środku zakresu na wąskim ekranie.
+    zakres(od, doDaty) {
+      if (!od || !doDaty) return ''
+      if (od === doDaty) return this.data(od)
+      const a = new Date(od)
+      const b = new Date(doDaty)
+      if (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()) {
+        return `${a.getDate()}–${this.data(doDaty)}`
+      }
+      return `${this.data(od)} – ${this.data(doDaty)}`
     },
     odmianaDni(n) {
       if (n === 1) return 'dzień'
