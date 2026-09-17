@@ -259,11 +259,15 @@ Route::get('zgloszenia/{zgloszenie}/plik', [ZgloszeniaKierownikowController::cla
 Route::get('u/{token}', [PortalPracownikaController::class, 'wejscie'])->name('portal.wejscie');
 Route::post('u/{token}/pin', [PortalPracownikaController::class, 'pin'])->name('portal.pin')->middleware('throttle:20,1');
 Route::post('u/{token}/wniosek', [PortalPracownikaController::class, 'wniosek'])->name('portal.wniosek')->middleware('throttle:30,1');
+Route::post('u/{token}/wniosek/{wniosek}/komentarz', [PortalPracownikaController::class, 'komentarz'])->name('portal.komentarz')->middleware('throttle:30,1');
 Route::post('u/{token}/wyloguj', [PortalPracownikaController::class, 'wyloguj'])->name('portal.wyloguj');
 
 // Kierownik zatwierdza wniosek urlopowy z telefonu (zakres: jego ludzie).
 Route::put('wnioski-urlopowe/{wniosek}', [WnioskiUrlopoweController::class, 'rozpatrz'])
     ->name('wnioskiUrlopowe.rozpatrz')
+    ->middleware('auth', 'moze:zgloszenia.wysylanie');
+Route::post('wnioski-urlopowe/{wniosek}/komentarze', [WnioskiUrlopoweController::class, 'komentarz'])
+    ->name('wnioskiUrlopowe.komentarz')
     ->middleware('auth', 'moze:zgloszenia.wysylanie');
 
 // Karta pracownika → Dostęp z telefonu: wydanie i wysłanie linku.

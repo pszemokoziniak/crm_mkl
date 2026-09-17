@@ -394,7 +394,7 @@ class DashboardController extends Controller
             'nieobecni_dzis' => $nieobecniDzis,
             // Kierownik: wnioski urlopowe z telefonu czekające na jego decyzję.
             'wnioski_urlopowe' => $user->prowadziBudowy()
-                ? WniosekUrlopowy::with('contact')->zlozone()
+                ? WniosekUrlopowy::with(['contact', 'komentarze.autor'])->zlozone()
                     ->whereIn('contact_id', $mojiLudzie->all())
                     ->orderBy('od')->get()
                     ->map(fn (WniosekUrlopowy $w) => WnioskiUrlopoweController::wiersz($w))

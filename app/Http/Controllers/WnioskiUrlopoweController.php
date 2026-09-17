@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\ContactWorkDate;
+use App\Models\KomentarzWniosku;
 use App\Models\WniosekUrlopowy;
 use App\Models\ZgloszenieKierownika;
 use App\Services\KierownicyBudowy;
@@ -51,6 +52,41 @@ class WnioskiUrlopoweController extends Controller
         return Redirect::back()->with('success', $dane['status'] === WniosekUrlopowy::STATUS_ZATWIERDZONY
             ? 'Wniosek zatwierdzony — poszedł do kadr.'
             : 'Wniosek odrzucony.');
+    }
+
+    /** Kierownik (albo kadry) dopisuje przy wniosku; pracownik zobaczy to na swojej stronie. */
+    public function komentarz(WniosekUrlopowy $wniosek): RedirectResponse
+    {
+        $user = Auth::user();
+        $contact = $wniosek->contact;
+        abort_unless($contact && $user->can('view', $contact), 403, 'To nie jest pracownik z Twojej budowy.');
+
+        $dane = Request::validate(['tresc' => ['required', 'string', 'max:1000']]);
+
+        $k = new KomentarzWniosku();
+        $k->forceFill(['wniosek_id' => $wniosek->id, 'user_id' => $user->id, 'tresc' => trim($dane['tresc']), 'created_at' => now()])->save();
+
+        return Redirect::back()->with('success', 'Wiadomość dopisana — pracownik zobaczy ją przy wniosku.');
+    }
+
+    /**
+     * Rozmowa przy wniosku do widoków (pracownik, kierownik, kadry).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function komentarze(WniosekUrlopowy $w): array
+    {
+        $c = $w->contact;
+
+        return $w->komentarze->map(fn (KomentarzWniosku $k) => [
+            'id' => $k->id,
+            'od_pracownika' => $k->odPracownika(),
+            'autor' => $k->odPracownika()
+                ? ($c ? trim($c->first_name.' '.$c->last_name) : 'pracownik')
+                : ($k->autor ? trim($k->autor->first_name.' '.$k->autor->last_name) : '—'),
+            'tresc' => $k->tresc,
+            'kiedy' => $k->created_at?->format('d.m.Y H:i'),
+        ])->all();
     }
 
     /** Zatwierdzony wniosek = zgłoszenie urlopu do kadr, liczone jako wniosek (bez skanu). */
@@ -103,6 +139,7 @@ class WnioskiUrlopoweController extends Controller
 
         return [
             'bez_kierownika' => $w->status === WniosekUrlopowy::STATUS_ZLOZONY && self::bezKierownika($w),
+            'komentarze' => self::komentarze($w),
             'id' => $w->id,
             'contact_id' => $w->contact_id,
             'pracownik' => $c ? trim($c->last_name.' '.$c->first_name) : '—',

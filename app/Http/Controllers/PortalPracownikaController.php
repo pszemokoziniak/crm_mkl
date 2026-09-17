@@ -6,7 +6,9 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactWorkDate;
 use App\Models\DostepPracownika;
+use App\Models\KomentarzWniosku;
 use App\Models\WniosekUrlopowy;
+use App\Notifications\KomentarzWnioskuNotification;
 use App\Notifications\WniosekUrlopowyNotification;
 use App\Services\KierownicyBudowy;
 use Illuminate\Http\RedirectResponse;
@@ -103,6 +105,33 @@ class PortalPracownikaController extends Controller
         return Redirect::to('/u/'.$token)->with('success', 'Wniosek wysłany do kierownika.');
     }
 
+    /** Pracownik dopisuje przy swoim wniosku; kierownik dostaje dzwonek. */
+    public function komentarz(string $token, int $wniosek): RedirectResponse
+    {
+        $dostep = DostepPracownika::zTokenu($token);
+        abort_if(! $dostep || ! $this->zalogowany($dostep), 403);
+
+        $w = WniosekUrlopowy::where('id', $wniosek)->where('contact_id', $dostep->contact_id)->firstOrFail();
+        $dane = Request::validate(['tresc' => ['required', 'string', 'max:1000']]);
+
+        $k = new KomentarzWniosku();
+        $k->forceFill(['wniosek_id' => $w->id, 'user_id' => null, 'tresc' => trim($dane['tresc']), 'created_at' => now()])->save();
+
+        try {
+            $orgIds = ContactWorkDate::where('contact_id', $w->contact_id)
+                ->activeOn(now()->toDateString())
+                ->pluck('organization_id')->unique()->map(fn ($id) => (int) $id)->all();
+            $odbiorcy = app(KierownicyBudowy::class)->uzytkownicy($orgIds);
+            if ($odbiorcy->isNotEmpty()) {
+                Notification::send($odbiorcy, new KomentarzWnioskuNotification($k));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Nie udało się powiadomić o komentarzu przy wniosku: '.$e->getMessage(), ['wniosek_id' => $w->id]);
+        }
+
+        return Redirect::to('/u/'.$token);
+    }
+
     public function wyloguj(string $token): RedirectResponse
     {
         Session::forget(self::SESJA);
@@ -125,8 +154,14 @@ class PortalPracownikaController extends Controller
             ->orderByDesc('start')
             ->first();
 
+        $orgIds = ContactWorkDate::where('contact_id', $contact->id)
+            ->activeOn($dzis)
+            ->pluck('organization_id')->unique()->map(fn ($id) => (int) $id)->all();
+
         return Inertia::render('Portal/Wnioski', [
             'token' => $token,
+            // Kafelek "Mój kierownik": kierownictwo dzisiejszej budowy z telefonami.
+            'kierownicy' => $orgIds ? app(KierownicyBudowy::class)->osoby($orgIds, $dzis) : collect(),
             'pracownik' => [
                 'imie' => $contact->first_name,
                 'nazwisko' => $contact->last_name,
@@ -136,9 +171,10 @@ class PortalPracownikaController extends Controller
                 'pobyt_do' => $pobyt?->end ? (string) $pobyt->end : null,
             ],
             'rodzaje' => WniosekUrlopowy::RODZAJE,
-            'wnioski' => WniosekUrlopowy::where('contact_id', $contact->id)
+            'wnioski' => WniosekUrlopowy::with('komentarze.autor')->where('contact_id', $contact->id)
                 ->orderByDesc('id')->limit(20)->get()
                 ->map(fn (WniosekUrlopowy $w) => [
+                    'komentarze' => WnioskiUrlopoweController::komentarze($w),
                     'id' => $w->id,
                     'rodzaj' => $w->rodzajLabel(),
                     'od' => $w->od->format('Y-m-d'),

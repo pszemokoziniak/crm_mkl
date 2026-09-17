@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Wniosek urlopowy złożony przez pracownika z telefonu. Zatwierdza
@@ -44,6 +45,11 @@ class WniosekUrlopowy extends Model
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class)->withTrashed();
+    }
+
+    public function komentarze(): HasMany
+    {
+        return $this->hasMany(KomentarzWniosku::class, 'wniosek_id')->orderBy('id');
     }
 
     public function rozpatrzyl(): BelongsTo

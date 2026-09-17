@@ -47,6 +47,35 @@ class KierownicyBudowy
     }
 
     /**
+     * Kierownictwo budów jako osoby z telefonem — do kafelka "Mój kierownik"
+     * na stronie pracownika. Konto w HRM nie jest tu potrzebne.
+     *
+     * @param int[] $orgIds
+     * @return Collection<int, array{id: int, nazwa: string, stanowisko: ?string, telefon: ?string}>
+     */
+    public function osoby(array $orgIds, ?string $dzis = null): Collection
+    {
+        $dzis = $dzis ?? now()->toDateString();
+
+        $kontakty = ContactWorkDate::with('contact.funkcja')
+            ->whereIn('organization_id', $orgIds)
+            ->activeOn($dzis)
+            ->whereHas('contact', fn ($q) => $q->whereIn('funkcja_id', Funkcja::idsKierownictwaBudowy()))
+            ->get()
+            ->map(fn ($p) => $p->contact);
+
+        $kp = Organization::whereIn('id', $orgIds)->whereNotNull('kierownik_projektu_id')->pluck('kierownik_projektu_id');
+        $kontakty = $kontakty->concat(Contact::with('funkcja')->whereIn('id', $kp)->get());
+
+        return $kontakty->filter()->unique('id')->values()->map(fn (Contact $c) => [
+            'id' => $c->id,
+            'nazwa' => trim($c->first_name.' '.$c->last_name),
+            'stanowisko' => $c->funkcja?->name,
+            'telefon' => $c->phone ?: null,
+        ]);
+    }
+
+    /**
      * Aktywne konta prowadzących podane budowy.
      *
      * @param int[] $orgIds

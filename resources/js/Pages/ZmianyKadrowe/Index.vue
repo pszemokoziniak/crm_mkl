@@ -98,6 +98,7 @@
             <span v-if="w.rozpatrzyl"> · {{ w.status_label }} {{ w.rozpatrzony }} ({{ w.rozpatrzyl }})</span>
             <span v-if="w.odpowiedz" class="italic"> „{{ w.odpowiedz }}”</span>
           </div>
+          <watek-wniosku :komentarze="w.komentarze" :adres="`/wnioski-urlopowe/${w.id}/komentarze`" />
         </div>
         <div class="flex items-center gap-2">
           <!-- Pracownik bez kierownika (między budowami): wniosek zawisłby, więc decydują kadry. -->
@@ -315,6 +316,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import KompletDokumentu from '@/Shared/KompletDokumentu.vue'
+import WatekWniosku from '@/Shared/WatekWniosku.vue'
 import Layout from '@/Shared/Layout'
 
 export default {
@@ -322,6 +324,7 @@ export default {
     Head,
     KompletDokumentu,
     Link,
+    WatekWniosku,
   },
   layout: Layout,
   props: {

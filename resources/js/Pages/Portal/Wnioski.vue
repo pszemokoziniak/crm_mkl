@@ -20,6 +20,19 @@
     <main class="p-4 space-y-4 max-w-md mx-auto">
       <div v-if="$page.props.flash && $page.props.flash.success" class="p-3 rounded-lg bg-green-50 text-sm text-green-800">{{ $page.props.flash.success }}</div>
 
+      <!-- Kontakt z kierownictwem: jedno dotknięcie i dzwoni. -->
+      <section v-if="kierownicy.length" class="bg-white rounded-xl shadow p-4">
+        <h2 class="font-bold text-gray-900 mb-2">{{ kierownicy.length === 1 ? 'Mój kierownik' : 'Moi kierownicy' }}</h2>
+        <div v-for="k in kierownicy" :key="k.id" class="flex items-center justify-between gap-3 py-1.5">
+          <div>
+            <div class="text-gray-900">{{ k.nazwa }}</div>
+            <div v-if="k.stanowisko" class="text-xs text-gray-500">{{ k.stanowisko }}</div>
+          </div>
+          <a v-if="k.telefon" :href="`tel:${k.telefon.replace(/\s+/g, '')}`" class="btn-indigo text-sm whitespace-nowrap">Zadzwoń</a>
+          <span v-else class="text-xs text-gray-400">bez telefonu</span>
+        </div>
+      </section>
+
       <section class="bg-white rounded-xl shadow p-4">
         <h2 class="font-bold text-gray-900 mb-3">Złóż wniosek urlopowy</h2>
         <form class="space-y-3" @submit.prevent="wyslij">
@@ -70,6 +83,7 @@
             </div>
             <div class="text-sm text-gray-600">{{ w.rodzaj }} · złożony {{ w.zlozony }}</div>
             <div v-if="w.odpowiedz" class="mt-1 text-sm italic text-gray-700">„{{ w.odpowiedz }}”</div>
+            <watek-wniosku :komentarze="w.komentarze" :adres="`/u/${token}/wniosek/${w.id}/komentarz`" ja-jestem-pracownikiem />
           </div>
           <!-- Minione zwinięte: pracownik szuka tego, co przed nim, nie historii. -->
           <button v-if="minione.length" type="button" class="w-full px-4 py-3 border-t border-gray-100 text-sm text-left text-gray-500 hover:text-gray-800" @click="pokazMinione = !pokazMinione">
@@ -83,6 +97,7 @@
               </div>
               <div class="text-xs text-gray-500">{{ w.rodzaj }} · złożony {{ w.zlozony }}</div>
               <div v-if="w.odpowiedz" class="mt-1 text-xs italic text-gray-600">„{{ w.odpowiedz }}”</div>
+              <watek-wniosku :komentarze="w.komentarze" :adres="`/u/${token}/wniosek/${w.id}/komentarz`" :mozna-pisac="false" ja-jestem-pracownikiem />
             </div>
           </template>
         </template>
@@ -96,14 +111,16 @@
 <script>
 import { Head, useForm } from '@inertiajs/inertia-vue3'
 import { Inertia } from '@inertiajs/inertia'
+import WatekWniosku from '@/Shared/WatekWniosku.vue'
 
 export default {
-  components: { Head },
+  components: { Head, WatekWniosku },
   props: {
     token: String,
     pracownik: Object,
     rodzaje: Object,
     wnioski: { type: Array, default: () => [] },
+    kierownicy: { type: Array, default: () => [] },
   },
   data() {
     return {

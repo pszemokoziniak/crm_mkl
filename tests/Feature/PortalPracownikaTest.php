@@ -200,6 +200,49 @@ class PortalPracownikaTest extends TestCase
         $this->assertNull(ZgloszenieKierownika::orderByDesc('id')->first()->organization_id);
     }
 
+    public function test_strona_pokazuje_kierownikow_budowy_z_telefonem(): void
+    {
+        Contact::where('last_name', 'Szef')->update(['phone' => '600 700 800']);
+        $token = $this->zalogowanyToken();
+
+        $this->get("/u/$token")->assertInertia(fn ($p) => $p
+            ->has('kierownicy', 1)
+            ->where('kierownicy.0.nazwa', 'Adam Szef')
+            ->where('kierownicy.0.stanowisko', 'Kierownik Budowy')
+            ->where('kierownicy.0.telefon', '600 700 800'));
+    }
+
+    public function test_rozmowa_przy_wniosku_w_obie_strony(): void
+    {
+        Notification::fake();
+        $token = $this->zalogowanyToken();
+        $od = now()->addDays(3)->toDateString();
+        $this->post("/u/$token/wniosek", ['rodzaj' => 'UW', 'od' => $od, 'do' => $od]);
+        $w = WniosekUrlopowy::sole();
+
+        // Pracownik pisze — kierownik dostaje dzwonek i widzi wpis na pulpicie.
+        $this->post("/u/$token/wniosek/{$w->id}/komentarz", ['tresc' => 'Mogę przesunąć o tydzień'])->assertRedirect("/u/$token");
+        Notification::assertSentTo($this->kierownik, \App\Notifications\KomentarzWnioskuNotification::class);
+        $pulpit = $this->actingAs($this->kierownik)->get('/')->viewData('page')['props']['wnioski_urlopowe'][0];
+        $this->assertSame('Mogę przesunąć o tydzień', $pulpit['komentarze'][0]['tresc']);
+        $this->assertTrue($pulpit['komentarze'][0]['od_pracownika']);
+
+        // Kierownik odpowiada — pracownik widzi to przy wniosku; cudzy kierownik nie napisze.
+        $this->actingAs($this->kierownik)->post("/wnioski-urlopowe/{$w->id}/komentarze", ['tresc' => 'Daj od 12-go'])->assertRedirect();
+        $this->actingAs($this->user(3, 'obcy@mkl.pl'))->post("/wnioski-urlopowe/{$w->id}/komentarze", ['tresc' => 'x'])->assertForbidden();
+
+        $this->get("/u/$token")->assertInertia(fn ($p) => $p
+            ->has('wnioski.0.komentarze', 2)
+            ->where('wnioski.0.komentarze.1.tresc', 'Daj od 12-go')
+            ->where('wnioski.0.komentarze.1.od_pracownika', false));
+
+        // Pracownik nie dopisze do cudzego wniosku.
+        $obcy = Contact::create(['account_id' => $this->accountId, 'first_name' => 'Ola', 'last_name' => 'Obca']);
+        $cudzy = new WniosekUrlopowy();
+        $cudzy->forceFill(['contact_id' => $obcy->id, 'rodzaj' => 'UW', 'od' => $od, 'do' => $od, 'status' => 'zlozony'])->save();
+        $this->post("/u/$token/wniosek/{$cudzy->id}/komentarz", ['tresc' => 'hej'])->assertNotFound();
+    }
+
     public function test_karta_pracownika_wysyla_link_mailem_i_uniewaznia(): void
     {
         Mail::fake();

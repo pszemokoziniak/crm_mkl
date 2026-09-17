@@ -86,7 +86,7 @@ class ZmianyKadroweController extends Controller
             'zgloszenia_licznik' => ZgloszenieKierownika::otwarte()->count(),
             // Wnioski urlopowe z telefonu: czekające na kierownika (informacyjnie —
             // zatwierdzone przychodzą do kadr jako zgłoszenia urlopu).
-            'wnioski_z_telefonu' => WniosekUrlopowy::with(['contact', 'rozpatrzyl'])
+            'wnioski_z_telefonu' => WniosekUrlopowy::with(['contact', 'rozpatrzyl', 'komentarze.autor'])
                 ->tap($wZakresie)
                 ->when($pokaz !== 'wszystkie', fn ($q) => $q->zlozone())
                 ->orderByRaw("status = 'zlozony' desc")->orderByDesc('id')->limit(100)->get()

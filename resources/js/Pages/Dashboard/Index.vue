@@ -122,6 +122,7 @@
                 <div class="text-gray-600">{{ w.rodzaj }} · {{ w.od }} – {{ w.do }} ({{ w.dni }} {{ w.dni === 1 ? 'dzień' : 'dni' }})</div>
                 <div v-if="w.uwaga" class="text-xs text-gray-500 italic">„{{ w.uwaga }}”</div>
                 <div class="text-xs text-gray-400">złożony {{ w.zlozony }}</div>
+                <watek-wniosku :komentarze="w.komentarze" :adres="`/wnioski-urlopowe/${w.id}/komentarze`" />
               </div>
               <div class="flex flex-col items-end gap-1 whitespace-nowrap">
                 <button type="button" class="btn-indigo text-xs" @click="rozpatrz(w, 'zatwierdzony')">Zatwierdź</button>
@@ -282,9 +283,11 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import { prowadziBudowy } from '@/role'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
+import WatekWniosku from '@/Shared/WatekWniosku.vue'
 
 export default {
   components: {
+    WatekWniosku,
     Head,
     Icon,
     Link,
