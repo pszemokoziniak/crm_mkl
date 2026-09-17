@@ -115,9 +115,10 @@ class Contact extends Model
     }
 
     /**
-     * Słowa oddzielone spacją; "-słowo" wyklucza, "+słowo" to to samo, co
-     * samo słowo (ludzie tak piszą, więc nie ma co ich karać). Sam "-" albo
-     * "+" bez słowa nie znaczy nic.
+     * Słowa oddzielone spacją albo plusem — "Jan+Kowalski" i "Jan Kowalski"
+     * to to samo, bo plus w wyszukiwarce ludzie piszą bez spacji i bez
+     * tego działał jak zwykła litera. "-słowo" wyklucza. Sam "-" albo "+"
+     * bez słowa nie znaczy nic.
      *
      * @return array{0: string[], 1: string[]} [muszą pasować, nie mogą pasować]
      */
@@ -126,7 +127,7 @@ class Contact extends Model
         $musza = [];
         $nieMoga = [];
 
-        foreach (preg_split('/\s+/u', trim($szukane)) ?: [] as $slowo) {
+        foreach (preg_split('/[\s+]+/u', trim($szukane)) ?: [] as $slowo) {
             $znak = mb_substr($slowo, 0, 1);
             $tresc = in_array($znak, ['-', '+'], true) ? mb_substr($slowo, 1) : $slowo;
             if ($tresc === '') {

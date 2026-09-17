@@ -56,6 +56,9 @@ class WyszukiwanieOsobTest extends TestCase
     {
         $this->assertSame([['Jan', 'Kowalski'], ['GW']], Contact::rozbijWyszukiwanie('  Jan +Kowalski -GW '));
         $this->assertSame([[], []], Contact::rozbijWyszukiwanie('- +'));
+        // Plus bez spacji — tak pisze Tomasz; dotąd "Jan+Kowalski" szukało litery "+".
+        $this->assertSame([['Jan', 'Kowalski'], []], Contact::rozbijWyszukiwanie('Jan+Kowalski'));
+        $this->assertSame([['Valmet'], ['GW']], Contact::rozbijWyszukiwanie('Valmet+-GW'));
     }
 
     public function test_minus_wyklucza_stanowisko_i_dzisiejsza_budowe(): void
@@ -84,6 +87,7 @@ class WyszukiwanieOsobTest extends TestCase
 
         // Imię i nazwisko to osobne kolumny — dotąd "Jan Kowalski" nie znajdował nikogo.
         $this->assertSame(['Kowalski'], $this->szukaj('Jan Kowalski'));
+        $this->assertSame(['Kowalski'], $this->szukaj('Jan+Kowalski'));
         $this->assertSame(['Kowalski', 'Kowalski'], $this->szukaj('Valmet'));
         $this->assertSame(['Kowalski'], $this->szukaj('Valmet -GW'));
         $this->assertSame('Jan', Contact::kierownictwo(true)->filter(['search' => 'Valmet -GW'])->value('first_name'));
