@@ -2,7 +2,8 @@
   <div class="min-h-screen bg-gray-100">
     <Head title="Moje wnioski" />
     <!-- Strona na telefon: jedna kolumna, duże przyciski, tylko własne sprawy. -->
-    <header class="bg-white shadow-sm px-4 py-3 flex items-center justify-between">
+    <!-- Na komputerze nagłówek trzyma się tej samej kolumny, co formularz. -->
+    <header class="bg-white shadow-sm px-4 py-3 flex items-center justify-between max-w-md mx-auto md:mt-4 md:rounded-xl">
       <div>
         <div class="font-bold text-gray-900">{{ pracownik.imie }} {{ pracownik.nazwisko }}</div>
         <div class="text-xs text-gray-500">
