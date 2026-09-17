@@ -5,7 +5,13 @@
     <header class="bg-white shadow-sm px-4 py-3 flex items-center justify-between">
       <div>
         <div class="font-bold text-gray-900">{{ pracownik.imie }} {{ pracownik.nazwisko }}</div>
-        <div class="text-xs text-gray-500">{{ pracownik.budowa || 'bez przypisanej budowy' }}</div>
+        <div class="text-xs text-gray-500">
+          <template v-if="pracownik.budowa">
+            {{ pracownik.budowa }}
+            <span class="text-gray-400">· pobyt {{ pracownik.pobyt_od }} – {{ pracownik.pobyt_do || 'bezterminowo' }}</span>
+          </template>
+          <template v-else>bez przypisanej budowy</template>
+        </div>
       </div>
       <button type="button" class="text-xs text-gray-500 hover:text-gray-800" @click="wyloguj">Wyjdź</button>
     </header>

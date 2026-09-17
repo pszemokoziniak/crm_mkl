@@ -119,15 +119,22 @@ class PortalPracownikaController extends Controller
     {
         $contact = $dostep->contact;
         $dzis = now()->toDateString();
-        $budowa = ContactWorkDate::with('organization')
+        $pobyt = ContactWorkDate::with('organization')
             ->where('contact_id', $contact->id)
             ->activeOn($dzis)
             ->orderByDesc('start')
-            ->first()?->organization?->nazwaBud;
+            ->first();
 
         return Inertia::render('Portal/Wnioski', [
             'token' => $token,
-            'pracownik' => ['imie' => $contact->first_name, 'nazwisko' => $contact->last_name, 'budowa' => $budowa],
+            'pracownik' => [
+                'imie' => $contact->first_name,
+                'nazwisko' => $contact->last_name,
+                'budowa' => $pobyt?->organization?->nazwaBud,
+                // Daty obecnego pobytu — pracownik ma widzieć, dokąd jest zaplanowany.
+                'pobyt_od' => $pobyt?->start ? (string) $pobyt->start : null,
+                'pobyt_do' => $pobyt?->end ? (string) $pobyt->end : null,
+            ],
             'rodzaje' => WniosekUrlopowy::RODZAJE,
             'wnioski' => WniosekUrlopowy::where('contact_id', $contact->id)
                 ->orderByDesc('id')->limit(20)->get()

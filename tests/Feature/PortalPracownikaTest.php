@@ -91,7 +91,10 @@ class PortalPracownikaTest extends TestCase
 
         $this->post("/u/$token/pin", ['pin' => '12', 'pin_confirmation' => '12'])->assertSessionHasErrors('pin');
         $this->post("/u/$token/pin", ['pin' => '1234', 'pin_confirmation' => '1234'])->assertRedirect("/u/$token");
-        $this->get("/u/$token")->assertInertia(fn ($p) => $p->component('Portal/Wnioski')->where('pracownik.budowa', 'Zeitz'));
+        $this->get("/u/$token")->assertInertia(fn ($p) => $p->component('Portal/Wnioski')
+            ->where('pracownik.budowa', 'Zeitz')
+            ->where('pracownik.pobyt_od', now()->subMonth()->toDateString())
+            ->where('pracownik.pobyt_do', null));
 
         // Nowa przeglądarka: PIN wymagany, link sam nie wystarcza.
         $this->flushSession();
