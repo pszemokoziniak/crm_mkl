@@ -171,6 +171,32 @@ class PortalPracownikaTest extends TestCase
         $this->get("/u/$token")->assertInertia(fn ($p) => $p->where('wnioski.0.status_label', 'zatwierdzony')->where('wnioski.0.odpowiedz', 'OK'));
     }
 
+    public function test_wniosek_pracownika_bez_kierownika_zatwierdzaja_kadry_a_z_kierownikiem_nie(): void
+    {
+        $kadry = $this->user(6, 'kadry@mkl.pl');
+        $token = $this->zalogowanyToken();
+        $od = now()->addDays(5)->toDateString();
+        $this->post("/u/$token/wniosek", ['rodzaj' => 'UW', 'od' => $od, 'do' => $od]);
+        $w = WniosekUrlopowy::sole();
+
+        // Pracownik ma kierownika — kadry nie decydują.
+        $this->assertFalse($this->actingAs($kadry)->get('/zmiany-kadrowe')->viewData('page')['props']['wnioski_z_telefonu'][0]['bez_kierownika']);
+        $this->actingAs($kadry)->put('/wnioski-urlopowe/'.$w->id, ['status' => 'zatwierdzony'])->assertForbidden();
+
+        // Zjechał z budowy: nikt go nie prowadzi, wniosek zawisłby — kadry zatwierdzają.
+        ContactWorkDate::where('contact_id', $this->pracownik->id)->update(['end' => now()->subDay()->toDateString()]);
+        $this->assertTrue($this->actingAs($kadry)->get('/zmiany-kadrowe')->viewData('page')['props']['wnioski_z_telefonu'][0]['bez_kierownika']);
+        $this->actingAs($kadry)->put('/wnioski-urlopowe/'.$w->id, ['status' => 'zatwierdzony'])->assertRedirect();
+        $this->assertSame('zatwierdzony', $w->fresh()->status);
+        $this->assertSame($this->budowa->id, (int) ZgloszenieKierownika::sole()->organization_id, 'Ostatnia budowa z historii.');
+
+        // Bez żadnej budowy w historii zgłoszenie powstaje bez budowy.
+        ContactWorkDate::where('contact_id', $this->pracownik->id)->delete();
+        $this->post("/u/$token/wniosek", ['rodzaj' => 'UB', 'od' => $od, 'do' => $od]);
+        $this->actingAs($kadry)->put('/wnioski-urlopowe/'.WniosekUrlopowy::orderByDesc('id')->first()->id, ['status' => 'zatwierdzony'])->assertRedirect();
+        $this->assertNull(ZgloszenieKierownika::orderByDesc('id')->first()->organization_id);
+    }
+
     public function test_karta_pracownika_wysyla_link_mailem_i_uniewaznia(): void
     {
         Mail::fake();

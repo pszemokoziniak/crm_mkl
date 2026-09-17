@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\ContactWorkDate;
 use App\Models\WniosekUrlopowy;
 use App\Models\ZgloszenieKierownika;
+use App\Services\KierownicyBudowy;
 use App\Services\PowiadomieniaKadr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,9 @@ class WnioskiUrlopoweController extends Controller
         $contact = $wniosek->contact;
         abort_unless($contact && $user->can('view', $contact), 403, 'To nie jest pracownik z Twojej budowy.');
         abort_unless($wniosek->status === WniosekUrlopowy::STATUS_ZLOZONY, 422, 'Ten wniosek jest już rozpatrzony.');
+        // Decyduje kierownik; biuro/kadry tylko wtedy, gdy pracownik nie ma
+        // dziś kierownika (między budowami, w magazynie) i wniosek by zawisł.
+        abort_if(! $user->prowadziBudowy() && ! self::bezKierownika($wniosek), 403, 'Ten wniosek zatwierdza kierownik budowy.');
 
         $dane = Request::validate([
             'status' => ['required', Rule::in([WniosekUrlopowy::STATUS_ZATWIERDZONY, WniosekUrlopowy::STATUS_ODRZUCONY])],
@@ -62,7 +66,7 @@ class WnioskiUrlopoweController extends Controller
         $zgloszenie = new ZgloszenieKierownika();
         $zgloszenie->forceFill([
             'contact_id' => $wniosek->contact_id,
-            'organization_id' => (int) $orgId,
+            'organization_id' => $orgId ? (int) $orgId : null,
             'user_id' => $user->id,
             'rodzaj' => ZgloszenieKierownika::RODZAJ_URLOP,
             'od' => $wniosek->od->format('Y-m-d'),
@@ -78,8 +82,18 @@ class WnioskiUrlopoweController extends Controller
         app(PowiadomieniaKadr::class)->oZgloszeniu($zgloszenie, $user->id);
     }
 
+    /** Nikt z kierownictwa nie prowadzi dziś budowy tego pracownika. */
+    public static function bezKierownika(WniosekUrlopowy $w): bool
+    {
+        $orgIds = ContactWorkDate::where('contact_id', $w->contact_id)
+            ->activeOn(now()->toDateString())
+            ->pluck('organization_id')->unique()->map(fn ($id) => (int) $id)->all();
+
+        return ! $orgIds || app(KierownicyBudowy::class)->dlaBudow($orgIds) === [];
+    }
+
     /**
-     * Wiersz do pulpitu kierownika.
+     * Wiersz do pulpitu kierownika i ekranu Kadry.
      *
      * @return array<string, mixed>
      */
@@ -88,6 +102,7 @@ class WnioskiUrlopoweController extends Controller
         $c = $w->contact;
 
         return [
+            'bez_kierownika' => $w->status === WniosekUrlopowy::STATUS_ZLOZONY && self::bezKierownika($w),
             'id' => $w->id,
             'contact_id' => $w->contact_id,
             'pracownik' => $c ? trim($c->last_name.' '.$c->first_name) : '—',

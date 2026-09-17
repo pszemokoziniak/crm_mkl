@@ -82,7 +82,7 @@
          kierownik; zatwierdzone przychodzą wyżej jako zgłoszenia urlopu. -->
     <h2 class="mb-3 text-xl font-bold text-gray-900">
       Wnioski urlopowe z telefonu
-      <span class="ml-1 text-sm font-normal text-gray-500">— czekają na kierownika</span>
+      <span class="ml-1 text-sm font-normal text-gray-500">— czekają na kierownika; bez kierownika decydują kadry</span>
     </h2>
     <p v-if="wnioski_z_telefonu.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
       Brak wniosków{{ filters.pokaz === 'wszystkie' ? '' : ' czekających na kierownika' }}.
@@ -99,7 +99,15 @@
             <span v-if="w.odpowiedz" class="italic"> „{{ w.odpowiedz }}”</span>
           </div>
         </div>
-        <span class="inline-block px-2 py-0.5 text-xs font-medium border rounded-full" :class="klasaWniosku(w.status)">{{ w.status_label }}</span>
+        <div class="flex items-center gap-2">
+          <!-- Pracownik bez kierownika (między budowami): wniosek zawisłby, więc decydują kadry. -->
+          <template v-if="w.bez_kierownika">
+            <span class="text-xs text-orange-700">bez kierownika</span>
+            <button type="button" class="btn-indigo text-xs" @click="rozpatrzWniosek(w, 'zatwierdzony')">Zatwierdź</button>
+            <button type="button" class="text-xs text-red-600 hover:underline" @click="rozpatrzWniosek(w, 'odrzucony')">Odrzuć</button>
+          </template>
+          <span class="inline-block px-2 py-0.5 text-xs font-medium border rounded-full" :class="klasaWniosku(w.status)">{{ w.status_label }}</span>
+        </div>
       </div>
     </div>
 
@@ -344,6 +352,14 @@ export default {
       const odpowiedz = prompt(pytanie, '')
       if (odpowiedz === null) return
       this.$inertia.put(`/zgloszenia/${z.id}`, { status, odpowiedz: odpowiedz || null }, { preserveScroll: true })
+    },
+    rozpatrzWniosek(w, status) {
+      const pytanie = status === 'zatwierdzony'
+        ? `Zatwierdzić urlop: ${w.pracownik}, ${w.od} – ${w.do}?\n\nOdpowiedź dla pracownika (opcjonalnie):`
+        : `Odrzucić wniosek: ${w.pracownik}, ${w.od} – ${w.do}?\n\nNapisz pracownikowi dlaczego:`
+      const odpowiedz = prompt(pytanie, '')
+      if (odpowiedz === null) return
+      this.$inertia.put(`/wnioski-urlopowe/${w.id}`, { status, odpowiedz: odpowiedz || null }, { preserveScroll: true })
     },
     klasaWniosku(status) {
       return {
