@@ -73,13 +73,16 @@ class NowiPracownicyTest extends TestCase
         $this->assertSame(3, $kowal['dni_temu']);
     }
 
-    public function test_dawno_wprowadzeni_i_zwolnieni_nie_sa_juz_nowi(): void
+    public function test_dawno_wprowadzeni_zwolnieni_i_zaloga_z_importu_nie_sa_nowi(): void
     {
         $this->pracownik('Dawny', 120);
         $this->pracownik('Zwolniony', 5, Contact::STATUS_ZWOLNIONY);
-        $this->pracownik('Świeży', 89);
+        $this->pracownik('Świeży', 10);
+        // Import z sierpnia 2026: data wprowadzenia to data importu, nie zatrudnienia.
+        $zImportu = $this->pracownik('Importowany', 1);
+        Contact::where('id', $zImportu->id)->update(['created_at' => '2026-08-21 10:00:00']);
 
-        $this->assertSame(['Świeży Jan'], app(NowiPracownicy::class)->bezKompletu()->pluck('pracownik')->all());
+        $this->assertSame(['Świeży Jan'], app(NowiPracownicy::class)->bezKompletu('2026-09-17')->pluck('pracownik')->all());
     }
 
     public function test_ekran_kadry_pokazuje_liste(): void

@@ -23,12 +23,21 @@ class NowiPracownicy
     public const DNI_NOWOSCI = 90;
 
     /**
+     * Załoga z uruchomienia HRM (import z sierpnia 2026) ma datę wprowadzenia
+     * z importu, a nie z zatrudnienia — to nie są nowi pracownicy. Ich braki
+     * (np. BHP nie było w imporcie) pokazuje raport terminów, zakładka
+     * "Brak dokumentów".
+     */
+    public const OD_KIEDY = '2026-09-01';
+
+    /**
      * @return Collection<int, array<string, mixed>>
      */
     public function bezKompletu(?string $dzis = null): Collection
     {
         $dzis = $dzis ?? Carbon::today()->toDateString();
-        $od = Carbon::parse($dzis)->subDays(self::DNI_NOWOSCI)->startOfDay();
+        $od = Carbon::parse($dzis)->subDays(self::DNI_NOWOSCI)->startOfDay()
+            ->max(Carbon::parse(self::OD_KIEDY)->startOfDay());
 
         $nowi = Contact::query()
             ->where('created_at', '>=', $od)
