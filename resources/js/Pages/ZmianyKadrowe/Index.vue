@@ -153,8 +153,10 @@
     <div v-for="paczka in paczki" :key="paczka.paczka" class="mb-4 bg-white rounded-md shadow overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 bg-gray-50 border-b border-gray-100">
         <div>
-          <div class="font-semibold text-gray-800">{{ paczka.naglowek }}</div>
-          <div class="text-xs text-gray-500">
+          <!-- Tytuł paczki streszcza kilka zmian; przy jednej powtarzałby
+               wiersz pod spodem, więc zostaje samo "kto, kiedy". -->
+          <div v-if="paczka.zmiany.length > 1" class="font-semibold text-gray-800">{{ paczka.naglowek }}</div>
+          <div class="text-xs text-gray-500" :class="{ 'text-sm': paczka.zmiany.length === 1 }">
             zgłosił {{ paczka.autor }}, {{ paczka.kiedy }}
             <span v-if="paczka.nieobsluzonych > 0" class="ml-2 text-yellow-700">
               — {{ paczka.nieobsluzonych }} do obsłużenia
@@ -163,7 +165,7 @@
           </div>
         </div>
         <button
-          v-if="paczka.nieobsluzonych > 0"
+          v-if="paczka.nieobsluzonych > 0 && paczka.zmiany.length > 1"
           type="button"
           class="btn-indigo text-sm"
           @click="zamknij({ paczka: paczka.paczka }, `Oznaczyć całą paczkę (${paczka.osob}) jako obsłużoną?`)"
