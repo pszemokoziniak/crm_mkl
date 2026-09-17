@@ -1,9 +1,19 @@
 <template>
-  <!-- Na telefonie dziesięć zakładek układało się w pionową listę i spychało
-       treść pod ekran. Teraz to jeden pasek, który się przewija w bok;
-       na szerokim ekranie mieści się w całości jak dotąd. -->
-  <nav class="mt-2 mb-6 -mx-1 border-b border-gray-200">
-    <div class="flex gap-4 overflow-x-auto whitespace-nowrap px-1 pb-2">
+  <!-- Telefon: kafelki zawijane w wiersze (pasek przewijany w bok był
+       niewygodny kciukiem); szeroki ekran: jeden pasek zakładek jak dotąd. -->
+  <nav class="mt-2 mb-6 md:-mx-1 md:border-b md:border-gray-200">
+    <div class="flex flex-wrap gap-2 md:hidden">
+      <Link
+        v-for="zakladka in widoczne"
+        :key="`k-${zakladka.adres}`"
+        :href="`/contacts/${contactId}/${zakladka.adres}`"
+        class="px-3 py-1.5 rounded-full border text-sm transition-colors"
+        :class="isUrl(zakladka.adres)
+          ? 'bg-green-600 border-green-600 text-white font-semibold'
+          : 'bg-white border-gray-300 text-gray-700 hover:border-green-400'"
+      >{{ zakladka.nazwa }}</Link>
+    </div>
+    <div class="hidden md:flex gap-4 whitespace-nowrap px-1 pb-2">
       <Link
         v-for="zakladka in widoczne"
         :key="zakladka.adres"

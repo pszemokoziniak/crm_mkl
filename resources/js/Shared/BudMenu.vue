@@ -1,8 +1,21 @@
 <template>
   <!-- Pasek zakładek budowy. Było tu logo z pustym <span> po szablonie
        startowym; osiem pozycji było wpisanych ręcznie jedna po drugiej. -->
-  <nav class="mb-6 -mx-1 border-b border-gray-200">
-    <div class="flex gap-4 overflow-x-auto whitespace-nowrap px-1 pb-2">
+  <nav class="mb-6 md:-mx-1 md:border-b md:border-gray-200">
+    <!-- Telefon: kafelki zawijane w wiersze — pasek przewijany w bok był
+         niewygodny kciukiem i chował pozycje za krawędzią. -->
+    <div class="flex flex-wrap gap-2 md:hidden">
+      <Link
+        v-for="zakladka in widoczne"
+        :key="`k-${zakladka.klucz}`"
+        :href="zakladka.adres(budId)"
+        class="px-3 py-1.5 rounded-full border text-sm transition-colors"
+        :class="isUrl(zakladka.klucz)
+          ? 'bg-green-700 border-green-700 text-white font-semibold'
+          : 'bg-white border-gray-300 text-gray-700 hover:border-indigo-400'"
+      >{{ zakladka.nazwa }}</Link>
+    </div>
+    <div class="hidden md:flex gap-4 whitespace-nowrap px-1 pb-2">
       <Link
         v-for="zakladka in widoczne"
         :key="zakladka.klucz"
