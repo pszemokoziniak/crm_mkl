@@ -122,13 +122,14 @@
                 <div class="text-gray-600">{{ w.rodzaj }} · {{ w.od }} – {{ w.do }} ({{ w.dni }} {{ w.dni === 1 ? 'dzień' : 'dni' }})</div>
                 <div v-if="w.uwaga" class="text-xs text-gray-500 italic">„{{ w.uwaga }}”</div>
                 <div class="text-xs text-gray-400">złożony {{ w.zlozony }}</div>
-                <watek-wniosku :komentarze="w.komentarze" :adres="`/wnioski-urlopowe/${w.id}/komentarze`" />
               </div>
               <div class="flex flex-col items-end gap-1 whitespace-nowrap">
                 <button type="button" class="btn-indigo text-xs" @click="rozpatrz(w, 'zatwierdzony')">Zatwierdź</button>
                 <button type="button" class="text-xs text-red-600 hover:underline" @click="rozpatrz(w, 'odrzucony')">Odrzuć</button>
               </div>
             </div>
+            <!-- Rozmowa pod całym wierszem, nie w lewej kolumnie — inaczej pole wiadomości było ściśnięte obok przycisków. -->
+            <watek-wniosku :komentarze="w.komentarze" :adres="`/wnioski-urlopowe/${w.id}/komentarze`" />
           </div>
           <p v-if="!wnioski_urlopowe.length" class="px-6 py-4 text-sm text-gray-400">Nikt nie czeka na decyzję.</p>
         </div>

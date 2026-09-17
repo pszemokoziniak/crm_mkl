@@ -15,9 +15,10 @@
         <div class="whitespace-pre-line">{{ k.tresc }}</div>
         <div class="mt-0.5 text-[11px] text-gray-500">{{ k.autor }} · {{ k.kiedy }}</div>
       </div>
-      <form v-if="moznaPisac" class="flex items-end gap-2" @submit.prevent="wyslij">
-        <textarea v-model="form.tresc" rows="2" class="form-input flex-1 text-sm" :class="{ error: form.errors.tresc }" placeholder="Napisz wiadomość…" maxlength="1000"></textarea>
-        <button type="submit" class="btn-indigo text-sm" :disabled="form.processing || !form.tresc.trim()">Wyślij</button>
+      <!-- Na wąskim ekranie pole i przycisk jedno pod drugim; obok siebie dopiero, gdy jest miejsce. -->
+      <form v-if="moznaPisac" class="flex flex-col sm:flex-row sm:items-end gap-2" @submit.prevent="wyslij">
+        <textarea v-model="form.tresc" rows="2" class="form-input w-full sm:flex-1 text-sm" :class="{ error: form.errors.tresc }" placeholder="Napisz wiadomość…" maxlength="1000"></textarea>
+        <button type="submit" class="btn-indigo text-sm self-end" :disabled="form.processing || !form.tresc.trim()">Wyślij</button>
       </form>
       <div v-if="form.errors.tresc" class="form-error">{{ form.errors.tresc }}</div>
     </div>
