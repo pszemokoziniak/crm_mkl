@@ -129,6 +129,26 @@ class ZmianyKadroweTest extends TestCase
         Notification::assertNotSentTo($this->montaz, ZmianaKadrowaNotification::class);
     }
 
+    /**
+     * Dzwonek idzie po uprawnieniu do ekranu Kadry, nie po numerze roli:
+     * dotąd konta z rolą Kadry (6) — te, które ekran obsługują — nie
+     * dostawały nic, bo szło wyłącznie do Biura (2).
+     */
+    public function test_dzwonek_dostaja_wszyscy_ktorzy_obsluguja_kadry_takze_rola_kadry(): void
+    {
+        Notification::fake();
+        $rolaKadry = User::factory()->create(['account_id' => $this->accountId, 'email' => 'kadry6@example.com', 'owner' => 6, 'active' => 1, 'password_changed_at' => now()]);
+        $kierownictwo = User::factory()->create(['account_id' => $this->accountId, 'email' => 'kier@example.com', 'owner' => 4, 'active' => 1, 'password_changed_at' => now()]);
+        $kierownik = User::factory()->create(['account_id' => $this->accountId, 'email' => 'kb@example.com', 'owner' => 3, 'active' => 1, 'password_changed_at' => now()]);
+        $zablokowany = User::factory()->create(['account_id' => $this->accountId, 'email' => 'off@example.com', 'owner' => 6, 'active' => 0, 'password_changed_at' => now()]);
+
+        $this->actingAs($this->montaz);
+        $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');
+
+        Notification::assertSentTo([$this->kadry, $rolaKadry, $kierownictwo], ZmianaKadrowaNotification::class);
+        Notification::assertNotSentTo([$kierownik, $zablokowany, $this->montaz], ZmianaKadrowaNotification::class);
+    }
+
     public function test_skrzynka_grupuje_i_opisuje_paczke(): void
     {
         $pobyt = $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');

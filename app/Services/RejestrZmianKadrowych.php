@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Uprawnienie;
 use App\Models\ContactWorkDate;
 use App\Models\User;
 use App\Models\ZmianaKadrowa;
@@ -141,10 +142,15 @@ class RejestrZmianKadrowych
     private function powiadomKadry(ZmianaKadrowa $zmiana): void
     {
         try {
-            $kadry = User::where('owner', 2)
-                ->where('active', true)
+            // Po uprawnieniu, nie po numerze roli: dotąd szło tylko do Biura,
+            // a konta z rolą Kadry — te, które ekran Kadry obsługują — nie
+            // dostawały nic.
+            $kadry = User::where('active', true)
+                ->whereNull('deleted_at')
                 ->where('id', '!=', Auth::id())
-                ->get();
+                ->get()
+                ->filter(fn (User $u) => $u->moze(Uprawnienie::ZMIANY_KADROWE))
+                ->values();
 
             if ($kadry->isEmpty()) {
                 return;
