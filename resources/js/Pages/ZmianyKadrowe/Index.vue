@@ -28,7 +28,7 @@
         </button>
       </div>
       <!-- Historia bez zakresu ucina się na 300 najnowszych wpisach. -->
-      <div v-if="filters.pokaz === 'wszystkie'" class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+      <div v-if="filters.pokaz === 'wszystkie'" class="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
         <label for="zk-od">od</label>
         <input id="zk-od" v-model="zakres.od" type="date" class="form-input py-1.5 text-sm" @change="pokaz('wszystkie')" />
         <label for="zk-do">do</label>
@@ -172,7 +172,16 @@
         </button>
       </div>
 
-      <table class="w-full text-sm">
+      <!-- Każda paczka to osobna tabela; bez stałych szerokości kolumny
+           w kolejnych paczkach rozjeżdżały się względem siebie. -->
+      <table class="w-full text-sm table-fixed">
+        <colgroup>
+          <col style="width: 20%" />
+          <col style="width: 22%" />
+          <col style="width: 21%" />
+          <col style="width: 13%" />
+          <col style="width: 24%" />
+        </colgroup>
         <thead>
           <tr class="naglowek-tabeli">
             <th>Pracownik</th>
@@ -202,7 +211,7 @@
               <span v-else-if="zmiana.budowa_do" class="block text-xs text-gray-500">{{ zmiana.budowa_do }}</span>
               <span v-else-if="zmiana.budowa_z" class="block text-xs text-gray-500">{{ zmiana.budowa_z }}</span>
             </td>
-            <td class="px-6 py-3 text-gray-700 whitespace-nowrap">
+            <td class="px-6 py-3 text-gray-700">
               <span v-if="zmiana.stary_termin" class="block text-xs text-gray-400 line-through">{{ zmiana.stary_termin }}</span>
               <span v-if="zmiana.nowy_termin">{{ zmiana.nowy_termin }}</span>
               <span v-else class="text-gray-400">—</span>
@@ -215,7 +224,9 @@
                 {{ zmiana.obsluzyl }}, {{ zmiana.obsluzono }}
               </span>
             </td>
-            <td class="px-6 py-3 text-right whitespace-nowrap">
+            <!-- Cztery przyciski nie mieszczą się w jednej linii przy stałej
+                 szerokości kolumny — niech zawijają, zamiast wychodzić poza komórkę. -->
+            <td class="px-6 py-3 text-right">
               <!-- Aneks z wypełnioną budową i terminem tej zmiany. -->
               <a
                 v-if="zmiana.link_aneks"
