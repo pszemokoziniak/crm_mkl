@@ -36,6 +36,14 @@
           <button type="button" class="px-4 py-2 rounded border text-sm" :class="kontakt.phone && sms_dostepny ? 'border-indigo-300 text-indigo-700 hover:bg-indigo-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'" :disabled="!kontakt.phone || !sms_dostepny || trwa" :title="!sms_dostepny ? 'Wysyłka SMS nie jest skonfigurowana' : (kontakt.phone ? `Wyślij na ${kontakt.phone}` : 'Brak telefonu w kartotece')" @click="wyslij('/sms')">Wyślij SMS-em</button>
           <button v-if="dostep" type="button" class="ml-auto text-sm text-red-600 hover:underline" :disabled="trwa" @click="uniewaznij">Unieważnij dostęp</button>
         </div>
+        <!-- Bez adresu albo numeru przycisk jest wyłączony — powód ma być
+             widoczny obok, nie w dymku po najechaniu. -->
+        <ul v-if="braki.length" class="mt-3 space-y-1 text-sm">
+          <li v-for="b in braki" :key="b" class="text-orange-700">
+            {{ b }} —
+            <Link class="underline hover:text-orange-900" :href="`/contacts/${pracownik.id}/edit`">uzupełnij w Danych osobowych</Link>.
+          </li>
+        </ul>
         <p v-if="!sms_dostepny" class="mt-3 text-xs text-gray-400">SMS: brak konfiguracji bramki (SMSAPI_TOKEN na serwerze).</p>
       </div>
     </div>
@@ -43,14 +51,14 @@
 </template>
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/inertia-vue3'
 import { Inertia } from '@inertiajs/inertia'
 import Layout from '@/Shared/Layout'
 import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import WorkerMenu from '@/Shared/WorkerMenu'
 
 export default {
-  components: { Head, PracownikNaglowek, WorkerMenu },
+  components: { Head, Link, PracownikNaglowek, WorkerMenu },
   layout: Layout,
   props: {
     pracownik: Object,
@@ -61,6 +69,14 @@ export default {
   },
   data() {
     return { trwa: false }
+  },
+  computed: {
+    braki() {
+      const lista = []
+      if (!this.kontakt.email) lista.push('Pracownik nie ma adresu e-mail w kartotece')
+      if (!this.kontakt.phone) lista.push('Pracownik nie ma numeru telefonu w kartotece')
+      return lista
+    },
   },
   methods: {
     wyslij(sufiks) {
