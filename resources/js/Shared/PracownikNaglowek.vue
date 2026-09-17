@@ -9,14 +9,31 @@
       <span v-else>{{ nazwa }}</span>
     </h1>
     <p v-if="tytul" class="mt-1 text-base sm:text-lg text-gray-500">{{ tytul }}</p>
+    <!-- Kierownik ogląda kartę tylko do odczytu; brak dokumentu zgłasza
+         kadrom stąd, z każdej podstrony, z domyślnie wybraną tą zakładką. -->
+    <div v-if="pracownik && pracownik.zgloszenie" class="mt-3">
+      <button type="button" class="text-sm text-indigo-600 hover:underline" @click="zgloszenieOtwarte = true">
+        Zgłoś brak dokumentu do kadr
+      </button>
+      <zgloszenie-do-kadr
+        :otwarte="zgloszenieOtwarte"
+        :organization-id="pracownik.zgloszenie.organization_id"
+        :budowa="pracownik.zgloszenie.budowa"
+        :pracownik="{ id: pracownik.id, nazwa: pracownik.nazwa }"
+        :start="{ rodzaj: 'dokument', dokument: dokumentZAdresu }"
+        tytul="Zgłoś brak dokumentu"
+        @zamknij="zgloszenieOtwarte = false"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import { Link } from '@inertiajs/inertia-vue3'
+import ZgloszenieDoKadr from '@/Shared/ZgloszenieDoKadr.vue'
 
 export default {
-  components: { Link },
+  components: { Link, ZgloszenieDoKadr },
   props: {
     /**
      * Dane pracownika z kontrolera: { id, nazwa }. Wcześniej połowa ekranów
@@ -26,7 +43,15 @@ export default {
     pracownik: { type: Object, default: null },
     tytul: { type: String, default: '' },
   },
+  data() {
+    return { zgloszenieOtwarte: false }
+  },
   computed: {
+    // Z której zakładki otwarto formularz — ta jest domyślnym brakującym dokumentem.
+    dokumentZAdresu() {
+      const czesc = (this.$page.url.split('?')[0].split('/')[3] || '')
+      return ['a1', 'badania', 'uprawnienia', 'bhp', 'pbioz'].includes(czesc) ? czesc : 'inne'
+    },
     id() {
       return this.pracownik ? this.pracownik.id : null
     },

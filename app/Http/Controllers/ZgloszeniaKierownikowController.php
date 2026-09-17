@@ -35,12 +35,14 @@ class ZgloszeniaKierownikowController extends Controller
         $dane = Request::validate([
             'contact_id' => ['required', 'integer'],
             'rodzaj' => ['required', Rule::in(array_keys(ZgloszenieKierownika::RODZAJE))],
+            'dokument' => ['nullable', 'required_if:rodzaj,'.ZgloszenieKierownika::RODZAJ_DOKUMENT, Rule::in(array_keys(ZgloszenieKierownika::DOKUMENTY))],
             'od' => ['nullable', 'date'],
             'do' => ['nullable', 'date', 'after_or_equal:od'],
             'uwaga' => ['nullable', 'string', 'max:2000'],
             'plik' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,pdf'],
         ], [
             'do.after_or_equal' => 'Data "do" nie może być przed datą "od".',
+            'dokument.required_if' => 'Wybierz, jakiego dokumentu brakuje.',
             'plik.mimes' => 'Skan może być zdjęciem (jpg, png) albo plikiem PDF.',
             'plik.max' => 'Plik może mieć najwyżej 10 MB.',
         ]);
@@ -61,6 +63,7 @@ class ZgloszeniaKierownikowController extends Controller
             'organization_id' => $organization->id,
             'user_id' => $user->id,
             'rodzaj' => $dane['rodzaj'],
+            'dokument' => $dane['rodzaj'] === ZgloszenieKierownika::RODZAJ_DOKUMENT ? $dane['dokument'] : null,
             'od' => $dane['od'] ?? null,
             'do' => $dane['do'] ?? null,
             'uwaga' => $dane['uwaga'] ?? null,
@@ -136,6 +139,8 @@ class ZgloszeniaKierownikowController extends Controller
             'budowa' => $z->organization?->nazwaBud,
             'rodzaj' => $z->rodzaj,
             'rodzaj_label' => $z->rodzajLabel(),
+            'dokument' => $z->dokument,
+            'dodaj_dokument_url' => $z->adresDodaniaDokumentu(),
             'od' => $z->od?->format('Y-m-d'),
             'do' => $z->do?->format('Y-m-d'),
             'uwaga' => $z->uwaga,

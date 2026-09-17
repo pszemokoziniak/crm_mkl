@@ -13,9 +13,16 @@
           <div>
             <label class="form-label" for="zgl-rodzaj">Czego dotyczy:</label>
             <select id="zgl-rodzaj" v-model="form.rodzaj" class="form-select w-full" :class="{ error: form.errors.rodzaj }" :disabled="tylkoUrlop">
-              <option v-for="(nazwa, klucz) in rodzaje" :key="klucz" :value="klucz">{{ nazwa }}</option>
+              <option v-for="(nazwa, klucz) in rodzajeDoWyboru" :key="klucz" :value="klucz">{{ nazwa }}</option>
             </select>
             <div v-if="form.errors.rodzaj" class="form-error">{{ form.errors.rodzaj }}</div>
+          </div>
+          <div v-if="form.rodzaj === 'dokument'">
+            <label class="form-label" for="zgl-dokument">Jakiego dokumentu brakuje:</label>
+            <select id="zgl-dokument" v-model="form.dokument" class="form-select w-full" :class="{ error: form.errors.dokument }">
+              <option v-for="(nazwa, klucz) in dokumentyDoWyboru" :key="klucz" :value="klucz">{{ nazwa }}</option>
+            </select>
+            <div v-if="form.errors.dokument" class="form-error">{{ form.errors.dokument }}</div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <date-input v-model="form.od" :error="form.errors.od" label="Od" />
@@ -23,7 +30,7 @@
           </div>
           <div>
             <label class="form-label" for="zgl-uwaga">Uwaga dla kadr:</label>
-            <textarea id="zgl-uwaga" v-model="form.uwaga" rows="3" class="form-input w-full" placeholder="np. wraca 28.09, chce urlop na wesele brata"></textarea>
+            <textarea id="zgl-uwaga" v-model="form.uwaga" rows="3" class="form-input w-full" :placeholder="form.rodzaj === 'dokument' ? 'np. badania skończyły się w sierpniu, w poniedziałek wjeżdża na budowę' : 'np. wraca 28.09, chce urlop na wesele brata'"></textarea>
             <div v-if="form.errors.uwaga" class="form-error">{{ form.errors.uwaga }}</div>
           </div>
           <div>
@@ -67,8 +74,17 @@ export default {
   emits: ['zamknij', 'wyslane'],
   data() {
     return {
-      form: useForm({ contact_id: null, rodzaj: 'zjazd', od: '', do: '', uwaga: '', plik: null }),
+      form: useForm({ contact_id: null, rodzaj: 'zjazd', dokument: 'a1', od: '', do: '', uwaga: '', plik: null }),
     }
+  },
+  computed: {
+    // Słowniki idą z propsa, a gdy strona ich nie podaje — ze wspólnych props Inertii.
+    rodzajeDoWyboru() {
+      return Object.keys(this.rodzaje).length ? this.rodzaje : (this.$page.props.zgloszenia?.rodzaje || {})
+    },
+    dokumentyDoWyboru() {
+      return this.$page.props.zgloszenia?.dokumenty || {}
+    },
   },
   watch: {
     otwarte(teraz) {
@@ -77,6 +93,7 @@ export default {
       this.form.clearErrors()
       this.form.contact_id = this.pracownik.id
       this.form.rodzaj = this.start.rodzaj || (this.tylkoUrlop ? 'urlop' : 'zjazd')
+      this.form.dokument = this.start.dokument || 'a1'
       this.form.od = this.start.od || ''
       this.form.do = this.start.do || ''
     },

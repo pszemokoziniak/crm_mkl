@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\ZgloszenieKierownika;
 use App\Http\Controllers\PodszywanieController;
 use App\Models\Organization;
 use Illuminate\Http\Request;
@@ -63,6 +64,12 @@ class HandleInertiaRequests extends Middleware
                 ];
             },
             'permissions' => auth()->user()->permissions ?? [],
+            // Słowniki formularza "Zgłoś do kadr" — formularz otwiera się
+            // z kilku ekranów, więc nie każdy kontroler ma je podawać.
+            'zgloszenia' => [
+                'rodzaje' => ZgloszenieKierownika::RODZAJE,
+                'dokumenty' => ZgloszenieKierownika::DOKUMENTY,
+            ],
             // Budowa z adresu — pasek podzakładek musi wiedzieć, czy pokazać
             // zakładkę A1. Inaczej każdy z kilkunastu ekranów budowy musiałby
             // podawać tę samą informację osobno.

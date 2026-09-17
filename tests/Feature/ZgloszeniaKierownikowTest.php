@@ -183,4 +183,36 @@ class ZgloszeniaKierownikowTest extends TestCase
         $this->actingAs($this->kadry)->get('/zgloszenia/'.$z->id.'/plik')->assertOk();
         $this->actingAs($this->user(3, 'inny@mkl.pl'))->get('/zgloszenia/'.$z->id.'/plik')->assertForbidden();
     }
+
+    public function test_kierownik_zglasza_brak_dokumentu_z_karty_pracownika(): void
+    {
+        // Karta pracownika mówi kierownikowi, z której budowy zgłasza; biuru nie.
+        $props = $this->actingAs($this->kierownik)->get('/contacts/'.$this->pracownik->id.'/a1')->viewData('page')['props'];
+        $this->assertSame(['organization_id' => $this->moja->id, 'budowa' => 'Moja'], $props['pracownik']['zgloszenie']);
+        $this->assertArrayHasKey('a1', $props['zgloszenia']['dokumenty']);
+
+        $biuro = $this->actingAs($this->user(2, 'biuro@mkl.pl'))->get('/contacts/'.$this->pracownik->id.'/a1')->viewData('page')['props'];
+        $this->assertNull($biuro['pracownik']['zgloszenie']);
+
+        // Bez wskazania dokumentu zgłoszenie o brak nie przechodzi.
+        $this->actingAs($this->kierownik)->from('/contacts/'.$this->pracownik->id.'/a1')
+            ->post('/budowy/'.$this->moja->id.'/zgloszenia', ['contact_id' => $this->pracownik->id, 'rodzaj' => 'dokument'])
+            ->assertSessionHasErrors('dokument');
+
+        $this->actingAs($this->kierownik)
+            ->post('/budowy/'.$this->moja->id.'/zgloszenia', ['contact_id' => $this->pracownik->id, 'rodzaj' => 'dokument', 'dokument' => 'badania', 'uwaga' => 'Badania skończyły się w sierpniu'])
+            ->assertRedirect();
+
+        $z = ZgloszenieKierownika::sole();
+        $this->assertSame('badania', $z->dokument);
+        $this->assertSame('Brak dokumentu: Badania lekarskie', $z->rodzajLabel());
+
+        $kadry = $this->actingAs($this->kadry)->get('/zmiany-kadrowe')->viewData('page')['props']['zgloszenia'][0];
+        $this->assertSame('/contacts/'.$this->pracownik->id.'/badania/create', $kadry['dodaj_dokument_url']);
+
+        // Przy innym rodzaju pole "dokument" jest ignorowane.
+        $this->actingAs($this->kierownik)
+            ->post('/budowy/'.$this->moja->id.'/zgloszenia', ['contact_id' => $this->pracownik->id, 'rodzaj' => 'zjazd', 'dokument' => 'a1']);
+        $this->assertNull(ZgloszenieKierownika::orderByDesc('id')->first()->dokument);
+    }
 }

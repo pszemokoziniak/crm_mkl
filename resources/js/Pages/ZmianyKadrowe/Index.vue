@@ -66,8 +66,11 @@
             </div>
           </div>
           <div v-if="z.status === 'nowe'" class="flex flex-wrap items-center gap-2 text-sm">
-            <Link v-if="z.pobyt_id" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/pracownicy/${z.organization_id}/edit/${z.pobyt_id}`">Popraw daty pobytu</Link>
-            <Link class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/contacts/${z.contact_id}/holiday/create`">Wstaw nieobecność</Link>
+            <Link v-if="z.dodaj_dokument_url" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="z.dodaj_dokument_url">Dodaj dokument</Link>
+            <template v-else>
+              <Link v-if="z.pobyt_id" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/pracownicy/${z.organization_id}/edit/${z.pobyt_id}`">Popraw daty pobytu</Link>
+              <Link class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/contacts/${z.contact_id}/holiday/create`">Wstaw nieobecność</Link>
+            </template>
             <button type="button" class="btn-indigo text-sm" @click="obsluzZgloszenie(z, 'obsluzone')">Obsłużone</button>
             <button type="button" class="text-red-600 hover:underline" @click="obsluzZgloszenie(z, 'odrzucone')">Odrzuć</button>
           </div>
