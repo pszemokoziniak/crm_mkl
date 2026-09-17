@@ -78,6 +78,31 @@
       </div>
     </div>
 
+    <!-- Wnioski urlopowe z telefonu: tu tylko podgląd, decyzję podejmuje
+         kierownik; zatwierdzone przychodzą wyżej jako zgłoszenia urlopu. -->
+    <h2 class="mb-3 text-xl font-bold text-gray-900">
+      Wnioski urlopowe z telefonu
+      <span class="ml-1 text-sm font-normal text-gray-500">— czekają na kierownika</span>
+    </h2>
+    <p v-if="wnioski_z_telefonu.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+      Brak wniosków{{ filters.pokaz === 'wszystkie' ? '' : ' czekających na kierownika' }}.
+    </p>
+    <div v-else class="mb-8 bg-white rounded-md shadow divide-y divide-gray-100">
+      <div v-for="w in wnioski_z_telefonu" :key="w.id" class="px-6 py-3 text-sm flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${w.contact_id}/edit`">{{ w.pracownik }}</Link>
+          <span class="ml-2 text-gray-700">{{ w.rodzaj }} · {{ w.od }} – {{ w.do }} ({{ w.dni }} {{ w.dni === 1 ? 'dzień' : 'dni' }})</span>
+          <span v-if="w.uwaga" class="ml-2 text-gray-500 italic">„{{ w.uwaga }}”</span>
+          <div class="text-xs text-gray-500">
+            złożony {{ w.zlozony }}
+            <span v-if="w.rozpatrzyl"> · {{ w.status_label }} {{ w.rozpatrzony }} ({{ w.rozpatrzyl }})</span>
+            <span v-if="w.odpowiedz" class="italic"> „{{ w.odpowiedz }}”</span>
+          </div>
+        </div>
+        <span class="inline-block px-2 py-0.5 text-xs font-medium border rounded-full" :class="klasaWniosku(w.status)">{{ w.status_label }}</span>
+      </div>
+    </div>
+
     <!-- Nowo wprowadzeni pracownicy bez badań albo BHP: upominamy się, dopóki
          obowiązkowe dokumenty nie są wpisane i ważne; potem pilnuje ich raport terminów. -->
     <h2 class="mb-3 text-xl font-bold text-gray-900">
@@ -299,6 +324,7 @@ export default {
     zgloszenia_licznik: { type: Number, default: 0 },
     urlopy_bez_wniosku: { type: Array, default: () => [] },
     nowi_pracownicy: { type: Array, default: () => [] },
+    wnioski_z_telefonu: { type: Array, default: () => [] },
   },
   data() {
     return {
@@ -318,6 +344,13 @@ export default {
       const odpowiedz = prompt(pytanie, '')
       if (odpowiedz === null) return
       this.$inertia.put(`/zgloszenia/${z.id}`, { status, odpowiedz: odpowiedz || null }, { preserveScroll: true })
+    },
+    klasaWniosku(status) {
+      return {
+        zlozony: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        zatwierdzony: 'bg-green-100 text-green-800 border-green-200',
+        odrzucony: 'bg-red-100 text-red-800 border-red-200',
+      }[status] || 'bg-gray-100 text-gray-800 border-gray-200'
     },
     klasaZgloszenia(status) {
       return {

@@ -14,6 +14,7 @@ use App\Models\Narzedzia;
 use App\Models\Organization;
 use App\Models\Pbioz;
 use App\Models\Uprawnienia;
+use App\Models\WniosekUrlopowy;
 use App\Services\LimitPobytuZagranica;
 use App\Services\MagazynSprzetu;
 use App\Services\UrlopyBezWniosku;
@@ -391,6 +392,13 @@ class DashboardController extends Controller
             'do_archiwizacji' => $doArchiwizacji,
             'bez_a1' => $bezWaznegoA1,
             'nieobecni_dzis' => $nieobecniDzis,
+            // Kierownik: wnioski urlopowe z telefonu czekające na jego decyzję.
+            'wnioski_urlopowe' => $user->prowadziBudowy()
+                ? WniosekUrlopowy::with('contact')->zlozone()
+                    ->whereIn('contact_id', $mojiLudzie->all())
+                    ->orderBy('od')->get()
+                    ->map(fn (WniosekUrlopowy $w) => WnioskiUrlopoweController::wiersz($w))
+                : collect(),
             // Kierownik: urlopy wpisane w KCP jego budów bez skanu wniosku.
             'urlopy_bez_wniosku' => $user->prowadziBudowy()
                 ? app(UrlopyBezWniosku::class)->dla($myOrgIds->all(), now()->subMonth()->startOfMonth()->toDateString(), now()->toDateString())

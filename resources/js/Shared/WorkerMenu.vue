@@ -41,6 +41,7 @@ export default {
         { adres: 'holiday', nazwa: 'Nieobecności' },
         { adres: 'history', nazwa: 'Historia' },
         { adres: 'umowa', nazwa: 'Umowa', tylkoBiuro: true },
+        { adres: 'dostep', nazwa: 'Dostęp z telefonu', tylkoBiuro: true },
       ],
     }
   },

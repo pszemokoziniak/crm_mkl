@@ -61,10 +61,11 @@ class UrlopyBezWniosku
             ->get(['contact_id', 'start', 'end'])
             ->groupBy('contact_id');
 
-        // Zgłoszenie urlopu ze skanem zakrywa dni od–do.
+        // Zgłoszenie urlopu ze skanem — albo z wniosku złożonego z telefonu
+        // i zatwierdzonego przez kierownika — zakrywa dni od–do.
         $zgloszenia = ZgloszenieKierownika::whereIn('contact_id', $contactIds)
             ->where('rodzaj', ZgloszenieKierownika::RODZAJ_URLOP)
-            ->whereNotNull('plik_sciezka')
+            ->where(fn ($q) => $q->whereNotNull('plik_sciezka')->orWhereNotNull('wniosek_id'))
             ->where('status', '!=', ZgloszenieKierownika::STATUS_ODRZUCONE)
             ->get(['contact_id', 'od', 'do'])
             ->groupBy('contact_id');

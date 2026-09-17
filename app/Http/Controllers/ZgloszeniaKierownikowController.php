@@ -10,11 +10,10 @@ use App\Models\ContactWorkDate;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\ZgloszenieKierownika;
-use App\Notifications\ZgloszenieKierownikaNotification;
+use App\Services\PowiadomieniaKadr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
@@ -160,19 +159,6 @@ class ZgloszeniaKierownikowController extends Controller
 
     private function powiadomKadry(ZgloszenieKierownika $zgloszenie): void
     {
-        try {
-            $odbiorcy = User::where('active', true)
-                ->where('id', '!=', Auth::id())
-                ->get()
-                ->filter(fn (User $u) => $u->moze(Uprawnienie::ZMIANY_KADROWE));
-
-            if ($odbiorcy->isNotEmpty()) {
-                Notification::send($odbiorcy, new ZgloszenieKierownikaNotification($zgloszenie));
-            }
-        } catch (\Throwable $e) {
-            Log::warning('Nie udało się powiadomić kadr o zgłoszeniu kierownika: '.$e->getMessage(), [
-                'zgloszenie_id' => $zgloszenie->id,
-            ]);
-        }
+        app(PowiadomieniaKadr::class)->oZgloszeniu($zgloszenie, Auth::id());
     }
 }

@@ -107,6 +107,32 @@
         </div>
       </div>
 
+      <!-- Wnioski urlopowe złożone z telefonu: kierownik zatwierdza albo
+           odrzuca; zatwierdzony idzie do kadr jako zgłoszenie urlopu. -->
+      <div v-if="kierownik" class="bg-white rounded-md shadow overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="font-semibold text-gray-700">Wnioski urlopowe do zatwierdzenia</h2>
+          <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="wnioski_urlopowe.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ wnioski_urlopowe.length }}</span>
+        </div>
+        <div class="max-h-96 overflow-y-auto">
+          <div v-for="w in wnioski_urlopowe" :key="w.id" class="px-6 py-3 border-t border-gray-50 text-sm">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${w.contact_id}/edit`">{{ w.pracownik }}</Link>
+                <div class="text-gray-600">{{ w.rodzaj }} · {{ w.od }} – {{ w.do }} ({{ w.dni }} {{ w.dni === 1 ? 'dzień' : 'dni' }})</div>
+                <div v-if="w.uwaga" class="text-xs text-gray-500 italic">„{{ w.uwaga }}”</div>
+                <div class="text-xs text-gray-400">złożony {{ w.zlozony }}</div>
+              </div>
+              <div class="flex flex-col items-end gap-1 whitespace-nowrap">
+                <button type="button" class="btn-indigo text-xs" @click="rozpatrz(w, 'zatwierdzony')">Zatwierdź</button>
+                <button type="button" class="text-xs text-red-600 hover:underline" @click="rozpatrz(w, 'odrzucony')">Odrzuć</button>
+              </div>
+            </div>
+          </div>
+          <p v-if="!wnioski_urlopowe.length" class="px-6 py-4 text-sm text-gray-400">Nikt nie czeka na decyzję.</p>
+        </div>
+      </div>
+
       <!-- Urlop wpisany w KCP bez skanu wniosku: kierownik dokłada skan
            w KCP przyciskiem "Dodaj wniosek". -->
       <div v-if="kierownik" class="bg-white rounded-md shadow overflow-hidden">
@@ -269,6 +295,7 @@ export default {
     do_archiwizacji: { type: Array, default: () => [] },
     zmiany_kadrowe: { type: Array, default: () => [] },
     urlopy_bez_wniosku: { type: Array, default: () => [] },
+    wnioski_urlopowe: { type: Array, default: () => [] },
     zmiany_kadrowe_licznik: { type: Number, default: 0 },
     bez_a1: { type: Array, default: () => [] },
     nieobecni_dzis: { type: Array, default: () => [] },
@@ -297,6 +324,14 @@ export default {
     },
   },
   methods: {
+    rozpatrz(w, status) {
+      const pytanie = status === 'zatwierdzony'
+        ? `Zatwierdzić urlop: ${w.pracownik}, ${w.od} – ${w.do}?\n\nWniosek pójdzie do kadr. Odpowiedź dla pracownika (opcjonalnie):`
+        : `Odrzucić wniosek: ${w.pracownik}, ${w.od} – ${w.do}?\n\nNapisz pracownikowi dlaczego:`
+      const odpowiedz = prompt(pytanie, '')
+      if (odpowiedz === null) return
+      this.$inertia.put(`/wnioski-urlopowe/${w.id}`, { status, odpowiedz: odpowiedz || null }, { preserveScroll: true })
+    },
     opisTerminu(item) {
       if (item.dni < 0) return `po terminie od ${Math.abs(item.dni)} dni`
       if (item.dni === 0) return 'kończy się dziś'

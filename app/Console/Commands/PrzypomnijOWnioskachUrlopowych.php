@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Mail\UrlopyBezWnioskuMail;
-use App\Models\Contact;
-use App\Models\ContactWorkDate;
-use App\Models\Funkcja;
-use App\Models\Organization;
 use App\Models\User;
+use App\Services\KierownicyBudowy;
 use App\Services\UrlopyBezWniosku;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -45,7 +42,7 @@ class PrzypomnijOWnioskachUrlopowych extends Command
         $adres = rtrim(config('app.url'), '/');
         $wyslano = 0;
 
-        foreach ($this->kierownicyBudow($braki->pluck('organization_id')->unique()->all(), $dzis->toDateString()) as $userId => $orgIds) {
+        foreach (app(KierownicyBudowy::class)->dlaBudow($braki->pluck('organization_id')->unique()->all(), $dzis->toDateString()) as $userId => $orgIds) {
             $user = User::find($userId);
             $jego = $braki->filter(fn (array $u) => in_array($u['organization_id'], $orgIds, true))->values();
             if (! $user || ! $user->active || $jego->isEmpty()) {
@@ -63,35 +60,5 @@ class PrzypomnijOWnioskachUrlopowych extends Command
         $this->info('Wysłano '.$wyslano.' przypomnień.');
 
         return self::SUCCESS;
-    }
-
-    /**
-     * Kto dziś prowadzi te budowy: kierownictwo z aktywnym pobytem
-     * (kierownik, inżynier) plus kierownik projektu z pola przy budowie.
-     *
-     * @param int[] $orgIds
-     * @return array<int, int[]> user_id => budowy
-     */
-    private function kierownicyBudow(array $orgIds, string $dzis): array
-    {
-        $wynik = [];
-
-        $pobyty = ContactWorkDate::with('contact')
-            ->whereIn('organization_id', $orgIds)
-            ->activeOn($dzis)
-            ->whereHas('contact', fn ($q) => $q->whereIn('funkcja_id', Funkcja::idsKierownictwaBudowy())->whereNotNull('user_id'))
-            ->get();
-        foreach ($pobyty as $p) {
-            $wynik[(int) $p->contact->user_id][] = (int) $p->organization_id;
-        }
-
-        foreach (Organization::whereIn('id', $orgIds)->whereNotNull('kierownik_projektu_id')->get(['id', 'kierownik_projektu_id']) as $o) {
-            $userId = Contact::withTrashed()->where('id', $o->kierownik_projektu_id)->value('user_id');
-            if ($userId) {
-                $wynik[(int) $userId][] = (int) $o->id;
-            }
-        }
-
-        return array_map(fn ($lista) => array_values(array_unique($lista)), $wynik);
     }
 }

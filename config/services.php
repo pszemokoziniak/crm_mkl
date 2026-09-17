@@ -36,4 +36,10 @@ return [
         'token' => env('CRM_API_TOKEN'),
     ],
 
+    // Bramka SMS do linków dla pracowników; token wpisuje się na serwerze w .env.
+    'smsapi' => [
+        'token' => env('SMSAPI_TOKEN', ''),
+        'nadawca' => env('SMSAPI_NADAWCA', 'Info'),
+    ],
+
 ];

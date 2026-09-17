@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\ContactWorkDate;
+use App\Models\WniosekUrlopowy;
 use App\Models\ZgloszenieKierownika;
 use App\Models\ZmianaKadrowa;
 use Illuminate\Http\RedirectResponse;
@@ -83,6 +84,19 @@ class ZmianyKadroweController extends Controller
             'licznik' => ZmianaKadrowa::nieobsluzone()->count(),
             'zgloszenia' => $zgloszenia,
             'zgloszenia_licznik' => ZgloszenieKierownika::otwarte()->count(),
+            // Wnioski urlopowe z telefonu: czekające na kierownika (informacyjnie —
+            // zatwierdzone przychodzą do kadr jako zgłoszenia urlopu).
+            'wnioski_z_telefonu' => WniosekUrlopowy::with(['contact', 'rozpatrzyl'])
+                ->tap($wZakresie)
+                ->when($pokaz !== 'wszystkie', fn ($q) => $q->zlozone())
+                ->orderByRaw("status = 'zlozony' desc")->orderByDesc('id')->limit(100)->get()
+                ->map(fn (WniosekUrlopowy $w) => array_merge(WnioskiUrlopoweController::wiersz($w), [
+                    'status' => $w->status,
+                    'status_label' => $w->statusLabel(),
+                    'rozpatrzyl' => $w->rozpatrzyl ? trim($w->rozpatrzyl->first_name.' '.$w->rozpatrzyl->last_name) : null,
+                    'rozpatrzony' => $w->rozpatrzony_at?->format('d.m.Y H:i'),
+                    'odpowiedz' => $w->odpowiedz,
+                ])),
             // Nowo wprowadzeni bez badań albo BHP — do skompletowania na start.
             'nowi_pracownicy' => app(NowiPracownicy::class)->bezKompletu(),
             // Urlopy w KCP bez wniosku — ten i poprzedni miesiąc, wszystkie budowy.

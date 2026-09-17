@@ -36,7 +36,10 @@ use App\Http\Controllers\StatystykiController;
 use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
+use App\Http\Controllers\DostepPracownikaController;
+use App\Http\Controllers\PortalPracownikaController;
 use App\Http\Controllers\UprawnieniaRolController;
+use App\Http\Controllers\WnioskiUrlopoweController;
 use App\Http\Controllers\ZgloszeniaKierownikowController;
 use App\Http\Controllers\UprawnieniaTypController;
 use App\Http\Controllers\UmowyController;
@@ -251,6 +254,34 @@ Route::put('zgloszenia/{zgloszenie}', [ZgloszeniaKierownikowController::class, '
 Route::get('zgloszenia/{zgloszenie}/plik', [ZgloszeniaKierownikowController::class, 'plik'])
     ->name('zgloszenia.plik')
     ->middleware('auth');
+
+// Strona pracownika na telefon: bez konta w HRM, osobisty link + PIN.
+Route::get('u/{token}', [PortalPracownikaController::class, 'wejscie'])->name('portal.wejscie');
+Route::post('u/{token}/pin', [PortalPracownikaController::class, 'pin'])->name('portal.pin')->middleware('throttle:20,1');
+Route::post('u/{token}/wniosek', [PortalPracownikaController::class, 'wniosek'])->name('portal.wniosek')->middleware('throttle:30,1');
+Route::post('u/{token}/wyloguj', [PortalPracownikaController::class, 'wyloguj'])->name('portal.wyloguj');
+
+// Kierownik zatwierdza wniosek urlopowy z telefonu (zakres: jego ludzie).
+Route::put('wnioski-urlopowe/{wniosek}', [WnioskiUrlopoweController::class, 'rozpatrz'])
+    ->name('wnioskiUrlopowe.rozpatrz')
+    ->middleware('auth', 'moze:zgloszenia.wysylanie');
+
+// Karta pracownika → Dostęp z telefonu: wydanie i wysłanie linku.
+Route::get('contacts/{contact}/dostep', [DostepPracownikaController::class, 'index'])
+    ->name('dostep.index')
+    ->middleware('auth', 'moze:kartoteki.edycja');
+Route::post('contacts/{contact}/dostep', [DostepPracownikaController::class, 'wydaj'])
+    ->name('dostep.wydaj')
+    ->middleware('auth', 'moze:kartoteki.edycja');
+Route::post('contacts/{contact}/dostep/mail', [DostepPracownikaController::class, 'mail'])
+    ->name('dostep.mail')
+    ->middleware('auth', 'moze:kartoteki.edycja');
+Route::post('contacts/{contact}/dostep/sms', [DostepPracownikaController::class, 'sms'])
+    ->name('dostep.sms')
+    ->middleware('auth', 'moze:kartoteki.edycja');
+Route::delete('contacts/{contact}/dostep', [DostepPracownikaController::class, 'uniewaznij'])
+    ->name('dostep.uniewaznij')
+    ->middleware('auth', 'moze:kartoteki.edycja');
 
 // Ustawienia → Uprawnienia ról: macierz rola × uprawnienie, tylko admin.
 Route::get('uprawnienia-rol', [UprawnieniaRolController::class, 'index'])

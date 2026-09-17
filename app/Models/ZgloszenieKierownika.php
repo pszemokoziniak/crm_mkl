@@ -71,6 +71,12 @@ class ZgloszenieKierownika extends Model
         return $this->belongsTo(User::class, 'user_id')->withTrashed();
     }
 
+    /** Zgłoszenie powstałe z wniosku pracownika zatwierdzonego przez kierownika. */
+    public function wniosek(): BelongsTo
+    {
+        return $this->belongsTo(WniosekUrlopowy::class, 'wniosek_id');
+    }
+
     public function obsluzyl(): BelongsTo
     {
         return $this->belongsTo(User::class, 'obsluzyl_id')->withTrashed();
