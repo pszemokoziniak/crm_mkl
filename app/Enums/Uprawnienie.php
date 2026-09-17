@@ -47,6 +47,8 @@ enum Uprawnienie: string
     case SPRZET_OBSLUGA = 'sprzet.obsluga';
 
     case ZMIANY_KADROWE = 'zmiany_kadrowe.obsluga';
+    /** Kierownik zgłasza kadrom zjazd, urlop, przeniesienie — sam nic nie zmienia. */
+    case ZGLOSZENIA_WYSYLANIE = 'zgloszenia.wysylanie';
 
     case PROGNOZA_PODGLAD = 'prognoza.podglad';
     case PROGNOZA_OBSLUGA = 'prognoza.obsluga';
@@ -101,7 +103,7 @@ enum Uprawnienie: string
             self::DOKUMENTY_DODAWANIE, self::DOKUMENTY_EDYCJA, self::DOKUMENTY_USUWANIE => [self::DOKUMENTY_PODGLAD],
             self::NIEOBECNOSCI_PODGLAD => [self::KARTOTEKI_PODGLAD],
             self::NIEOBECNOSCI_DODAWANIE, self::NIEOBECNOSCI_EDYCJA, self::NIEOBECNOSCI_USUWANIE => [self::NIEOBECNOSCI_PODGLAD],
-            self::KCP_WPISYWANIE => [self::BUDOWY_PODGLAD],
+            self::KCP_WPISYWANIE, self::ZGLOSZENIA_WYSYLANIE => [self::BUDOWY_PODGLAD],
             self::SPRZET_OBSLUGA => [self::SPRZET_PODGLAD],
             self::PROGNOZA_OBSLUGA => [self::PROGNOZA_PODGLAD],
             self::UZYTKOWNICY_ZAKLADANIE, self::UZYTKOWNICY_EDYCJA, self::UZYTKOWNICY_BLOKOWANIE,
@@ -119,7 +121,8 @@ enum Uprawnienie: string
             'nieobecnosci' => 'Nieobecności',
             'kcp' => 'Karty pracy (KCP)',
             'sprzet' => 'Sprzęt',
-            'zmiany_kadrowe' => 'Zmiany kadrowe',
+            'zmiany_kadrowe' => 'Kadry',
+            'zgloszenia' => 'Zgłoszenia do kadr',
             'prognoza' => 'Prognoza pracowników',
             'raport_terminow' => 'Raport terminów uprawnień',
             'statystyki' => 'Statystyki',
@@ -154,7 +157,8 @@ enum Uprawnienie: string
             self::KCP_RAPORTY => 'raport miesięczny i zbiorczy',
             self::SPRZET_PODGLAD => 'podgląd sprzętu na budowie',
             self::SPRZET_OBSLUGA => 'magazyn, przypisania, dokumenty',
-            self::ZMIANY_KADROWE => 'obsługa',
+            self::ZMIANY_KADROWE => 'obsługa zmian pobytów i zgłoszeń od kierowników',
+            self::ZGLOSZENIA_WYSYLANIE => 'wysyłanie zgłoszeń o zjeździe, urlopie, przeniesieniu',
             self::PROGNOZA_PODGLAD => 'podgląd',
             self::PROGNOZA_OBSLUGA => 'obsługa',
             self::RAPORT_TERMINOW => 'podgląd',

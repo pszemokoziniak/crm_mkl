@@ -39,7 +39,7 @@ export default {
         { nazwa: 'Budowy', adres: '/budowy', ikona: 'office', dopasowanie: 'budowy', moze: 'budowy.podglad' },
         { nazwa: 'Pracownicy', adres: '/contacts', ikona: 'users', dopasowanie: 'contacts', moze: 'kartoteki.lista' },
         { nazwa: 'Kierownicy / Inżynierowie', adres: '/kierownicy', ikona: 'kierownictwo', dopasowanie: 'kierownicy', moze: 'kartoteki.lista' },
-        { nazwa: 'Zmiany kadrowe', adres: '/zmiany-kadrowe', ikona: 'zmiany', dopasowanie: 'zmiany-kadrowe', moze: 'zmiany_kadrowe.obsluga' },
+        { nazwa: 'Kadry', adres: '/zmiany-kadrowe', ikona: 'zmiany', dopasowanie: 'zmiany-kadrowe', moze: 'zmiany_kadrowe.obsluga' },
         { nazwa: 'Sprzęt', adres: '/narzedzia', ikona: 'sprzet2', dopasowanie: 'narzedzia', moze: 'sprzet.obsluga' },
         { nazwa: 'Termin uprawnień', adres: '/reports/koniecUprawinien', ikona: 'eligibility', dopasowanie: 'reports', moze: 'raport_terminow.podglad' },
         { nazwa: 'Prognoza pracowników', adres: '/prognoza', ikona: 'forecast-workers', dopasowanie: 'prognoza', moze: 'prognoza.obsluga' },

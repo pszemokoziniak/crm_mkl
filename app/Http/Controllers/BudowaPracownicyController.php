@@ -6,10 +6,11 @@ use App\Http\Requests\FindPracownicyRequest;
 use App\Http\Requests\StoreBudowaPracownicyRequest;
 use App\Models\A1;
 use App\Models\Contact;
-use App\Models\ContactWorkDate;
 use App\Models\BuildingTimeSheet;
+use App\Models\ContactWorkDate;
 use App\Models\Funkcja;
 use App\Models\Organization;
+use App\Models\ZgloszenieKierownika;
 use App\Services\KolizjaPobytu;
 use App\Services\LimitPobytuZagranica;
 use Carbon\Carbon;
@@ -136,6 +137,15 @@ class BudowaPracownicyController extends Controller
                     'nieobecnosc' => optional(optional($contactworkdate->contact)->holidays->first())->label,
                 ]),
             'user_owner' => Auth::user()->owner,
+            // Ostatnie zgłoszenie do kadr per pracownik — kierownik widzi,
+            // czy jego sprawa czeka, czy jest załatwiona.
+            'zgloszenia' => ZgloszenieKierownika::with(['autor', 'obsluzyl'])
+                ->where('organization_id', $organization->id)
+                ->orderByDesc('id')
+                ->get()
+                ->unique('contact_id')
+                ->mapWithKeys(fn (ZgloszenieKierownika $z) => [$z->contact_id => ZgloszeniaKierownikowController::wiersz($z)]),
+            'rodzaje_zgloszen' => ZgloszenieKierownika::RODZAJE,
         ]);
     }
     public function create(Organization $organization) {

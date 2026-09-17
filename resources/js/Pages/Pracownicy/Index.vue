@@ -71,7 +71,7 @@
               </button>
             </th>
             <th>Na budowie</th>
-            <th v-if="mozeEdytowac" class="text-right">Akcje</th>
+            <th class="text-right">Akcje</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -86,6 +86,9 @@
                 {{ item.contact.last_name }} {{ item.contact.first_name }}
               </Link>
               <icon v-if="item.deleted_at" name="trash" class="inline ml-1 w-3 h-3 fill-gray-400" />
+              <div v-if="zgloszenia[item.contact.id]" class="mt-1 text-xs" :class="klasaZgloszenia(zgloszenia[item.contact.id])">
+                {{ opisZgloszenia(zgloszenia[item.contact.id]) }}
+              </div>
             </td>
             <td v-if="item.contact" class="px-4 py-3 text-gray-600 tabular-nums">
               <span class="block whitespace-nowrap">od: {{ item.start }}</span>
@@ -105,6 +108,12 @@
               </Link>
               <button type="button" class="ml-3 text-red-600 hover:underline" @click="destroy(item.id)">
                 Usuń
+              </button>
+            </td>
+            <!-- Kierownik niczego nie zmienia — zgłasza kadrom zjazd, urlop, przeniesienie. -->
+            <td v-else-if="item.contact" class="px-4 py-3 text-right whitespace-nowrap">
+              <button type="button" class="text-indigo-600 hover:underline" @click="zglos(item)">
+                Zgłoś do kadr
               </button>
             </td>
           </tr>
@@ -135,21 +144,68 @@
             <div class="mt-1 text-sm text-gray-600 tabular-nums">
               od: {{ item.start }} · do: {{ item.end }}
             </div>
+            <div v-if="zgloszenia[item.contact.id]" class="mt-1 text-xs" :class="klasaZgloszenia(zgloszenia[item.contact.id])">
+              {{ opisZgloszenia(zgloszenia[item.contact.id]) }}
+            </div>
             <div v-if="mozeEdytowac" class="mt-2 text-sm">
               <Link class="text-indigo-600" :href="`/pracownicy/${organization_id}/edit/${item.id}`">Popraw daty</Link>
               <button type="button" class="ml-4 text-red-600" @click="destroy(item.id)">Usuń</button>
+            </div>
+            <div v-else class="mt-2 text-sm">
+              <button type="button" class="text-indigo-600" @click="zglos(item)">Zgłoś do kadr</button>
             </div>
           </div>
         </div>
       </div>
       <p v-if="contactworkdates.data.length === 0" class="p-4 text-sm text-gray-500">Nie znaleziono pracownika</p>
     </div>
+
+    <!-- Zgłoszenie do kadr: kierownik wie pierwszy o zjeździe czy urlopie,
+         ale zmianę pobytu i nieobecność wstawiają kadry. -->
+    <teleport to="body">
+      <div v-if="zgloszenie.otwarte" class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900 bg-opacity-50 p-4" @click.self="zamknijZgloszenie">
+        <form class="w-full max-w-lg bg-white rounded-lg shadow-xl" @submit.prevent="wyslijZgloszenie">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900">Zgłoś do kadr</h3>
+            <p class="text-sm text-gray-500">{{ zgloszenie.pracownik }} · {{ organization.nazwaBud }}</p>
+          </div>
+          <div class="px-6 py-4 space-y-4">
+            <div>
+              <label class="form-label" for="zgl-rodzaj">Czego dotyczy:</label>
+              <select id="zgl-rodzaj" v-model="zgloszenie.form.rodzaj" class="form-select w-full" :class="{ error: zgloszenie.form.errors.rodzaj }">
+                <option v-for="(nazwa, klucz) in rodzaje_zgloszen" :key="klucz" :value="klucz">{{ nazwa }}</option>
+              </select>
+              <div v-if="zgloszenie.form.errors.rodzaj" class="form-error">{{ zgloszenie.form.errors.rodzaj }}</div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <date-input v-model="zgloszenie.form.od" :error="zgloszenie.form.errors.od" label="Od" />
+              <date-input v-model="zgloszenie.form.do" :error="zgloszenie.form.errors.do" label="Do" />
+            </div>
+            <div>
+              <label class="form-label" for="zgl-uwaga">Uwaga dla kadr:</label>
+              <textarea id="zgl-uwaga" v-model="zgloszenie.form.uwaga" rows="3" class="form-input w-full" placeholder="np. wraca 28.09, chce urlop na wesele brata"></textarea>
+              <div v-if="zgloszenie.form.errors.uwaga" class="form-error">{{ zgloszenie.form.errors.uwaga }}</div>
+            </div>
+            <div>
+              <label class="form-label" for="zgl-plik">Skan (wniosek urlopowy, zdjęcie albo PDF):</label>
+              <input id="zgl-plik" type="file" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-600" @change="zgloszenie.form.plik = $event.target.files[0] || null" />
+              <div v-if="zgloszenie.form.errors.plik" class="form-error">{{ zgloszenie.form.errors.plik }}</div>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-lg">
+            <button type="button" class="text-sm text-gray-600 hover:text-gray-900" @click="zamknijZgloszenie">Anuluj</button>
+            <button type="submit" class="btn-indigo text-sm" :disabled="zgloszenie.form.processing">Wyślij do kadr</button>
+          </div>
+        </form>
+      </div>
+    </teleport>
   </div>
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link, useForm } from '@inertiajs/inertia-vue3'
 import { prowadziBudowy } from '@/role'
+import DateInput from '@/Shared/DateInput.vue'
 import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
@@ -163,6 +219,7 @@ import SearchFilterNoFiltr from '@/Shared/SearchFilterNoFiltr.vue'
 export default {
   components: {
     BudowaNaglowek,
+    DateInput,
     SearchFilterNoFiltr,
     Head,
     Icon,
@@ -177,11 +234,18 @@ export default {
     sortowanie: { type: Object, default: () => ({ sort: 'nazwisko', direction: 'asc' }) },
     filters: Object,
     user_owner: Number,
-    // contact_work_dates: Object,
+    // Ostatnie zgłoszenie do kadr per pracownik (contact_id → wiersz).
+    zgloszenia: { type: Object, default: () => ({}) },
+    rodzaje_zgloszen: { type: Object, default: () => ({}) },
   },
   data() {
     return {
       zaznaczone: [],
+      zgloszenie: {
+        otwarte: false,
+        pracownik: '',
+        form: useForm({ contact_id: null, rodzaj: 'zjazd', od: '', do: '', uwaga: '', plik: null }),
+      },
       nowaDataKonca: '',
       form: {
         search: this.filters.search,
@@ -222,6 +286,31 @@ export default {
   },
   methods: {
     prowadziBudowy,
+    zglos(item) {
+      this.zgloszenie.form.reset()
+      this.zgloszenie.form.clearErrors()
+      this.zgloszenie.form.contact_id = item.contact.id
+      this.zgloszenie.pracownik = `${item.contact.last_name} ${item.contact.first_name}`
+      this.zgloszenie.otwarte = true
+    },
+    zamknijZgloszenie() {
+      this.zgloszenie.otwarte = false
+    },
+    wyslijZgloszenie() {
+      this.zgloszenie.form.post(`/budowy/${this.organization_id}/zgloszenia`, {
+        forceFormData: true,
+        preserveScroll: true,
+        onSuccess: () => this.zamknijZgloszenie(),
+      })
+    },
+    opisZgloszenia(z) {
+      const zakres = z.od && z.do ? ` ${z.od} – ${z.do}` : (z.od ? ` od ${z.od}` : '')
+      const koniec = z.status === 'odrzucone' && z.odpowiedz ? `: ${z.odpowiedz}` : ''
+      return `Zgłoszono ${z.kiedy}: ${z.rodzaj_label.toLowerCase()}${zakres} — ${z.status_label}${koniec}`
+    },
+    klasaZgloszenia(z) {
+      return { nowe: 'text-yellow-700', obsluzone: 'text-green-700', odrzucone: 'text-red-700' }[z.status] || 'text-gray-500'
+    },
     // Kliknięcie w tę samą kolumnę odwraca kierunek, w inną — zaczyna od A do Z.
     sortuj(kolumna) {
       const kierunek = this.sortowanie.sort === kolumna && this.sortowanie.direction === 'asc' ? 'desc' : 'asc'

@@ -37,6 +37,7 @@ use App\Http\Controllers\ShiftStatusController;
 use App\Http\Controllers\ToolWorkDatesController;
 use App\Http\Controllers\UprawnieniaController;
 use App\Http\Controllers\UprawnieniaRolController;
+use App\Http\Controllers\ZgloszeniaKierownikowController;
 use App\Http\Controllers\UprawnieniaTypController;
 use App\Http\Controllers\UmowyController;
 use App\Http\Controllers\UsersController;
@@ -237,6 +238,19 @@ Route::get('ustawienia', [SettingsController::class, 'index'])
 Route::put('ustawienia', [SettingsController::class, 'update'])
     ->name('ustawienia.update')
     ->middleware('auth', 'moze:slowniki.biura');
+
+// Zgłoszenia od kierowników do kadr: zjazd, urlop, przeniesienie.
+Route::post('budowy/{organization}/zgloszenia', [ZgloszeniaKierownikowController::class, 'store'])
+    ->name('zgloszenia.store')
+    ->middleware('auth', 'moze:zgloszenia.wysylanie');
+
+Route::put('zgloszenia/{zgloszenie}', [ZgloszeniaKierownikowController::class, 'obsluz'])
+    ->name('zgloszenia.obsluz')
+    ->middleware('auth', 'moze:zmiany_kadrowe.obsluga');
+
+Route::get('zgloszenia/{zgloszenie}/plik', [ZgloszeniaKierownikowController::class, 'plik'])
+    ->name('zgloszenia.plik')
+    ->middleware('auth');
 
 // Ustawienia → Uprawnienia ról: macierz rola × uprawnienie, tylko admin.
 Route::get('uprawnienia-rol', [UprawnieniaRolController::class, 'index'])

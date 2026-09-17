@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\ContactWorkDate;
+use App\Models\ZgloszenieKierownika;
 use App\Models\ZmianaKadrowa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -43,10 +45,30 @@ class ZmianyKadroweController extends Controller
             ])
             ->values();
 
+        // Zgłoszenia od kierowników: otwarte zawsze, załatwione tylko przy "wszystkie".
+        $dzis = now()->toDateString();
+        $zgloszenia = ZgloszenieKierownika::with(['contact', 'organization', 'autor', 'obsluzyl'])
+            ->when($pokaz !== 'wszystkie', fn ($q) => $q->otwarte())
+            ->orderByRaw("status = 'nowe' desc")
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get()
+            ->map(function (ZgloszenieKierownika $z) use ($dzis) {
+                $pobyt = ContactWorkDate::where('contact_id', $z->contact_id)
+                    ->where('organization_id', $z->organization_id)
+                    ->where(fn ($q) => $q->whereNull('end')->orWhere('end', '>=', $dzis))
+                    ->orderByDesc('start')
+                    ->value('id');
+
+                return ZgloszeniaKierownikowController::wiersz($z, $pobyt ? (int) $pobyt : null);
+            });
+
         return Inertia::render('ZmianyKadrowe/Index', [
             'paczki' => $paczki,
             'filters' => ['pokaz' => $pokaz],
             'licznik' => ZmianaKadrowa::nieobsluzone()->count(),
+            'zgloszenia' => $zgloszenia,
+            'zgloszenia_licznik' => ZgloszenieKierownika::otwarte()->count(),
         ]);
     }
 

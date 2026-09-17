@@ -79,7 +79,8 @@ class MacierzUprawnienTest extends TestCase
 
         foreach ($ma as $u) {
             $this->assertTrue(
-                str_ends_with($u->value, '.podglad') || $u === Uprawnienie::KCP_WPISYWANIE,
+                str_ends_with($u->value, '.podglad')
+                    || in_array($u, [Uprawnienie::KCP_WPISYWANIE, Uprawnienie::ZGLOSZENIA_WYSYLANIE], true),
                 'Kierownik dostał coś poza podglądem: '.$u->value,
             );
         }

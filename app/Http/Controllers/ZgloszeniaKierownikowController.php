@@ -1,0 +1,173 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
+
+use App\Enums\Uprawnienie;
+use App\Models\Contact;
+use App\Models\ContactWorkDate;
+use App\Models\Organization;
+use App\Models\User;
+use App\Models\ZgloszenieKierownika;
+use App\Notifications\ZgloszenieKierownikaNotification;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
+/**
+ * Zgłoszenia od kierowników do kadr. Kierownik zgłasza z zakładki
+ * Pracownicy swojej budowy; kadry obsługują na ekranie Kadry.
+ */
+class ZgloszeniaKierownikowController extends Controller
+{
+    private const KATALOG = 'zgloszenia';
+
+    public function store(Organization $organization): RedirectResponse
+    {
+        $dane = Request::validate([
+            'contact_id' => ['required', 'integer'],
+            'rodzaj' => ['required', Rule::in(array_keys(ZgloszenieKierownika::RODZAJE))],
+            'od' => ['nullable', 'date'],
+            'do' => ['nullable', 'date', 'after_or_equal:od'],
+            'uwaga' => ['nullable', 'string', 'max:2000'],
+            'plik' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,pdf'],
+        ], [
+            'do.after_or_equal' => 'Data "do" nie może być przed datą "od".',
+            'plik.mimes' => 'Skan może być zdjęciem (jpg, png) albo plikiem PDF.',
+            'plik.max' => 'Plik może mieć najwyżej 10 MB.',
+        ]);
+
+        $user = Auth::user();
+        $contact = Contact::withTrashed()->findOrFail((int) $dane['contact_id']);
+
+        // Zgłasza się tylko o kimś, kto jest albo był na TEJ budowie — i kogo
+        // zgłaszający w ogóle może oglądać (kierownik: swoi ludzie).
+        $naBudowie = ContactWorkDate::where('contact_id', $contact->id)
+            ->where('organization_id', $organization->id)
+            ->exists();
+        abort_unless($naBudowie && $user->can('view', $contact), 403, 'Ten pracownik nie jest na tej budowie.');
+
+        $zgloszenie = new ZgloszenieKierownika();
+        $zgloszenie->forceFill([
+            'contact_id' => $contact->id,
+            'organization_id' => $organization->id,
+            'user_id' => $user->id,
+            'rodzaj' => $dane['rodzaj'],
+            'od' => $dane['od'] ?? null,
+            'do' => $dane['do'] ?? null,
+            'uwaga' => $dane['uwaga'] ?? null,
+            'status' => ZgloszenieKierownika::STATUS_NOWE,
+        ])->save();
+
+        if (Request::hasFile('plik')) {
+            $plik = Request::file('plik');
+            $nazwa = Str::random(40).'.'.strtolower($plik->getClientOriginalExtension() ?: 'bin');
+            $plik->storeAs(self::KATALOG.'/'.$zgloszenie->id, $nazwa);
+            $zgloszenie->forceFill([
+                'plik_sciezka' => self::KATALOG.'/'.$zgloszenie->id.'/'.$nazwa,
+                'plik_nazwa' => $plik->getClientOriginalName(),
+            ])->save();
+        }
+
+        $this->powiadomKadry($zgloszenie);
+
+        return Redirect::back()->with('success', 'Zgłoszenie poszło do kadr.');
+    }
+
+    /** Kadry: obsłużone (po zrobieniu zmiany) albo odrzucone, z odpowiedzią dla kierownika. */
+    public function obsluz(ZgloszenieKierownika $zgloszenie): RedirectResponse
+    {
+        $dane = Request::validate([
+            'status' => ['required', Rule::in([ZgloszenieKierownika::STATUS_OBSLUZONE, ZgloszenieKierownika::STATUS_ODRZUCONE])],
+            'odpowiedz' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $zgloszenie->forceFill([
+            'status' => $dane['status'],
+            'odpowiedz' => $dane['odpowiedz'] ?? null,
+            'obsluzyl_id' => Auth::id(),
+            'obsluzone_at' => now(),
+        ])->save();
+
+        return Redirect::back()->with('success', $dane['status'] === ZgloszenieKierownika::STATUS_OBSLUZONE
+            ? 'Zgłoszenie obsłużone.'
+            : 'Zgłoszenie odrzucone.');
+    }
+
+    /** Skan widzi ten, kto obsługuje zgłoszenia, i ten, kto je wysłał. */
+    public function plik(ZgloszenieKierownika $zgloszenie): BinaryFileResponse
+    {
+        $user = Auth::user();
+        abort_unless(
+            $user->moze(Uprawnienie::ZMIANY_KADROWE) || (int) $zgloszenie->user_id === (int) $user->id,
+            403,
+        );
+
+        abort_if(! $zgloszenie->plik_sciezka || ! Storage::exists($zgloszenie->plik_sciezka), 404);
+
+        // Zdjęcie i PDF przeglądarka pokaże sama.
+        return response()->file(Storage::path($zgloszenie->plik_sciezka));
+    }
+
+    /**
+     * Wiersz zgłoszenia do widoków: zakładka Pracownicy (status dla
+     * kierownika) i ekran Kadry (pełna obsługa).
+     *
+     * @return array<string, mixed>
+     */
+    public static function wiersz(ZgloszenieKierownika $z, ?int $pobytId = null): array
+    {
+        $autor = $z->autor;
+        $obsluzyl = $z->obsluzyl;
+
+        return [
+            'id' => $z->id,
+            'contact_id' => $z->contact_id,
+            'pracownik' => $z->contact ? trim($z->contact->last_name.' '.$z->contact->first_name) : '—',
+            'organization_id' => $z->organization_id,
+            'budowa' => $z->organization?->nazwaBud,
+            'rodzaj' => $z->rodzaj,
+            'rodzaj_label' => $z->rodzajLabel(),
+            'od' => $z->od?->format('Y-m-d'),
+            'do' => $z->do?->format('Y-m-d'),
+            'uwaga' => $z->uwaga,
+            'plik' => $z->plik_sciezka ? '/zgloszenia/'.$z->id.'/plik' : null,
+            'plik_nazwa' => $z->plik_nazwa,
+            'status' => $z->status,
+            'status_label' => $z->statusLabel(),
+            'autor' => $autor ? trim($autor->first_name.' '.$autor->last_name) : '—',
+            'kiedy' => $z->created_at?->format('d.m.Y H:i'),
+            'obsluzyl' => $obsluzyl ? trim($obsluzyl->first_name.' '.$obsluzyl->last_name) : null,
+            'obsluzone_kiedy' => $z->obsluzone_at?->format('d.m.Y H:i'),
+            'odpowiedz' => $z->odpowiedz,
+            // Skróty dla kadr: poprawić daty pobytu, wstawić nieobecność.
+            'pobyt_id' => $pobytId,
+        ];
+    }
+
+    private function powiadomKadry(ZgloszenieKierownika $zgloszenie): void
+    {
+        try {
+            $odbiorcy = User::where('active', true)
+                ->where('id', '!=', Auth::id())
+                ->get()
+                ->filter(fn (User $u) => $u->moze(Uprawnienie::ZMIANY_KADROWE));
+
+            if ($odbiorcy->isNotEmpty()) {
+                Notification::send($odbiorcy, new ZgloszenieKierownikaNotification($zgloszenie));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Nie udało się powiadomić kadr o zgłoszeniu kierownika: '.$e->getMessage(), [
+                'zgloszenie_id' => $zgloszenie->id,
+            ]);
+        }
+    }
+}

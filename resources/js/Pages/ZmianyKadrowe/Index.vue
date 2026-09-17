@@ -1,10 +1,11 @@
 <template>
   <div>
-    <Head title="Zmiany kadrowe" />
-    <h1 class="mb-2 text-3xl font-bold text-gray-900">Zmiany kadrowe</h1>
+    <Head title="Kadry" />
+    <h1 class="mb-2 text-3xl font-bold text-gray-900">Kadry</h1>
     <p class="mb-6 text-sm text-gray-500">
-      Zmiany pobytów na budowach do przygotowania aneksów.
-      Nieobsłużonych: <span class="font-bold text-gray-700">{{ licznik }}</span>.
+      Zgłoszenia od kierowników i zmiany pobytów na budowach do przygotowania aneksów.
+      Do obsłużenia: zgłoszeń <span class="font-bold text-gray-700">{{ zgloszenia_licznik }}</span>,
+      zmian pobytów <span class="font-bold text-gray-700">{{ licznik }}</span>.
     </p>
 
     <div class="flex items-center gap-3 mb-6">
@@ -28,6 +29,45 @@
       </div>
     </div>
 
+    <!-- Zgłoszenia od kierowników: kierownik wie pierwszy o zjeździe czy urlopie,
+         ale zmianę pobytu i nieobecność wstawiają kadry, po czym zamykają zgłoszenie. -->
+    <h2 class="mb-3 text-xl font-bold text-gray-900">Zgłoszenia od kierowników</h2>
+    <p v-if="zgloszenia.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+      Brak zgłoszeń{{ filters.pokaz === 'wszystkie' ? '' : ' do obsłużenia' }}.
+    </p>
+    <div v-else class="mb-8 bg-white rounded-md shadow divide-y divide-gray-100">
+      <div v-for="z in zgloszenia" :key="z.id" class="px-6 py-4">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <Link class="font-semibold text-gray-900 hover:text-indigo-600" :href="`/contacts/${z.contact_id}/edit`">{{ z.pracownik }}</Link>
+              <span class="inline-block px-2 py-0.5 text-xs font-medium border rounded-full" :class="klasaZgloszenia(z.status)">{{ z.status_label }}</span>
+            </div>
+            <div class="mt-1 text-sm text-gray-800">
+              <span class="font-medium">{{ z.rodzaj_label }}</span>
+              <span v-if="z.od || z.do" class="ml-1 tabular-nums">{{ z.od || '…' }} – {{ z.do || '…' }}</span>
+              <span class="ml-1 text-gray-500">·</span>
+              <Link class="ml-1 text-indigo-600 hover:underline" :href="`/pracownicy/${z.organization_id}`">{{ z.budowa }}</Link>
+            </div>
+            <p v-if="z.uwaga" class="mt-1 text-sm text-gray-600 whitespace-pre-line">{{ z.uwaga }}</p>
+            <div class="mt-1 text-xs text-gray-500">
+              zgłosił {{ z.autor }}, {{ z.kiedy }}
+              <a v-if="z.plik" class="ml-2 text-indigo-600 hover:underline" :href="z.plik" target="_blank" rel="noopener">skan: {{ z.plik_nazwa }}</a>
+              <span v-if="z.obsluzyl" class="ml-2">· {{ z.status_label }} {{ z.obsluzone_kiedy }} ({{ z.obsluzyl }})</span>
+              <span v-if="z.odpowiedz" class="ml-2 italic">„{{ z.odpowiedz }}”</span>
+            </div>
+          </div>
+          <div v-if="z.status === 'nowe'" class="flex flex-wrap items-center gap-2 text-sm">
+            <Link v-if="z.pobyt_id" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/pracownicy/${z.organization_id}/edit/${z.pobyt_id}`">Popraw daty pobytu</Link>
+            <Link class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/contacts/${z.contact_id}/holiday/create`">Wstaw nieobecność</Link>
+            <button type="button" class="btn-indigo text-sm" @click="obsluzZgloszenie(z, 'obsluzone')">Obsłużone</button>
+            <button type="button" class="text-red-600 hover:underline" @click="obsluzZgloszenie(z, 'odrzucone')">Odrzuć</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="mb-3 text-xl font-bold text-gray-900">Zmiany pobytów</h2>
     <p v-if="paczki.length === 0" class="p-8 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
       Nic do obsłużenia.
     </p>
@@ -162,8 +202,25 @@ export default {
     paczki: { type: Array, default: () => [] },
     filters: { type: Object, default: () => ({}) },
     licznik: { type: Number, default: 0 },
+    zgloszenia: { type: Array, default: () => [] },
+    zgloszenia_licznik: { type: Number, default: 0 },
   },
   methods: {
+    obsluzZgloszenie(z, status) {
+      const pytanie = status === 'obsluzone'
+        ? `Oznaczyć zgłoszenie (${z.pracownik} — ${z.rodzaj_label}) jako obsłużone?\n\nOdpowiedź dla kierownika (opcjonalnie):`
+        : `Odrzucić zgłoszenie (${z.pracownik} — ${z.rodzaj_label})?\n\nNapisz kierownikowi dlaczego:`
+      const odpowiedz = prompt(pytanie, '')
+      if (odpowiedz === null) return
+      this.$inertia.put(`/zgloszenia/${z.id}`, { status, odpowiedz: odpowiedz || null }, { preserveScroll: true })
+    },
+    klasaZgloszenia(status) {
+      return {
+        nowe: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        obsluzone: 'bg-green-100 text-green-800 border-green-200',
+        odrzucone: 'bg-red-100 text-red-800 border-red-200',
+      }[status] || 'bg-gray-100 text-gray-800 border-gray-200'
+    },
     pokaz(co) {
       this.$inertia.get('/zmiany-kadrowe', { pokaz: co }, { preserveState: true, replace: true })
     },

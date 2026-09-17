@@ -198,6 +198,7 @@ final class Macierz
             Uprawnienie::DOKUMENTY_PODGLAD,
             Uprawnienie::NIEOBECNOSCI_PODGLAD,
             Uprawnienie::KCP_WPISYWANIE,
+            Uprawnienie::ZGLOSZENIA_WYSYLANIE,
             Uprawnienie::SPRZET_PODGLAD,
             Uprawnienie::PROGNOZA_PODGLAD,
             Uprawnienie::RAPORT_TERMINOW,
