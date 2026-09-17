@@ -27,6 +27,14 @@
           Wszystkie
         </button>
       </div>
+      <!-- Historia bez zakresu ucina się na 300 najnowszych wpisach. -->
+      <div v-if="filters.pokaz === 'wszystkie'" class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+        <label for="zk-od">od</label>
+        <input id="zk-od" v-model="zakres.od" type="date" class="form-input py-1.5 text-sm" @change="pokaz('wszystkie')" />
+        <label for="zk-do">do</label>
+        <input id="zk-do" v-model="zakres.do" type="date" class="form-input py-1.5 text-sm" @change="pokaz('wszystkie')" />
+        <button v-if="zakres.od || zakres.do" type="button" class="text-indigo-600 hover:underline" @click="zakres.od = ''; zakres.do = ''; pokaz('wszystkie')">Wyczyść</button>
+      </div>
     </div>
 
     <!-- Zgłoszenia od kierowników: kierownik wie pierwszy o zjeździe czy urlopie,
@@ -238,6 +246,11 @@ export default {
     zgloszenia_licznik: { type: Number, default: 0 },
     urlopy_bez_wniosku: { type: Array, default: () => [] },
   },
+  data() {
+    return {
+      zakres: { od: this.filters.od || '', do: this.filters.do || '' },
+    }
+  },
   methods: {
     obsluzZgloszenie(z, status) {
       const pytanie = status === 'obsluzone'
@@ -255,7 +268,12 @@ export default {
       }[status] || 'bg-gray-100 text-gray-800 border-gray-200'
     },
     pokaz(co) {
-      this.$inertia.get('/zmiany-kadrowe', { pokaz: co }, { preserveState: true, replace: true })
+      const dane = { pokaz: co }
+      if (co === 'wszystkie') {
+        if (this.zakres.od) dane.od = this.zakres.od
+        if (this.zakres.do) dane.do = this.zakres.do
+      }
+      this.$inertia.get('/zmiany-kadrowe', dane, { preserveState: true, replace: true })
     },
     zmienStatus(dane) {
       this.$inertia.put('/zmiany-kadrowe', dane, { preserveScroll: true })

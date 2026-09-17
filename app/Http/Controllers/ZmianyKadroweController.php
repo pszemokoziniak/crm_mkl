@@ -25,8 +25,19 @@ class ZmianyKadroweController extends Controller
     {
         $pokaz = Request::query('pokaz', 'nieobsluzone');
 
+        // Zakres dat dla historii ("Wszystkie"): po dacie zgłoszenia zmiany.
+        // Bez zakresu lista ucina się na 300 najnowszych wpisach.
+        $od = $this->data(Request::query('od'));
+        $do = $this->data(Request::query('do'));
+        // Jeden parametr: tap() dokłada drugi argument (true), więc nazwa
+        // kolumny jako parametr zamieniłaby się w kolumnę "1".
+        $wZakresie = fn ($query) => $query
+            ->when($od, fn ($q) => $q->whereDate('created_at', '>=', $od))
+            ->when($do, fn ($q) => $q->whereDate('created_at', '<=', $do));
+
         $zmiany = ZmianaKadrowa::with(['contact', 'budowaZ', 'budowaDo', 'autor', 'obsluzylUser'])
             ->when($pokaz !== 'wszystkie', fn ($query) => $query->nieobsluzone())
+            ->tap($wZakresie)
             ->orderByDesc('created_at')
             ->limit(300)
             ->get()
@@ -50,6 +61,7 @@ class ZmianyKadroweController extends Controller
         $dzis = now()->toDateString();
         $zgloszenia = ZgloszenieKierownika::with(['contact', 'organization', 'autor', 'obsluzyl'])
             ->when($pokaz !== 'wszystkie', fn ($q) => $q->otwarte())
+            ->tap($wZakresie)
             ->orderByRaw("status = 'nowe' desc")
             ->orderByDesc('id')
             ->limit(100)
@@ -66,7 +78,7 @@ class ZmianyKadroweController extends Controller
 
         return Inertia::render('ZmianyKadrowe/Index', [
             'paczki' => $paczki,
-            'filters' => ['pokaz' => $pokaz],
+            'filters' => ['pokaz' => $pokaz, 'od' => $od, 'do' => $do],
             'licznik' => ZmianaKadrowa::nieobsluzone()->count(),
             'zgloszenia' => $zgloszenia,
             'zgloszenia_licznik' => ZgloszenieKierownika::otwarte()->count(),
@@ -77,6 +89,16 @@ class ZmianyKadroweController extends Controller
                 now()->toDateString(),
             ),
         ]);
+    }
+
+    /** Data z adresu albo null — śmieci w parametrze nie mają wywracać strony. */
+    private function data(?string $wartosc): ?string
+    {
+        if (! $wartosc || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $wartosc)) {
+            return null;
+        }
+
+        return $wartosc;
     }
 
     /** Zmiana statusu — pojedynczy wpis albo cała paczka. */

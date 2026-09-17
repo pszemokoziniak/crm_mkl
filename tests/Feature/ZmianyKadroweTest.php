@@ -149,6 +149,31 @@ class ZmianyKadroweTest extends TestCase
         Notification::assertNotSentTo([$kierownik, $zablokowany, $this->montaz], ZmianaKadrowaNotification::class);
     }
 
+    public function test_wszystkie_da_sie_zawezic_po_dacie_zgloszenia(): void
+    {
+        $this->actingAs($this->montaz);
+        $this->travelTo(\Carbon\Carbon::parse('2026-08-10 10:00'));
+        $this->pobyt($this->budowaA, '2026-08-10', '2026-08-31');
+        $this->travelTo(\Carbon\Carbon::parse('2026-09-15 10:00'));
+        $this->pobyt($this->budowaB, '2026-09-15', '2026-09-30');
+        $this->travelBack();
+
+        $wszystkie = $this->actingAs($this->kadry)->get('/zmiany-kadrowe?pokaz=wszystkie')->viewData('page')['props'];
+        $this->assertCount(2, $wszystkie['paczki']);
+
+        $wrzesien = $this->actingAs($this->kadry)->get('/zmiany-kadrowe?pokaz=wszystkie&od=2026-09-01&do=2026-09-30')->viewData('page')['props'];
+        $this->assertCount(1, $wrzesien['paczki']);
+        $this->assertSame('2026-09-01', $wrzesien['filters']['od']);
+
+        $sierpien = $this->actingAs($this->kadry)->get('/zmiany-kadrowe?pokaz=wszystkie&do=2026-08-31')->viewData('page')['props'];
+        $this->assertCount(1, $sierpien['paczki']);
+
+        // Śmieci w adresie nie wywracają strony ani nie filtrują.
+        $smieci = $this->actingAs($this->kadry)->get('/zmiany-kadrowe?pokaz=wszystkie&od=wczoraj')->assertOk()->viewData('page')['props'];
+        $this->assertCount(2, $smieci['paczki']);
+        $this->assertNull($smieci['filters']['od']);
+    }
+
     public function test_skrzynka_grupuje_i_opisuje_paczke(): void
     {
         $pobyt = $this->pobyt($this->budowaA, '2026-09-01', '2026-09-30');
