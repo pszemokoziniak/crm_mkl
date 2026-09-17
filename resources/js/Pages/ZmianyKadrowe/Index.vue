@@ -78,6 +78,41 @@
       </div>
     </div>
 
+    <!-- Nowo wprowadzeni pracownicy bez badań albo BHP: upominamy się, dopóki
+         obowiązkowe dokumenty nie są wpisane i ważne; potem pilnuje ich raport terminów. -->
+    <h2 class="mb-3 text-xl font-bold text-gray-900">
+      Nowi pracownicy: dokumenty na start
+      <span class="ml-1 text-sm font-bold px-2 py-0.5 rounded-full" :class="nowi_pracownicy.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ nowi_pracownicy.length }}</span>
+    </h2>
+    <p v-if="nowi_pracownicy.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+      Każdy pracownik wprowadzony w ostatnich 90 dniach ma ważne badania i szkolenie BHP.
+    </p>
+    <div v-else class="mb-8 bg-white rounded-md shadow overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="naglowek-tabeli">
+            <th>Pracownik</th>
+            <th>Wprowadzony</th>
+            <th>Badania lekarskie</th>
+            <th>Szkolenie BHP</th>
+            <th>Uprawnienia <span class="font-normal text-gray-400">(opcjonalnie)</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr v-for="n in nowi_pracownicy" :key="n.id" class="hover:bg-gray-50">
+            <td class="px-6 py-3"><Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${n.id}/edit`">{{ n.pracownik }}</Link></td>
+            <td class="px-6 py-3 text-gray-600 tabular-nums">{{ n.wprowadzony }} <span class="text-xs text-gray-400">({{ ileDniTemu(n.dni_temu) }})</span></td>
+            <td class="px-6 py-3"><komplet-dokumentu :jest="n.badania" :href="`/contacts/${n.id}/badania/create`" /></td>
+            <td class="px-6 py-3"><komplet-dokumentu :jest="n.bhp" :href="`/contacts/${n.id}/bhp/create`" /></td>
+            <td class="px-6 py-3"><komplet-dokumentu :jest="n.uprawnienia" :href="`/contacts/${n.id}/uprawnienia/create`" opcjonalne /></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="px-6 py-3 text-xs text-gray-500 border-t border-gray-100">
+        Wiersz znika, gdy badania i BHP są wpisane i ważne. Dalej pilnuje ich raport „Termin uprawnień”.
+      </p>
+    </div>
+
     <!-- Urlopy wpisane w KCP bez skanu wniosku — ten i poprzedni miesiąc. -->
     <h2 class="mb-3 text-xl font-bold text-gray-900">
       Urlopy w KCP bez wniosku
@@ -233,11 +268,13 @@
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
+import KompletDokumentu from '@/Shared/KompletDokumentu.vue'
 import Layout from '@/Shared/Layout'
 
 export default {
   components: {
     Head,
+    KompletDokumentu,
     Link,
   },
   layout: Layout,
@@ -248,6 +285,7 @@ export default {
     zgloszenia: { type: Array, default: () => [] },
     zgloszenia_licznik: { type: Number, default: 0 },
     urlopy_bez_wniosku: { type: Array, default: () => [] },
+    nowi_pracownicy: { type: Array, default: () => [] },
   },
   data() {
     return {
@@ -255,6 +293,11 @@ export default {
     }
   },
   methods: {
+    ileDniTemu(dni) {
+      if (dni === 0) return 'dziś'
+      if (dni === 1) return 'wczoraj'
+      return `${dni} dni temu`
+    },
     obsluzZgloszenie(z, status) {
       const pytanie = status === 'obsluzone'
         ? `Oznaczyć zgłoszenie (${z.pracownik} — ${z.rodzaj_label}) jako obsłużone?\n\nOdpowiedź dla kierownika (opcjonalnie):`

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Validation\Rule;
+use App\Services\NowiPracownicy;
 use App\Services\UrlopyBezWniosku;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -82,6 +83,8 @@ class ZmianyKadroweController extends Controller
             'licznik' => ZmianaKadrowa::nieobsluzone()->count(),
             'zgloszenia' => $zgloszenia,
             'zgloszenia_licznik' => ZgloszenieKierownika::otwarte()->count(),
+            // Nowo wprowadzeni bez badań albo BHP — do skompletowania na start.
+            'nowi_pracownicy' => app(NowiPracownicy::class)->bezKompletu(),
             // Urlopy w KCP bez wniosku — ten i poprzedni miesiąc, wszystkie budowy.
             'urlopy_bez_wniosku' => app(UrlopyBezWniosku::class)->dla(
                 null,
