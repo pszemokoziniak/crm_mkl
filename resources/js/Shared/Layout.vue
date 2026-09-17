@@ -19,7 +19,15 @@
             </Link>
           </div>
           <div class="md:text-md flex items-center justify-between p-4 w-full text-sm bg-white border-b md:px-12 md:py-0">
-            <div class="mr-4 mt-1">Stanowisko: {{ etykietaRoli(auth.user.owner) }}</div>
+            <!-- Na telefonie boczne menu jest schowane — bez tego przycisku
+                 kierownik nie miał jak wejść w Budowy czy Termin uprawnień. -->
+            <button type="button" class="md:hidden mr-3 p-2 -ml-2 rounded text-gray-700 hover:bg-gray-100" :aria-expanded="menuOtwarte ? 'true' : 'false'" aria-label="Menu" @click="menuOtwarte = !menuOtwarte">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path v-if="!menuOtwarte" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                <path v-else stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div class="mr-4 mt-1 truncate">Stanowisko: {{ etykietaRoli(auth.user.owner) }}</div>
             <!-- Dzwonek trzymamy w jednej grupie z nazwiskiem, żeby justify-between
                  nie wypychało go na środek paska. -->
             <div class="flex items-center ml-auto">
@@ -45,6 +53,8 @@
             </div>
           </div>
         </div>
+        <!-- Menu na telefon: rozwija się pod nagłówkiem i chowa po wybraniu strony. -->
+        <main-menu v-if="menuOtwarte" class="md:hidden px-4 py-4 bg-indigo-800 border-b border-indigo-900" />
         <div class="md:flex md:flex-grow md:overflow-hidden">
           <main-menu class="hidden flex-shrink-0 px-4 py-8 w-64 bg-indigo-800 overflow-y-auto md:block border-r border-indigo-900" />
           <div class="px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto">
@@ -77,12 +87,20 @@ export default {
     MainMenu,
     NotificationBell,
   },
-  methods: {
-    etykietaRoli,
-  },
-
   props: {
     auth: Object,
+  },
+  data() {
+    return { menuOtwarte: false }
+  },
+  watch: {
+    // Po przejściu na inną stronę menu z telefonu ma się schować samo.
+    '$page.url'() {
+      this.menuOtwarte = false
+    },
+  },
+  methods: {
+    etykietaRoli,
   },
 }
 </script>

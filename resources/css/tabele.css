@@ -46,3 +46,20 @@
 .naglowek-tabeli th button {
   @apply text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-indigo-600;
 }
+
+/*
+ * Telefon: tabela bez własnej szerokości minimalnej ściska kolumny do
+ * jednego słowa w wierszu ("URLOP / W / KCP", daty łamane co cztery
+ * znaki). Zamiast tego trzyma rozsądną szerokość i przewija się w bok
+ * w swoim kadrze (.overflow-x-auto). Ekrany z kartami na telefon chowają
+ * tabelę i tej reguły nie widzą.
+ */
+@media (max-width: 767px) {
+  .overflow-x-auto > table {
+    min-width: 40rem;
+  }
+
+  .naglowek-tabeli th {
+    white-space: nowrap;
+  }
+}

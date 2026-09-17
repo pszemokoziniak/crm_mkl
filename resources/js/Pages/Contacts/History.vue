@@ -5,7 +5,15 @@
       <WorkerMenu :contact-id="contact.id" />
       <pracownik-naglowek :pracownik="pracownik" tytul="Historia" />
     </div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="sm:hidden bg-white rounded-md shadow divide-y divide-gray-100">
+      <div v-for="item in history" :key="`k-${item.organization}`" class="px-4 py-3">
+        <div class="font-medium text-gray-900">{{ item.organization }}</div>
+        <div class="text-sm text-gray-600 tabular-nums">{{ item.start }} – {{ item.end }} · {{ item.hours.toFixed(2) }} h</div>
+      </div>
+      <p v-if="history.length === 0" class="px-4 py-4 text-sm text-gray-500">Brak historii pracy na budowach.</p>
+    </div>
+
+    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th>Budowa</th>

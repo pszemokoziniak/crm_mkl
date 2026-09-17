@@ -52,7 +52,26 @@
         <search-filter-no-filtr v-model="form.search" class="w-full lg:max-w-xs" @reset="resetSearch" />
       </div>
 
-      <div class="bg-white rounded-md shadow overflow-x-auto">
+      <!-- Telefon: karty zamiast pięciu kolumn. -->
+      <div class="sm:hidden space-y-3">
+        <div v-for="(item, index) in displayed" :key="`k-${index}`" class="bg-white rounded-md shadow p-4">
+          <div class="flex items-start justify-between gap-3">
+            <Link v-if="item.url || item.client_id" class="font-medium text-gray-900 hover:text-indigo-600" :href="item.url || `/contacts/${item.client_id}/edit`">
+              {{ item.last_name }} {{ item.first_name }}
+            </Link>
+            <span v-else class="font-medium text-gray-900">{{ item.last_name }} {{ item.first_name }}</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap" :class="statusBadge(item.end).class">{{ statusBadge(item.end).label }}</span>
+          </div>
+          <div class="mt-1 text-sm text-gray-700">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700">{{ item.category }}</span>
+            <span class="ml-1">{{ item.name }}</span>
+          </div>
+          <div class="mt-1 text-sm font-semibold tabular-nums" :class="endClass(item.end)">koniec: {{ item.end }}</div>
+        </div>
+        <p v-if="displayed.length === 0" class="p-6 text-center text-sm text-gray-400 bg-white rounded-md shadow">Brak terminów w wybranym oknie i kategorii.</p>
+      </div>
+
+      <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
         <table class="w-full whitespace-nowrap text-sm">
           <thead>
             <tr class="naglowek-tabeli">
@@ -103,7 +122,17 @@
       <p class="mb-4 text-sm text-gray-500">
         Pracownicy aktualnie lub w przyszłości przypisani do budowy, którym brakuje <span class="font-medium">ważnego</span> dokumentu (badania, A1, uprawnienia, BHP).
       </p>
-      <div class="bg-white rounded-md shadow overflow-x-auto">
+      <div class="sm:hidden space-y-3">
+        <div v-for="p in braki" :key="`kb-${p.id}`" class="bg-white rounded-md shadow p-4">
+          <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${p.id}/edit`">{{ p.name }}</Link>
+          <div class="mt-2 flex flex-wrap gap-1">
+            <span v-for="m in p.missing" :key="m" class="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">{{ m }}</span>
+          </div>
+        </div>
+        <p v-if="braki.length === 0" class="p-6 text-center text-sm text-gray-400 bg-white rounded-md shadow">Wszyscy przypisani pracownicy mają komplet ważnych dokumentów.</p>
+      </div>
+
+      <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
         <table class="w-full whitespace-nowrap text-sm">
           <thead>
             <tr class="naglowek-tabeli">
