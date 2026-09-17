@@ -10,15 +10,16 @@
     </div>
     <div class="md:flex md:flex-col">
       <div class="md:flex md:flex-col md:h-screen">
-        <div class="md:flex md:flex-shrink-0">
-          <!-- Panel i logo w rozmiarach z CRM: 16rem szerokości, logo bez
-               sztywnego rozmiaru, więc wypełnia panel tak samo jak tam. -->
-          <div class="flex items-center justify-between px-6 py-4 bg-white md:flex-shrink-0 md:justify-center md:w-64 border-b transition-all duration-300">
-            <Link class="mt-1" href="/">
-              <img src="/img/MKL-BAU.png" alt="logo" />
+        <!-- Telefon: logo i pasek w jednym wierszu, logo małe — pełnowymiarowe
+             zajmowało pół ekranu, zanim pokazała się treść. Szeroki ekran:
+             panel i logo w rozmiarach z CRM (16rem), logo wypełnia panel. -->
+        <div class="flex md:flex-shrink-0">
+          <div class="flex items-center flex-shrink-0 pl-4 pr-2 py-2 bg-white border-b md:px-6 md:py-4 md:justify-center md:w-64 transition-all duration-300">
+            <Link class="md:mt-1" href="/">
+              <img src="/img/MKL-BAU.png" alt="logo" class="h-6 w-auto md:h-auto" />
             </Link>
           </div>
-          <div class="md:text-md flex items-center justify-between p-4 w-full text-sm bg-white border-b md:px-12 md:py-0">
+          <div class="md:text-md flex items-center justify-between px-2 py-2 min-w-0 w-full text-sm bg-white border-b md:px-12 md:py-0">
             <!-- Na telefonie boczne menu jest schowane — bez tego przycisku
                  kierownik nie miał jak wejść w Budowy czy Termin uprawnień. -->
             <button type="button" class="md:hidden mr-3 p-2 -ml-2 rounded text-gray-700 hover:bg-gray-100" :aria-expanded="menuOtwarte ? 'true' : 'false'" aria-label="Menu" @click="menuOtwarte = !menuOtwarte">
@@ -27,7 +28,7 @@
                 <path v-else stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <div class="mr-4 mt-1 truncate">Stanowisko: {{ etykietaRoli(auth.user.owner) }}</div>
+            <div class="mr-4 mt-1 truncate hidden sm:block">Stanowisko: {{ etykietaRoli(auth.user.owner) }}</div>
             <!-- Dzwonek trzymamy w jednej grupie z nazwiskiem, żeby justify-between
                  nie wypychało go na środek paska. -->
             <div class="flex items-center ml-auto">
