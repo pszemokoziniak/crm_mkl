@@ -131,6 +131,24 @@ class ZakladkiRolTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider roleProwadzaceBudowy
+     */
+    public function test_prognoza_budowy_jest_tylko_do_podgladu_dla_prowadzacych(int $owner): void
+    {
+        [$user] = $this->zespol($owner);
+        $budowa = Organization::where('nazwaBud', 'Budowa '.$owner)->firstOrFail();
+
+        // Zapis jest zabroniony, więc ekran nie może pokazywać formularza.
+        $this->actingAs($user)->post('/budowy/'.$budowa->id.'/prognoza', [])->assertForbidden();
+
+        $props = $this->actingAs($user)
+            ->get('/budowy/'.$budowa->id.'/prognoza')
+            ->viewData('page')['props'];
+
+        $this->assertTrue($props['flag'], 'Kierownik projektu dostawał formularz, którego nie mógł zapisać.');
+    }
+
     public function test_menu_glowne_zgadza_sie_z_dostepem_serwera(): void
     {
         $pozycje = [

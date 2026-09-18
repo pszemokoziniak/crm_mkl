@@ -47,8 +47,44 @@
       </form>
     </div>
 
-    <!-- Tabela tydzień po tygodniu -->
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <!-- Telefon: karta na tydzień — różnica na wierzchu, bo to na nią patrzy
+         kierownik; pola edycji (biuro) w tej samej karcie. -->
+    <div class="sm:hidden space-y-3">
+      <div v-for="row in rows" :key="`k-${row.id}`" class="bg-white rounded-md shadow p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="font-medium text-gray-900">{{ row.start }} – {{ row.end }}</div>
+          <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap" :class="diffClass(row)">
+            {{ diffLabel(row) }}
+          </span>
+        </div>
+        <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm items-center">
+          <dt class="text-gray-500">Zapotrzebowanie</dt>
+          <dd class="text-right tabular-nums">
+            <input v-if="!flag" v-model.number="edit[row.id]" type="number" min="1" class="form-input w-24 py-1 text-right" />
+            <template v-else>{{ row.workers_count }}</template>
+          </dd>
+          <dt class="text-gray-500">Obsadzeni</dt>
+          <dd class="text-right tabular-nums">{{ row.assigned }}</dd>
+        </dl>
+        <div v-if="!flag" class="mt-3 flex items-center gap-4 text-sm">
+          <button
+            v-if="edit[row.id] !== row.workers_count && edit[row.id] > 0"
+            type="button"
+            class="text-indigo-600 hover:text-indigo-800 font-medium"
+            @click="save(row)"
+          >
+            Zapisz
+          </button>
+          <button type="button" class="text-red-600 hover:text-red-800 font-medium" @click="remove(row)">Usuń</button>
+        </div>
+      </div>
+      <div v-if="rows.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">
+        Brak wpisanego zapotrzebowania dla tej budowy.
+      </div>
+    </div>
+
+    <!-- Monitor: tabela tydzień po tygodniu -->
+    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap text-sm">
         <thead>
           <tr class="naglowek-tabeli">

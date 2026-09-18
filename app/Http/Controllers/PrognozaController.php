@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Uprawnienie;
 use App\Http\Requests\StorePrognozaRequest;
 use App\Models\ContactWorkDate;
 use App\Models\Organization;
@@ -287,7 +288,10 @@ class PrognozaController extends Controller
      */
     public function budowaShow(Organization $organization)
     {
-        $flag = Auth::user()->owner === 3; // kierownik — tylko podgląd
+        // Tylko podgląd, gdy konto nie ma obsługi prognozy — po uprawnieniu,
+        // nie po numerze roli, bo kierownik projektu (rola 5) też jej nie ma,
+        // a dostawał formularz kończący się błędem 403.
+        $flag = ! Auth::user()->moze(Uprawnienie::PROGNOZA_OBSLUGA);
 
         $prognozas = Prognoza::with('prognozadates')
             ->where('organization_id', $organization->id)
