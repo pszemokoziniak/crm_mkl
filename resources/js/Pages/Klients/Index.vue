@@ -70,7 +70,10 @@
         </div>
         <div v-if="item.nameKontakt" class="mt-0.5 text-sm text-gray-600">{{ item.nameKontakt }}</div>
         <!-- Na telefonie numer ma być klikalny — po to ten ekran tam jest. -->
-        <a v-if="item.phone" :href="`tel:${item.phone}`" class="mt-1 inline-block text-sm text-indigo-600">{{ item.phone }}</a>
+        <div class="mt-1 flex flex-col gap-0.5 text-sm">
+          <a v-if="item.phone" :href="`tel:${item.phone}`" class="text-indigo-600">{{ item.phone }}</a>
+          <a v-if="item.email" :href="`mailto:${item.email}`" class="text-indigo-600 break-all">{{ item.email }}</a>
+        </div>
         <div v-if="!$page.props.permissions.kierownik" class="mt-2 text-sm">
           <Link class="text-indigo-600" :href="`/budowy/${budId}/klient/${item.id}/edit`">Popraw</Link>
         </div>
