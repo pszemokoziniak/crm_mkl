@@ -15,7 +15,9 @@
           : 'bg-white border-gray-300 text-gray-700 hover:border-indigo-400'"
       >{{ zakladka.nazwa }}</Link>
     </div>
-    <div class="hidden md:flex gap-4 whitespace-nowrap px-1 pb-2">
+    <!-- Zawijanie: dwanaście zakładek nie mieści się w jednej linii na węższym
+         monitorze i wychodziło poza ekran; druga linia jest lepsza niż ucięcie. -->
+    <div class="hidden md:flex md:flex-wrap gap-x-4 gap-y-1 whitespace-nowrap px-1 pb-2">
       <Link
         v-for="zakladka in widoczne"
         :key="zakladka.klucz"
