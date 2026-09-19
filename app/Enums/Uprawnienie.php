@@ -53,6 +53,10 @@ enum Uprawnienie: string
     case PROGNOZA_PODGLAD = 'prognoza.podglad';
     case PROGNOZA_OBSLUGA = 'prognoza.obsluga';
 
+    /** Koszty podróży i kwater przypięte do pracownika albo budowy. */
+    case KOSZTY_PODGLAD = 'koszty.podglad';
+    case KOSZTY_OBSLUGA = 'koszty.obsluga';
+
     case RAPORT_TERMINOW = 'raport_terminow.podglad';
     case STATYSTYKI = 'statystyki.podglad';
 
@@ -106,6 +110,7 @@ enum Uprawnienie: string
             self::KCP_WPISYWANIE, self::ZGLOSZENIA_WYSYLANIE => [self::BUDOWY_PODGLAD],
             self::SPRZET_OBSLUGA => [self::SPRZET_PODGLAD],
             self::PROGNOZA_OBSLUGA => [self::PROGNOZA_PODGLAD],
+            self::KOSZTY_OBSLUGA => [self::KOSZTY_PODGLAD],
             self::UZYTKOWNICY_ZAKLADANIE, self::UZYTKOWNICY_EDYCJA, self::UZYTKOWNICY_BLOKOWANIE,
             self::UZYTKOWNICY_USUWANIE, self::UZYTKOWNICY_WEJDZ_JAKO => [self::UZYTKOWNICY_LISTA],
             default => [],
@@ -124,6 +129,7 @@ enum Uprawnienie: string
             'zmiany_kadrowe' => 'Kadry',
             'zgloszenia' => 'Zgłoszenia do kadr',
             'prognoza' => 'Prognoza pracowników',
+            'koszty' => 'Koszty podróży i kwater',
             'raport_terminow' => 'Raport terminów uprawnień',
             'statystyki' => 'Statystyki',
             'uzytkownicy' => 'Użytkownicy',
@@ -161,6 +167,8 @@ enum Uprawnienie: string
             self::ZGLOSZENIA_WYSYLANIE => 'wysyłanie zgłoszeń o zjeździe, urlopie, przeniesieniu',
             self::PROGNOZA_PODGLAD => 'podgląd',
             self::PROGNOZA_OBSLUGA => 'obsługa',
+            self::KOSZTY_PODGLAD => 'podgląd kosztów budowy i pracownika',
+            self::KOSZTY_OBSLUGA => 'wpisywanie, edycja, zakwaterowanie w pokojach',
             self::RAPORT_TERMINOW => 'podgląd',
             self::STATYSTYKI => 'podgląd',
             self::UZYTKOWNICY_LISTA => 'lista',

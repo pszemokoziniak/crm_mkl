@@ -44,9 +44,15 @@ class MacierzUprawnienTest extends TestCase
         $this->assertSame(Macierz::dla(Role::BIURO), Macierz::dla(Role::KIEROWNICTWO));
     }
 
-    public function test_kierownik_projektu_ma_dokladnie_zakres_kierownika_budowy(): void
+    /** Kierownik projektu rozlicza swoje budowy, więc dodatkowo widzi ich koszty (19.09.2026). */
+    public function test_kierownik_projektu_ma_zakres_kierownika_budowy_plus_podglad_kosztow(): void
     {
-        $this->assertSame(Macierz::dla(Role::KIEROWNIK), Macierz::dla(Role::KIEROWNIK_PROJEKTU));
+        $kb = Macierz::dla(Role::KIEROWNIK);
+        $kp = Macierz::dla(Role::KIEROWNIK_PROJEKTU);
+
+        $this->assertNotContains(Uprawnienie::KOSZTY_PODGLAD, $kb);
+        $this->assertNotContains(Uprawnienie::KOSZTY_OBSLUGA, $kp);
+        $this->assertEqualsCanonicalizing(array_merge($kb, [Uprawnienie::KOSZTY_PODGLAD]), $kp);
     }
 
     public function test_biuru_brakuje_tylko_tego_co_nalezy_do_admina(): void

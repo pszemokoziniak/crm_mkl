@@ -51,6 +51,7 @@ export default {
         { klucz: 'narzedzia', nazwa: 'Sprzęt', adres: (id) => `/budowy/${id}/narzedzia/` },
         { klucz: 'a1', nazwa: 'A1', adres: (id) => `/budowy/${id}/a1/` },
         { klucz: 'prognoza', nazwa: 'Prognoza', adres: (id) => `/budowy/${id}/prognoza` },
+        { klucz: 'koszty', nazwa: 'Koszty', adres: (id) => `/budowy/${id}/koszty`, moze: 'koszty.podglad' },
       ],
     }
   },
@@ -62,12 +63,14 @@ export default {
      */
     widoczne() {
       const budowa = this.$page.props.budowa
+      const moze = (this.$page.props.permissions || {}).moze || {}
 
-      if (budowa && budowa.wymaga_a1 === false) {
-        return this.zakladki.filter((z) => z.klucz !== 'a1')
-      }
-
-      return this.zakladki
+      // Zakładka z `moze` pokazuje się tylko temu, kogo serwer wpuści.
+      return this.zakladki.filter((z) => {
+        if (z.moze && !moze[z.moze]) return false
+        if (z.klucz === 'a1' && budowa && budowa.wymaga_a1 === false) return false
+        return true
+      })
     },
   },
   methods: {

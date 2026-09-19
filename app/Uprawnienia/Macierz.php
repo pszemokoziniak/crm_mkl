@@ -186,7 +186,7 @@ final class Macierz
 
     /**
      * Zakresy sprzed wprowadzenia tej warstwy: biuro, kadry i kierownictwo —
-     * to samo; kierownik budowy i kierownik projektu — to samo.
+     * to samo; kierownik projektu = kierownik budowy + podgląd kosztów.
      *
      * @return array<int, Uprawnienie[]>
      */
@@ -214,12 +214,16 @@ final class Macierz
             ], true),
         ));
 
+        // Kierownik projektu rozlicza swoje budowy, więc widzi ich koszty
+        // (decyzja 19.09.2026); kierownik budowy kwot nie widzi.
+        $kierownikProjektu = array_merge($kierownik, [Uprawnienie::KOSZTY_PODGLAD]);
+
         return [
             Role::BIURO->value => $biuro,
             Role::KIEROWNICTWO->value => $biuro,
             Role::KADRY->value => $biuro,
             Role::KIEROWNIK->value => $kierownik,
-            Role::KIEROWNIK_PROJEKTU->value => $kierownik,
+            Role::KIEROWNIK_PROJEKTU->value => $kierownikProjektu,
         ];
     }
 }

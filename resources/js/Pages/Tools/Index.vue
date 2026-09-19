@@ -61,6 +61,7 @@ export default {
         { zakladka: 'slowniki', nazwa: 'Dokumenty', adres: '/dokumentyTyp', tylkoAdmin: true },
         { zakladka: 'slowniki', nazwa: 'Sprzęt', adres: '/narzedziaTyp', tylkoAdmin: false },
         { zakladka: 'slowniki', nazwa: 'Grupy sprzętu', adres: '/grupy-sprzetu', tylkoAdmin: false },
+        { zakladka: 'slowniki', nazwa: 'Typy kosztów', adres: '/typy-kosztow', tylkoAdmin: false },
 
         { zakladka: 'ustawienia', nazwa: 'Wykres prognozy', adres: '/ustawienia', tylkoAdmin: false },
         { zakladka: 'ustawienia', nazwa: 'Uprawnienia ról', adres: '/uprawnienia-rol', tylkoAdmin: true },

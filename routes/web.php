@@ -22,6 +22,8 @@ use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\JezykController;
 use App\Http\Controllers\JezykTypController;
 use App\Http\Controllers\KlientController;
+use App\Http\Controllers\KosztyController;
+use App\Http\Controllers\TypyKosztowController;
 use App\Http\Controllers\KrajTypController;
 use App\Http\Controllers\NarzedziaController;
 use App\Http\Controllers\NarzedziaTypController;
@@ -159,6 +161,58 @@ Route::get('budowy/create', [OrganizationsController::class, 'create'])
 Route::get('crm/klienci', [OrganizationsController::class, 'searchClients'])
     ->name('crm.klienci')
     ->middleware('auth', 'moze:budowy.edycja');
+
+// Koszty podróży i kwater — zakładka na budowie i w karcie pracownika.
+// Trasy /koszty/{koszt} nie mają budowy w adresie; zakres dla prowadzących
+// budowy sprawdza kontroler (podgląd pliku), zapis mają tylko biuro i kadry.
+Route::get('budowy/{organization}/koszty', [KosztyController::class, 'budowa'])
+    ->name('koszty.budowa')
+    ->middleware('auth', 'moze:koszty.podglad');
+
+Route::post('budowy/{organization}/koszty', [KosztyController::class, 'storeDlaBudowy'])
+    ->name('koszty.budowa.store')
+    ->middleware('auth', 'moze:koszty.obsluga');
+
+Route::get('contacts/{contact}/koszty', [KosztyController::class, 'pracownik'])
+    ->name('koszty.pracownik')
+    ->middleware('auth', 'moze:koszty.podglad');
+
+Route::post('contacts/{contact}/koszty', [KosztyController::class, 'storeDlaPracownika'])
+    ->name('koszty.pracownik.store')
+    ->middleware('auth', 'moze:koszty.obsluga');
+
+Route::put('koszty/{koszt}', [KosztyController::class, 'update'])
+    ->name('koszty.update')
+    ->middleware('auth', 'moze:koszty.obsluga');
+
+Route::delete('koszty/{koszt}', [KosztyController::class, 'destroy'])
+    ->name('koszty.destroy')
+    ->middleware('auth', 'moze:koszty.obsluga');
+
+Route::put('koszty/{koszt}/osoby', [KosztyController::class, 'osoby'])
+    ->name('koszty.osoby')
+    ->middleware('auth', 'moze:koszty.obsluga');
+
+Route::get('koszty/{koszt}/plik', [KosztyController::class, 'plik'])
+    ->name('koszty.plik')
+    ->middleware('auth', 'moze:koszty.podglad');
+
+// Słownik typów kosztów (Ustawienia)
+Route::get('typy-kosztow', [TypyKosztowController::class, 'index'])
+    ->name('typyKosztow')
+    ->middleware('auth', 'moze:slowniki.biura');
+
+Route::post('typy-kosztow', [TypyKosztowController::class, 'store'])
+    ->name('typyKosztow.store')
+    ->middleware('auth', 'moze:slowniki.biura');
+
+Route::put('typy-kosztow/{typ}', [TypyKosztowController::class, 'update'])
+    ->name('typyKosztow.update')
+    ->middleware('auth', 'moze:slowniki.biura');
+
+Route::delete('typy-kosztow/{typ}', [TypyKosztowController::class, 'destroy'])
+    ->name('typyKosztow.destroy')
+    ->middleware('auth', 'moze:slowniki.biura');
 
 // Prognoza pracowników w kontekście budowy (podzakładka)
 Route::get('budowy/{organization}/prognoza', [PrognozaController::class, 'budowaShow'])

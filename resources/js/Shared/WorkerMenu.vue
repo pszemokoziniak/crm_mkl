@@ -52,6 +52,7 @@ export default {
         { adres: 'a1', nazwa: 'A1' },
         { adres: 'holiday', nazwa: 'Nieobecności' },
         { adres: 'history', nazwa: 'Historia' },
+        { adres: 'koszty', nazwa: 'Koszty', moze: 'koszty.podglad' },
         { adres: 'umowa', nazwa: 'Umowa', tylkoBiuro: true },
         { adres: 'dostep', nazwa: 'Dostęp z telefonu', tylkoBiuro: true },
       ],
@@ -68,7 +69,9 @@ export default {
       // Zaszyte "rola !== 3" gubiło kierownika projektu: widział zakładkę
       // Umowa, a serwer odmawiał jej otwarcia. Pytamy o to samo, co reszta
       // systemu — czy ta osoba prowadzi budowy, czy siedzi w biurze.
-      return this.zakladki.filter((z) => !z.tylkoBiuro || !prowadziBudowy(this.rola))
+      const moze = (this.$page.props.permissions || {}).moze || {}
+
+      return this.zakladki.filter((z) => (!z.tylkoBiuro || !prowadziBudowy(this.rola)) && (!z.moze || moze[z.moze]))
     },
   },
   methods: {
