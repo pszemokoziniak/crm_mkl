@@ -79,7 +79,7 @@
           </td>
           <td class="border-t px-6 py-4 tabular-nums">
             <span class="block whitespace-nowrap">od: {{ item.start }}</span>
-            <span class="block whitespace-nowrap">do: {{ item.end }}</span>
+            <span class="block whitespace-nowrap">do: {{ item.end || 'bezterminowo' }}</span>
           </td>
           <td class="border-t px-6 py-4">
             {{ item.name }}
@@ -113,7 +113,7 @@
           </span>
         </div>
         <div v-if="item.name" class="mt-0.5 text-xs text-gray-500">{{ item.name }}</div>
-        <div class="mt-1 text-sm text-gray-600 tabular-nums">od: {{ item.start }} · do: {{ item.end }}</div>
+        <div class="mt-1 text-sm text-gray-600 tabular-nums">od: {{ item.start }} · do: {{ item.end || 'bezterminowo' }}</div>
         <div v-if="!$page.props.permissions.kierownik" class="mt-2 text-sm">
           <Link class="text-indigo-600" :href="`/pracownicy/${organization.id}/edit/${item.id}`">Popraw daty</Link>
           <button type="button" class="ml-4 text-red-600" @click="destroy(item.id)">Usuń</button>
