@@ -6,7 +6,7 @@
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="font-medium text-gray-900">{{ k.typ }}</div>
-            <div class="text-xs text-gray-500 tabular-nums">{{ k.data }}<span v-if="kto(k)"> · {{ kto(k) }}</span></div>
+            <div class="text-xs text-gray-500 tabular-nums">{{ k.data }}<span v-if="pokazKto && kto(k)"> · {{ kto(k) }}</span></div>
           </div>
           <div class="text-right whitespace-nowrap">
             <div class="font-semibold tabular-nums">{{ pln(k.kwota_pln) }}</div>
@@ -37,7 +37,7 @@
           <tr class="naglowek-tabeli">
             <th>Data</th>
             <th>Typ / opis</th>
-            <th>{{ kolumnaKto === 'pracownik' ? 'Pracownik' : 'Budowa' }}</th>
+            <th v-if="pokazKto">{{ kolumnaKto === 'pracownik' ? 'Pracownik' : 'Budowa' }}</th>
             <th class="text-right">Kwota</th>
             <th class="text-right">Kurs</th>
             <th class="text-right">PLN</th>
@@ -54,7 +54,7 @@
                 <div v-if="k.nocleg" class="text-xs text-gray-500">pokój {{ k.od }} – {{ k.do }} · miejsc: {{ k.miejsc }} · zakwaterowanych: {{ k.osoby.length }}</div>
                 <div v-else-if="k.dzielony" class="text-xs text-gray-500">{{ opisPodzialu(k) }}</div>
               </td>
-              <td class="px-4 py-3 text-gray-700">{{ kto(k) || '—' }}</td>
+              <td v-if="pokazKto" class="px-4 py-3 text-gray-700">{{ kto(k) || '—' }}</td>
               <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap">{{ k.kwota.toFixed(2) }} {{ k.waluta }}</td>
               <td class="px-4 py-3 text-right tabular-nums text-gray-500 whitespace-nowrap">
                 <template v-if="k.waluta !== 'PLN'">{{ k.kurs }}<span v-if="k.kurs_reczny" class="text-xs"> (ręczny)</span></template>
@@ -73,13 +73,13 @@
               </td>
             </tr>
             <tr v-if="otwarte === k.id">
-              <td colspan="7" class="px-4 py-3 bg-indigo-50">
+              <td :colspan="pokazKto ? 7 : 6" class="px-4 py-3 bg-indigo-50">
                 <panel-osob :koszt="k" :pracownicy="pracownicy" @zamknij="otwarte = null" />
               </td>
             </tr>
           </template>
           <tr v-if="koszty.length === 0">
-            <td colspan="7" class="px-4 py-6 text-gray-500">{{ pusto }}</td>
+            <td :colspan="pokazKto ? 7 : 6" class="px-4 py-6 text-gray-500">{{ pusto }}</td>
           </tr>
         </tbody>
       </table>
@@ -96,6 +96,8 @@ export default {
     koszty: { type: Array, required: true },
     // Na budowie pokazujemy pracownika, w karcie osoby — budowę.
     kolumnaKto: { type: String, default: 'pracownik' },
+    // W grupie budowy kolumna "kto" jest zbędna — budowa jest w nagłówku grupy.
+    pokazKto: { type: Boolean, default: true },
     mozeEdytowac: { type: Boolean, default: false },
     // Lista osób do zakwaterowania — tylko na budowie.
     pracownicy: { type: Array, default: null },

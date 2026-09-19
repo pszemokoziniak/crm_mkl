@@ -95,9 +95,8 @@ class KosztyController extends Controller
             'contact' => ['id' => $contact->id],
             'userOwner' => Auth::user()->owner,
             'miesiac' => $miesiac,
-            'koszty' => $wlasne->map(fn (Koszt $k) => $this->wiersz($k)),
+            'po_budowach' => $this->poBudowach($wlasne, $udzialy),
             'sumy' => $this->sumy($wlasne),
-            'udzialy' => $udzialy,
             'suma_udzialow' => round($udzialy->sum('kwota_pln'), 2),
             // Pokoju nie zakłada się z karty osoby — to koszt budowy.
             'typy' => $this->typy()->where('nocleg', false)->values(),
@@ -105,6 +104,50 @@ class KosztyController extends Controller
             'budowy' => $budowy,
             'moze_edytowac' => Auth::user()->moze(Uprawnienie::KOSZTY_OBSLUGA),
         ]);
+    }
+
+    /**
+     * Koszty pracownika pogrupowane po budowach: pod każdą budową jego własne
+     * wpisy (bilet, paliwo wpisane na niego) i udział w dzielonych kosztach
+     * tej budowy, z sumą. Własny koszt bez budowy trafia do grupy "Bez budowy".
+     *
+     * @param  \Illuminate\Support\Collection<int, Koszt>  $wlasne
+     * @param  \Illuminate\Support\Collection<int, array>  $udzialy
+     * @return array<int, array<string, mixed>>
+     */
+    private function poBudowach(Collection $wlasne, Collection $udzialy): array
+    {
+        $grupy = [];
+
+        foreach ($wlasne as $koszt) {
+            $klucz = $koszt->organization_id ?: 0;
+            $grupy[$klucz]['organization_id'] = $koszt->organization_id;
+            $grupy[$klucz]['budowa'] = optional($koszt->organization)->nazwaBud ?? 'Bez budowy';
+            $grupy[$klucz]['wlasne'][] = $this->wiersz($koszt);
+        }
+
+        foreach ($udzialy as $udzial) {
+            $klucz = $udzial['organization_id'] ?: 0;
+            $grupy[$klucz]['organization_id'] = $udzial['organization_id'];
+            $grupy[$klucz]['budowa'] = $udzial['budowa'];
+            $grupy[$klucz]['udzialy'][] = $udzial;
+        }
+
+        return collect($grupy)
+            ->map(fn (array $g) => [
+                'organization_id' => $g['organization_id'] ?? null,
+                'budowa' => $g['budowa'],
+                'wlasne' => $g['wlasne'] ?? [],
+                'udzialy' => $g['udzialy'] ?? [],
+                'suma_pln' => round(
+                    collect($g['wlasne'] ?? [])->sum('kwota_pln') + collect($g['udzialy'] ?? [])->sum('kwota_pln'),
+                    2,
+                ),
+            ])
+            // Budowy po nazwie, "Bez budowy" (bez id) na końcu.
+            ->sortBy([fn ($a, $b) => ($a['organization_id'] === null) <=> ($b['organization_id'] === null), ['budowa', 'asc']])
+            ->values()
+            ->all();
     }
 
     public function storeDlaBudowy(Organization $organization): RedirectResponse

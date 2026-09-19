@@ -238,7 +238,7 @@ class KosztyTest extends TestCase
         $this->actingAs($this->biuro)->get('/budowy/'.$this->inna->id.'/koszty')->assertOk();
     }
 
-    public function test_zakladka_pracownika_pokazuje_wlasne_koszty_i_udzialy_z_budow(): void
+    public function test_zakladka_pracownika_grupuje_koszty_po_budowach(): void
     {
         $this->koszt(['typ' => 'Bilet lotniczy', 'contact_id' => $this->a->id, 'kwota' => 500, 'kwota_pln' => 500, 'dzielony' => false]);
         $pokoj = $this->koszt(['typ' => 'Kwatera / pokój', 'kwota' => 3000, 'kwota_pln' => 3000, 'od' => '2026-09-01', 'do' => '2026-09-30', 'miejsc' => 3, 'dzielony' => true]);
@@ -247,15 +247,30 @@ class KosztyTest extends TestCase
             ['contact_id' => $this->b->id, 'od' => '2026-09-16', 'do' => '2026-09-30'],
         ]);
 
+        // Drugi koszt: bilet na INNĄ budowę — grupy mają być dwie.
+        $this->koszt(['typ' => 'Bilet lotniczy', 'organization_id' => $this->inna->id, 'contact_id' => $this->a->id, 'kwota' => 120, 'kwota_pln' => 120, 'dzielony' => false]);
+
         $props = $this->actingAs($this->biuro)
             ->get('/contacts/'.$this->a->id.'/koszty?miesiac=2026-09')
             ->assertOk()
             ->viewData('page')['props'];
 
-        $this->assertCount(1, $props['koszty']);
-        $this->assertSame(500.0, $props['sumy']['pln']);
+        $this->assertSame(620.0, $props['sumy']['pln']);
         $this->assertSame(2000.0, $props['suma_udzialow']);
-        $this->assertSame('Lausitz', $props['udzialy'][0]['budowa']);
+
+        // Grupy po budowach: Inna (120, bilet) i Lausitz (500 własne + 2000 udział).
+        $poBudowach = collect($props['po_budowach']);
+        $this->assertCount(2, $poBudowach);
+
+        $lausitz = $poBudowach->firstWhere('budowa', 'Lausitz');
+        $this->assertSame(2500.0, $lausitz['suma_pln']);
+        $this->assertCount(1, $lausitz['wlasne']);
+        $this->assertSame('Kwatera / pokój', $lausitz['udzialy'][0]['typ']);
+
+        $inna = $poBudowach->firstWhere('budowa', 'Inna');
+        $this->assertSame(120.0, $inna['suma_pln']);
+        $this->assertSame([], $inna['udzialy']);
+
         // W karcie osoby nie zakłada się pokoju.
         $this->assertFalse(collect($props['typy'])->contains('nocleg', true));
     }
