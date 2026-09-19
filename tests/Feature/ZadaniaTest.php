@@ -168,7 +168,7 @@ class ZadaniaTest extends TestCase
         Notification::assertSentToTimes($this->programista, MentionNotification::class, 1);
     }
 
-    public function test_obcy_uzytkownik_nie_widzi_zgloszenia(): void
+    public function test_kazdy_widzi_cudze_zgloszenie(): void
     {
         $obcy = User::factory()->create([
             'account_id' => $this->tester->account_id,
@@ -177,29 +177,34 @@ class ZadaniaTest extends TestCase
             'active' => 1,
         ]);
 
-        $zadanie = $this->zadanie();
+        $zadanie = $this->zadanie(['status' => 'do_zrobienia']);
 
-        $this->actingAs($obcy)->get('/zadania/'.$zadanie->id)->assertForbidden();
+        // Podgląd cudzego zadania jest dostępny...
+        $this->actingAs($obcy)->get('/zadania/'.$zadanie->id)->assertOk();
 
-        // Na liście też go nie ma.
+        // ...i widać je na wspólnej tablicy.
         $this->actingAs($obcy)
             ->get('/zadania')
-            ->assertInertia(fn (Assert $page) => $page->where('columns.0.count', 0));
+            ->assertInertia(fn (Assert $page) => $page->where('columns.0.count', 1));
     }
 
-    public function test_zalacznik_dostaje_tylko_osoba_z_dostepem(): void
+    public function test_zalacznik_cudzego_zadania_jest_dostepny(): void
     {
-        Storage::fake('local');
-
         $zadanie = $this->zadanie();
+        $sciezka = 'zadania/'.$zadanie->id.'/dowod.png';
         $file = ZadanieFile::create([
             'zadanie_id' => $zadanie->id,
-            'path' => 'zadania/'.$zadanie->id.'/tajne.png',
-            'original_name' => 'tajne.png',
+            'path' => $sciezka,
+            'original_name' => 'dowod.png',
             'mime' => 'image/png',
             'size' => 100,
             'uploaded_by' => $this->tester->id,
         ]);
+
+        // Plik musi realnie istnieć — kontroler oddaje go ze storage_path.
+        $absolut = storage_path('app/'.$sciezka);
+        @mkdir(dirname($absolut), 0777, true);
+        file_put_contents($absolut, 'x');
 
         $obcy = User::factory()->create([
             'account_id' => $this->tester->account_id,
@@ -208,9 +213,14 @@ class ZadaniaTest extends TestCase
             'active' => 1,
         ]);
 
-        $this->actingAs($obcy)
-            ->get('/zadania/'.$zadanie->id.'/files/'.$file->id)
-            ->assertForbidden();
+        try {
+            // Załącznik jest częścią zadania, więc widzi go każdy — nie 403.
+            $this->actingAs($obcy)
+                ->get('/zadania/'.$zadanie->id.'/files/'.$file->id)
+                ->assertOk();
+        } finally {
+            @unlink($absolut);
+        }
     }
 
     public function test_print_screen_mozna_dodac_do_istniejacego_zgloszenia(): void

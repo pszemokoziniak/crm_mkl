@@ -73,19 +73,14 @@ class Zadanie extends Model
     }
 
     /**
-     * Zgłoszenia widoczne dla użytkownika: biuro i admin widzą wszystko,
-     * pozostali tylko swoje (zgłoszone lub przypisane).
+     * Zgłoszenia widoczne dla użytkownika. Decyzja z 19.09.2026: wszyscy
+     * widzą wszystkie zadania, także nie swoje — lista i tablica są wspólne.
+     * Edycja, zmiana statusu i archiwizacja zostają przy zaangażowanych
+     * (patrz ZadaniePolicy).
      */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->isOffice()) {
-            return $query;
-        }
-
-        return $query->where(function (Builder $query) use ($user) {
-            $query->where('reporter_id', $user->id)
-                ->orWhere('assignee_id', $user->id);
-        });
+        return $query;
     }
 
     public function scopeFilter(Builder $query, array $filters): void

@@ -12,7 +12,7 @@ class ZadaniePolicy
 {
     use HandlesAuthorization;
 
-    /** Każdy zalogowany może zgłaszać i przeglądać listę (widzi tylko swoje). */
+    /** Każdy zalogowany może zgłaszać i przeglądać listę wszystkich zadań. */
     public function viewAny(User $user): bool
     {
         return true;
@@ -23,9 +23,10 @@ class ZadaniePolicy
         return true;
     }
 
+    /** Podgląd zgłoszenia ma każdy zalogowany — zadania są wspólne (19.09.2026). */
     public function view(User $user, Zadanie $zadanie): bool
     {
-        return $this->involved($user, $zadanie);
+        return true;
     }
 
     /** Edycja treści zgłoszenia: biuro, autor i osoba przypisana. */
