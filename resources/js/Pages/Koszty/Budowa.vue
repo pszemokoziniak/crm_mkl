@@ -52,10 +52,15 @@
     <div class="bg-white rounded-md shadow overflow-hidden">
       <div class="divide-y divide-gray-100">
         <div v-for="w in podzial" :key="w.contact_id ?? 'x'" class="px-4 py-3 sm:px-6">
-          <button type="button" class="w-full flex items-center justify-between gap-3 text-left" @click="przelacz(w)">
-            <span class="font-medium" :class="w.contact_id ? 'text-gray-900' : 'text-orange-700'">{{ w.pracownik }}</span>
-            <span class="font-semibold tabular-nums whitespace-nowrap">{{ pln(w.kwota_pln) }}</span>
-          </button>
+          <div class="flex items-center justify-between gap-3">
+            <!-- Nazwisko prowadzi do kosztów tej osoby; reszta wiersza rozwija szczegóły. -->
+            <Link v-if="w.contact_id" :href="`/contacts/${w.contact_id}/koszty?miesiac=${miesiac}`" class="font-medium text-gray-900 hover:text-indigo-600">{{ w.pracownik }}</Link>
+            <span v-else class="font-medium text-orange-700">{{ w.pracownik }}</span>
+            <button type="button" class="flex items-center gap-2 text-right" @click="przelacz(w)">
+              <span class="font-semibold tabular-nums whitespace-nowrap">{{ pln(w.kwota_pln) }}</span>
+              <span class="text-xs text-gray-400">{{ rozwiniete.includes(w.contact_id ?? 'x') ? 'zwiń' : 'szczegóły' }}</span>
+            </button>
+          </div>
           <ul v-if="rozwiniete.includes(w.contact_id ?? 'x')" class="mt-2 space-y-1 text-sm text-gray-600">
             <li v-for="(p, i) in w.pozycje" :key="i" class="flex flex-wrap justify-between gap-x-3">
               <span>{{ p.data }} · {{ p.typ }}<span v-if="p.opis"> · {{ p.opis }}</span> <span class="text-xs text-gray-400">({{ p.sposob }})</span></span>
@@ -70,7 +75,7 @@
 </template>
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/inertia-vue3'
 import BudMenu from '@/Shared/BudMenu.vue'
 import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import KosztFormularz from '@/Shared/KosztFormularz'
@@ -79,7 +84,7 @@ import ListaKosztow from '@/Shared/ListaKosztow'
 import MiesiacNawigacja from '@/Shared/MiesiacNawigacja'
 
 export default {
-  components: { BudMenu, BudowaNaglowek, Head, KosztFormularz, ListaKosztow, MiesiacNawigacja },
+  components: { BudMenu, BudowaNaglowek, Head, KosztFormularz, Link, ListaKosztow, MiesiacNawigacja },
   layout: Layout,
   props: {
     build: Number,
