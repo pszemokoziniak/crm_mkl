@@ -406,8 +406,9 @@ class ContactsController extends Controller
                 // build bywa null (budowa usunięta z bazy) — bez guardu leciał 500.
                 return [
                     'organization' => optional($group->first()->build)->nazwaBud ?? '— budowa usunięta —',
-                    'start' => $group->min('work_day'),
-                    'end' => $group->max('work_day'),
+                    // work_day to datetime — bez obcięcia ekran pokazywał „2026-09-01 00:00:00”.
+                    'start' => substr((string) $group->min('work_day'), 0, 10),
+                    'end' => substr((string) $group->max('work_day'), 0, 10),
                     'hours' => $group->sum(function ($item) {
                         if (!$item->effective_work_time) return 0;
                         list($hours, $minutes) = explode(':', $item->effective_work_time);
