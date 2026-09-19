@@ -8,7 +8,27 @@
         <span>Dodaj</span>
       </Link>
     </div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <!-- Telefon: karty zamiast tabeli. -->
+    <div class="sm:hidden bg-white rounded-md shadow divide-y divide-gray-100">
+      <Link
+        v-for="item in jezyks.data"
+        :key="`k-${item.id}`"
+        class="block p-4 hover:bg-gray-50"
+        :class="item.deleted_at ? 'text-gray-400' : ''"
+        :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`"
+      >
+        <div class="flex items-center justify-between gap-2">
+          <div class="font-medium text-gray-900">
+            {{ item.jezyk ? item.jezyk.name : '—' }}
+            <icon v-if="item.deleted_at" name="trash" class="inline ml-1 w-3 h-3 fill-gray-400" />
+          </div>
+          <span class="text-sm text-gray-600">{{ item.poziom }}</span>
+        </div>
+      </Link>
+      <p v-if="jezyks.data.length === 0" class="p-4 text-sm text-gray-500">Brak wpisanych języków.</p>
+    </div>
+
+    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th>Język</th>

@@ -53,7 +53,7 @@ class UprawnieniaRolController extends Controller
             'odebrane' => $this->etykiety($z->odebrane),
         ]);
 
-        return Inertia::render('Uprawnienia/Index', [
+        return Inertia::render('UprawnieniaRol/Index', [
             'obszary' => collect($obszary)->map(fn ($lista, $nazwa) => ['nazwa' => $nazwa, 'uprawnienia' => $lista])->values(),
             'role' => $role,
             'historia' => $historia,

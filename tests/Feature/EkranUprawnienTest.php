@@ -42,7 +42,7 @@ class EkranUprawnienTest extends TestCase
         $this->actingAs($this->user(1, 'admin@mkl.pl'))->get('/uprawnienia-rol')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Uprawnienia/Index')
+                ->component('UprawnieniaRol/Index')
                 ->has('obszary')
                 ->has('role', 6)
                 ->where('role.5.nazwa', 'Administrator')
