@@ -28,7 +28,32 @@
       Kilka słów (spacja albo plus, np. <span class="font-mono">Jan+Kowalski</span>): wszystkie muszą pasować (imię, nazwisko, stanowisko, budowa).
       Słowo z minusem wyklucza, np. <span class="font-mono">-GW</span> ukrywa osoby ze stanowiskiem lub dzisiejszą budową „GW”.
     </p>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <!-- Telefon: karta na osobę — status i koniec pobytu pod nazwiskiem. -->
+    <div class="sm:hidden bg-white rounded-md shadow divide-y divide-gray-100">
+      <Link v-for="(contact, index) in contacts.data" :key="`k-${contact.id}`" class="block p-4 hover:bg-gray-50" :href="`/contacts/${contact.id}/edit`">
+        <div class="flex items-start gap-3">
+          <span class="text-gray-400 tabular-nums text-sm pt-0.5">{{ contacts.from + index }}.</span>
+          <div class="min-w-0 flex-1">
+            <div class="font-medium text-gray-900">
+              {{ contact.last_name }} {{ contact.name }}
+              <icon v-if="contact.deleted_at" name="trash" class="inline ml-1 w-3 h-3 fill-gray-400" />
+            </div>
+            <div v-if="contact.funkcja" class="mt-0.5 text-xs text-gray-500">{{ contact.funkcja.name }}</div>
+            <div v-if="contact.pracuje" class="mt-1.5">
+              <status-pracownika :status="contact.pracuje" />
+            </div>
+            <div class="mt-1 text-xs tabular-nums">
+              <span v-if="contact.pracuje.budowa_do" class="text-gray-700">do {{ contact.pracuje.budowa_do }}</span>
+              <span v-else-if="contact.pracuje.ostatni_pobyt_do" class="text-gray-400">ostatnio {{ contact.pracuje.ostatni_pobyt_do }}</span>
+            </div>
+          </div>
+          <icon name="cheveron-right" class="flex-shrink-0 w-5 h-5 fill-gray-300" />
+        </div>
+      </Link>
+      <p v-if="contacts.data.length === 0" class="p-4 text-sm text-gray-500">Nie znaleziono kontaktu</p>
+    </div>
+
+    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">
