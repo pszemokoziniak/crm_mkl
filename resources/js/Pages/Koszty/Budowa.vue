@@ -4,6 +4,13 @@
     <BudMenu :bud-id="build" />
     <budowa-naglowek :bud-id="buildDetails.id" :nazwa="buildDetails.nazwaBud" tytul="Koszty" />
 
+    <!-- Okres budowy z pobytów: od najwcześniejszego przyjazdu po ostatni wyjazd. -->
+    <p v-if="okres.od" class="-mt-6 mb-6 text-sm text-gray-500">
+      Budowa: <span class="font-medium text-gray-700 tabular-nums">{{ okres.od }}</span>
+      <template v-if="okres.trwa"> — <span class="text-green-700 font-medium">trwa</span></template>
+      <template v-else-if="okres.do"> – <span class="font-medium text-gray-700 tabular-nums">{{ okres.do }}</span></template>
+    </p>
+
     <div class="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
       <miesiac-nawigacja v-model="wybranyMiesiac" />
       <button v-if="moze_edytowac && !formularz" type="button" class="btn-indigo w-full text-center sm:w-auto" @click="formularz = 'nowy'">Dodaj koszt</button>
@@ -77,6 +84,7 @@ export default {
   props: {
     build: Number,
     buildDetails: Object,
+    okres: { type: Object, default: () => ({ od: null, do: null, trwa: false }) },
     miesiac: String,
     koszty: Array,
     sumy: Object,

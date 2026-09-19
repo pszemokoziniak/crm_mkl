@@ -260,6 +260,28 @@ class KosztyTest extends TestCase
         $this->assertFalse(collect($props['typy'])->contains('nocleg', true));
     }
 
+    public function test_zakladka_kosztow_pokazuje_okres_budowy_z_pobytow(): void
+    {
+        // Budowa ma pobyty 2026-09-01 → null (A) i 2026-09-21 → 2026-09-30 (B).
+        $props = $this->actingAs($this->biuro)
+            ->get('/budowy/'.$this->budowa->id.'/koszty')
+            ->viewData('page')['props'];
+
+        $this->assertSame('2026-09-01', $props['okres']['od']);
+        $this->assertTrue($props['okres']['trwa']);
+        $this->assertNull($props['okres']['do']);
+
+        // Po zamknięciu otwartego pobytu okres ma konkretny koniec.
+        ContactWorkDate::where('contact_id', $this->a->id)->update(['end' => '2026-10-15']);
+
+        $props = $this->actingAs($this->biuro)
+            ->get('/budowy/'.$this->budowa->id.'/koszty')
+            ->viewData('page')['props'];
+
+        $this->assertFalse($props['okres']['trwa']);
+        $this->assertSame('2026-10-15', $props['okres']['do']);
+    }
+
     public function test_typ_uzyty_na_kosztach_nie_da_sie_usunac(): void
     {
         $this->koszt(['typ' => 'Bilet lotniczy', 'contact_id' => $this->a->id]);

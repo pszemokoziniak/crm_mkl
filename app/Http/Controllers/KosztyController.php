@@ -55,6 +55,7 @@ class KosztyController extends Controller
         return Inertia::render('Koszty/Budowa', [
             'build' => $organization->id,
             'buildDetails' => $organization,
+            'okres' => $this->okresBudowy($organization),
             'miesiac' => $miesiac,
             'koszty' => $koszty->map(fn (Koszt $k) => $this->wiersz($k)),
             'sumy' => $this->sumy($koszty),
@@ -317,6 +318,27 @@ class KosztyController extends Controller
     }
 
     // --- dane do widoków ---------------------------------------------------
+
+    /**
+     * Od kiedy do kiedy trwa budowa — z pobytów, bo budowa nie ma własnych
+     * dat. Otwarty pobyt (bez końca) znaczy, że budowa jeszcze trwa.
+     *
+     * @return array{od: ?string, do: ?string, trwa: bool}
+     */
+    private function okresBudowy(Organization $organization): array
+    {
+        $pobyty = ContactWorkDate::where('organization_id', $organization->id);
+
+        $od = (clone $pobyty)->whereNotNull('start')->min('start');
+        $trwa = (clone $pobyty)->whereNull('end')->exists();
+        $do = $trwa ? null : (clone $pobyty)->whereNotNull('end')->max('end');
+
+        return [
+            'od' => $od ? substr((string) $od, 0, 10) : null,
+            'do' => $do ? substr((string) $do, 0, 10) : null,
+            'trwa' => $trwa,
+        ];
+    }
 
     private function miesiac(): string
     {
