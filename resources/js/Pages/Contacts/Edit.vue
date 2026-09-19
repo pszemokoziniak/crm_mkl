@@ -200,7 +200,30 @@
         <span class="font-semibold text-gray-700">Pobyty zagraniczne</span>
         <span class="text-xs text-gray-400 uppercase tracking-wider">limit 183 dni w 12 miesiącach</span>
       </div>
-      <div class="overflow-x-auto">
+      <!-- Telefon: karta na kraj — pięć kolumn nie mieści się. -->
+      <div class="sm:hidden divide-y divide-gray-100">
+        <div v-for="kraj in limit_183" :key="`k-${kraj.kraj}`" class="px-6 py-4">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-medium text-gray-800">{{ kraj.kraj }}</span>
+            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full" :class="plakietkaLimitu(kraj.status)">{{ opisLimitu(kraj) }}</span>
+          </div>
+          <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+            <dt class="text-gray-500">Wykorzystane</dt>
+            <dd class="text-right tabular-nums">{{ kraj.dni_12m }} <span class="text-xs text-gray-400">({{ kraj.okres }})</span></dd>
+            <dt class="text-gray-500">Pozostało</dt>
+            <dd class="text-right tabular-nums font-semibold" :class="klasaLimitu(kraj.status)">{{ kraj.pozostalo }}</dd>
+            <dt class="text-gray-500">Najdłuższe 12 mies.</dt>
+            <dd class="text-right text-xs text-gray-500">
+              {{ kraj.najwieksze_okno }} dni
+              <span v-if="kraj.okno_od" class="block">({{ kraj.okno_od }} → {{ kraj.okno_do }})</span>
+            </dd>
+          </dl>
+          <p v-if="kraj.wolne_od" class="mt-1 text-xs text-gray-500">wolne od {{ kraj.wolne_od }}</p>
+          <p v-if="kraj.kiedys_przekroczony" class="mt-1 text-xs font-semibold text-red-700">próg kiedyś przekroczony</p>
+        </div>
+      </div>
+
+      <div class="hidden sm:block overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="naglowek-tabeli">
