@@ -8,7 +8,7 @@
       zmian pobytów <span class="font-bold text-gray-700">{{ licznik }}</span>.
     </p>
 
-    <div class="flex items-center gap-3 mb-6">
+    <div class="flex flex-wrap items-center gap-3 mb-6">
       <div class="flex bg-white rounded shadow overflow-hidden">
         <button
           type="button"
@@ -28,7 +28,7 @@
         </button>
       </div>
       <!-- Historia bez zakresu ucina się na 300 najnowszych wpisach. -->
-      <div v-if="filters.pokaz === 'wszystkie'" class="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
+      <div v-if="filters.pokaz === 'wszystkie'" class="flex flex-wrap items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
         <label for="zk-od">od</label>
         <input id="zk-od" v-model="zakres.od" type="date" class="form-input py-1.5 text-sm" @change="pokaz('wszystkie')" />
         <label for="zk-do">do</label>
@@ -44,7 +44,7 @@
       Brak zgłoszeń{{ filters.pokaz === 'wszystkie' ? '' : ' do obsłużenia' }}.
     </p>
     <div v-else class="mb-8 bg-white rounded-md shadow divide-y divide-gray-100">
-      <div v-for="z in zgloszenia" :key="z.id" class="px-6 py-4">
+      <div v-for="z in zgloszenia" :key="z.id" class="px-4 py-4 sm:px-6">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
@@ -88,7 +88,7 @@
       Brak wniosków{{ filters.pokaz === 'wszystkie' ? '' : ' czekających na kierownika' }}.
     </p>
     <div v-else class="mb-8 bg-white rounded-md shadow divide-y divide-gray-100">
-      <div v-for="w in wnioski_z_telefonu" :key="w.id" class="px-6 py-3 text-sm flex flex-wrap items-start justify-between gap-2">
+      <div v-for="w in wnioski_z_telefonu" :key="w.id" class="px-4 py-3 sm:px-6 text-sm flex flex-wrap items-start justify-between gap-2">
         <div>
           <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${w.contact_id}/edit`">{{ w.pracownik }}</Link>
           <span class="ml-2 text-gray-700">{{ w.rodzaj }} · {{ w.od }} – {{ w.do }} ({{ w.dni }} {{ w.dni === 1 ? 'dzień' : 'dni' }})</span>
@@ -121,8 +121,20 @@
     <p v-if="nowi_pracownicy.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
       Każdy pracownik wprowadzony w ostatnich 90 dniach ma ważne badania i szkolenie BHP.
     </p>
-    <div v-else class="mb-8 bg-white rounded-md shadow overflow-x-auto">
-      <table class="w-full text-sm">
+    <div v-else class="mb-8 bg-white rounded-md shadow overflow-hidden">
+      <!-- Telefon: lista kontrolna pod nazwiskiem zamiast pięciu kolumn. -->
+      <div class="sm:hidden divide-y divide-gray-100">
+        <div v-for="n in nowi_pracownicy" :key="`k-${n.id}`" class="p-4">
+          <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${n.id}/edit`">{{ n.pracownik }}</Link>
+          <div class="text-xs text-gray-500 tabular-nums">wprowadzony {{ n.wprowadzony }} ({{ ileDniTemu(n.dni_temu) }})</div>
+          <dl class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm items-center">
+            <dt class="text-gray-600">Badania lekarskie</dt><dd class="text-right"><komplet-dokumentu :jest="n.badania" :href="`/contacts/${n.id}/badania/create`" /></dd>
+            <dt class="text-gray-600">Szkolenie BHP</dt><dd class="text-right"><komplet-dokumentu :jest="n.bhp" :href="`/contacts/${n.id}/bhp/create`" /></dd>
+            <dt class="text-gray-600">Uprawnienia <span class="text-xs text-gray-400">(opcjonalnie)</span></dt><dd class="text-right"><komplet-dokumentu :jest="n.uprawnienia" :href="`/contacts/${n.id}/uprawnienia/create`" opcjonalne /></dd>
+          </dl>
+        </div>
+      </div>
+      <table class="hidden sm:table w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">
             <th>Pracownik</th>
@@ -142,7 +154,7 @@
           </tr>
         </tbody>
       </table>
-      <p class="px-6 py-3 text-xs text-gray-500 border-t border-gray-100">
+      <p class="px-4 py-3 sm:px-6 text-xs text-gray-500 border-t border-gray-100">
         Wiersz znika, gdy badania i BHP są wpisane i ważne. Dalej pilnuje ich raport „Termin uprawnień”.
       </p>
     </div>
@@ -155,8 +167,20 @@
     <p v-if="urlopy_bez_wniosku.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
       Każdy urlop wpisany w KCP w tym i poprzednim miesiącu ma wniosek albo nieobecność w kartotece.
     </p>
-    <div v-else class="mb-8 bg-white rounded-md shadow overflow-x-auto">
-      <table class="w-full text-sm">
+    <div v-else class="mb-8 bg-white rounded-md shadow overflow-hidden">
+      <div class="sm:hidden divide-y divide-gray-100">
+        <div v-for="u in urlopy_bez_wniosku" :key="`k-${u.organization_id}-${u.contact_id}-${u.od}`" class="p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${u.contact_id}/edit`">{{ u.pracownik }}</Link>
+              <div class="text-xs text-gray-500">{{ u.budowa }}</div>
+            </div>
+            <Link class="text-sm text-indigo-600 whitespace-nowrap" :href="`/building/${u.organization_id}/time-sheet?date=${u.od}`">otwórz KCP</Link>
+          </div>
+          <div class="mt-1 text-sm tabular-nums text-gray-700">{{ u.kod }} {{ u.od }} – {{ u.do }} ({{ u.dni }} {{ u.dni === 1 ? 'dzień' : 'dni' }})</div>
+        </div>
+      </div>
+      <table class="hidden sm:table w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">
             <th>Pracownik</th>
@@ -174,7 +198,7 @@
           </tr>
         </tbody>
       </table>
-      <p class="px-6 py-3 text-xs text-gray-500 border-t border-gray-100">
+      <p class="px-4 py-3 sm:px-6 text-xs text-gray-500 border-t border-gray-100">
         Kierownik dołącza skan przyciskiem „Dodaj wniosek” w KCP; po wstawieniu nieobecności w kartotece pozycja znika sama.
       </p>
     </div>
@@ -185,7 +209,7 @@
     </p>
 
     <div v-for="paczka in paczki" :key="paczka.paczka" class="mb-4 bg-white rounded-md shadow overflow-hidden">
-      <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 bg-gray-50 border-b border-gray-100">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 bg-gray-50 border-b border-gray-100">
         <div>
           <!-- Tytuł paczki streszcza kilka zmian; przy jednej powtarzałby
                wiersz pod spodem, więc zostaje samo "kto, kiedy". -->
@@ -210,7 +234,37 @@
 
       <!-- Każda paczka to osobna tabela; bez stałych szerokości kolumny
            w kolejnych paczkach rozjeżdżały się względem siebie. -->
-      <table class="w-full text-sm table-fixed">
+      <!-- Telefon: karta na zmianę, przyciski w jednym wierszu pod spodem. -->
+      <div class="sm:hidden divide-y divide-gray-100">
+        <div v-for="zmiana in paczka.zmiany" :key="`k-${zmiana.id}`" class="p-4">
+          <div class="flex flex-wrap items-center gap-2">
+            <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${zmiana.contact_id}/edit`">{{ zmiana.pracownik }}</Link>
+            <span v-if="zmiana.pracownik_w_archiwum" class="text-[10px] text-gray-400">w archiwum</span>
+            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border" :class="statusClass(zmiana.status)">{{ zmiana.status_label }}</span>
+          </div>
+          <div class="mt-1 text-sm text-gray-700">
+            {{ zmiana.typ_label }}
+            <span v-if="zmiana.budowa_z && zmiana.budowa_do && zmiana.budowa_z !== zmiana.budowa_do" class="text-gray-500">· {{ zmiana.budowa_z }} → {{ zmiana.budowa_do }}</span>
+            <span v-else-if="zmiana.budowa_do" class="text-gray-500">· {{ zmiana.budowa_do }}</span>
+            <span v-else-if="zmiana.budowa_z" class="text-gray-500">· {{ zmiana.budowa_z }}</span>
+          </div>
+          <div class="mt-0.5 text-sm text-gray-700 tabular-nums">
+            <span v-if="zmiana.stary_termin" class="text-xs text-gray-400 line-through mr-1">{{ zmiana.stary_termin }}</span>
+            <span v-if="zmiana.nowy_termin">{{ zmiana.nowy_termin }}</span>
+            <span v-else class="text-gray-400">—</span>
+          </div>
+          <div v-if="zmiana.obsluzyl" class="text-[10px] text-gray-400">{{ zmiana.obsluzyl }}, {{ zmiana.obsluzono }}</div>
+          <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <a v-if="zmiana.link_aneks" :href="zmiana.link_aneks" class="text-gray-700 underline">Generuj aneks</a>
+            <button v-if="zmiana.status === 'nowa'" type="button" class="text-indigo-600" @click="zmienStatus({ id: zmiana.id, status: 'w_przygotowaniu' })">Biorę</button>
+            <button v-if="!zamknieta(zmiana.status)" type="button" class="text-green-700" @click="zmienStatus({ id: zmiana.id, status: 'gotowa' })">Umowa gotowa</button>
+            <button v-if="!zamknieta(zmiana.status)" type="button" class="text-gray-600" @click="zamknijBezAneksu(zmiana)">Bez aneksu</button>
+            <button v-if="zamknieta(zmiana.status)" type="button" class="text-gray-400" @click="zmienStatus({ id: zmiana.id, status: 'nowa' })">Cofnij</button>
+          </div>
+        </div>
+      </div>
+
+      <table class="hidden sm:table w-full text-sm table-fixed">
         <colgroup>
           <col style="width: 20%" />
           <col style="width: 22%" />
