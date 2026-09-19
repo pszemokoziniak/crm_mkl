@@ -92,7 +92,7 @@
             </td>
             <td v-if="item.contact" class="px-4 py-3 text-gray-600 tabular-nums">
               <span class="block whitespace-nowrap">od: {{ item.start }}</span>
-              <span class="block whitespace-nowrap">do: {{ item.end }}</span>
+              <span class="block whitespace-nowrap">do: {{ item.end || 'bezterminowo' }}</span>
             </td>
             <td v-if="item.contact" class="px-4 py-3 text-gray-600">
               {{ item.contact.funkcja ? item.contact.funkcja.name : '' }}
@@ -142,7 +142,7 @@
               {{ item.contact.funkcja.name }}
             </div>
             <div class="mt-1 text-sm text-gray-600 tabular-nums">
-              od: {{ item.start }} · do: {{ item.end }}
+              od: {{ item.start }} · do: {{ item.end || 'bezterminowo' }}
             </div>
             <div v-if="zgloszenia[item.contact.id]" class="mt-1 text-xs" :class="klasaZgloszenia(zgloszenia[item.contact.id])">
               {{ opisZgloszenia(zgloszenia[item.contact.id]) }}
