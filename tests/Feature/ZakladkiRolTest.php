@@ -149,6 +149,23 @@ class ZakladkiRolTest extends TestCase
         $this->assertTrue($props['flag'], 'Kierownik projektu dostawał formularz, którego nie mógł zapisać.');
     }
 
+    /**
+     * @dataProvider roleProwadzaceBudowy
+     */
+    public function test_lista_budow_nie_pokazuje_utworz_prowadzacym(int $owner): void
+    {
+        [$user] = $this->zespol($owner);
+
+        $this->actingAs($user)->get('/budowy/create')->assertForbidden();
+
+        $props = $this->actingAs($user)->get('/budowy')->viewData('page')['props'];
+
+        $this->assertFalse(
+            $props['permissions']['moze']['budowy.zakladanie'] ?? false,
+            'Na tym kluczu stoi ukrycie przycisku „Utwórz” na liście budów.'
+        );
+    }
+
     public function test_menu_glowne_zgadza_sie_z_dostepem_serwera(): void
     {
         $pozycje = [

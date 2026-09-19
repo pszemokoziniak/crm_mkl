@@ -18,7 +18,9 @@
         </search-filter>
       </div>
 
-      <Link class="btn-indigo w-full text-center sm:w-auto" href="/budowy/create">
+      <!-- Po tym samym uprawnieniu, o które pyta trasa /budowy/create —
+           kierownik dostawał przycisk, a po kliknięciu odmowę. -->
+      <Link v-if="$page.props.permissions.moze['budowy.zakladanie']" class="btn-indigo w-full text-center sm:w-auto" href="/budowy/create">
         <span>Utwórz</span>
         <span class="hidden md:inline">&nbsp;Budowę</span>
       </Link>
