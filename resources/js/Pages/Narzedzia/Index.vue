@@ -6,8 +6,8 @@
       <span class="text-xl font-medium text-gray-400">({{ sztukRazem }} szt. w {{ grupy.length }} rodzajach)</span>
     </h1>
 
-    <div class="flex items-center justify-between mb-6">
-      <search-filter v-model="form.search" class="mr-4 w-full max-w-md" @reset="reset">
+    <div class="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
+      <search-filter v-model="form.search" class="w-full max-w-md sm:mr-4" @reset="reset">
         <label class="block text-gray-700">Wyświetlaj:</label>
         <select v-model="form.wyswietlaj" class="form-select mt-1 w-full">
           <option :value="null">Wszystkie</option>
@@ -15,7 +15,7 @@
           <option value="na_budowie">Na budowie</option>
         </select>
       </search-filter>
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
         <!-- Żeby zobaczyć, gdzie stoi sprzęt, trzeba było rozwijać każdą
              pozycję z osobna. -->
         <button type="button" class="text-sm text-indigo-600 hover:underline whitespace-nowrap" @click="rozwinWszystko">
@@ -29,7 +29,7 @@
         >
           Zwiń wszystko
         </button>
-        <Link class="btn-indigo" href="/narzedzia/create">
+        <Link class="btn-indigo w-full text-center sm:w-auto" href="/narzedzia/create">
           <span>Dodaj nowy sprzęt</span>
         </Link>
       </div>
@@ -38,25 +38,25 @@
     <!-- Pasek wydania pojawia się dopiero, gdy coś jest zaznaczone. -->
     <div v-if="zaznaczone.length" class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-md">
       <div class="flex flex-wrap items-end gap-4">
-        <div class="font-semibold text-indigo-900">
+        <div class="w-full font-semibold text-indigo-900 sm:w-auto">
           Zaznaczono {{ zaznaczone.length }} {{ zaznaczone.length === 1 ? 'sztukę' : 'szt.' }}
         </div>
-        <div>
+        <div class="w-full sm:w-auto">
           <label class="block text-xs text-gray-600">Budowa</label>
-          <select v-model="wydanie.organization_id" class="form-select mt-1 w-64">
+          <select v-model="wydanie.organization_id" class="form-select mt-1 w-full sm:w-64">
             <option :value="null">— wybierz —</option>
             <option v-for="b in budowy" :key="b.id" :value="b.id">
               {{ b.nazwaBud }}<span v-if="b.warsztat"> (warsztat)</span>
             </option>
           </select>
         </div>
-        <div>
+        <div class="flex-1 sm:flex-none">
           <label class="block text-xs text-gray-600">Od</label>
-          <input v-model="wydanie.start" type="date" class="form-input mt-1 w-40" />
+          <input v-model="wydanie.start" type="date" class="form-input mt-1 w-full sm:w-40" />
         </div>
-        <div>
+        <div class="flex-1 sm:flex-none">
           <label class="block text-xs text-gray-600">Do (można zostawić puste)</label>
-          <input v-model="wydanie.end" type="date" class="form-input mt-1 w-40" />
+          <input v-model="wydanie.end" type="date" class="form-input mt-1 w-full sm:w-40" />
         </div>
         <button class="btn-indigo" type="button" :disabled="!wydanie.organization_id || !wydanie.start" @click="wydaj">
           Wydaj na budowę
@@ -68,7 +68,7 @@
       <div v-if="bledy" class="mt-2 text-sm text-red-600">{{ bledy }}</div>
     </div>
 
-    <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="hidden md:block bg-white rounded-md shadow overflow-hidden">
       <table class="w-full">
         <thead>
           <tr class="naglowek-tabeli">
@@ -224,6 +224,112 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Telefon: siedem kolumn w trzech poziomach nie ma szans; karta na rodzaj,
+         w środku modele i sztuki. Rozwijanie dzieli stan z tabelą. -->
+    <div class="space-y-3 md:hidden">
+      <div v-for="(grupa, gi) in grupy" :key="`k-${grupa.klucz}`" class="bg-white rounded-md shadow overflow-hidden">
+        <button type="button" class="w-full p-4 text-left" @click="przelacz(grupa.klucz)">
+          <div class="flex items-center gap-3">
+            <img v-if="grupa.photo" :src="grupa.photo" :alt="grupa.nazwa" class="flex-shrink-0 w-12 h-12 object-cover rounded border border-gray-200" />
+            <span v-else class="flex flex-shrink-0 items-center justify-center w-12 h-12 bg-gray-50 rounded border border-gray-200">
+              <icon name="sprzet2" class="w-5 h-5 fill-gray-300" />
+            </span>
+            <div class="min-w-0 flex-1">
+              <div class="font-medium text-gray-900">
+                <span class="text-gray-400 tabular-nums mr-1">{{ gi + 1 }}.</span>{{ grupa.nazwa }}
+              </div>
+              <div v-if="grupa.ma_modele" class="text-xs text-gray-400">{{ grupa.modele.length }} modele</div>
+            </div>
+            <span class="text-xs text-gray-400 whitespace-nowrap">{{ rozwiniete.includes(grupa.klucz) ? 'zwiń' : 'rozwiń' }}</span>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-2 text-xs">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-800 border border-gray-200">{{ grupa.sztuk }} szt.</span>
+            <span :class="grupa.dostepne > 0 ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'" class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium border">
+              {{ grupa.dostepne }} dostępne
+            </span>
+            <span v-if="grupa.na_budowie > 0" class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-orange-100 text-orange-800 border border-orange-200">
+              {{ grupa.na_budowie }} na budowach
+            </span>
+            <span v-if="grupa.badania_po_terminie" class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-800 border border-red-200">
+              badania: {{ grupa.badania_po_terminie }} po terminie
+            </span>
+            <span v-if="grupa.badania_wkrotce" class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-orange-100 text-orange-800 border border-orange-200">
+              badania: {{ grupa.badania_wkrotce }} kończy się
+            </span>
+          </div>
+        </button>
+
+        <div v-if="rozwiniete.includes(grupa.klucz)" class="border-t border-gray-100 divide-y divide-gray-100">
+          <div v-for="(model, mi) in grupa.modele" :key="`k-${model.klucz}`">
+            <!-- Model tylko tam, gdzie rodzaj ma modele; inaczej sztuki leżą wprost pod rodzajem. -->
+            <button v-if="grupa.ma_modele" type="button" class="w-full px-4 py-3 text-left bg-gray-50" @click="przelacz(grupa.klucz + '/' + model.klucz)">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-400 tabular-nums">{{ gi + 1 }}.{{ mi + 1 }}</span>
+                <span class="font-medium text-gray-700 flex-1">{{ model.nazwa }}</span>
+                <span class="text-xs text-gray-400">{{ rozwiniete.includes(grupa.klucz + '/' + model.klucz) ? 'zwiń' : 'sztuki' }}</span>
+              </div>
+              <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600">
+                <span>{{ model.sztuk }} szt.</span>
+                <span :class="model.dostepne > 0 ? 'text-green-700' : 'text-red-700'">{{ model.dostepne }} dostępne</span>
+                <span v-if="model.na_budowie">{{ model.na_budowie }} na budowach</span>
+                <span v-if="model.badania_po_terminie" class="text-red-700">{{ model.badania_po_terminie }} po terminie badań</span>
+                <span v-if="model.badania_wkrotce" class="text-orange-700">{{ model.badania_wkrotce }} kończy się</span>
+                <span
+                  v-if="model.dostepne > 0"
+                  class="text-indigo-600 underline"
+                  @click.stop="zaznaczModel(model, { target: { checked: !wszystkieZaznaczone(model) } })"
+                >
+                  {{ wszystkieZaznaczone(model) ? 'odznacz wszystkie' : 'zaznacz wszystkie' }}
+                </span>
+              </div>
+            </button>
+
+            <div v-if="!grupa.ma_modele || rozwiniete.includes(grupa.klucz + '/' + model.klucz)" class="divide-y divide-gray-100">
+              <div v-for="(sztuka, si) in model.sztuki" :key="`k-${sztuka.id}`" class="px-4 py-3">
+                <label class="flex items-start gap-3" :class="sztuka.budowa ? 'cursor-default' : 'cursor-pointer'">
+                  <input v-if="!sztuka.budowa" v-model="zaznaczone" type="checkbox" :value="sztuka.id" class="mt-1" />
+                  <span v-else class="inline-block w-4 flex-shrink-0" />
+                  <span class="min-w-0 flex-1">
+                    <span class="block">
+                      <span class="text-xs text-gray-400 tabular-nums mr-1">{{ grupa.ma_modele ? `${gi + 1}.${mi + 1}.${si + 1}` : `${gi + 1}.${si + 1}` }}</span>
+                      <span class="font-medium text-gray-800">{{ sztuka.numer_seryjny || '—' }}</span>
+                      <span v-if="sztuka.numer_udt" class="ml-2 text-xs text-gray-500">UDT {{ sztuka.numer_udt }}</span>
+                    </span>
+                    <span class="block mt-0.5 text-sm">
+                      <span v-if="sztuka.budowa">
+                        <Link :href="`/budowy/${sztuka.budowa.id}/edit`" class="text-indigo-600">{{ sztuka.budowa.nazwaBud }}</Link>
+                        <span v-if="sztuka.budowa.do" class="text-gray-400"> do {{ sztuka.budowa.do }}</span>
+                      </span>
+                      <span v-else class="text-green-700">magazyn</span>
+                      <span class="text-gray-400"> · badania: </span>
+                      <span :class="klasaBadan(sztuka.badania_status)">{{ sztuka.waznosc_badan || 'brak daty' }}</span>
+                    </span>
+                  </span>
+                </label>
+                <div class="mt-2 pl-7 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                  <Link :href="`/narzedzia/${sztuka.id}/edit`" class="text-indigo-600">Karta sprzętu</Link>
+                  <Link
+                    v-if="sztuka.budowa"
+                    :href="`/narzedzia/przypisanie/${sztuka.budowa.przypisanie_id}`"
+                    method="delete"
+                    as="button"
+                    type="button"
+                    class="text-gray-500 underline"
+                  >
+                    Zdejmij z budowy
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p v-if="grupy.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">
+        Nie znaleziono żadnego sprzętu w magazynie
+      </p>
     </div>
   </div>
 </template>
