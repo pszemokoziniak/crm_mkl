@@ -16,7 +16,7 @@
       </div>
       <div>
         <label class="form-label">Data</label>
-        <input v-model="form.data" type="date" class="form-input mt-1 w-full" :class="{ error: form.errors.data }" />
+        <input v-model="form.dzien" type="date" class="form-input mt-1 w-full" :class="{ error: form.errors.data }" />
         <div v-if="form.errors.data" class="form-error">{{ form.errors.data }}</div>
       </div>
       <div>
@@ -93,6 +93,7 @@
         <div v-if="form.errors.plik" class="form-error">{{ form.errors.plik }}</div>
       </div>
     </div>
+    <p v-if="ukryteBledy.length" class="px-4 pb-3 sm:px-6 text-sm text-red-700">{{ ukryteBledy.join(' ') }}</p>
     <div class="flex flex-col gap-2 px-4 py-3 sm:px-6 bg-gray-50 border-t border-gray-100 sm:flex-row sm:items-center sm:justify-end">
       <button type="button" class="text-sm text-gray-600 hover:text-gray-900 sm:mr-4" @click="$emit('zamknij')">Anuluj</button>
       <loading-button :loading="form.processing" class="btn-indigo" type="submit">{{ koszt ? 'Zapisz zmiany' : 'Dodaj koszt' }}</loading-button>
@@ -121,7 +122,9 @@ export default {
     return {
       form: this.$inertia.form({
         typ_kosztu_id: k ? k.typ_kosztu_id : '',
-        data: k ? k.data : new Date().toISOString().slice(0, 10),
+        // Nie "data": helper formularza Inertii ma metodę data() i pole o tej
+        // nazwie ją nadpisywało — zapis kończył się cichym błędem w przeglądarce.
+        dzien: k ? k.data : new Date().toISOString().slice(0, 10),
         kwota: k ? k.kwota : '',
         waluta: k ? k.waluta : 'PLN',
         kurs_reczny: k ? k.kurs_reczny : false,
@@ -144,6 +147,17 @@ export default {
     nocleg() {
       return !!(this.typ && this.typ.nocleg)
     },
+    // Pole może być schowane (pracownik przy pokoju, kurs przy PLN, budowa na
+    // budowie) — jego błąd i tak musi być widoczny.
+    ukryteBledy() {
+      const widoczne = ['typ_kosztu_id', 'data', 'kwota', 'opis', 'plik']
+      if (this.form.waluta !== 'PLN') widoczne.push('kurs')
+      if (this.osoby && !this.nocleg) widoczne.push('contact_id')
+      if (this.budowy) widoczne.push('organization_id')
+      if (this.nocleg) widoczne.push('od', 'do', 'miejsc')
+
+      return Object.entries(this.form.errors).filter(([k]) => !widoczne.includes(k)).map(([, v]) => v)
+    },
   },
   methods: {
     zmienionoTyp() {
@@ -159,11 +173,13 @@ export default {
         },
       }
 
+      const doWyslania = (d) => ({ ...d, data: d.dzien })
+
       if (this.koszt) {
         // Plik idzie multipartem, więc PUT udajemy przez _method.
-        this.form.transform((d) => ({ ...d, _method: 'put' })).post(`/koszty/${this.koszt.id}`, opcje)
+        this.form.transform((d) => ({ ...doWyslania(d), _method: 'put' })).post(`/koszty/${this.koszt.id}`, opcje)
       } else {
-        this.form.post(this.adres, opcje)
+        this.form.transform(doWyslania).post(this.adres, opcje)
       }
     },
   },
