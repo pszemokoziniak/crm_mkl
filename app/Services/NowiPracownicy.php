@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Badania;
 use App\Models\Bhp;
 use App\Models\Contact;
+use App\Models\Funkcja;
 use App\Models\Uprawnienia;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -39,9 +40,15 @@ class NowiPracownicy
         $od = Carbon::parse($dzis)->subDays(self::DNI_NOWOSCI)->startOfDay()
             ->max(Carbon::parse(self::OD_KIEDY)->startOfDay());
 
+        // Kierownik projektu to tylko użytkownik HRM — jego dokumentów kadrowych
+        // tu nie ma, więc nie zaśmieca listy nowych pracowników do skompletowania.
+        $funkcjeProjektu = Funkcja::where('rola_budowy', Funkcja::ROLA_KIEROWNIK_PROJEKTU)->pluck('id')->all();
+
         $nowi = Contact::query()
             ->where('created_at', '>=', $od)
             ->where(fn ($q) => $q->whereNull('status_zatrudnienia')->orWhere('status_zatrudnienia', '!=', Contact::STATUS_ZWOLNIONY))
+            // whereNotIn gubi wiersze z NULL, więc pusta funkcja musi zostać jawnie.
+            ->when($funkcjeProjektu, fn ($q) => $q->where(fn ($w) => $w->whereNull('funkcja_id')->orWhereNotIn('funkcja_id', $funkcjeProjektu)))
             ->orderByDesc('created_at')
             ->get(['id', 'first_name', 'last_name', 'created_at']);
 

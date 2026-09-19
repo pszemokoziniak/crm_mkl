@@ -10,6 +10,7 @@ use App\Models\BadaniaTyp;
 use App\Models\Bhp;
 use App\Models\BhpTyp;
 use App\Models\Contact;
+use App\Models\Funkcja;
 use App\Models\User;
 use App\Services\NowiPracownicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -32,10 +33,10 @@ class NowiPracownicyTest extends TestCase
         $this->accountId = Account::create(['name' => 'MKL'])->id;
     }
 
-    private function pracownik(string $nazwisko, int $dniTemu = 3, ?string $status = null): Contact
+    private function pracownik(string $nazwisko, int $dniTemu = 3, ?string $status = null, ?int $funkcjaId = null): Contact
     {
         // Kolumna nie przyjmuje NULL — status podajemy tylko, gdy test go potrzebuje.
-        $c = Contact::create(array_filter(['account_id' => $this->accountId, 'first_name' => 'Jan', 'last_name' => $nazwisko, 'status_zatrudnienia' => $status]));
+        $c = Contact::create(array_filter(['account_id' => $this->accountId, 'first_name' => 'Jan', 'last_name' => $nazwisko, 'status_zatrudnienia' => $status, 'funkcja_id' => $funkcjaId]));
         Contact::where('id', $c->id)->update(['created_at' => now()->subDays($dniTemu)]);
 
         return $c->fresh();
@@ -83,6 +84,20 @@ class NowiPracownicyTest extends TestCase
         Contact::where('id', $zImportu->id)->update(['created_at' => '2026-08-21 10:00:00']);
 
         $this->assertSame(['Świeży Jan'], app(NowiPracownicy::class)->bezKompletu('2026-09-17')->pluck('pracownik')->all());
+    }
+
+    public function test_kierownik_projektu_nie_wchodzi_na_liste_nowych(): void
+    {
+        $projekt = Funkcja::create(['name' => Funkcja::NAZWA_KIEROWNIK_PROJEKTU, 'rola_budowy' => Funkcja::ROLA_KIEROWNIK_PROJEKTU, 'kierownictwo' => true]);
+
+        // Kierownik projektu bez dokumentów — mimo braków ma zniknąć z listy.
+        $this->pracownik('Projektowy', 3, null, $projekt->id);
+        // Zwykły pracownik bez funkcji zostaje.
+        $this->pracownik('Fizyczny');
+
+        $lista = app(NowiPracownicy::class)->bezKompletu();
+
+        $this->assertSame(['Fizyczny Jan'], $lista->pluck('pracownik')->all());
     }
 
     public function test_ekran_kadry_pokazuje_liste(): void
