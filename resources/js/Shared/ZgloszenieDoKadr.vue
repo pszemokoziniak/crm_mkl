@@ -64,7 +64,7 @@ export default {
     // { id, nazwa }
     pracownik: { type: Object, default: () => ({ id: null, nazwa: '' }) },
     rodzaje: { type: Object, default: () => ({}) },
-    // Wartości startowe: { rodzaj, od, do }
+    // Wartości startowe: { rodzaj, od, do, uwaga }
     start: { type: Object, default: () => ({}) },
     // KCP: skan wniosku urlopowego jest po to, żeby go dołączyć.
     wymagajPliku: Boolean,
@@ -96,6 +96,7 @@ export default {
       this.form.dokument = this.start.dokument || 'a1'
       this.form.od = this.start.od || ''
       this.form.do = this.start.do || ''
+      this.form.uwaga = this.start.uwaga || ''
     },
   },
   methods: {

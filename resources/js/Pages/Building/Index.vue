@@ -30,9 +30,9 @@
     :pracownik="wniosek.pracownik"
     :rodzaje="rodzajeZgloszen"
     :start="wniosek.start"
-    tytul="Dodaj wniosek urlopowy"
-    wymagaj-pliku
-    tylko-urlop
+    :tytul="wniosek.tytul"
+    :wymagaj-pliku="wniosek.wymagajPliku"
+    :tylko-urlop="wniosek.tylkoUrlop"
     @zamknij="wniosek.otwarte = false"
     @wyslane="$inertia.reload({ only: ['urlopyBezWniosku'] })"
   />
@@ -225,13 +225,27 @@
                           <span v-if="blokada.kod"> ({{ blokada.kod }})</span>
                           <span v-if="blokada.od && blokada.do"> od {{ blokada.od }} do {{ blokada.do }}</span>.
                         </p>
-                        <p class="mt-2 text-gray-500">
-                          Jeśli pracownik wrócił wcześniej, skróć ten wpis — KCP poprawi się samo.
-                        </p>
-                        <a
-                          :href="`/contacts/${blokada.pracownikId}/holiday`"
-                          class="inline-block mt-4 btn-indigo px-4 py-2 rounded"
-                        >Przejdź do nieobecności</a>
+                        <!-- Kadry i biuro poprawiają wpis same; kierownik nie edytuje
+                             nieobecności, więc zgłasza kadrom, że pracownik wrócił. -->
+                        <template v-if="prowadziBudowy(user_owner)">
+                          <p class="mt-2 text-gray-500">
+                            Jeśli pracownik wrócił wcześniej albo coś się zmieniło, zgłoś to kadrom — one skrócą wpis, a KCP poprawi się samo.
+                          </p>
+                          <button
+                            type="button"
+                            class="inline-block mt-4 btn-indigo px-4 py-2 rounded"
+                            @click="zglosPowrot"
+                          >Zgłoś kadrom: wrócił wcześniej</button>
+                        </template>
+                        <template v-else>
+                          <p class="mt-2 text-gray-500">
+                            Jeśli pracownik wrócił wcześniej, skróć ten wpis — KCP poprawi się samo.
+                          </p>
+                          <a
+                            :href="`/contacts/${blokada.pracownikId}/holiday`"
+                            class="inline-block mt-4 btn-indigo px-4 py-2 rounded"
+                          >Przejdź do nieobecności</a>
+                        </template>
                       </div>
                       <div v-else class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
                         <fieldset>
@@ -414,7 +428,7 @@ export default {
       isStatus: false,
       // Wypełnione, gdy otwarty dzień pochodzi z wpisu nieobecności.
       blokada: null,
-      wniosek: { otwarte: false, pracownik: { id: null, nazwa: '' }, start: {} },
+      wniosek: { otwarte: false, pracownik: { id: null, nazwa: '' }, start: {}, tytul: 'Dodaj wniosek urlopowy', wymagajPliku: true, tylkoUrlop: true },
       modalForm: useForm({
         id: null,
         day: null,
@@ -519,6 +533,35 @@ export default {
     dodajWniosek(u) {
       this.wniosek.pracownik = { id: u.contact_id, nazwa: u.pracownik }
       this.wniosek.start = { rodzaj: 'urlop', od: u.od, do: u.do }
+      this.wniosek.tytul = 'Dodaj wniosek urlopowy'
+      this.wniosek.wymagajPliku = true
+      this.wniosek.tylkoUrlop = true
+      this.wniosek.otwarte = true
+    },
+    // Kierownik zgłasza kadrom, że pracownik wrócił wcześniej — kadry skrócą
+    // nieobecność, KCP odblokuje się samo. Bez skanu i bez wymuszania rodzaju.
+    zglosPowrot() {
+      const b = this.blokada || {}
+      // Dzień z KCP bywa datą z godziną („2026-09-14 00:00:00") — pole daty
+      // i tekst potrzebują samego „2026-09-14".
+      const naDate = (d) => (d ? String(d).slice(0, 10) : '')
+      const dzien = naDate(b.dzien)
+      const od = naDate(b.od)
+      const do_ = naDate(b.do)
+      const kod = b.kod ? ` (${b.kod})` : ''
+      const zakres = od && do_ ? ` (${od} – ${do_})` : ''
+
+      this.wniosek.pracownik = { id: b.pracownikId, nazwa: b.pracownik || '' }
+      this.wniosek.start = {
+        rodzaj: 'inne',
+        od: dzien,
+        do: do_,
+        uwaga: `Pracownik wrócił do pracy ${dzien}. Proszę skrócić nieobecność „${b.rodzaj || ''}"${kod}${zakres}.`,
+      }
+      this.wniosek.tytul = 'Zgłoś powrót do pracy'
+      this.wniosek.wymagajPliku = false
+      this.wniosek.tylkoUrlop = false
+      this.open = false
       this.wniosek.otwarte = true
     },
     printData() {
@@ -708,7 +751,7 @@ export default {
       this.blokada = null
 
       if (shift.isBlocked && shift.blockedType === 'holiday') {
-        this.blokada = { ...(shift.blokada || {}), pracownikId: shift.id }
+        this.blokada = { ...(shift.blokada || {}), pracownikId: shift.id, pracownik: shift.name, dzien: shift.day }
         this.open = true
         this.modalForm.day = shift.day
 
