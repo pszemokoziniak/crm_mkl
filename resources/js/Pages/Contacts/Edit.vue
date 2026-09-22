@@ -34,6 +34,28 @@
             {{ currentFunkcjaName }}
           </p>
         </div>
+
+        <!-- Pobranie i usunięcie zdjęcia — ikony w prawym dolnym rogu, gdy zdjęcie jest. -->
+        <div v-if="contact.photo_path" class="absolute bottom-2 right-2 flex gap-2">
+          <a
+            :href="`/contacts/${contact.id}/zdjecie`"
+            title="Pobierz zdjęcie"
+            aria-label="Pobierz zdjęcie"
+            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+          >
+            <DocumentDownloadIcon class="w-5 h-5" />
+          </a>
+          <button
+            v-if="!flag"
+            type="button"
+            title="Usuń zdjęcie"
+            aria-label="Usuń zdjęcie"
+            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-red-600 backdrop-blur-sm"
+            @click="usunZdjecie"
+          >
+            <TrashIcon class="w-5 h-5" />
+          </button>
+        </div>
       </div>
       <div class="col-span-1 p-2">
         <div class="p-2 space-y-1">
@@ -340,11 +362,6 @@
             </select-input>
 
             <file-input v-model="form.photo_path" :error="form.errors.photo_path" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
-            <!-- Pobranie oryginału i usunięcie — tylko gdy jakieś zdjęcie jest. -->
-            <div v-if="contact.photo_path" class="pb-8 pr-6 w-full lg:w-1/2 flex items-end gap-4 text-sm">
-              <a :href="`/contacts/${contact.id}/zdjecie`" class="text-indigo-600 hover:underline">Pobierz zdjęcie</a>
-              <button v-if="!flag" type="button" class="text-red-600 hover:underline" @click="usunZdjecie">Usuń zdjęcie</button>
-            </div>
 
             <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
             <text-input v-model="form.work_start" :error="form.errors.work_start" :disabled="flag" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
@@ -393,6 +410,7 @@ import StatusPracownika from '@/Shared/StatusPracownika'
 import WorkerMenu from '@/Shared/WorkerMenu'
 import FileInput from '@/Shared/FileInput'
 import DeleteButton from '@/Shared/DeleteButton'
+import { DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
 import moment from 'moment'
 
 
@@ -408,6 +426,8 @@ export default {
     WorkerMenu,
     FileInput,
     DeleteButton,
+    DocumentDownloadIcon,
+    TrashIcon,
   },
   layout: Layout,
   props: {
