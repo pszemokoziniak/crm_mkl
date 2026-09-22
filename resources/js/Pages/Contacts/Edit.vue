@@ -14,16 +14,18 @@
       <!-- Na wąskim ekranie kolumny się układają jedna pod drugą, a ta bez
            własnej wysokości zapadała się do paska i nakładka ze stanowiskiem
            lądowała na inicjałach. -->
-      <div class="grid col-span-1 relative group bg-gray-200 h-48 md:h-64 md:self-start">
+      <!-- overflow-hidden: bez tego zdjęcie wylewało się poza box i ikony w rogu
+           lądowały w połowie zdjęcia. Box obejmuje zdjęcie, więc róg to róg. -->
+      <div class="relative col-span-1 group bg-gray-200 rounded-md overflow-hidden md:self-start">
         <!-- Podgląd nowo wybranego zdjęcia -->
-        <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover object-top" alt="Podgląd" />
+        <img v-if="photoPreview" :src="photoPreview" class="block w-full h-auto object-cover object-top" alt="Podgląd" />
         <!-- Istniejące zdjęcie -->
-        <img v-else-if="contact.photo_path" :src="contact.photo_path" class="w-full h-full object-cover object-top" alt="image" />
+        <img v-else-if="contact.photo_path" :src="contact.photo_path" class="block w-full h-auto object-cover object-top" alt="image" />
         <!-- Placeholder -->
         <!-- Wskazywało na /img/contacts/emptyPhoto.png, którego nie ma w repo
              ani na serwerze — przeglądarka pokazywała ikonę zepsutego obrazka.
              Inicjały rysujemy same, więc nie ma czego zgubić. -->
-        <div v-else class="flex items-end justify-center pb-6 w-full h-full bg-gray-300">
+        <div v-else class="flex items-end justify-center pb-6 w-full h-48 md:h-64 bg-gray-300">
           <span class="text-5xl font-black text-gray-500 tracking-wide">{{ inicjaly }}</span>
         </div>
 
@@ -35,9 +37,22 @@
           </p>
         </div>
 
-        <!-- Pobranie i usunięcie zdjęcia — ikony w prawym dolnym rogu, gdy zdjęcie jest. -->
-        <div v-if="contact.photo_path" class="absolute bottom-2 right-2 flex gap-2">
+        <!-- Wgranie, pobranie i usunięcie — ikony w prawym dolnym rogu zdjęcia. -->
+        <div class="absolute bottom-2 right-2 flex gap-2">
+          <!-- Wgraj / zmień: dla edytujących, także gdy zdjęcia jeszcze nie ma. -->
+          <button
+            v-if="!flag"
+            type="button"
+            title="Wgraj / zmień zdjęcie"
+            aria-label="Wgraj / zmień zdjęcie"
+            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+            @click="$refs.fotoInput.click()"
+          >
+            <CameraIcon class="w-5 h-5" />
+          </button>
+          <input ref="fotoInput" type="file" accept="image/*" class="hidden" @change="wybierzZdjecie" />
           <a
+            v-if="contact.photo_path"
             :href="`/contacts/${contact.id}/zdjecie`"
             title="Pobierz zdjęcie"
             aria-label="Pobierz zdjęcie"
@@ -46,7 +61,7 @@
             <DocumentDownloadIcon class="w-5 h-5" />
           </a>
           <button
-            v-if="!flag"
+            v-if="contact.photo_path && !flag"
             type="button"
             title="Usuń zdjęcie"
             aria-label="Usuń zdjęcie"
@@ -410,7 +425,7 @@ import StatusPracownika from '@/Shared/StatusPracownika'
 import WorkerMenu from '@/Shared/WorkerMenu'
 import FileInput from '@/Shared/FileInput'
 import DeleteButton from '@/Shared/DeleteButton'
-import { DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
+import { CameraIcon, DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
 import moment from 'moment'
 
 
@@ -426,6 +441,7 @@ export default {
     WorkerMenu,
     FileInput,
     DeleteButton,
+    CameraIcon,
     DocumentDownloadIcon,
     TrashIcon,
   },
@@ -544,6 +560,12 @@ export default {
     usunZdjecie() {
       if (!confirm('Usunąć zdjęcie tego pracownika?')) return
       this.$inertia.delete(`/contacts/${this.contact.id}/zdjecie`, { preserveScroll: true })
+    },
+    // Ikona aparatu na zdjęciu otwiera wybór pliku i podpina go pod ten sam
+    // model co pole „Zdjęcie" — podgląd pojawia się od razu, zapis po „Zapisz".
+    wybierzZdjecie(e) {
+      const plik = e.target.files[0]
+      if (plik) this.form.photo_path = plik
     },
 
     klasaLimitu(status) {
