@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 
@@ -393,6 +394,28 @@ class ContactsController extends Controller
         $data->organization_id = null;
         $data->save();
         return Redirect::back()->with('success', 'Pracownik usunięty.');
+    }
+
+    /** Pobranie wgranego oryginału zdjęcia pracownika. */
+    public function zdjeciePobierz(Contact $contact)
+    {
+        abort_if(! $contact->photo_path || ! Storage::exists($contact->photo_path), 404);
+
+        $rozszerzenie = pathinfo($contact->photo_path, PATHINFO_EXTENSION) ?: 'jpg';
+        $nazwa = trim($contact->last_name.' '.$contact->first_name).'.'.$rozszerzenie;
+
+        return response()->download(Storage::path($contact->photo_path), $nazwa);
+    }
+
+    /** Usunięcie zdjęcia: kasuje plik i czyści wpis — wraca tło z inicjałami. */
+    public function zdjecieUsun(Contact $contact)
+    {
+        if ($contact->photo_path) {
+            Storage::delete($contact->photo_path);
+            $contact->update(['photo_path' => null]);
+        }
+
+        return Redirect::back()->with('success', 'Zdjęcie usunięte.');
     }
 
     public function history(Contact $contact)

@@ -340,6 +340,11 @@
             </select-input>
 
             <file-input v-model="form.photo_path" :error="form.errors.photo_path" class="pb-8 pr-6 w-full lg:w-1/2" type="file" accept="image/*" label="Zdjęcie" />
+            <!-- Pobranie oryginału i usunięcie — tylko gdy jakieś zdjęcie jest. -->
+            <div v-if="contact.photo_path" class="pb-8 pr-6 w-full lg:w-1/2 flex items-end gap-4 text-sm">
+              <a :href="`/contacts/${contact.id}/zdjecie`" class="text-indigo-600 hover:underline">Pobierz zdjęcie</a>
+              <button v-if="!flag" type="button" class="text-red-600 hover:underline" @click="usunZdjecie">Usuń zdjęcie</button>
+            </div>
 
             <label class="text-indigo-600 font-medium pb-8 pr-6 w-full">Umowa o pracę</label>
             <text-input v-model="form.work_start" :error="form.errors.work_start" :disabled="flag" type="date" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek umowy" />
@@ -516,6 +521,11 @@ export default {
     },
   },
   methods: {
+    usunZdjecie() {
+      if (!confirm('Usunąć zdjęcie tego pracownika?')) return
+      this.$inertia.delete(`/contacts/${this.contact.id}/zdjecie`, { preserveScroll: true })
+    },
+
     klasaLimitu(status) {
       if (status === 'wyczerpany') return 'text-red-700'
       return status === 'uwaga' ? 'text-orange-700' : 'text-gray-800'

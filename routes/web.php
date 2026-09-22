@@ -406,6 +406,15 @@ Route::post('contacts', [ContactsController::class, 'store'])
         ->middleware('auth', 'moze:kartoteki.edycja');
 
 
+// Zdjęcie pracownika: pobranie oryginału i usunięcie.
+Route::get('contacts/{contact}/zdjecie', [ContactsController::class, 'zdjeciePobierz'])
+    ->name('contacts.zdjecie.pobierz')
+    ->middleware('auth', 'moze:kartoteki.podglad');
+
+Route::delete('contacts/{contact}/zdjecie', [ContactsController::class, 'zdjecieUsun'])
+    ->name('contacts.zdjecie.usun')
+    ->middleware('auth', 'moze:kartoteki.edycja');
+
 Route::get('contacts/{contact}/edit', [ContactsController::class, 'edit'])
     ->name('contacts.edit')
         ->middleware('auth', 'moze:kartoteki.podglad');
