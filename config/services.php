@@ -36,6 +36,13 @@ return [
         'token' => env('CRM_API_TOKEN'),
     ],
 
+    // Handoff HRM <-> CRM (SSO-lite). Sekret ten sam w obu aplikacjach.
+    'sso' => [
+        'secret' => env('SSO_SECRET', ''),
+        'crm_url' => env('SSO_CRM_URL'),
+        'hrm_url' => env('SSO_HRM_URL'),
+    ],
+
     // Bramka SMS do linków dla pracowników; token wpisuje się na serwerze w .env.
     'smsapi' => [
         'token' => env('SMSAPI_TOKEN', ''),

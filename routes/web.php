@@ -23,6 +23,7 @@ use App\Http\Controllers\JezykController;
 use App\Http\Controllers\JezykTypController;
 use App\Http\Controllers\KlientController;
 use App\Http\Controllers\KosztyController;
+use App\Http\Controllers\SsoController;
 use App\Http\Controllers\TypyKosztowController;
 use App\Http\Controllers\KrajTypController;
 use App\Http\Controllers\NarzedziaController;
@@ -1295,6 +1296,11 @@ Route::get('tools', [ToolsController::class, 'index'])
     ->name('tools')
     ->middleware('auth', 'moze:slowniki.biura');
 
+
+// SSO handoff między HRM a CRM. „Wejście" bez auth — użytkownik nie jest
+// jeszcze zalogowany w tej aplikacji; token podpisany rozstrzyga tożsamość.
+Route::get('sso/wejscie', [SsoController::class, 'wejscie'])->name('sso.wejscie');
+Route::get('sso/do-crm', [SsoController::class, 'doCrm'])->name('sso.do-crm')->middleware('auth');
 
 // Zadania — proces testowania strony
 

@@ -47,6 +47,8 @@
                   <div class="mt-2 py-2 text-sm bg-white rounded shadow-xl">
                     <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" :href="`/users/${auth.user.id}/edit`">Profil</Link>
                     <Link v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
+                    <!-- Pełne przejście (nie Inertia Link) — /sso/do-crm przekierowuje na inną domenę. -->
+                    <a class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/sso/do-crm">Przejdź do CRM</a>
                     <Link class="block px-6 py-2 w-full text-left hover:text-white hover:bg-indigo-500" href="/logout" method="delete" as="button">Wyloguj</Link>
                   </div>
                 </template>
