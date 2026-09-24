@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactWorkDate;
 use App\Models\WniosekUrlopowy;
+use App\Models\Organization;
+use App\Models\ShiftStatus;
 use App\Models\ZgloszenieKierownika;
 use App\Models\ZmianaKadrowa;
 use Illuminate\Http\RedirectResponse;
@@ -84,6 +86,11 @@ class ZmianyKadroweController extends Controller
             'licznik' => ZmianaKadrowa::nieobsluzone()->count(),
             'zgloszenia' => $zgloszenia,
             'zgloszenia_licznik' => ZgloszenieKierownika::otwarte()->count(),
+            // Do zatwierdzania zgłoszeń: budowy (przeniesienie) i kody nieobecności (urlop ręczny).
+            'budowy' => Organization::tylkoBudowy()->orderBy('nazwaBud')->get(['id', 'nazwaBud'])
+                ->map(fn (Organization $o) => ['id' => $o->id, 'nazwa' => $o->nazwaBud]),
+            'kody_nieobecnosci' => ShiftStatus::whereIn('code', ['UW', 'UO', 'UB', 'UŻ'])->orderBy('id')->get(['code', 'title'])
+                ->map(fn (ShiftStatus $s) => ['kod' => $s->code, 'nazwa' => $s->title]),
             // Wnioski urlopowe z telefonu: czekające na kierownika (informacyjnie —
             // zatwierdzone przychodzą do kadr jako zgłoszenia urlopu).
             'wnioski_z_telefonu' => WniosekUrlopowy::with(['contact', 'rozpatrzyl', 'komentarze.autor'])

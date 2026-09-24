@@ -302,6 +302,10 @@ Route::post('budowy/{organization}/zgloszenia', [ZgloszeniaKierownikowController
     ->name('zgloszenia.store')
     ->middleware('auth', 'moze:zgloszenia.wysylanie');
 
+Route::put('zgloszenia/{zgloszenie}/zatwierdz', [ZgloszeniaKierownikowController::class, 'zatwierdz'])
+    ->name('zgloszenia.zatwierdz')
+    ->middleware('auth', 'moze:zmiany_kadrowe.obsluga');
+
 Route::put('zgloszenia/{zgloszenie}', [ZgloszeniaKierownikowController::class, 'obsluz'])
     ->name('zgloszenia.obsluz')
     ->middleware('auth', 'moze:zmiany_kadrowe.obsluga');

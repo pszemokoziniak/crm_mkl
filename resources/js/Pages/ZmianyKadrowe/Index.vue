@@ -66,13 +66,24 @@
             </div>
           </div>
           <div v-if="z.status === 'nowe'" class="flex flex-wrap items-center gap-2 text-sm">
-            <Link v-if="z.dodaj_dokument_url" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="z.dodaj_dokument_url">Dodaj dokument</Link>
-            <template v-else>
-              <Link v-if="z.pobyt_id" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/pracownicy/${z.organization_id}/edit/${z.pobyt_id}`">Popraw daty pobytu</Link>
-              <Link class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/contacts/${z.contact_id}/holiday/create`">Wstaw nieobecność</Link>
+            <!-- Zgłoszenia, które nanosimy automatycznie: urlop, zjazd, przeniesienie.
+                 „Zatwierdź" od razu wstawia zmianę do KCP; „Odrzuć" kończy odmową. -->
+            <template v-if="mozeZatwierdzic(z)">
+              <button type="button" class="btn-indigo text-sm" @click="otworzZatwierdz(z)">Zatwierdź</button>
+              <button type="button" class="text-red-600 hover:underline" @click="obsluzZgloszenie(z, 'odrzucone')">Odrzuć</button>
+              <button type="button" class="text-gray-400 hover:text-gray-700 hover:underline text-xs" @click="reczneId = reczneId === z.id ? null : z.id">obsłuż ręcznie</button>
+              <template v-if="reczneId === z.id">
+                <Link v-if="z.pobyt_id" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/pracownicy/${z.organization_id}/edit/${z.pobyt_id}`">Popraw daty pobytu</Link>
+                <Link class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/contacts/${z.contact_id}/holiday/create`">Wstaw nieobecność</Link>
+                <button type="button" class="btn-indigo text-sm" @click="obsluzZgloszenie(z, 'obsluzone')">Obsłużone</button>
+              </template>
             </template>
-            <button type="button" class="btn-indigo text-sm" @click="obsluzZgloszenie(z, 'obsluzone')">Obsłużone</button>
-            <button type="button" class="text-red-600 hover:underline" @click="obsluzZgloszenie(z, 'odrzucone')">Odrzuć</button>
+            <!-- Brak dokumentu i „inne": bez automatu — kadry robią ręcznie, potem zamykają. -->
+            <template v-else>
+              <Link v-if="z.dodaj_dokument_url" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="z.dodaj_dokument_url">Dodaj dokument</Link>
+              <button type="button" class="btn-indigo text-sm" @click="obsluzZgloszenie(z, 'obsluzone')">Obsłużone</button>
+              <button type="button" class="text-red-600 hover:underline" @click="obsluzZgloszenie(z, 'odrzucone')">Odrzuć</button>
+            </template>
           </div>
         </div>
       </div>
@@ -364,6 +375,49 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Okno zatwierdzenia zgłoszenia: dobiera pola do rodzaju (kod urlopu przy
+         zgłoszeniu ręcznym, budowa docelowa przy przeniesieniu). -->
+    <div v-if="zatwierdzany" class="fixed inset-0 z-[10001] flex items-center justify-center bg-gray-900 bg-opacity-50 p-4" @click.self="zatwierdzany = null">
+      <div class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800">Zatwierdź: {{ zatwierdzany.rodzaj_label }}</h3>
+          <p class="mt-1 text-sm text-gray-600">{{ zatwierdzany.pracownik }} · {{ zatwierdzany.budowa }}</p>
+          <p v-if="zatwierdzany.od || zatwierdzany.do" class="text-sm text-gray-600 tabular-nums">{{ zatwierdzany.od || '…' }} – {{ zatwierdzany.do || '…' }}</p>
+        </div>
+        <div class="px-6 py-4 space-y-4 text-sm">
+          <!-- Urlop bez wniosku: kadry wybierają kod (domyślnie UW). -->
+          <div v-if="zatwierdzany.rodzaj === 'urlop' && !zatwierdzany.ma_wniosek">
+            <label class="form-label">Rodzaj nieobecności</label>
+            <select v-model="formZatwierdz.kod" class="form-select mt-1 w-full">
+              <option v-for="k in kody_nieobecnosci" :key="k.kod" :value="k.kod">{{ k.kod }} — {{ k.nazwa }}</option>
+            </select>
+          </div>
+          <p v-else-if="zatwierdzany.rodzaj === 'urlop'" class="text-gray-600">Kod nieobecności wzięty z wniosku pracownika.</p>
+
+          <!-- Przeniesienie: budowa docelowa. -->
+          <div v-if="zatwierdzany.rodzaj === 'przeniesienie'">
+            <label class="form-label">Budowa docelowa</label>
+            <select v-model="formZatwierdz.organization_docelowa_id" class="form-select mt-1 w-full" :class="{ error: bladZatwierdz }">
+              <option value="">— wybierz —</option>
+              <option v-for="b in budowy" :key="b.id" :value="b.id">{{ b.nazwa }}</option>
+            </select>
+          </div>
+
+          <p v-if="zatwierdzany.rodzaj === 'zjazd'" class="text-gray-600">Pobyt na budowie zostanie skrócony do {{ zatwierdzany.do || zatwierdzany.od }}, a KCP odsłoni kolejne dni.</p>
+
+          <div>
+            <label class="form-label">Odpowiedź dla kierownika (opcjonalnie)</label>
+            <textarea v-model="formZatwierdz.odpowiedz" rows="2" class="form-input mt-1 w-full" />
+          </div>
+          <p v-if="bladZatwierdz" class="text-red-700">{{ bladZatwierdz }}</p>
+        </div>
+        <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
+          <button type="button" class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="zatwierdzany = null">Anuluj</button>
+          <button type="button" class="btn-indigo text-sm" :disabled="zapisywanieZatwierdz" @click="wyslijZatwierdz">Zatwierdź i nanieś</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -390,10 +444,17 @@ export default {
     urlopy_bez_wniosku: { type: Array, default: () => [] },
     nowi_pracownicy: { type: Array, default: () => [] },
     wnioski_z_telefonu: { type: Array, default: () => [] },
+    budowy: { type: Array, default: () => [] },
+    kody_nieobecnosci: { type: Array, default: () => [] },
   },
   data() {
     return {
       zakres: { od: this.filters.od || '', do: this.filters.do || '' },
+      reczneId: null,
+      zatwierdzany: null,
+      formZatwierdz: { kod: 'UW', organization_docelowa_id: '', odpowiedz: '' },
+      zapisywanieZatwierdz: false,
+      bladZatwierdz: null,
     }
   },
   methods: {
@@ -401,6 +462,33 @@ export default {
       if (dni === 0) return 'dziś'
       if (dni === 1) return 'wczoraj'
       return `${dni} dni temu`
+    },
+    mozeZatwierdzic(z) {
+      // Rodzaje, które nanosimy automatycznie do KCP.
+      return ['urlop', 'zjazd', 'przeniesienie'].includes(z.rodzaj)
+    },
+    otworzZatwierdz(z) {
+      this.zatwierdzany = z
+      this.bladZatwierdz = null
+      this.formZatwierdz = { kod: 'UW', organization_docelowa_id: '', odpowiedz: '' }
+    },
+    wyslijZatwierdz() {
+      const z = this.zatwierdzany
+      if (z.rodzaj === 'przeniesienie' && !this.formZatwierdz.organization_docelowa_id) {
+        this.bladZatwierdz = 'Wskaż budowę docelową.'
+        return
+      }
+      this.zapisywanieZatwierdz = true
+      this.$inertia.put(`/zgloszenia/${z.id}/zatwierdz`, {
+        kod: this.formZatwierdz.kod,
+        organization_docelowa_id: this.formZatwierdz.organization_docelowa_id || null,
+        odpowiedz: this.formZatwierdz.odpowiedz || null,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => { this.zatwierdzany = null },
+        onError: (e) => { this.bladZatwierdz = Object.values(e).join(' ') },
+        onFinish: () => { this.zapisywanieZatwierdz = false },
+      })
     },
     obsluzZgloszenie(z, status) {
       const pytanie = status === 'obsluzone'

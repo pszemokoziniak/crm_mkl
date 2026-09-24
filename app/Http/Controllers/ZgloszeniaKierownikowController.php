@@ -7,6 +7,9 @@ namespace App\Http\Controllers;
 use App\Enums\Uprawnienie;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
+use Illuminate\Support\Facades\DB;
+use App\Models\ShiftStatus;
+use App\Models\Holiday;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\ZgloszenieKierownika;
@@ -125,6 +128,122 @@ class ZgloszeniaKierownikowController extends Controller
      *
      * @return array<string, mixed>
      */
+    /**
+     * Zatwierdzenie zgłoszenia z automatycznym naniesieniem zmiany:
+     * urlop → wstawia nieobecność (KCP maluje się sam), zjazd → skraca pobyt,
+     * przeniesienie → skraca stary pobyt i zakłada nowy na budowie docelowej.
+     * Rodzaje bez jednoznacznej zmiany (dokument, inne) tu nie wchodzą —
+     * te kadry obsługują ręcznie i zamykają zwykłym „Obsłużone".
+     */
+    public function zatwierdz(ZgloszenieKierownika $zgloszenie): RedirectResponse
+    {
+        abort_unless($zgloszenie->status === ZgloszenieKierownika::STATUS_NOWE, 422, 'To zgłoszenie jest już obsłużone.');
+
+        $dane = Request::validate([
+            'kod' => ['nullable', Rule::in(['UW', 'UO', 'UB', 'UŻ'])],
+            'organization_docelowa_id' => ['nullable', 'integer', 'exists:organizations,id'],
+            'odpowiedz' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        try {
+            DB::transaction(function () use ($zgloszenie, $dane) {
+                match ($zgloszenie->rodzaj) {
+                    ZgloszenieKierownika::RODZAJ_URLOP => $this->zastosujUrlop($zgloszenie, $dane['kod'] ?? null),
+                    ZgloszenieKierownika::RODZAJ_ZJAZD => $this->zastosujZjazd($zgloszenie),
+                    ZgloszenieKierownika::RODZAJ_PRZENIESIENIE => $this->zastosujPrzeniesienie($zgloszenie, $dane['organization_docelowa_id'] ?? null),
+                    default => throw new \RuntimeException('Tego zgłoszenia nie naniosę automatycznie — obsłuż je ręcznie i kliknij „Obsłużone".'),
+                };
+
+                $zgloszenie->forceFill([
+                    'status' => ZgloszenieKierownika::STATUS_OBSLUZONE,
+                    'odpowiedz' => $dane['odpowiedz'] ?? null,
+                    'obsluzyl_id' => Auth::id(),
+                    'obsluzone_at' => now(),
+                ])->save();
+            });
+        } catch (\RuntimeException $e) {
+            return Redirect::back()->withErrors(['zatwierdz' => $e->getMessage()]);
+        }
+
+        return Redirect::back()->with('success', 'Zatwierdzone — zmiana naniesiona, KCP zaktualizowane.');
+    }
+
+    private function zastosujUrlop(ZgloszenieKierownika $z, ?string $kod): void
+    {
+        if (! $z->od || ! $z->do) {
+            throw new \RuntimeException('Urlop bez dat — obsłuż ręcznie.');
+        }
+
+        // Z wniosku znamy dokładny kod; przy zgłoszeniu ręcznym domyślnie UW.
+        $kod = $z->wniosek?->rodzaj ?: ($kod ?: 'UW');
+        $status = ShiftStatus::where('code', $kod)->first();
+
+        if (! $status) {
+            throw new \RuntimeException('Brak kodu nieobecności „'.$kod.'” w słowniku.');
+        }
+
+        Holiday::create([
+            'contact_id' => $z->contact_id,
+            'shift_status_id' => $status->id,
+            'start' => $z->od->format('Y-m-d'),
+            'end' => $z->do->format('Y-m-d'),
+        ]);
+    }
+
+    private function zastosujZjazd(ZgloszenieKierownika $z): void
+    {
+        $data = $z->do ?: $z->od;
+
+        if (! $data) {
+            throw new \RuntimeException('Zjazd bez daty — obsłuż ręcznie.');
+        }
+
+        $pobyt = $this->pobytDoSkrocenia($z->contact_id, $z->organization_id, $data->format('Y-m-d'));
+
+        if (! $pobyt) {
+            throw new \RuntimeException('Nie znalazłem pobytu na tej budowie do skrócenia — obsłuż ręcznie.');
+        }
+
+        $pobyt->update(['end' => $data->format('Y-m-d')]);
+    }
+
+    private function zastosujPrzeniesienie(ZgloszenieKierownika $z, ?int $celId): void
+    {
+        if (! $celId) {
+            throw new \RuntimeException('Wskaż budowę docelową.');
+        }
+
+        if (! $z->od) {
+            throw new \RuntimeException('Brak daty przeniesienia — obsłuż ręcznie.');
+        }
+
+        $start = $z->od->format('Y-m-d');
+        $pobyt = $this->pobytDoSkrocenia($z->contact_id, $z->organization_id, $start);
+
+        // Stary pobyt kończy się dzień przed wejściem na nową budowę.
+        if ($pobyt) {
+            $pobyt->update(['end' => $z->od->copy()->subDay()->format('Y-m-d')]);
+        }
+
+        ContactWorkDate::create([
+            'contact_id' => $z->contact_id,
+            'organization_id' => $celId,
+            'start' => $start,
+            'end' => $z->do?->format('Y-m-d'),
+        ]);
+    }
+
+    /** Pobyt tej osoby na tej budowie, obejmujący wskazany dzień (najświeższy). */
+    private function pobytDoSkrocenia(int $contactId, ?int $orgId, string $data): ?ContactWorkDate
+    {
+        return ContactWorkDate::where('contact_id', $contactId)
+            ->when($orgId, fn ($q) => $q->where('organization_id', $orgId))
+            ->where('start', '<=', $data)
+            ->where(fn ($q) => $q->whereNull('end')->orWhere('end', '>=', $data))
+            ->orderByDesc('start')
+            ->first();
+    }
+
     public static function wiersz(ZgloszenieKierownika $z, ?int $pobytId = null): array
     {
         $autor = $z->autor;
@@ -154,6 +273,7 @@ class ZgloszeniaKierownikowController extends Controller
             'odpowiedz' => $z->odpowiedz,
             // Skróty dla kadr: poprawić daty pobytu, wstawić nieobecność.
             'pobyt_id' => $pobytId,
+            'ma_wniosek' => (bool) $z->wniosek_id,
         ];
     }
 
