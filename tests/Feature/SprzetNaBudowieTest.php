@@ -152,11 +152,13 @@ class SprzetNaBudowieTest extends TestCase
 
         $this->actingAs($this->biuro)
             ->put('/budowy/'.$this->budowa->id.'/narzedzia/'.$wpis->id, [
-                'narzedzia_nb' => 1, 'komentarz' => 'poprawiona notatka',
+                // Formularz edycji zawsze odsyła datę od (jest wymagana).
+                'narzedzia_nb' => 1, 'start' => '2026-09-05', 'komentarz' => 'poprawiona notatka',
             ])
             ->assertSessionHasNoErrors();
 
         $this->assertSame('poprawiona notatka', $wpis->fresh()->komentarz);
+        $this->assertSame('2026-09-05', substr((string) $wpis->fresh()->start, 0, 10));
     }
 
     public function test_wydany_sprzet_znika_z_listy_dostepnych(): void

@@ -49,7 +49,7 @@ class SzukanieProBudowieTest extends TestCase
         ]);
     }
 
-    private function pracownik(string $nazwisko, ?Organization $budowa, string $start = null, string $end = null): Contact
+    private function pracownik(string $nazwisko, ?Organization $budowa, ?string $start = null, ?string $end = null): Contact
     {
         $c = Contact::create([
             'account_id' => $this->accountId,

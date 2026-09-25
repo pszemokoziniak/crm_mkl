@@ -428,9 +428,10 @@ class BuildsExcelExporter
 
     private function addGeneralFormatting(): self
     {
-        foreach (range('A', 'AK') as $col) {
-            $this->activeWorksheet->getColumnDimension($col)->setAutoSize(true);
-        }
+        // Było range('A', 'AK'): PHP do 8.2 bierze z 'AK' tylko pierwszą literę,
+        // więc autoszerokość zawsze dostawała sama kolumna A. PHP 8.3+ zgłasza
+        // to jako błąd (500 na eksporcie). Zostawiamy dotychczasowy wygląd pliku.
+        $this->activeWorksheet->getColumnDimension('A')->setAutoSize(true);
 
         $this
             ->activeWorksheet
