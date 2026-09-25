@@ -1,0 +1,23 @@
+# Produkcja HRM (hrm.mkl.pl). Lokalnie używaj docker-compose.yml.
+# Na serwerze: docker compose -f docker-compose.prod.yml up -d --build
+# Baza zostaje w MySQL hosta, nginx hosta przekazuje PHP do 127.0.0.1:9081.
+services:
+  hrm-app:
+    build:
+      # Kontekst tylko z plikami obrazu — cały katalog aplikacji (2 GB) nie
+      # musi lecieć do Dockera przy każdym budowaniu.
+      context: .docker/prod
+      dockerfile: Dockerfile
+    image: hrm-app:prod
+    container_name: hrm-app
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      TZ: Europe/Warsaw
+    volumes:
+      - .:/var/www/mkl
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
