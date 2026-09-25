@@ -62,7 +62,7 @@ class BuildTimeShiftsExcelExporter
     {
         $this
             ->addMainHeaders($date, $buildName)
-            ->addDaysHeaders($shifts, $date)
+            ->addDaysHeaders($date)
             ->addWorkersShifts($shifts)
             ->addLegend()
             ->addGeneralFormatting($date);
@@ -148,16 +148,17 @@ class BuildTimeShiftsExcelExporter
         $this->activeWorksheet = $this->spreadsheet->getActiveSheet();
     }
 
-    private function addDaysHeaders(iterable $shifts, Carbon $date): static
+    private function addDaysHeaders(Carbon $date): static
     {
         $daysHeadersGenerator = $this->rowsGenerator->cellCoordinatesGenerator(68);
 
-        $shifts = (array)$shifts;
-        $monthForWorker = reset($shifts);
         $pierwszyDzien = $date->copy()->startOfMonth();
 
+        // Liczba dni z miesiąca, nie z pierwszego pracownika: przy budowie bez
+        // nikogo reset() dawał false i count(false) kończył eksport błędem 500.
+        // Przy obsadzie wynik ten sam — każdy ma pozycję na każdy dzień miesiąca.
         $daysRow = 7;
-        foreach (range(1, count($monthForWorker)) as $key => $day) {
+        foreach (range(1, $date->daysInMonth) as $key => $day) {
             $firstCell = $daysHeadersGenerator->current();
             $daysHeadersGenerator->next();
             $secondCell = $daysHeadersGenerator->current();
