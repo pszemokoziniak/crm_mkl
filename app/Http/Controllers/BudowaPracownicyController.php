@@ -146,6 +146,9 @@ class BudowaPracownicyController extends Controller
                 ->unique('contact_id')
                 ->mapWithKeys(fn (ZgloszenieKierownika $z) => [$z->contact_id => ZgloszeniaKierownikowController::wiersz($z)]),
             'rodzaje_zgloszen' => ZgloszenieKierownika::RODZAJE,
+            // Osobny prop, bo page-prop zgloszenia (statusy per pracownik) nadpisuje
+            // globalny slownik, wiec lista dokumentow musi isc tedy.
+            'dokumenty_zgloszen' => ZgloszenieKierownika::DOKUMENTY,
         ]);
     }
     public function create(Organization $organization) {

@@ -64,6 +64,7 @@ export default {
     // { id, nazwa }
     pracownik: { type: Object, default: () => ({ id: null, nazwa: '' }) },
     rodzaje: { type: Object, default: () => ({}) },
+    dokumenty: { type: Object, default: () => ({}) },
     // Wartości startowe: { rodzaj, od, do, uwaga }
     start: { type: Object, default: () => ({}) },
     // KCP: skan wniosku urlopowego jest po to, żeby go dołączyć.
@@ -83,7 +84,9 @@ export default {
       return Object.keys(this.rodzaje).length ? this.rodzaje : (this.$page.props.zgloszenia?.rodzaje || {})
     },
     dokumentyDoWyboru() {
-      return this.$page.props.zgloszenia?.dokumenty || {}
+      // Prop pierwszy, bo strona Pracownicy budowy ma własny prop „zgloszenia"
+      // (statusy per pracownik), który przykrywa globalny słownik dokumentów.
+      return Object.keys(this.dokumenty).length ? this.dokumenty : (this.$page.props.zgloszenia?.dokumenty || {})
     },
   },
   watch: {

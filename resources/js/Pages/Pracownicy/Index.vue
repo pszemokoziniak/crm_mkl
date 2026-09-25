@@ -166,6 +166,7 @@
       :budowa="organization.nazwaBud"
       :pracownik="zgloszenie.pracownik"
       :rodzaje="rodzaje_zgloszen"
+      :dokumenty="dokumenty_zgloszen"
       @zamknij="zgloszenie.otwarte = false"
     />
   </div>
@@ -206,6 +207,7 @@ export default {
     // Ostatnie zgłoszenie do kadr per pracownik (contact_id → wiersz).
     zgloszenia: { type: Object, default: () => ({}) },
     rodzaje_zgloszen: { type: Object, default: () => ({}) },
+    dokumenty_zgloszen: { type: Object, default: () => ({}) },
   },
   data() {
     return {
