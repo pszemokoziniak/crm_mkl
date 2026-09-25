@@ -194,6 +194,8 @@ class ToolWorkDatesController extends Controller
                 'id' => $narzedzia->id,
                 'narzedzia_nb' => $narzedzia->narzedzia_nb,
                 'komentarz' => $narzedzia->komentarz,
+                'od' => $narzedzia->start ? (string) $narzedzia->start : null,
+                'do' => $narzedzia->end ? (string) $narzedzia->end : null,
                 'narzedzia' => $narzedzia->narzedzia,
             ],
             'narzedzie' => $narzedzia->narzedzia,
@@ -204,7 +206,12 @@ class ToolWorkDatesController extends Controller
     {
         $request->validate([
             'narzedzia_nb' => ['required', 'numeric', 'min:1'],
+            'start' => ['required', 'date'],
+            'end' => ['nullable', 'date', 'after_or_equal:start'],
             'komentarz' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'start.required' => 'Podaj datę od.',
+            'end.after_or_equal' => 'Data „do" nie może być wcześniejsza niż „od".',
         ]);
 
         $nowaIlosc = (int) $request->narzedzia_nb;
@@ -223,10 +230,13 @@ class ToolWorkDatesController extends Controller
         $narzedzie->save();
 
         $narzedzia->narzedzia_nb = $nowaIlosc;
+        // Puste „do" = sprzęt zostaje na budowie bez daty końca.
+        $narzedzia->start = $request->input('start');
+        $narzedzia->end = $request->input('end') ?: null;
         $narzedzia->komentarz = $request->input('komentarz') ?: null;
         $narzedzia->save();
 
-        return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Ilość zaktualizowana.');
+        return Redirect::route('budowy.narzedzia', $organization->id)->with('success', 'Zapisano zmiany.');
     }
 
     public function destroy(Organization $organization, ToolWorkDate $toolWorkDate)

@@ -25,6 +25,21 @@
             class="pb-8 pr-6 w-full lg:w-1/2"
             label="Ilość na tej budowie"
           />
+
+          <date-input
+            v-model="form.start"
+            :error="form.errors.start"
+            class="pb-8 pr-6 w-full lg:w-1/2"
+            label="Na budowie od"
+          />
+          <div class="pb-8 pr-6 w-full lg:w-1/2">
+            <date-input
+              v-model="form.end"
+              :error="form.errors.end"
+              label="Na budowie do"
+            />
+            <p class="mt-1 text-xs text-gray-500">Puste = sprzęt zostaje na budowie bez daty końca. Ustaw datę, żeby zaplanować zdjęcie.</p>
+          </div>
           <text-input
             v-model="form.komentarz"
             :error="form.errors.komentarz"
@@ -57,6 +72,7 @@
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import Layout from '@/Shared/Layout'
+import DateInput from '@/Shared/DateInput'
 import NumberInput from '@/Shared/NumberInput'
 import TextInput from '@/Shared/TextInput'
 import LoadingButton from '@/Shared/LoadingButton'
@@ -68,6 +84,7 @@ export default {
     Head,
     Link,
     LoadingButton,
+    DateInput,
     NumberInput,
     TextInput,
     BudMenu,
@@ -84,6 +101,8 @@ export default {
     return {
       form: this.$inertia.form({
         narzedzia_nb: this.toolWorkDate.narzedzia_nb,
+        start: this.toolWorkDate.od || '',
+        end: this.toolWorkDate.do || '',
         komentarz: this.toolWorkDate.komentarz || '',
       }),
     }
