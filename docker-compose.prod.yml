@@ -14,6 +14,9 @@ services:
     network_mode: host
     environment:
       TZ: Europe/Warsaw
+      # Tinker (psysh) zapisuje konfigurację w $HOME, a www-data nie ma
+      # zapisywalnego katalogu domowego w obrazie.
+      XDG_CONFIG_HOME: /tmp
     volumes:
       - .:/var/www/mkl
     logging:
