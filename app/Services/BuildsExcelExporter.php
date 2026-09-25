@@ -126,6 +126,31 @@ class BuildsExcelExporter
         return $this;
     }
 
+    /**
+     * Kolor tła kratki dnia wg zawartości (jak w firmowym pliku):
+     * żółty = urlop (UW/UO/UB/UŻ), zielony = U.reh, szary = dzień bez wpisu.
+     * Numer budowy i pozostałe kody (ZL, OG) zostają na tle wiersza (null).
+     */
+    private function kolorKratki(string $wartosc): ?string
+    {
+        $v = trim($wartosc);
+
+        if ($v === '') {
+            return 'd9d9d9';
+        }
+        if (stripos($v, 'reh') !== false) {
+            return 'a9d08e';
+        }
+
+        // Same kody urlopu (bez numerów budów) → żółty.
+        $tokeny = explode('/', $v);
+        $urlop = collect($tokeny)->every(
+            static fn (string $t) => $t !== '' && ! ctype_digit($t) && stripos($t, 'reh') === false && strncasecmp($t, 'U', 1) === 0
+        );
+
+        return $urlop ? 'ffff00' : null;
+    }
+
     private function addData(iterable $shifts, CarbonPeriod $period): self
     {
         $startingRowId = 3;
@@ -135,17 +160,29 @@ class BuildsExcelExporter
         foreach ($shifts as $shift) {
             $sumHours = 0;
             /** @var [ 2 => 386 ] $dayToCode */
-            $rowForWorker = $shift->reduce(function ($carry, $item) use (&$sumHours) {
-                $value = $item->code;
-                if (!$value && !empty($item->effective_work_time) && (int)str_replace(':', '', $item->effective_work_time) > 0) {
-                    $value = ExcelTimeFormatter::dateToInteger($item->effective_work_time);
-                    $sumHours += (float)str_replace(',', '.', $value);
-                }
-                $carry[Carbon::create($item->work_day)->day - 1] = $value;
-                return $carry;
-            }, array_fill(0, $period->count(), ''));
+            // W dzień pracy kratka pokazuje NUMER BUDOWY (jak w firmowym pliku),
+            // nie godziny — te sumują się z boku w „Suma godzin". Nieobecność
+            // pokazuje swój kod. Dwie budowy tego samego dnia: numery po ukośniku.
+            $perDay = array_fill(0, $period->count(), []);
 
-            ksort($rowForWorker);
+            foreach ($shift as $item) {
+                $dzien = Carbon::create($item->work_day)->day - 1;
+
+                if ($item->code) {
+                    $token = $item->code;
+                } elseif (!empty($item->effective_work_time) && (int)str_replace(':', '', $item->effective_work_time) > 0) {
+                    $token = (string)$item->numerBud;
+                    $sumHours += (float)str_replace(',', '.', (string)ExcelTimeFormatter::dateToInteger($item->effective_work_time));
+                } else {
+                    continue;
+                }
+
+                if ($token !== '' && !in_array($token, $perDay[$dzien], true)) {
+                    $perDay[$dzien][] = $token;
+                }
+            }
+
+            $rowForWorker = array_map(static fn (array $tokeny) => implode('/', $tokeny), $perDay);
 
             $firstName = $shift->first()->first_name;
             $lastName = $shift->first()->last_name;
@@ -173,6 +210,18 @@ class BuildsExcelExporter
                         'startColor' => ['argb' => $startingRowId % 2 !== 0 ? 'bdd6ee' : 'deeaf6']
                     ]
                 ]);
+
+            // Kolor kratki po zawartości: urlop żółty, U.reh zielony, pusty dzień
+            // szary; numer budowy zostaje na tle wiersza. Kolumny dni od D (=4).
+            foreach ($rowForWorker as $i => $wartosc) {
+                $kolor = $this->kolorKratki($wartosc);
+                if ($kolor === null) {
+                    continue;
+                }
+                $kol = Coordinate::stringFromColumnIndex(4 + $i);
+                $this->activeWorksheet->getStyle($kol . $startingRowId)
+                    ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($kolor);
+            }
 
             $startingRowId++;
         }
