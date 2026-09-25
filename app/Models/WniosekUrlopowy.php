@@ -74,6 +74,6 @@ class WniosekUrlopowy extends Model
 
     public function dni(): int
     {
-        return (int) $this->od->diffInDays($this->do) + 1;
+        return (int) $this->od->diffInDays($this->do, true) + 1;
     }
 }

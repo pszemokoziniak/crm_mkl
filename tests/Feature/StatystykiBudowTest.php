@@ -67,7 +67,7 @@ class StatystykiBudowTest extends TestCase
         ]);
     }
 
-    private function status(string $tytul, ?string $kategoria): ShiftStatus
+    private function statusZmiany(string $tytul, ?string $kategoria): ShiftStatus
     {
         return ShiftStatus::create(['title' => $tytul, 'code' => substr($tytul, 0, 4), 'kategoria' => $kategoria]);
     }
@@ -82,9 +82,9 @@ class StatystykiBudowTest extends TestCase
 
     public function test_sumuje_roboczogodziny_urlopy_i_zwolnienia(): void
     {
-        $urlop = $this->status('Urlop wypoczynkowy', ShiftStatus::KAT_URLOP);
-        $chore = $this->status('Zwolnienie lekarskie', ShiftStatus::KAT_ZWOLNIENIE);
-        $nieob = $this->status('Nieobecność nieusprawiedliwiona', ShiftStatus::KAT_NIEOBECNOSC);
+        $urlop = $this->statusZmiany('Urlop wypoczynkowy', ShiftStatus::KAT_URLOP);
+        $chore = $this->statusZmiany('Zwolnienie lekarskie', ShiftStatus::KAT_ZWOLNIENIE);
+        $nieob = $this->statusZmiany('Nieobecność nieusprawiedliwiona', ShiftStatus::KAT_NIEOBECNOSC);
 
         $kowalski = $this->pracownik('Kowalski');
         $this->wpis($kowalski, '2026-03-02', '09:30');            // praca
@@ -113,7 +113,7 @@ class StatystykiBudowTest extends TestCase
     {
         // Biuro dopisuje statusy swobodnie; nieprzypisany nie może cicho
         // zasilić roboczogodzin ani urlopów.
-        $dziwny = $this->status('Sraczka', null);
+        $dziwny = $this->statusZmiany('Sraczka', null);
         $this->wpis($this->pracownik('Nowak'), '2026-03-02', '08:00', $dziwny->id);
 
         $b = $this->wiersz();

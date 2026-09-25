@@ -143,6 +143,40 @@ class KcpBudowyTest extends TestCase
         $this->assertContains('Nowak Jan', $obsada);
     }
 
+    public function test_suma_godzin_w_eksporcie_jest_dodatnia(): void
+    {
+        // Carbon 3 zwraca różnicę ze znakiem: 07:15 minus północ dawało
+        // -435 minut, więc suma godzin w pliku wychodziła ujemna.
+        $osoba = $this->pracownik('Godzinowy', '2026-09-01', null);
+        foreach (['2026-09-02', '2026-09-03'] as $dzien) {
+            DB::table('building_time_sheets')->insert([
+                'organization_id' => $this->budowa->id,
+                'contact_id' => $osoba->id,
+                'work_day' => $dzien,
+                'work_from' => $dzien.' 07:00:00',
+                'work_to' => $dzien.' 14:15:00',
+                'effective_work_time' => '07:15',
+            ]);
+        }
+
+        $odpowiedz = $this->actingAs($this->biuro)
+            ->get('/building/'.$this->budowa->id.'/time-sheet/export?date=2026-09-15');
+        $odpowiedz->assertOk();
+
+        $arkusz = \PhpOffice\PhpSpreadsheet\IOFactory::load($odpowiedz->getFile()->getPathname())->getActiveSheet();
+        $liczby = [];
+        foreach ($arkusz->getRowIterator() as $wiersz) {
+            foreach ($wiersz->getCellIterator() as $komorka) {
+                if (is_numeric($komorka->getValue())) {
+                    $liczby[] = (float) $komorka->getValue();
+                }
+            }
+        }
+
+        $this->assertContains(14.5, $liczby, 'Suma 2 × 7:15 = 14,5 h.');
+        $this->assertNotContains(-14.5, $liczby);
+    }
+
     public function test_eksport_budowy_bez_nikogo_daje_pusty_plik_a_nie_blad(): void
     {
         // Liczba kolumn dni brała się z pierwszego pracownika — przy pustej

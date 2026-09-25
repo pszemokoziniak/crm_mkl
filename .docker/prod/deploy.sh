@@ -5,10 +5,20 @@
 set -euo pipefail
 cd /var/www/mkl
 
+PRZED=$(git rev-parse HEAD)
 git pull --ff-only
+PO=$(git rev-parse HEAD)
 
 # Obraz przebuduje się tylko, gdy zmieni się .docker/prod (cache warstw).
 docker compose -f docker-compose.prod.yml up -d --build
+
+# Zależności PHP tylko wtedy, gdy zmienił się composer.lock. vendor/ należy
+# do www-data; bez pakietów deweloperskich (phpunit itp.).
+if [ "$PRZED" != "$PO" ] && git diff --name-only "$PRZED" "$PO" -- composer.lock | grep -q .; then
+    echo "Zmienił się composer.lock — composer install."
+    docker exec -u www-data -e COMPOSER_HOME=/tmp/composer hrm-app \
+        composer install --no-dev --optimize-autoloader --no-interaction
+fi
 
 # Jako www-data, żeby logi i cache w storage miały właściciela, pod którym
 # działa PHP-FPM.

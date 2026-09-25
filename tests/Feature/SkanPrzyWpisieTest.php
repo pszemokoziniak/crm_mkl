@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Enums\Role;
 use App\Enums\TypDokumentu;
 use App\Models\Account;
@@ -53,7 +54,13 @@ class SkanPrzyWpisieTest extends TestCase
     }
 
     /** @return array<string, array{string, string, array<string, mixed>, int}> */
-    public function sekcje(): array
+    /** Sekcje bez typu dokumentu — dla testów, które go nie sprawdzają. */
+    public static function sekcjeBezTypu(): array
+    {
+        return array_map(fn (array $s) => array_slice($s, 0, 3), self::sekcje());
+    }
+
+    public static function sekcje(): array
     {
         return [
             'badania' => ['badania', 'badanias', ['badaniaTyp_id' => 'BADANIA_TYP'], TypDokumentu::BADANIA->value],
@@ -85,7 +92,7 @@ class SkanPrzyWpisieTest extends TestCase
         ];
     }
 
-    /** @dataProvider sekcje */
+    #[DataProvider('sekcje')]
     public function test_skan_wgrany_przy_wpisie_ladu_je_w_dokumentach(string $trasa, string $tabela, array $pola, int $typId): void
     {
         Storage::fake('local');
@@ -105,7 +112,7 @@ class SkanPrzyWpisieTest extends TestCase
         $this->assertSame('badanie.pdf', $dokument->filename);
     }
 
-    /** @dataProvider sekcje */
+    #[DataProvider('sekcjeBezTypu')]
     public function test_dokument_jest_powiazany_z_konkretnym_wpisem(string $trasa, string $tabela, array $pola): void
     {
         Storage::fake('local');
@@ -122,7 +129,7 @@ class SkanPrzyWpisieTest extends TestCase
         $this->assertNotNull($dokument->zrodlo, "$trasa: relacja nie rozwiązuje się na model");
     }
 
-    /** @dataProvider sekcje */
+    #[DataProvider('sekcjeBezTypu')]
     public function test_wpis_bez_skanu_dziala_jak_dotad(string $trasa, string $tabela, array $pola): void
     {
         Storage::fake('local');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Enums\Role;
 use App\Models\Account;
 use App\Models\User;
@@ -68,7 +69,7 @@ class RolaKierownictwoTest extends TestCase
         $this->assertFalse($p['kierownictwo'], 'Biuro to nadal biuro — flagi się nie mieszają.');
     }
 
-    /** @dataProvider trasyBiurowe */
+    #[DataProvider('trasyBiurowe')]
     public function test_kierownictwo_wchodzi_tam_gdzie_biuro(string $trasa): void
     {
         $kierownictwo = $this->uzytkownik(Role::KIEROWNICTWO->value, 'zarzad@mkl.pl');
@@ -80,7 +81,7 @@ class RolaKierownictwoTest extends TestCase
     }
 
     /** @return array<string, array{string}> */
-    public function trasyBiurowe(): array
+    public static function trasyBiurowe(): array
     {
         return [
             'pracownicy' => ['/contacts'],
@@ -94,7 +95,7 @@ class RolaKierownictwoTest extends TestCase
         ];
     }
 
-    /** @dataProvider trasyAdmina */
+    #[DataProvider('trasyAdmina')]
     public function test_kierownictwo_nie_wchodzi_tam_gdzie_tylko_admin(string $trasa): void
     {
         $u = $this->uzytkownik(Role::KIEROWNICTWO->value, 'zarzad@mkl.pl');
@@ -103,7 +104,7 @@ class RolaKierownictwoTest extends TestCase
     }
 
     /** @return array<string, array{string}> */
-    public function trasyAdmina(): array
+    public static function trasyAdmina(): array
     {
         return [
             'rejestr logowan' => ['/logowania'],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Enums\Role;
 use App\Models\A1;
 use App\Models\Account;
@@ -100,7 +101,7 @@ class EdycjaWpisowPracownikaTest extends TestCase
     }
 
     /** @return array<string, array{0: string}> */
-    public function rodzaje(): array
+    public static function rodzaje(): array
     {
         return [
             'BHP' => ['bhp'],
@@ -111,7 +112,7 @@ class EdycjaWpisowPracownikaTest extends TestCase
         ];
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzaje')]
     public function test_ekran_edycji_sie_otwiera(string $rodzaj): void
     {
         [$m, $trasa] = $this->przypadek($rodzaj);
@@ -121,7 +122,7 @@ class EdycjaWpisowPracownikaTest extends TestCase
             ->assertOk();
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzaje')]
     public function test_blednie_wpisana_data_da_sie_poprawic(string $rodzaj): void
     {
         [$m, $trasa, $tabela, $ladunek] = $this->przypadek($rodzaj);
@@ -134,7 +135,7 @@ class EdycjaWpisowPracownikaTest extends TestCase
         $this->assertDatabaseHas($tabela, ['id' => $m->id, 'end' => '2027-03-31']);
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzaje')]
     public function test_nie_poprawimy_wpisu_spod_cudzej_karty(string $rodzaj): void
     {
         // Wpis należy do obcego pracownika, adres wskazuje naszego.
@@ -162,7 +163,7 @@ class EdycjaWpisowPracownikaTest extends TestCase
         $this->assertDatabaseHas('a1_s', ['id' => $cudzy->id, 'end' => '2026-02-20']);
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzaje')]
     public function test_wpis_jednodniowy_da_sie_poprawic(string $rodzaj): void
     {
         // Szkolenie trwające jeden dzień: start i koniec tego samego dnia.
@@ -179,7 +180,7 @@ class EdycjaWpisowPracownikaTest extends TestCase
         $this->assertDatabaseHas($tabela, ['id' => $m->id, 'start' => '2026-05-04', 'end' => '2026-05-04']);
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzaje')]
     public function test_odwrocone_daty_nadal_odpadaja(string $rodzaj): void
     {
         // Dopuszczenie równych dat nie może przepuścić końca przed początkiem.

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Services\Date\ExcelTimeFormatter;
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -9,13 +10,13 @@ use PHPUnit\Framework\TestCase;
 class ExcelTimeFormatterTest extends TestCase
 {
     /**
-     * @dataProvider timeDataProvider
      *
      * @param string $date
      * @param string $formattedTo
      * @return void
      * @throws \Exception
      */
+    #[DataProvider('timeDataProvider')]
     public function testShouldFormatDateToExcelFormat(string $date, string $formattedTo): void
     {
         self::assertEquals(
@@ -24,7 +25,7 @@ class ExcelTimeFormatterTest extends TestCase
         );
     }
 
-    public function timeDataProvider(): iterable
+    public static function timeDataProvider(): iterable
     {
         yield [
           '17:00', '17,0'
