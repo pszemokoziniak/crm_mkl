@@ -13,23 +13,26 @@
           <!-- Limit 183 dni w kraju tej budowy. Pokazujemy tylko za granicą,
                bo w kraju macierzystym nic nie biegnie. -->
           <th v-if="krajBudowy" class="whitespace-nowrap">Limit {{ krajBudowy }}</th>
-          <th class="pb-4 pt-6 px-6" colspan="2">Telefon</th>
+          <th class="pb-4 pt-6 px-6">Telefon</th>
         </tr>
-        <tr v-for="free in paginatedContacts" :key="free.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+        <!-- Kliknięcie w dowolne miejsce wiersza zaznacza/odznacza pracownika. -->
+        <tr
+          v-for="free in paginatedContacts"
+          :key="free.id"
+          class="cursor-pointer hover:bg-gray-100 focus-within:bg-gray-100"
+          :class="{ 'bg-indigo-50': form.checkedValues.includes(free.id) }"
+          @click="przelacz(free.id)"
+        >
           <td class="border-t">
-            <input class="ml-2 mr-2" type="checkbox" :value="free.id" v-model="form.checkedValues" />
+            <input class="ml-2 mr-2" type="checkbox" :value="free.id" v-model="form.checkedValues" @click.stop />
             {{ free.last_name }} {{ free.first_name }}
             <icon v-if="free.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
-              {{ free.fn_name }}
-            </Link>
+          <td class="border-t px-6 py-4">
+            {{ free.fn_name }}
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
-              {{ free.status_zatrudnienia }}
-            </Link>
+          <td class="border-t px-6 py-4">
+            {{ free.status_zatrudnienia }}
           </td>
           <td v-if="krajBudowy" class="border-t px-6 py-4 whitespace-nowrap">
             <span v-if="free.limit_183" :class="klasaLimitu(free.limit_183.status)">
@@ -37,19 +40,12 @@
             </span>
             <span v-else class="text-gray-300">—</span>
           </td>
-          <td class="border-t">
-            <Link class="flex items-center px-6 py-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
-              {{ free.phone }}
-            </Link>
-          </td>
-          <td class="w-px border-t">
-            <Link class="flex items-center px-4" :href="`/pracownicy/${organization.id}/destroy/${free.id}`" tabindex="-1">
-              <icon name="cheveron-right" class="block w-6 h-6 fill-gray-400" />
-            </Link>
+          <td class="border-t px-6 py-4">
+            {{ free.phone }}
           </td>
         </tr>
         <tr v-if="filteredContactsFree.length === 0">
-          <td class="px-6 py-4 border-t" colspan="4">Nie znaleziono pracownika</td>
+          <td class="px-6 py-4 border-t" :colspan="krajBudowy ? 5 : 4">Nie znaleziono pracownika</td>
         </tr>
       </table>
       <div v-if="filteredContactsFree.length > pageSize" class="flex justify-center py-4">
@@ -74,8 +70,6 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/inertia-vue3'
-
 import Icon from '@/Shared/Icon'
 import Layout from '@/Shared/Layout'
 import LoadingButton from '@/Shared/LoadingButton'
@@ -86,7 +80,6 @@ export default {
   components: {
     Icon,
     LoadingButton,
-    Link,
     SearchFilterNoFiltr,
   },
   layout: Layout,
@@ -140,9 +133,17 @@ export default {
     },
   },
   methods: {
-    klasaLimitu(limit) {
-      if (limit.status === 'wyczerpany') return 'font-semibold text-red-700'
-      return limit.status === 'uwaga' ? 'font-semibold text-orange-700' : 'text-gray-600'
+    klasaLimitu(status) {
+      if (status === 'wyczerpany') return 'font-semibold text-red-700'
+      return status === 'uwaga' ? 'font-semibold text-orange-700' : 'text-gray-600'
+    },
+    przelacz(id) {
+      const i = this.form.checkedValues.indexOf(id)
+      if (i === -1) {
+        this.form.checkedValues.push(id)
+      } else {
+        this.form.checkedValues.splice(i, 1)
+      }
     },
     store() {
       this.form.post(`/pracownicy/${this.organization.id}/`, {
