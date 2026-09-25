@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Enums\Role;
 use App\Models\Account;
 use App\Models\Feast;
@@ -53,7 +54,7 @@ class KalendarzSwiatTest extends TestCase
         ]);
     }
 
-    /** @dataProvider roleBezDostepu */
+    #[DataProvider('roleBezDostepu')]
     public function test_nie_admin_nie_oglada_kalendarza(int $owner, string $email): void
     {
         $u = $this->uzytkownik($owner, $email);
@@ -65,7 +66,7 @@ class KalendarzSwiatTest extends TestCase
         $this->actingAs($u)->get("/country/{$k}/feasts/{$swieto->id}")->assertForbidden();
     }
 
-    /** @dataProvider roleBezDostepu */
+    #[DataProvider('roleBezDostepu')]
     public function test_nie_admin_nie_dodaje_ani_nie_kasuje(int $owner, string $email): void
     {
         $u = $this->uzytkownik($owner, $email);
@@ -85,7 +86,7 @@ class KalendarzSwiatTest extends TestCase
     }
 
     /** @return array<string, array{int, string}> */
-    public function roleBezDostepu(): array
+    public static function roleBezDostepu(): array
     {
         return [
             'kierownik budowy' => [Role::KIEROWNIK->value, 'kierownik@mkl.pl'],

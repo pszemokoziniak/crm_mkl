@@ -68,7 +68,7 @@ class NowiPracownicy
                 'id' => $c->id,
                 'pracownik' => trim($c->last_name.' '.$c->first_name),
                 'wprowadzony' => $c->created_at?->format('d.m.Y'),
-                'dni_temu' => $c->created_at ? (int) $c->created_at->startOfDay()->diffInDays(Carbon::parse($dzis)) : null,
+                'dni_temu' => $c->created_at ? (int) $c->created_at->startOfDay()->diffInDays(Carbon::parse($dzis), true) : null,
                 'badania' => isset($badania[$c->id]),
                 'bhp' => isset($bhp[$c->id]),
                 'uprawnienia' => isset($uprawnienia[$c->id]),

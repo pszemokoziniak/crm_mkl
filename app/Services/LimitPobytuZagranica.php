@@ -385,7 +385,7 @@ class LimitPobytuZagranica
         $lewy = 0;
 
         for ($prawy = 0; $prawy < $ile; $prawy++) {
-            while (Carbon::parse($lista[$lewy])->diffInDays(Carbon::parse($lista[$prawy])) >= self::OKNO_DNI) {
+            while ((int) Carbon::parse($lista[$lewy])->diffInDays(Carbon::parse($lista[$prawy]), true) >= self::OKNO_DNI) {
                 $lewy++;
             }
 

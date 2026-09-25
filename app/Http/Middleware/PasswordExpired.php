@@ -31,7 +31,7 @@ class PasswordExpired
         if (Auth::user()->password_changed_at === null) {
             return redirect()->route('password.expired');
         } else {
-            if (Carbon::now()->diffInDays(Auth::user()->password_changed_at) >= config('auth.password_expires_days')) {
+            if ((int) Carbon::now()->diffInDays(Auth::user()->password_changed_at, true) >= config('auth.password_expires_days')) {
                 return redirect()->route('password.expired');
             }
         }

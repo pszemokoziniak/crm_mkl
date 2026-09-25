@@ -213,7 +213,7 @@ class PodzialKosztow
 
         $do = Carbon::parse(min($konce));
 
-        return $do->lt($od) ? 0 : (int) $od->diffInDays($do) + 1;
+        return $do->lt($od) ? 0 : (int) $od->diffInDays($do, true) + 1;
     }
 
     /**

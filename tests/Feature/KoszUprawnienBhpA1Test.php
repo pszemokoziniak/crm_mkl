@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Enums\Role;
 use App\Models\A1;
 use App\Models\Account;
@@ -109,7 +110,7 @@ class KoszUprawnienBhpA1Test extends TestCase
         }
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzajeEkranu')]
     public function test_ekran_niesie_stan_terminu_i_nazwisko(string $rodzaj, string $propLista): void
     {
         [$m] = $this->przypadek($rodzaj);
@@ -123,7 +124,7 @@ class KoszUprawnienBhpA1Test extends TestCase
         $this->assertNull($wiersz['deleted_at']);
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzaje')]
     public function test_wpis_idzie_do_kosza_i_wraca(string $rodzaj, string $propLista, string $tabela, string $trasa): void
     {
         [$m] = $this->przypadek($rodzaj);
@@ -140,7 +141,7 @@ class KoszUprawnienBhpA1Test extends TestCase
         $this->assertDatabaseHas($tabela, ['id' => $m->id, 'deleted_at' => null]);
     }
 
-    /** @dataProvider rodzaje */
+    #[DataProvider('rodzajeEkranu')]
     public function test_najswiezszy_wpis_na_gorze(string $rodzaj, string $propLista): void
     {
         [$blizszy] = $this->przypadek($rodzaj);
@@ -154,7 +155,13 @@ class KoszUprawnienBhpA1Test extends TestCase
     }
 
     /** @return array<string, array{string, string, string, string}> */
-    public function rodzaje(): array
+    /** Tylko rodzaj i nazwa listy na ekranie — dla testów, które nie sięgają do tabeli ani trasy. */
+    public static function rodzajeEkranu(): array
+    {
+        return array_map(fn (array $r) => array_slice($r, 0, 2), self::rodzaje());
+    }
+
+    public static function rodzaje(): array
     {
         return [
             'uprawnienia' => ['uprawnienia', 'uprawnienias', 'uprawnienias', 'uprawnienia'],

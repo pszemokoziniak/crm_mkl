@@ -85,7 +85,7 @@ class BuildingTimeSheet extends Controller
                 'build' => $build,
                 'shiftStatuses' => $this->getShiftStatuses()->all(),
                 'user_owner' => Auth::user()->owner,
-                'diffDays' => Carbon::today()->diffInDays($date),
+                'diffDays' => (int) Carbon::today()->diffInDays($date, true),
                 'dniWstecz' => self::DNI_WSTECZ_KIEROWNIK,
                 // Miesiąc zamknięty przez kadry — kierownik już go nie rusza.
                 'zamkniety' => $this->opisZamkniecia($build, $date),

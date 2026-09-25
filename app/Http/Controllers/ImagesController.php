@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use League\Glide\Responses\LaravelResponseFactory;
 use League\Glide\ServerFactory;
 
 class ImagesController extends Controller
@@ -61,16 +60,22 @@ class ImagesController extends Controller
             return response()->file($localDisk->exists($path) ? $localDisk->path($path) : public_path($path));
         }
 
-        // Użyj Glide do obróbki
+        // Użyj Glide do obróbki. Glide zapisuje wynik w .glide-cache na dysku
+        // local, a my zwracamy ten plik (bez porzuconego glide-laravel).
         $server = ServerFactory::create([
-            'response' => new LaravelResponseFactory($request),
             'source' => $source,
             'cache' => $localDisk->getDriver(),
             'cache_path_prefix' => '.glide-cache',
         ]);
 
         try {
-            return $server->getImageResponse($path, $request->all());
+            $plik = $server->makeImage($path, $request->all());
+
+            return response()->file($localDisk->path($plik), [
+                'Content-Type' => $server->getCache()->mimeType($plik),
+                // private: zdjęcia wymagają logowania, więc tylko cache przeglądarki.
+                'Cache-Control' => 'private, max-age=31536000',
+            ]);
         } catch (\Exception $e) {
             // W razie błędu Glide (np. brak biblioteki gd/imagick), zaserwuj oryginał
             return response()->file($localDisk->exists($path) ? $localDisk->path($path) : public_path($path));

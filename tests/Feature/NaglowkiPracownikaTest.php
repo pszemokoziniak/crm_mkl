@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\User;
@@ -58,9 +59,7 @@ class NaglowkiPracownikaTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider formularze
-     */
+    #[DataProvider('formularze')]
     public function test_formularz_zna_pracownika(string $sciezka): void
     {
         $odpowiedz = $this->actingAs($this->biuro)

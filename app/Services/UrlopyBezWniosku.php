@@ -97,7 +97,7 @@ class UrlopyBezWniosku
             $biezacy = null;
             foreach ($grupa->sortBy('work_day') as $d) {
                 $data = Carbon::parse((string) $d->work_day);
-                if ($biezacy && $data->diffInDays(Carbon::parse($biezacy['do'])) <= self::SKLEJ_DO_DNI) {
+                if ($biezacy && (int) $data->diffInDays(Carbon::parse($biezacy['do']), true) <= self::SKLEJ_DO_DNI) {
                     $biezacy['do'] = $data->toDateString();
                     $biezacy['dni']++;
                     continue;

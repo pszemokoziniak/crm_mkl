@@ -11,7 +11,6 @@ class ShiftStatus extends Model
     protected $table = 'shift_status';
     use HasFactory;
     use SoftDeletes;
-    protected $dates = ['deleted_at'];
 
     /** Do czego zaliczamy godziny z tym statusem w statystykach budowy. */
     public const KAT_PRACA = 'praca';

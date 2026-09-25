@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\ContactWorkDate;
@@ -75,9 +76,7 @@ class ZakladkiRolTest extends TestCase
         return [$user, $pracownik];
     }
 
-    /**
-     * @dataProvider roleProwadzaceBudowy
-     */
+    #[DataProvider('roleProwadzaceBudowy')]
     public function test_umowa_jest_ukryta_dla_prowadzacych_budowy(int $owner): void
     {
         [$user, $pracownik] = $this->zespol($owner);
@@ -93,9 +92,7 @@ class ZakladkiRolTest extends TestCase
         $this->assertFalse($props['permissions']['biuro']);
     }
 
-    /**
-     * @dataProvider roleProwadzaceBudowy
-     */
+    #[DataProvider('roleProwadzaceBudowy')]
     public function test_pozostale_zakladki_pracownika_sie_otwieraja(int $owner): void
     {
         [$user, $pracownik] = $this->zespol($owner);
@@ -107,9 +104,7 @@ class ZakladkiRolTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider roleProwadzaceBudowy
-     */
+    #[DataProvider('roleProwadzaceBudowy')]
     public function test_wszystkie_zakladki_budowy_sie_otwieraja(int $owner): void
     {
         [$user] = $this->zespol($owner);
@@ -131,9 +126,7 @@ class ZakladkiRolTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider roleProwadzaceBudowy
-     */
+    #[DataProvider('roleProwadzaceBudowy')]
     public function test_prognoza_budowy_jest_tylko_do_podgladu_dla_prowadzacych(int $owner): void
     {
         [$user] = $this->zespol($owner);
@@ -149,9 +142,7 @@ class ZakladkiRolTest extends TestCase
         $this->assertTrue($props['flag'], 'Kierownik projektu dostawał formularz, którego nie mógł zapisać.');
     }
 
-    /**
-     * @dataProvider roleProwadzaceBudowy
-     */
+    #[DataProvider('roleProwadzaceBudowy')]
     public function test_lista_budow_nie_pokazuje_utworz_prowadzacym(int $owner): void
     {
         [$user] = $this->zespol($owner);
@@ -204,7 +195,7 @@ class ZakladkiRolTest extends TestCase
     }
 
     /** @return array<string, array<int, int>> */
-    public function roleProwadzaceBudowy(): array
+    public static function roleProwadzaceBudowy(): array
     {
         return [
             'kierownik budowy' => [3],
