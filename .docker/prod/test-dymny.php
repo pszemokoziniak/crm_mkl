@@ -35,6 +35,11 @@ foreach ($uris as $u) {
     $resp = $kernel->handle($req);
     if (method_exists($resp, 'getFile')) {
         $size = $resp->getFile()->getSize();
+        // Odpowiedź nie jest wysyłana, więc deleteFileAfterSend nie zadziała —
+        // plik eksportu (nazwiska pracowników) sprzątamy sami.
+        if (str_starts_with($resp->getFile()->getPathname(), storage_path('app/export/'))) {
+            @unlink($resp->getFile()->getPathname());
+        }
     } else {
         ob_start();
         $resp->sendContent();
