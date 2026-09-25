@@ -57,7 +57,7 @@ class ImagesController extends Controller
 
         // Jeśli nie ma parametrów (w, h, fit), możemy serwować plik bezpośrednio dla wydajności
         if (empty($request->all())) {
-            return response()->file($localDisk->exists($path) ? $localDisk->path($path) : public_path($path));
+            return response()->file($localDisk->exists($path) ? $localDisk->path($path) : public_path($path))->setPrivate();
         }
 
         // Użyj Glide do obróbki. Glide zapisuje wynik w .glide-cache na dysku
@@ -71,14 +71,14 @@ class ImagesController extends Controller
         try {
             $plik = $server->makeImage($path, $request->all());
 
+            // Zdjęcia są za logowaniem: tylko cache przeglądarki, nie pośredników.
+            // setPrivate() jawnie, bo BinaryFileResponse domyślnie ustawia public.
             return response()->file($localDisk->path($plik), [
                 'Content-Type' => $server->getCache()->mimeType($plik),
-                // private: zdjęcia wymagają logowania, więc tylko cache przeglądarki.
-                'Cache-Control' => 'private, max-age=31536000',
-            ]);
+            ])->setPrivate()->setMaxAge(31536000);
         } catch (\Exception $e) {
             // W razie błędu Glide (np. brak biblioteki gd/imagick), zaserwuj oryginał
-            return response()->file($localDisk->exists($path) ? $localDisk->path($path) : public_path($path));
+            return response()->file($localDisk->exists($path) ? $localDisk->path($path) : public_path($path))->setPrivate();
         }
     }
 }
