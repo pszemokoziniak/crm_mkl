@@ -377,10 +377,6 @@ Route::get('prognoza/{prognoza}/edit', [PrognozaController::class, 'edit'])
     ->name('prognoza.edit')
     ->middleware('auth', 'moze:prognoza.obsluga');
 
-Route::get('prognoza/building', [PrognozaController::class, 'building'])
-    ->name('prognoza.building')
-    ->middleware('auth', 'moze:prognoza.obsluga');
-
 Route::put('prognoza/{prognoza}', [PrognozaController::class, 'update'])
     ->name('prognoza.update')
     ->middleware('auth', 'moze:prognoza.obsluga');
@@ -542,11 +538,6 @@ Route::delete('holiday/{holiday}', [HolidayController::class, 'destroy'])
     ->name('holiday.destroy')
     ->middleware('auth', 'moze:nieobecnosci.usuwanie');
 
-
-Route::put('holiday/{holiday}/restore', [HolidayController::class, 'restore'])
-    ->name('holiday.restore')
-    ->middleware('auth', 'moze:nieobecnosci.usuwanie');
-
 //  Budowa Narzedzia
 
 Route::get('budowy/{organization}/narzedzia', [ToolWorkDatesController::class, 'index'])
@@ -578,11 +569,6 @@ Route::put('budowy/{organization}/narzedzia/{narzedzia}', [ToolWorkDatesControll
 
 Route::delete('budowy/{organization}/narzedzia/{toolWorkDate}/destroy', [ToolWorkDatesController::class, 'destroy'])
     ->name('budowy.narzedzia.destroy')
-        ->middleware('auth', 'moze:sprzet.obsluga');
-
-
-Route::put('budowy/{organization}/narzedzia/{narzedzia}/restore', [ToolWorkDatesController::class, 'restore'])
-    ->name('budowy.narzedzia.restore')
         ->middleware('auth', 'moze:sprzet.obsluga');
 
 
@@ -662,11 +648,6 @@ Route::post('pracownicy/{organization}', [BudowaPracownicyController::class, 'st
 
 Route::delete('pracownicy/{contactWorkDate}', [BudowaPracownicyController::class, 'destroy'])
     ->name('pracownicy.destroy')
-        ->middleware('auth', 'moze:budowy.przypisywanie');
-
-
-Route::put('pracownicy/destroystore', [BudowaPracownicyController::class, 'destroyStore'])
-    ->name('pracownicy.destroystore')
         ->middleware('auth', 'moze:budowy.przypisywanie');
 
 

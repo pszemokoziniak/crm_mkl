@@ -31,6 +31,18 @@ class RownowaznoscUprawnienTest extends TestCase
         'self-or-biuro-permission' => self::OFFICE,
     ];
 
+    /**
+     * Trasy ze zrzutu usunięte celowo po 16.09.2026 — wskazywały na metody
+     * kontrolerów, których już nie było (500 przy każdym wejściu). Pilnuje
+     * tego TrasyBezMartwychMetodTest.
+     */
+    private const USUNIETE = [
+        'GET prognoza/building',                                  // building() usunięta 2024-10 (628bb91)
+        'PUT holiday/{holiday}/restore',                          // HolidayController nie ma restore()
+        'PUT budowy/{organization}/narzedzia/{narzedzia}/restore', // ToolWorkDatesController nie ma restore()
+        'PUT pracownicy/destroystore',                            // destroyStore() usunięta 2022-12 (d4cf7aa)
+    ];
+
     public function test_kazda_trasa_wpuszcza_te_same_role_co_przed_zmiana(): void
     {
         $przed = json_decode(file_get_contents(base_path('tests/Fixtures/uprawnienia-przed.json')), true);
@@ -44,6 +56,10 @@ class RownowaznoscUprawnienTest extends TestCase
             }
 
             $klucz = $this->klucz($trasa['uri'], $trasa['methods']);
+            if (in_array($klucz, self::USUNIETE, true)) {
+                $this->assertFalse($teraz->has($klucz), "Usunięta martwa trasa wróciła: $klucz");
+                continue;
+            }
             $this->assertTrue($teraz->has($klucz), "Trasa zniknęła: $klucz");
 
             $this->assertSame(
