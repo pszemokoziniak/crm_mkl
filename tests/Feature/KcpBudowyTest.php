@@ -177,6 +177,28 @@ class KcpBudowyTest extends TestCase
         $this->assertNotContains(-14.5, $liczby);
     }
 
+    public function test_eksport_budowy_bez_nikogo_daje_pusty_plik_a_nie_blad(): void
+    {
+        // Liczba kolumn dni brała się z pierwszego pracownika — przy pustej
+        // obsadzie reset() dawał false, a count(false) kończył eksport błędem 500.
+        $odpowiedz = $this->actingAs($this->biuro)
+            ->get('/building/'.$this->budowa->id.'/time-sheet/export?date=2026-09-15');
+
+        $odpowiedz->assertOk();
+        $this->assertStringContainsString(
+            'KCP Lausitzer Zeitz 2026-09.xlsx',
+            $odpowiedz->headers->get('content-disposition')
+        );
+
+        $arkusz = \PhpOffice\PhpSpreadsheet\IOFactory::load($odpowiedz->getFile()->getPathname())->getActiveSheet();
+        // Wrzesień ma 30 dni: kolumny dni od D po dwie (dzień n w kolumnie
+        // 4 + 2·(n−1)), więc 30. dzień w BJ, a suma zaraz za nim, w BL.
+        $this->assertSame("1\nwt", $arkusz->getCell('D7')->getValue());
+        $this->assertSame("30\nśr", $arkusz->getCell('BJ7')->getValue());
+        $this->assertSame('SUMA', $arkusz->getCell('BL7')->getValue());
+        $this->assertNull($arkusz->getCell('B8')->getValue(), 'Bez pracowników nie ma wierszy z nazwiskami.');
+    }
+
     public function test_plik_nazywa_sie_od_budowy_i_miesiaca(): void
     {
         $this->pracownik('Obecny', '2026-09-01', null);
