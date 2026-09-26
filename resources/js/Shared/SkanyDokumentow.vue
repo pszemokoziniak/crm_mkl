@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/inertia-vue3'
+import { Link } from '@inertiajs/vue3'
 import { DocumentDownloadIcon, TrashIcon } from '@heroicons/vue/solid'
 
 // Ta tabela była przepisana osobno na pięciu ekranach pracownika (Badania,

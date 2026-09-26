@@ -319,7 +319,7 @@ import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import BudMenu from '@/Shared/BudMenu.vue'
 import ZgloszenieDoKadr from '@/Shared/ZgloszenieDoKadr.vue'
-import { Head, Link, useForm } from '@inertiajs/inertia-vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import { DocumentDownloadIcon } from '@heroicons/vue/solid'
 
 const KLUCZ_SKALI = 'kcp.skala'

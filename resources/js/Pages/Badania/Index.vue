@@ -137,7 +137,7 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import { prowadziBudowy } from '@/role'
 import Layout from '@/Shared/Layout'
 import Pagination from '@/Shared/Pagination'

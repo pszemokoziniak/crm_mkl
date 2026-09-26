@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
+import { Head } from '@inertiajs/vue3'
 import Layout from '@/Shared/Layout'
 import {DocumentDownloadIcon} from '@heroicons/vue/solid'
 import SelectInput from '@/Shared/SelectInput.vue'

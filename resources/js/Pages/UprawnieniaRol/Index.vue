@@ -89,8 +89,8 @@
 </template>
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
-import { Inertia } from '@inertiajs/inertia'
+import { Head } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import Layout from '@/Shared/Layout'
 
 export default {
@@ -159,7 +159,7 @@ export default {
     },
     zapisz(rola) {
       this.zapisywanie = true
-      Inertia.put(`/uprawnienia-rol/${rola.id}`, { uprawnienia: rola.zaznaczone }, {
+      router.put(`/uprawnienia-rol/${rola.id}`, { uprawnienia: rola.zaznaczone }, {
         preserveScroll: true,
         onFinish: () => { this.zapisywanie = false },
       })
@@ -171,7 +171,7 @@ export default {
       }
       if (!confirm(`Przywrócić roli ${rola.nazwa} domyślne uprawnienia?`)) return
       this.zapisywanie = true
-      Inertia.delete(`/uprawnienia-rol/${rola.id}`, {
+      router.delete(`/uprawnienia-rol/${rola.id}`, {
         preserveScroll: true,
         onFinish: () => { this.zapisywanie = false },
       })

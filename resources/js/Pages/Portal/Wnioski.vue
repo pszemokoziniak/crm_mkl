@@ -109,8 +109,8 @@
 </template>
 
 <script>
-import { Head, useForm } from '@inertiajs/inertia-vue3'
-import { Inertia } from '@inertiajs/inertia'
+import { Head, useForm } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import WatekWniosku from '@/Shared/WatekWniosku.vue'
 
 export default {
@@ -184,7 +184,7 @@ export default {
       this.form.post(`/u/${this.token}/wniosek`, { onSuccess: () => this.form.reset() })
     },
     wyloguj() {
-      Inertia.post(`/u/${this.token}/wyloguj`)
+      router.post(`/u/${this.token}/wyloguj`)
     },
     klasa(status) {
       return {

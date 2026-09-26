@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { useForm } from '@inertiajs/inertia-vue3'
+import { useForm } from '@inertiajs/vue3'
 import DateInput from '@/Shared/DateInput.vue'
 
 export default {
