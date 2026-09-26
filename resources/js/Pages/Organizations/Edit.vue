@@ -10,7 +10,7 @@
 
     <!-- Podsumowanie budowy (rozbudowywalne — kolejne kafelki dojdą obok) -->
     <div class="mb-8 flex flex-wrap gap-4">
-      <Link :href="`/budowy/${budId}/prognoza`" class="block bg-white rounded-md shadow px-5 py-4 hover:bg-gray-50 transition">
+      <Link :href="`/budowy/${budId}/prognoza`" class="block bg-white rounded-md shadow-sm px-5 py-4 hover:bg-gray-50 transition">
         <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Kadra — szczyt zapotrzebowania</div>
         <template v-if="summary && summary.peak !== null">
           <div class="flex items-end gap-4">
@@ -23,7 +23,7 @@
               <div class="text-2xl font-bold text-gray-800">{{ summary.assigned }}</div>
               <div class="text-xs text-gray-500">mamy przypisanych</div>
             </div>
-            <span class="ml-2 self-center inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded" :class="gapClass">{{ gapLabel }}</span>
+            <span class="ml-2 self-center inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-sm" :class="gapClass">{{ gapLabel }}</span>
           </div>
           <div v-if="summary.peakStart" class="mt-1 text-xs text-gray-400">szczyt w tygodniu {{ summary.peakStart }} – {{ summary.peakEnd }}</div>
         </template>
@@ -32,7 +32,7 @@
     </div>
 
     <trashed-message v-if="organization.deleted_at" class="mb-6" @restore="restore">Ta budowa jest usunięta</trashed-message>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.nazwaBud" :error="form.errors.nazwaBud" :disabled="flag" class="lg:w-1/1 pb-8 pr-6 w-full" label="Nazwa Projektu" />

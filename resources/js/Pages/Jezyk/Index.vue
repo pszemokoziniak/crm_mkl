@@ -9,7 +9,7 @@
       </Link>
     </div>
     <!-- Telefon: karty zamiast tabeli. -->
-    <div class="sm:hidden bg-white rounded-md shadow divide-y divide-gray-100">
+    <div class="sm:hidden bg-white rounded-md shadow-sm divide-y divide-gray-100">
       <Link
         v-for="item in jezyks.data"
         :key="`k-${item.id}`"
@@ -28,7 +28,7 @@
       <p v-if="jezyks.data.length === 0" class="p-4 text-sm text-gray-500">Brak wpisanych języków.</p>
     </div>
 
-    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th>Język</th>
@@ -40,13 +40,13 @@
               <div v-if="item.jezyk">
                 {{ item.jezyk.name }}
               </div>
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <icon v-if="item.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="prowadziBudowy(userOwner) ? '' : `/contacts/${contact.id}/jezyk/${item.id}/edit`">
               {{ item.poziom }}
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <icon v-if="item.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">

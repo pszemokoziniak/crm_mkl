@@ -10,7 +10,7 @@
         <span>Dodaj</span>
       </Link>
     </div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th>Nazwa</th>
@@ -23,7 +23,7 @@
               <span v-if="item.grupa" class="ml-2 px-2 py-0.5 text-[10px] font-semibold text-indigo-800 bg-indigo-100 border border-indigo-200 rounded-full">
                 {{ item.grupa }}
               </span>
-              <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <icon v-if="item.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="w-px border-t">

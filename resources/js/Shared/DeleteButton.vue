@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+    class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-md hover:bg-red-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
     @click="handleClick"
   >
     <icon name="trash" class="w-3 h-3 mr-1.5 fill-red-700" />

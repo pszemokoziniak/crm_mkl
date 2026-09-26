@@ -10,7 +10,7 @@
         <span>Dodaj</span>
       </Link>
     </div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th>Nazwa</th>

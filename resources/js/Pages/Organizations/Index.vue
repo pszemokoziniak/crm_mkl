@@ -26,7 +26,7 @@
       </Link>
     </div>
 
-    <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="bg-white rounded-md shadow-sm overflow-hidden">
       <OrganizationsMobileList :organizations="organizations.data" />
       <OrganizationsDesktopTable :organizations="organizations.data" :sort="form.sort" :direction="form.direction" @sort="onSort" />
     </div>

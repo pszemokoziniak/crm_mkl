@@ -10,7 +10,7 @@
 
   <!-- Podsumowanie pokrycia -->
   <div v-if="summary.total" class="flex flex-wrap gap-3 mb-6">
-    <div class="px-4 py-3 rounded-lg border bg-white shadow-sm">
+    <div class="px-4 py-3 rounded-lg border bg-white shadow-xs">
       <div class="text-2xl font-bold">{{ summary.total }}</div>
       <div class="text-xs text-gray-500">pobytów na budowie</div>
     </div>
@@ -33,7 +33,7 @@
     </search-filter-no-filtr>
   </div>
 
-  <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
+  <div class="hidden md:block bg-white rounded-md shadow-sm overflow-x-auto">
     <table class="w-full whitespace-nowrap">
       <tr class="naglowek-tabeli">
         <th>Nazwisko Imię</th>
@@ -77,7 +77,7 @@
         <td class="border-t">
           <div class="px-6 py-4">
             <span
-              class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded"
+              class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-sm"
               :class="statusBadge(row.status).class"
             >
               {{ statusBadge(row.status).label }}
@@ -104,14 +104,14 @@
     <div
       v-for="row in rows"
       :key="row.id"
-      class="bg-white rounded-md shadow p-4"
+      class="bg-white rounded-md shadow-sm p-4"
       :class="{ 'opacity-60': row.period === 'zakonczony' }"
     >
       <div class="flex flex-wrap items-center gap-2">
         <Link class="font-medium text-gray-900" :href="`/contacts/${row.contact_id}/edit`">
           {{ row.last_name }} {{ row.first_name }}
         </Link>
-        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded" :class="statusBadge(row.status).class">
+        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-sm" :class="statusBadge(row.status).class">
           {{ statusBadge(row.status).label }}
         </span>
       </div>
@@ -131,7 +131,7 @@
       </div>
       <Link class="mt-2 inline-block text-sm text-indigo-600" :href="`/contacts/${row.contact_id}/a1`">Zarządzaj A1</Link>
     </div>
-    <p v-if="rows.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">
+    <p v-if="rows.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-500">
       Nie znaleziono pobytów na tej budowie
     </p>
   </div>

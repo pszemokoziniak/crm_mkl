@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-100 p-6">
     <Head :title="ustawianie ? 'Ustaw PIN' : 'Podaj PIN'" />
-    <form class="w-full max-w-sm bg-white rounded-xl shadow p-6" @submit.prevent="wyslij">
+    <form class="w-full max-w-sm bg-white rounded-xl shadow-sm p-6" @submit.prevent="wyslij">
       <logo class="mx-auto mb-4 w-32" />
       <h1 class="text-lg font-bold text-gray-900 text-center">Cześć{{ imie ? `, ${imie}` : '' }}</h1>
       <p class="mt-1 mb-5 text-sm text-gray-600 text-center">
         {{ ustawianie ? 'Ustaw swój PIN (4–6 cyfr). Będziesz go podawać przy wejściu.' : 'Podaj swój PIN.' }}
       </p>
-      <p v-if="zablokowany" class="mb-4 p-3 rounded bg-red-50 text-sm text-red-700">Za dużo prób. Spróbuj za kwadrans.</p>
+      <p v-if="zablokowany" class="mb-4 p-3 rounded-sm bg-red-50 text-sm text-red-700">Za dużo prób. Spróbuj za kwadrans.</p>
       <label class="form-label" for="pin">PIN:</label>
       <input id="pin" v-model="form.pin" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="form-input w-full text-center text-2xl tracking-widest" :class="{ error: form.errors.pin }" maxlength="6" />
       <div v-if="form.errors.pin" class="form-error">{{ form.errors.pin }}</div>

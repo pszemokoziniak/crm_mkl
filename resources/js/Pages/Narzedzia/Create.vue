@@ -5,7 +5,7 @@
       <Link class="text-indigo-400 hover:text-indigo-600" href="/narzedzia">Sprzęt</Link>
       <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <!-- Najpierw czym sprzęt jest, potem którą sztuką — tak się go opisuje. -->

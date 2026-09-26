@@ -3,7 +3,7 @@
        ale zmianę pobytu i nieobecność wstawiają kadry. Jeden formularz
        dla zakładki Pracownicy i dla KCP (tam z wymaganym skanem wniosku). -->
   <teleport to="body">
-    <div v-if="otwarte" class="fixed inset-0 z-[10001] flex items-center justify-center bg-gray-900 bg-opacity-50 p-4" @click.self="$emit('zamknij')">
+    <div v-if="otwarte" class="fixed inset-0 z-10001 flex items-center justify-center bg-gray-900/50 p-4" @click.self="$emit('zamknij')">
       <form class="w-full max-w-lg bg-white rounded-lg shadow-xl" @submit.prevent="wyslij">
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="text-lg font-bold text-gray-900">{{ tytul }}</h3>

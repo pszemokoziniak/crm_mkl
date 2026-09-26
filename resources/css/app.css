@@ -1,12 +1,170 @@
-/* Reset */
-@import 'tailwindcss/base';
-@import 'reset';
+@import 'tailwindcss';
+@import './reset.css' layer(base);
 
-/* Components */
-@import 'tailwindcss/components';
-@import 'buttons';
-@import 'form';
-@import 'tabele';
+@import './buttons.css' layer(components);
+@import './form.css' layer(components);
+/*
+ * Tabele poza warstwą: reguła `.naglowek-tabeli th` ma wygrywać z klasami
+ * na samym <th> tak jak dotąd (w Tailwindzie 2 wygrywała precyzją
+ * selektora; w 4 każda klasa narzędziowa pobiłaby regułę z warstwy).
+ */
+@import './tabele.css';
 
-/* Utilities */
-@import 'tailwindcss/utilities';
+/*
+ * Tailwind 4 owija hover: w @media (hover: hover), więc na telefonie
+ * nic nie reaguje na dotyk tak jak dotąd. Zostajemy przy starym zachowaniu.
+ */
+@custom-variant hover (&:hover);
+
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-black: #000;
+  --color-white: #fff;
+
+  --color-red-50: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-950: #450a0a;
+
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+  --color-orange-800: #9a3412;
+  --color-orange-900: #7c2d12;
+  --color-orange-950: #431407;
+
+  --color-yellow-50: #fefce8;
+  --color-yellow-100: #fef9c3;
+  --color-yellow-200: #fef08a;
+  --color-yellow-300: #fde047;
+  --color-yellow-400: #facc15;
+  --color-yellow-500: #eab308;
+  --color-yellow-600: #ca8a04;
+  --color-yellow-700: #a16207;
+  --color-yellow-800: #854d0e;
+  --color-yellow-900: #713f12;
+  --color-yellow-950: #422006;
+
+  --color-green-50: #f0fdf4;
+  --color-green-100: #dcfce7;
+  --color-green-200: #bbf7d0;
+  --color-green-300: #86efac;
+  --color-green-400: #4ade80;
+  --color-green-500: #22c55e;
+  --color-green-600: #16a34a;
+  --color-green-700: #15803d;
+  --color-green-800: #166534;
+  --color-green-900: #14532d;
+  --color-green-950: #052e16;
+
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-gray-950: #020617;
+
+  --color-indigo-50: #f3f4ff;
+  --color-indigo-100: #e6e8ff;
+  --color-indigo-200: #ccd0ff;
+  --color-indigo-300: #b2b7ff;
+  --color-indigo-400: #7886d7;
+  --color-indigo-500: #6574cd;
+  --color-indigo-600: #5661b3;
+  --color-indigo-700: #424b89;
+  --color-indigo-800: #2f365f;
+  --color-indigo-900: #191e38;
+
+  --font-sans:
+    'Cerebri Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Noto Sans', Ubuntu, Cantarell, 'Helvetica Neue', Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+
+  /* Cienie z Tailwinda 2 (nazwy przesunięte o jeden: shadow → shadow-sm). */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  --shadow-outline: 0 0 0 2px #6574cd;
+
+  /* Tailwind 2: samo `ring` = 3 px półprzezroczystego niebieskiego. */
+  --default-ring-width: 3px;
+  --default-ring-color: rgb(59 130 246 / 0.5);
+}
+
+/*
+ * Domyślne style z Tailwinda 2, których 4 już nie daje: ramka bez koloru
+ * była szara (teraz kolor tekstu), podpowiedź w polu gray-400 (teraz kolor
+ * tekstu na 50%), przycisk z kursorem-rączką (teraz strzałka), pole
+ * formularza białe (teraz przezroczyste) i bez pogrubienia rodzica (teraz
+ * dziedziczy font), komórka tabeli z 1 px odstępu przeglądarki (teraz 0),
+ * zablokowana lista wyboru przygaszona (teraz pełny kolor).
+ */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-weight: normal;
+    font-style: normal;
+    letter-spacing: normal;
+  }
+
+  input:where(:not([type='checkbox'], [type='radio'], [type='file'], [type='range'], [type='color'], [type='button'], [type='submit'], [type='reset'], [type='image'], [type='hidden'])),
+  select,
+  textarea {
+    background-color: #fff;
+  }
+
+  td,
+  th {
+    padding: 1px;
+  }
+
+  /* Przeglądarka przygasza zablokowaną listę, Tailwind 4 to wyłącza. */
+  select:disabled {
+    opacity: 0.7;
+  }
+}

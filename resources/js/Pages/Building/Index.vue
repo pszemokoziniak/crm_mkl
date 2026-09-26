@@ -45,19 +45,19 @@
         v-if="!prowadziBudowy(user_owner)"
         target="_self"
         :href="raportUrl()"
-        class="inline-flex items-center px-4 py-2 rounded border border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+        class="inline-flex items-center px-4 py-2 rounded-sm border border-indigo-200 text-indigo-700 hover:bg-indigo-50"
       >
         <DocumentDownloadIcon class="w-5 h-5" />
         <span class="ml-1">Podsumowanie miesiąca (wszystkie budowy)</span>
       </a>
-      <a target="_self" :href="excelUrl()" class="btn-indigo inline-flex items-center px-4 py-2 rounded">
+      <a target="_self" :href="excelUrl()" class="btn-indigo inline-flex items-center px-4 py-2 rounded-sm">
         <DocumentDownloadIcon class="w-5 h-5" />
         <span>Pobierz</span>
       </a>
     </div>
   </div>
 
-  <div class="px-6 py-2 bg-white rounded-lg shadow relative z-0">
+  <div class="px-6 py-2 bg-white rounded-lg shadow-sm relative z-0">
     <div class="flex items-center py-2">
       <button type="button" class="inline-flex items-center p-1 leading-none hover:bg-gray-200 rounded-lg cursor-pointer transition duration-100 ease-in-out" @click="previousMonth()">
         <svg class="inline-flex w-6 h-6 text-gray-500 leading-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,7 +82,7 @@
       <!-- Skrócony pokazuje cały miesiąc naraz (do sprawdzania), pełny ma
            godziny od–do (do wpisywania). Widok tygodniowy był i odpadł:
            nie dawał nic ponad suwak, a dokładał klikanie. -->
-      <div class="ml-auto inline-flex rounded border border-gray-300 overflow-hidden text-sm">
+      <div class="ml-auto inline-flex rounded-sm border border-gray-300 overflow-hidden text-sm">
         <button
           v-for="w in WIDOKI"
           :key="w.id"
@@ -177,7 +177,7 @@
         <div v-for="(timeSheet, index) in sortedTimeSheets" :key="timeSheetsOrder[index]" class="flex border-b min-w-max">
           <!-- Worker Info Column - FIXED -->
           <div class="sticky left-0 z-10 bg-gray-100 border-r px-2 text-gray-700 cursor-pointer flex flex-col justify-center shadow-[2px_0_2px_rgba(0,0,0,0.1)]" style="width: 150px; min-width: 150px; height: 68px">
-            <div class="text-center text-xs font-bold leading-tight break-words">{{ timeSheet[0]?.name }}</div>
+            <div class="text-center text-xs font-bold leading-tight wrap-break-word">{{ timeSheet[0]?.name }}</div>
             <div class="text-center text-[10px] mt-1 text-indigo-600">Suma: {{ formatRangeToDisplay(summarize(timeSheet)) }}</div>
           </div>
 
@@ -204,11 +204,11 @@
   <!-- Explicit Teleport to body to ensure it's outside any stacking context -->
   <teleport to="body">
     <TransitionRoot as="template" :show="open">
-      <Dialog as="div" class="relative z-[9999]" @close="open = false">
+      <Dialog as="div" class="relative z-9999" @close="open = false">
         <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div class="fixed inset-0 bg-gray-500/75 transition-opacity" />
         </TransitionChild>
-        <div class="fixed z-[10000] inset-0 overflow-y-auto">
+        <div class="fixed z-10000 inset-0 overflow-y-auto">
           <div class="flex items-end justify-center p-4 min-h-full text-center sm:items-center sm:p-0">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
               <DialogPanel class="relative text-left bg-white rounded-lg shadow-xl overflow-hidden transform transition-all sm:my-8 sm:w-full sm:max-w-lg">
@@ -233,7 +233,7 @@
                           </p>
                           <button
                             type="button"
-                            class="inline-block mt-4 btn-indigo px-4 py-2 rounded"
+                            class="inline-block mt-4 btn-indigo px-4 py-2 rounded-sm"
                             @click="zglosPowrot"
                           >Zgłoś kadrom: wrócił wcześniej</button>
                         </template>
@@ -243,11 +243,11 @@
                           </p>
                           <a
                             :href="`/contacts/${blokada.pracownikId}/holiday`"
-                            class="inline-block mt-4 btn-indigo px-4 py-2 rounded"
+                            class="inline-block mt-4 btn-indigo px-4 py-2 rounded-sm"
                           >Przejdź do nieobecności</a>
                         </template>
                       </div>
-                      <div v-else class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+                      <div v-else class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
                         <fieldset>
                           <form @submit.prevent="update">
                             <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -290,8 +290,8 @@
                   <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md sm:w-auto sm:text-sm" @click="open = false">Zamknij</button>
                 </div>
                 <div v-else-if="mozeEdytowacDzien" class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
-                  <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-white text-base font-medium bg-green-600 hover:bg-green-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
-                  <button ref="cancelButtonRef" type="button" class="inline-flex justify-center mt-3 px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md focus:outline-none shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
+                  <button type="button" class="inline-flex justify-center px-4 py-2 w-full text-white text-base font-medium bg-green-600 hover:bg-green-700 border border-transparent rounded-md focus:outline-hidden shadow-xs focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" @click="saveHours()">Zapisz</button>
+                  <button ref="cancelButtonRef" type="button" class="inline-flex justify-center mt-3 px-4 py-2 w-full text-gray-700 text-base font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md focus:outline-hidden shadow-xs focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm" @click="open = false">Anuluj</button>
                   <button class="mr-auto text-red-600 hover:underline" tabindex="-1" type="button" @click="destroy">Usuń</button>
                 </div>
                 <div v-else-if="!blokada" class="px-4 py-3 bg-gray-50 text-sm text-gray-600 sm:px-6">

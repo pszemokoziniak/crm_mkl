@@ -6,7 +6,7 @@
       <span class="font-medium text-indigo-400">/</span> Nowe zgłoszenie
     </h1>
 
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.title" :error="form.errors.title" class="pb-8 pr-6 w-full" label="Tytuł" placeholder="np. Formularz kontaktowy nie wysyła maila" />

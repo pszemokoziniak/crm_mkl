@@ -50,8 +50,8 @@
           <!-- Nazwa -->
           <td class="border-t">
             <Link class="flex items-center px-4 py-3 focus:text-indigo-500 font-medium" :href="`/budowy/${organization.id}/edit`">
-              <span v-if="organization.is_active" class="flex-shrink-0 mr-2" title="Aktywna budowa" aria-label="Aktywna budowa">🟢</span>
-              <span v-else-if="!canOpen(organization)" class="flex-shrink-0 mr-2" title="Budowa zamknięta — tylko podgląd" aria-label="Budowa zamknięta">🔒</span>
+              <span v-if="organization.is_active" class="shrink-0 mr-2" title="Aktywna budowa" aria-label="Aktywna budowa">🟢</span>
+              <span v-else-if="!canOpen(organization)" class="shrink-0 mr-2" title="Budowa zamknięta — tylko podgląd" aria-label="Budowa zamknięta">🔒</span>
               {{ organization.nazwaBud }}
                 <span
                   v-if="organization.warsztat"
@@ -59,11 +59,11 @@
                 >
                   warsztat
                 </span>
-              <Icon v-if="organization.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <Icon v-if="organization.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               <!-- Wszyscy pracownicy zakończyli pobyt — budowę można zarchiwizować. -->
               <span
                 v-if="!organization.deleted_at && organization.ready_to_archive"
-                class="flex-shrink-0 ml-2 px-2 py-0.5 text-[10px] font-semibold text-orange-800 bg-orange-100 border border-orange-200 rounded-full"
+                class="shrink-0 ml-2 px-2 py-0.5 text-[10px] font-semibold text-orange-800 bg-orange-100 border border-orange-200 rounded-full"
                 title="Wszyscy pracownicy zakończyli pobyt — budowę można zarchiwizować"
               >
                 do archiwizacji
@@ -113,7 +113,7 @@
           <!-- Pracownicy -->
           <td class="border-t whitespace-nowrap">
             <Link class="flex items-center px-4 py-3" :href="`/budowy/${organization.id}/edit`" tabindex="-1">
-              <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded" :class="organization.active_workers_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-sm" :class="organization.active_workers_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">
                 {{ organization.active_workers_count }}
               </span>
               <!-- Kierownictwo dopisane szarym, żeby budowa obsadzona samą kadrą

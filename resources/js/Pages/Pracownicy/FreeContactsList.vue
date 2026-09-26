@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w my-5 bg-white rounded-md shadow overflow-hidden">
+  <div class="max-w my-5 bg-white rounded-md shadow-sm overflow-hidden">
     <div class="flex items-center justify-between p-4">
       <h3 class="text-xl font-medium">Dostępni pracownicy</h3>
       <search-filter-no-filtr v-model="search" class="w-full max-w-md" @reset="reset" />
@@ -26,7 +26,7 @@
           <td class="border-t">
             <input class="ml-2 mr-2" type="checkbox" :value="free.id" v-model="form.checkedValues" @click.stop />
             {{ free.last_name }} {{ free.first_name }}
-            <icon v-if="free.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+            <icon v-if="free.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
           </td>
           <td class="border-t px-6 py-4">
             {{ free.fn_name }}
@@ -53,7 +53,7 @@
           <template v-for="(page, index) in totalPages" :key="index">
             <button
               type="button"
-              class="mb-1 mr-1 px-4 py-3 focus:text-indigo-500 text-sm leading-4 hover:bg-white border focus:border-indigo-500 rounded"
+              class="mb-1 mr-1 px-4 py-3 focus:text-indigo-500 text-sm leading-4 hover:bg-white border focus:border-indigo-500 rounded-sm"
               :class="{ 'bg-white': currentPage === page }"
               @click="currentPage = page"
             >

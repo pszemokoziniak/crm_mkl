@@ -7,7 +7,7 @@
     </div>
     <trashed-message v-if="a1.deleted_at" class="mb-6" @restore="restore"> Ten element będzię usunięty</trashed-message>
     <h1 class="mb-8 text-2xl font-bold">A1</h1>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input type="date" v-model="form.start" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek A1" />

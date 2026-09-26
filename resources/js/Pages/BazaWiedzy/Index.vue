@@ -24,7 +24,7 @@
       <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">
         {{ grupa.kategoria || 'Bez kategorii' }}
       </h2>
-      <div class="bg-white rounded-md shadow overflow-hidden">
+      <div class="bg-white rounded-md shadow-sm overflow-hidden">
         <Link
           v-for="a in grupa.artykuly"
           :key="a.id"
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <p v-if="!artykuly.length" class="bg-white rounded-md shadow px-6 py-8 text-sm text-gray-400">
+    <p v-if="!artykuly.length" class="bg-white rounded-md shadow-sm px-6 py-8 text-sm text-gray-400">
       {{ filters.szukaj ? 'Nic nie pasuje do tego wyszukiwania.' : 'Nie ma jeszcze żadnego artykułu.' }}
     </p>
   </div>

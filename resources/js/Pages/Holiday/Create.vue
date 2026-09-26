@@ -3,7 +3,7 @@
     <Head title="Dodaj nieobecność" />
     <worker-menu :contact-id="contact_id" />
     <pracownik-naglowek :pracownik="pracownik" tytul="Nieobecności — dodaj" />
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store()">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <select-input v-model="form.shift_status_id" :error="form.errors.shift_status_id" class="pb-8 pr-6 w-full lg:w-1/2" label="Powód">
@@ -16,7 +16,7 @@
 
           <!-- Nieobecność nie zdejmuje pracownika z budowy, ale kierownik powinien o niej wiedzieć. -->
           <div v-if="kolidujacyPobyt" class="pb-8 pr-6 w-full">
-            <p class="p-3 text-sm text-yellow-800 bg-yellow-100 border border-yellow-200 rounded">
+            <p class="p-3 text-sm text-yellow-800 bg-yellow-100 border border-yellow-200 rounded-sm">
               W tym terminie pracownik jest przypisany do budowy
               <span class="font-semibold">{{ kolidujacyPobyt.nazwaBud || 'bez nazwy' }}</span>
               ({{ kolidujacyPobyt.start }} → {{ kolidujacyPobyt.end || 'bez końca' }}).

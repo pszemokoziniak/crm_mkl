@@ -1,8 +1,8 @@
 <template>
   <div class="mr-2">
-    <div class="bg-white rounded-md shadow p-0 m-0">
+    <div class="bg-white rounded-md shadow-sm p-0 m-0">
       <div class="flex items-center justify-between w-full">
-        <div class="bg-white rounded-md shadow flex flex-col p-3 w-full">
+        <div class="bg-white rounded-md shadow-sm flex flex-col p-3 w-full">
           <select-input v-model="selectedYear" class="pr-6 w-full font-bold" label="Wybierz rok">
 <!--            <option :value="null">Wszystko</option>-->
             <option v-for="item in data" :key="item" :value="item">{{ item }}</option>

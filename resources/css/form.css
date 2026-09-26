@@ -5,7 +5,9 @@
 .form-input,
 .form-textarea,
 .form-select {
-  @apply p-2 leading-normal block w-full border text-gray-700 bg-white font-sans rounded text-left appearance-none relative focus:border-indigo-400 focus:ring;
+  @apply p-2 block w-full border text-gray-700 bg-white font-sans rounded-sm text-left appearance-none relative focus:border-indigo-400 focus:ring-3;
+  /* Jak w buttons.css: leading-normal z @apply przebiłby text-sm na polu. */
+  line-height: 1.5;
 
   &::placeholder {
     @apply text-gray-500 opacity-100;
@@ -28,7 +30,7 @@
 .form-input.error,
 .form-textarea.error,
 .form-select.error {
-  @apply border-red-500 focus:ring focus:ring-red-200;
+  @apply border-red-500 focus:ring-3 focus:ring-red-200;
 }
 
 .form-error {

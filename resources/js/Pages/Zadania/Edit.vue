@@ -12,7 +12,7 @@
       To zgłoszenie jest zarchiwizowane.
     </trashed-message>
 
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.title" :error="form.errors.title" class="pb-8 pr-6 w-full" label="Tytuł" />
@@ -35,8 +35,8 @@
             <div class="grid grid-cols-2 gap-3 mt-2 sm:grid-cols-4">
               <div v-for="file in zadanie.screenshots" :key="file.id" class="relative group">
                 <a :href="file.url" target="_blank">
-                  <img v-if="file.is_image" :src="file.url" :alt="file.name" class="w-full h-24 object-cover rounded border border-gray-200 hover:opacity-75 transition-opacity" />
-                  <div v-else class="flex items-center justify-center px-2 w-full h-24 text-xs text-center text-gray-500 bg-gray-50 rounded border border-gray-200">
+                  <img v-if="file.is_image" :src="file.url" :alt="file.name" class="w-full h-24 object-cover rounded-sm border border-gray-200 hover:opacity-75 transition-opacity" />
+                  <div v-else class="flex items-center justify-center px-2 w-full h-24 text-xs text-center text-gray-500 bg-gray-50 rounded-sm border border-gray-200">
                     {{ file.name }}
                   </div>
                 </a>

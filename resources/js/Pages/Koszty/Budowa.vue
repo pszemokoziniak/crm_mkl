@@ -22,7 +22,7 @@
         <div class="text-2xl font-bold text-indigo-900 tabular-nums">{{ pln(sumy.pln) }}</div>
         <div class="text-xs text-indigo-700">razem w miesiącu (PLN po kursie z dnia)</div>
       </div>
-      <div v-for="(kwota, waluta) in sumy.waluty" :key="waluta" class="px-4 py-3 rounded-lg border bg-white shadow-sm">
+      <div v-for="(kwota, waluta) in sumy.waluty" :key="waluta" class="px-4 py-3 rounded-lg border bg-white shadow-xs">
         <div class="text-xl font-semibold tabular-nums">{{ kwota.toFixed(2) }} {{ waluta }}</div>
         <div class="text-xs text-gray-500">w walucie</div>
       </div>
@@ -49,7 +49,7 @@
       Koszt osoby idzie na nią w całości; pokój dzieli się po osobodobach; inny dzielony koszt po wskazanych osobach
       albo po dniach pobytu na budowie w tym miesiącu.
     </p>
-    <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="bg-white rounded-md shadow-sm overflow-hidden">
       <div class="divide-y divide-gray-100">
         <div v-for="w in podzial" :key="w.contact_id ?? 'x'" class="px-4 py-3 sm:px-6">
           <div class="flex items-center justify-between gap-3">

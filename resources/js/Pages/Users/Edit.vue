@@ -24,7 +24,7 @@
     <img v-if="user.photo" class="block ml-4 w-8 h-8 rounded-full" :src="user.photo" />
 
     <trashed-message v-if="user.deleted_at" class="mb-6" @restore="restore"> Usunięte. </trashed-message>
-    <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.first_name" :error="form.errors.first_name" class="pb-8 pr-6 w-full lg:w-1/2" label="Imię" />

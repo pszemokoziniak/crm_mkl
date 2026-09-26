@@ -1,5 +1,8 @@
 .btn-indigo {
-  @apply px-6 py-3 rounded bg-indigo-600 text-white text-sm leading-4 font-bold whitespace-nowrap hover:bg-orange-400 focus:bg-orange-400;
+  @apply px-6 py-3 rounded-sm bg-indigo-600 text-white text-sm font-bold whitespace-nowrap hover:bg-orange-400 focus:bg-orange-400;
+  /* Zwykła wysokość linii, nie leading-4: w Tailwindzie 4 leading-* z @apply
+     wygrywa z text-sm dopisanym na przycisku, a dotąd było odwrotnie. */
+  line-height: 1rem;
 }
 
 .btn-spinner,

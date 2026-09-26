@@ -22,7 +22,7 @@
         v-for="zakladka in widoczne"
         :key="zakladka.klucz"
         :href="zakladka.adres(budId)"
-        class="flex-shrink-0 pb-1 border-b-2 transition-colors"
+        class="shrink-0 pb-1 border-b-2 transition-colors"
         :class="isUrl(zakladka.klucz)
           ? 'border-green-700 text-green-800 font-bold'
           : 'border-transparent text-indigo-300 hover:text-indigo-600'"

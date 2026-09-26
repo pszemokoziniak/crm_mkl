@@ -19,7 +19,7 @@
       </span>
     </div>
 
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <!-- Treść powstaje z markdowna po stronie serwera; surowy HTML jest
            z niej wycinany, więc nie da się tędy wstrzyknąć skryptu. -->
       <div class="artykul-tresc px-8 py-8" v-html="artykul.html" />

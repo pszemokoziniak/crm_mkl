@@ -6,7 +6,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       Popraw godziny
     </h1>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <p class="py-2 font-bold">{{ prognoza.prognoza_dates_id[0].start }} - {{ prognoza.prognoza_dates_id[0].end }}</p>

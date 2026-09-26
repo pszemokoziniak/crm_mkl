@@ -7,7 +7,7 @@
         <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
       </select-input>
     </div>
-    <a target="_self" :href="`/building/time-sheet/general-report?date=${date.replace('/', '-')}`" class="btn-indigo py-2 px-4 rounded inline-flex items-center">
+    <a target="_self" :href="`/building/time-sheet/general-report?date=${date.replace('/', '-')}`" class="btn-indigo py-2 px-4 rounded-sm inline-flex items-center">
       <DocumentDownloadIcon class="h-5 w-5" />
       <span>Pobierz</span>
     </a>

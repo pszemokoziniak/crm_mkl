@@ -36,7 +36,7 @@
       <div v-if="bledy" class="mt-2 text-sm text-red-600">{{ bledy }}</div>
     </div>
 
-    <div class="mb-8 bg-white rounded-md shadow overflow-hidden">
+    <div class="mb-8 bg-white rounded-md shadow-sm overflow-hidden">
       <h3 class="font-medium text-xl px-6 py-4 border-b border-gray-100">Sprzęt na tej budowie</h3>
       <table class="w-full whitespace-nowrap">
         <thead>
@@ -76,7 +76,7 @@
       </table>
     </div>
 
-    <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="bg-white rounded-md shadow-sm overflow-hidden">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
         <h3 class="font-medium text-xl">Sprzęt dostępny w magazynie</h3>
         <input v-model="szukaj" type="text" placeholder="Szukaj po nazwie lub numerze…" class="form-input text-sm py-1.5 w-72" />

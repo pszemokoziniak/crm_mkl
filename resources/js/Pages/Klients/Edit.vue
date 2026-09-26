@@ -8,7 +8,7 @@
       {{ form.nameFirma }}
     </h1>
     <trashed-message v-if="klient.deleted_at" class="mb-6" @restore="restore">Ta budowa jest usunięta</trashed-message>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.nameFirma" :error="form.errors.nameFirma" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa Firmy" />
@@ -29,7 +29,7 @@
       </form>
     </div>
     <h2 class="mt-12 text-2xl font-bold">Pracownik</h2>
-    <div class="mt-6 bg-white rounded shadow overflow-x-auto">
+    <div class="mt-6 bg-white rounded-sm shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th>Imię</th>
@@ -40,7 +40,7 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
               {{ contact.name }}
-              <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <icon v-if="contact.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">

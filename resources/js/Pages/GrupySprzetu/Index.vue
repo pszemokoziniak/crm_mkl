@@ -11,9 +11,9 @@
     </p>
 
     <!-- Zakładanie grupy pierwsze, bo od tego zaczyna się porządkowanie magazynu. -->
-    <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
+    <div class="mb-6 bg-white rounded-md shadow-sm overflow-hidden">
       <form class="flex flex-wrap items-end gap-3 px-6 py-4" @submit.prevent="dodaj">
-        <div class="flex-1 min-w-[14rem]">
+        <div class="flex-1 min-w-56">
           <label class="form-label" for="nowa-grupa">Nowa grupa</label>
           <input
             id="nowa-grupa"
@@ -27,7 +27,7 @@
       </form>
     </div>
 
-    <div v-for="grupa in grupy" :key="grupa.id" class="mb-4 bg-white rounded-md shadow overflow-hidden">
+    <div v-for="grupa in grupy" :key="grupa.id" class="mb-4 bg-white rounded-md shadow-sm overflow-hidden">
       <div class="flex flex-wrap items-center gap-3 px-6 py-4 border-b border-gray-100">
         <span class="font-semibold text-gray-800">{{ grupa.nazwa }}</span>
         <span class="text-sm text-gray-500">
@@ -70,12 +70,12 @@
       </div>
     </div>
 
-    <p v-if="!grupy.length" class="mb-4 bg-white rounded-md shadow px-6 py-6 text-sm text-gray-400">
+    <p v-if="!grupy.length" class="mb-4 bg-white rounded-md shadow-sm px-6 py-6 text-sm text-gray-400">
       Nie ma jeszcze żadnej grupy. Załóż pierwszą powyżej.
     </p>
 
     <!-- Modele poza grupami: stąd najczęściej się je przypisuje. -->
-    <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="bg-white rounded-md shadow-sm overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-100">
         <span class="font-semibold text-gray-800">Modele bez grupy</span>
         <span class="ml-2 text-sm text-gray-500">{{ bezGrupy.length }}</span>

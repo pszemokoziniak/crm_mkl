@@ -3,7 +3,7 @@
     <Head title="Dodaj język" />
     <worker-menu :contact-id="contact_id" />
     <pracownik-naglowek :pracownik="pracownik" tytul="Języki — dodaj" />
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store(contact_id)">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <select-input v-model="form.jezykTyp_id" :error="form.errors.jezykTyp_id" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa">

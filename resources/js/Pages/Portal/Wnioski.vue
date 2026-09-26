@@ -3,7 +3,7 @@
     <Head title="Moje wnioski" />
     <!-- Strona na telefon: jedna kolumna, duże przyciski, tylko własne sprawy. -->
     <!-- Na komputerze nagłówek trzyma się tej samej kolumny, co formularz. -->
-    <header class="bg-white shadow-sm px-4 py-3 flex items-center justify-between max-w-md mx-auto md:mt-4 md:rounded-xl">
+    <header class="bg-white shadow-xs px-4 py-3 flex items-center justify-between max-w-md mx-auto md:mt-4 md:rounded-xl">
       <div>
         <div class="font-bold text-gray-900">{{ pracownik.imie }} {{ pracownik.nazwisko }}</div>
         <div class="text-xs text-gray-500">
@@ -21,7 +21,7 @@
       <div v-if="$page.props.flash && $page.props.flash.success" class="p-3 rounded-lg bg-green-50 text-sm text-green-800">{{ $page.props.flash.success }}</div>
 
       <!-- Kontakt z kierownictwem: jedno dotknięcie i dzwoni. -->
-      <section v-if="kierownicy.length" class="bg-white rounded-xl shadow p-4">
+      <section v-if="kierownicy.length" class="bg-white rounded-xl shadow-sm p-4">
         <h2 class="font-bold text-gray-900 mb-2">{{ kierownicy.length === 1 ? 'Mój kierownik' : 'Moi kierownicy' }}</h2>
         <div v-for="k in kierownicy" :key="k.id" class="flex items-center justify-between gap-3 py-1.5">
           <div>
@@ -33,7 +33,7 @@
         </div>
       </section>
 
-      <section class="bg-white rounded-xl shadow p-4">
+      <section class="bg-white rounded-xl shadow-sm p-4">
         <h2 class="font-bold text-gray-900 mb-3">Złóż wniosek urlopowy</h2>
         <form class="space-y-3" @submit.prevent="wyslij">
           <div>
@@ -59,7 +59,7 @@
           <p v-if="wybraneDni" class="text-sm text-gray-700">
             Wybrano <span class="font-semibold">{{ wybraneDni }} {{ odmianaDni(wybraneDni) }}</span>: {{ zakres(form.od, form.do) }}
           </p>
-          <p v-if="pozaPobytem" class="p-2 rounded bg-orange-50 text-sm text-orange-800">
+          <p v-if="pozaPobytem" class="p-2 rounded-sm bg-orange-50 text-sm text-orange-800">
             Urlop wykracza poza koniec Twojego pobytu na budowie ({{ data(pracownik.pobyt_do) }}). Możesz wysłać, ale kierownik może odrzucić.
           </p>
           <div>
@@ -70,7 +70,7 @@
         </form>
       </section>
 
-      <section class="bg-white rounded-xl shadow">
+      <section class="bg-white rounded-xl shadow-sm">
         <h2 class="font-bold text-gray-900 px-4 pt-4 pb-2">Moje wnioski</h2>
         <p v-if="wnioski.length === 0" class="px-4 pb-4 text-sm text-gray-400">Jeszcze nic nie składałeś.</p>
         <template v-else>

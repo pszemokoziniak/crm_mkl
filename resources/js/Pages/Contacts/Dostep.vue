@@ -15,7 +15,7 @@
         <p class="mt-2 text-xs text-green-800">Przekaż go pracownikowi tylko osobiście. Przy pierwszym wejściu ustawi PIN.</p>
       </div>
 
-      <div class="bg-white rounded-md shadow p-6">
+      <div class="bg-white rounded-md shadow-sm p-6">
         <h2 class="font-bold text-gray-900 mb-2">Strona pracownika na telefon</h2>
         <p class="text-sm text-gray-600 mb-4">
           Pracownik wchodzi osobistym linkiem i PIN-em, składa wnioski urlopowe i widzi, czy kierownik je zatwierdził.
@@ -32,8 +32,8 @@
 
         <div class="flex flex-wrap gap-3">
           <button type="button" class="btn-indigo text-sm" :disabled="trwa" @click="wyslij('')">{{ dostep ? 'Wydaj nowy link' : 'Wydaj link' }}</button>
-          <button type="button" class="px-4 py-2 rounded border text-sm" :class="kontakt.email ? 'border-indigo-300 text-indigo-700 hover:bg-indigo-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'" :disabled="!kontakt.email || trwa" :title="kontakt.email ? `Wyślij na ${kontakt.email}` : 'Brak e-maila w kartotece'" @click="wyslij('/mail')">Wyślij mailem</button>
-          <button type="button" class="px-4 py-2 rounded border text-sm" :class="kontakt.phone && sms_dostepny ? 'border-indigo-300 text-indigo-700 hover:bg-indigo-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'" :disabled="!kontakt.phone || !sms_dostepny || trwa" :title="!sms_dostepny ? 'Wysyłka SMS nie jest skonfigurowana' : (kontakt.phone ? `Wyślij na ${kontakt.phone}` : 'Brak telefonu w kartotece')" @click="wyslij('/sms')">Wyślij SMS-em</button>
+          <button type="button" class="px-4 py-2 rounded-sm border text-sm" :class="kontakt.email ? 'border-indigo-300 text-indigo-700 hover:bg-indigo-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'" :disabled="!kontakt.email || trwa" :title="kontakt.email ? `Wyślij na ${kontakt.email}` : 'Brak e-maila w kartotece'" @click="wyslij('/mail')">Wyślij mailem</button>
+          <button type="button" class="px-4 py-2 rounded-sm border text-sm" :class="kontakt.phone && sms_dostepny ? 'border-indigo-300 text-indigo-700 hover:bg-indigo-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'" :disabled="!kontakt.phone || !sms_dostepny || trwa" :title="!sms_dostepny ? 'Wysyłka SMS nie jest skonfigurowana' : (kontakt.phone ? `Wyślij na ${kontakt.phone}` : 'Brak telefonu w kartotece')" @click="wyslij('/sms')">Wyślij SMS-em</button>
           <button v-if="dostep" type="button" class="ml-auto text-sm text-red-600 hover:underline" :disabled="trwa" @click="uniewaznij">Unieważnij dostęp</button>
         </div>
         <!-- Bez adresu albo numeru przycisk jest wyłączony — powód ma być

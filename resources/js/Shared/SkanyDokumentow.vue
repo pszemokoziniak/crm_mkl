@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 v-if="pokazTytul" class="mt-10 mb-4 text-xl font-bold">{{ tytul }}</h2>
-    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <!-- Ta sama klasa, co w tabeli wpisów wyżej: obie stoją na jednym
@@ -83,12 +83,12 @@
       <div
         v-for="dokument in documents.data"
         :key="dokument.id"
-        class="bg-white rounded-md shadow p-4"
+        class="bg-white rounded-md shadow-sm p-4"
         :class="dokument.deleted_at ? 'text-gray-400' : ''"
       >
         <div class="flex items-start justify-between gap-2">
-          <div class="font-medium break-words">{{ dokument.name }}</div>
-          <span v-if="dokument.deleted_at" class="flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+          <div class="font-medium wrap-break-word">{{ dokument.name }}</div>
+          <span v-if="dokument.deleted_at" class="shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
         </div>
         <div class="mt-1 text-sm text-gray-500 break-all">{{ dokument.filename }}</div>
         <div v-if="pokazTyp && dokument.dokumentytyp" class="mt-1 text-xs text-gray-400">
@@ -111,7 +111,7 @@
           </button>
         </div>
       </div>
-      <p v-if="documents.data.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-400">
+      <p v-if="documents.data.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-400">
         <template v-if="pokazTyp">Brak dokumentów.</template>
         <template v-else>Brak skanów. Wgrywa się je w zakładce Dokumenty.</template>
       </p>

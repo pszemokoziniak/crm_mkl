@@ -12,7 +12,7 @@
 
     <div class="max-w-4xl space-y-6">
       <!-- Nagłówek zgłoszenia -->
-      <div class="bg-white rounded-md shadow overflow-hidden">
+      <div class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 bg-gray-50 border-b border-gray-100">
           <div class="flex items-center gap-3">
             <select
@@ -26,7 +26,7 @@
             <span v-else class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full border" :class="statusClass(zadanie.status)">
               {{ zadanie.status_label }}
             </span>
-            <span class="px-1.5 py-0.5 text-[10px] font-bold rounded" :class="priorityClass(zadanie.priority)">
+            <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-sm" :class="priorityClass(zadanie.priority)">
               {{ priorityLabel(zadanie.priority) }}
             </span>
           </div>
@@ -66,7 +66,7 @@
       </div>
 
       <!-- Print screeny -->
-      <div class="bg-white rounded-md shadow overflow-hidden">
+      <div class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 bg-gray-50 border-b border-gray-100">
           <h2 class="text-lg font-bold text-gray-800">Print screeny</h2>
           <span class="text-xs font-medium text-gray-400">{{ zadanie.screenshots.length }}</span>
@@ -76,8 +76,8 @@
           <div v-if="zadanie.screenshots.length" class="grid grid-cols-2 gap-3 mb-4 sm:grid-cols-4">
             <div v-for="file in zadanie.screenshots" :key="file.id" class="relative group">
               <a :href="file.url" target="_blank" :title="file.name">
-                <img v-if="file.is_image" :src="file.url" :alt="file.name" class="w-full h-28 object-cover rounded border border-gray-200 hover:opacity-75 transition-opacity" />
-                <div v-else class="flex items-center justify-center px-2 w-full h-28 text-xs text-center text-gray-500 bg-gray-50 rounded border border-gray-200">
+                <img v-if="file.is_image" :src="file.url" :alt="file.name" class="w-full h-28 object-cover rounded-sm border border-gray-200 hover:opacity-75 transition-opacity" />
+                <div v-else class="flex items-center justify-center px-2 w-full h-28 text-xs text-center text-gray-500 bg-gray-50 rounded-sm border border-gray-200">
                   {{ file.name }}
                 </div>
               </a>

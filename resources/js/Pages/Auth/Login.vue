@@ -1,6 +1,6 @@
 <template>
   <Head title="Logowanie" />
-  <div class="flex items-center justify-center p-6 min-h-screen bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-900">
+  <div class="flex items-center justify-center p-6 min-h-screen bg-linear-to-br from-indigo-900 via-indigo-800 to-indigo-900">
     <div class="w-full max-w-md">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
         <div class="px-10 py-12">
@@ -30,7 +30,7 @@
 
             <div class="flex items-center justify-between mt-6">
               <label class="flex items-center select-none cursor-pointer" for="remember">
-                <input id="remember" v-model="form.remember" class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition duration-150 ease-in-out" type="checkbox" />
+                <input id="remember" v-model="form.remember" class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded-sm transition duration-150 ease-in-out" type="checkbox" />
                 <span class="text-sm text-gray-600">Zapamiętaj mnie</span>
               </label>
             </div>

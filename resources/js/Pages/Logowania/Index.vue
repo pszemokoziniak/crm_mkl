@@ -37,7 +37,7 @@
       <button type="button" class="text-sm text-gray-500 hover:text-gray-800 underline" @click="wyczysc">Wyczyść</button>
     </div>
 
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">

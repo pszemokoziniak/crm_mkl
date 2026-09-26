@@ -12,7 +12,7 @@
       </div>
     </template>
     <template #dropdown>
-      <div class="mt-2 w-80 bg-white rounded shadow-xl overflow-hidden">
+      <div class="mt-2 w-80 bg-white rounded-sm shadow-xl overflow-hidden">
         <div class="flex items-center justify-between px-4 py-2 bg-gray-50 border-b">
           <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Powiadomienia</span>
           <button v-if="unread > 0" type="button" class="text-[10px] text-indigo-600 hover:underline" @click="readAll">
@@ -32,7 +32,7 @@
             @click="open(item)"
           >
             <div class="flex items-start gap-2">
-              <span class="mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0" :class="item.read ? 'bg-transparent' : 'bg-indigo-500'" />
+              <span class="mt-1 w-1.5 h-1.5 rounded-full shrink-0" :class="item.read ? 'bg-transparent' : 'bg-indigo-500'" />
               <div class="min-w-0">
                 <div class="text-xs font-bold text-gray-800 truncate">{{ item.subject }}</div>
                 <div class="text-xs text-gray-600 truncate">

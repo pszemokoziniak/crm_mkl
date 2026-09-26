@@ -9,7 +9,7 @@
         <span>Dodaj sprzęt</span>
       </Link>
     </div>
-    <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden md:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="naglowek-tabeli">
@@ -98,10 +98,10 @@
 
     <!-- Wąski ekran: karty. Grupa sprzętu jako nagłówek, pod nią egzemplarze. -->
     <div class="space-y-4 md:hidden">
-      <div v-for="group in groupedTools" :key="group.name" class="bg-white rounded-md shadow overflow-hidden">
+      <div v-for="group in groupedTools" :key="group.name" class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex items-center justify-between gap-2 px-4 py-3 bg-gray-50 border-b">
           <div class="font-bold text-gray-900">{{ group.name }}</div>
-          <span class="flex-shrink-0 inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-indigo-600 text-white">
+          <span class="shrink-0 inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-indigo-600 text-white">
             {{ group.total_qty }}
           </span>
         </div>
@@ -130,7 +130,7 @@
           </div>
         </div>
       </div>
-      <p v-if="groupedTools.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">
+      <p v-if="groupedTools.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-500">
         Brak sprzętu przypisanego do tej budowy.
       </p>
     </div>

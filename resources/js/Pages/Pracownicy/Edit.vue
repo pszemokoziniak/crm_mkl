@@ -7,7 +7,7 @@
       <span class="text-indigo-400 font-medium">/</span>
       {{ contact.last_name }} {{ contact.first_name }}
     </h1>
-    <div class="max-w bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w bg-white rounded-md shadow-sm overflow-hidden">
       <h3 class="font-medium text-xl  p-4">Popraw czas pracy. Budowa: {{organization.nazwaBud}}</h3>
       <form @submit.prevent="update()">
         <div class="flex flex-wrap -mb-3 -mr-6 p-8">

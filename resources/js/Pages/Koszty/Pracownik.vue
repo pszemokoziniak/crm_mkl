@@ -10,11 +10,11 @@
     </div>
 
     <div class="flex flex-wrap gap-3 mb-6">
-      <div class="px-4 py-3 rounded-lg border bg-white shadow-sm">
+      <div class="px-4 py-3 rounded-lg border bg-white shadow-xs">
         <div class="text-xl font-semibold tabular-nums">{{ pln(sumy.pln) }}</div>
         <div class="text-xs text-gray-500">własne koszty</div>
       </div>
-      <div class="px-4 py-3 rounded-lg border bg-white shadow-sm">
+      <div class="px-4 py-3 rounded-lg border bg-white shadow-xs">
         <div class="text-xl font-semibold tabular-nums">{{ pln(suma_udzialow) }}</div>
         <div class="text-xs text-gray-500">udział w kosztach budów</div>
       </div>
@@ -38,7 +38,7 @@
 
     <!-- Koszty pogrupowane po budowach: pod każdą jego własne wpisy i udział
          w kosztach tej budowy, z sumą budowy. -->
-    <div v-for="grupa in po_budowach" :key="grupa.organization_id ?? 'bez'" class="mb-6 bg-white rounded-md shadow overflow-hidden">
+    <div v-for="grupa in po_budowach" :key="grupa.organization_id ?? 'bez'" class="mb-6 bg-white rounded-md shadow-sm overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-6 border-b border-gray-100">
         <Link v-if="grupa.organization_id" :href="`/budowy/${grupa.organization_id}/koszty?miesiac=${miesiac}`" class="font-semibold text-gray-800 hover:text-indigo-600">{{ grupa.budowa }}</Link>
         <span v-else class="font-semibold text-gray-500">{{ grupa.budowa }}</span>
@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <p v-if="po_budowach.length === 0" class="bg-white rounded-md shadow px-4 py-6 sm:px-6 text-sm text-gray-500">
+    <p v-if="po_budowach.length === 0" class="bg-white rounded-md shadow-sm px-4 py-6 sm:px-6 text-sm text-gray-500">
       Brak kosztów w tym miesiącu.
     </p>
   </div>

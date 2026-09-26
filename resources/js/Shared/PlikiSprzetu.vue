@@ -1,5 +1,5 @@
 <template>
-  <div v-if="pliki.length" class="mb-4 bg-white rounded-md shadow overflow-x-auto">
+  <div v-if="pliki.length" class="mb-4 bg-white rounded-md shadow-sm overflow-x-auto">
     <table class="w-full text-sm">
       <thead>
         <tr class="naglowek-tabeli">
@@ -15,7 +15,7 @@
             <a :href="plik.path" target="_blank" title="Kliknij, aby powiększyć">
               <img
                 :src="plik.path + '?w=100&h=100&fit=crop'"
-                class="w-14 h-14 object-cover rounded border border-gray-200 hover:opacity-75"
+                class="w-14 h-14 object-cover rounded-sm border border-gray-200 hover:opacity-75"
                 :alt="plik.etykieta"
               />
             </a>
@@ -33,7 +33,7 @@
             <div class="mt-1 text-xs text-gray-400 truncate">plik: {{ plik.name }}</div>
           </td>
           <td v-if="zdjecia" class="px-6 py-3 whitespace-nowrap">
-            <span v-if="plik.glowne" class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded bg-green-100 text-green-800">
+            <span v-if="plik.glowne" class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-sm bg-green-100 text-green-800">
               główne
             </span>
             <button

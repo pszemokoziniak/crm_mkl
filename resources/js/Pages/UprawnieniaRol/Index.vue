@@ -8,7 +8,7 @@
       odznaczenie podglądu zabiera wszystko, co go wymaga. Administrator ma zawsze wszystko.
     </p>
 
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="naglowek-tabeli">
           <tr>
@@ -24,7 +24,7 @@
               <div v-if="rola.edytowalna" class="mt-2 flex flex-col items-center gap-1">
                 <button
                   type="button"
-                  class="px-3 py-1 rounded text-xs font-medium"
+                  class="px-3 py-1 rounded-sm text-xs font-medium"
                   :class="zmieniona(rola) ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-100 text-gray-400 cursor-default'"
                   :disabled="!zmieniona(rola) || zapisywanie"
                   @click="zapisz(rola)"
@@ -59,7 +59,7 @@
               <td v-for="rola in stan" :key="rola.id" class="px-3 py-2 text-center">
                 <input
                   type="checkbox"
-                  class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-40"
+                  class="rounded-sm border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-40"
                   :checked="rola.zaznaczone.includes(u.id)"
                   :disabled="!rola.edytowalna || u.tylkoAdmin"
                   :title="tytul(rola, u)"
@@ -74,7 +74,7 @@
 
     <h2 class="mt-10 mb-3 text-xl font-bold text-gray-900">Ostatnie zmiany</h2>
     <p v-if="historia.length === 0" class="text-sm text-gray-400 italic">Nikt jeszcze niczego nie zmieniał — wszystkie role mają domyślne uprawnienia.</p>
-    <div v-else class="bg-white rounded-md shadow divide-y divide-gray-100">
+    <div v-else class="bg-white rounded-md shadow-sm divide-y divide-gray-100">
       <div v-for="(z, i) in historia" :key="i" class="px-6 py-3 text-sm">
         <div class="text-gray-800">
           <span class="font-semibold">{{ z.rola }}</span>

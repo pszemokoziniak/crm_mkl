@@ -4,9 +4,9 @@
       <div v-for="(file, index) in state.files" :key="index">
         <div class="file-item">
           <div class="flex items-center overflow-hidden">
-            <div v-if="file.display" class="mr-4 flex-shrink-0">
+            <div v-if="file.display" class="mr-4 shrink-0">
               <a :href="file.path" target="_blank" title="Kliknij, aby powiększyć">
-                <img :src="file.path + '?w=100&h=100&fit=crop'" class="w-16 h-16 object-cover rounded border border-gray-200 hover:opacity-75 transition-opacity" alt="tool_image">
+                <img :src="file.path + '?w=100&h=100&fit=crop'" class="w-16 h-16 object-cover rounded-sm border border-gray-200 hover:opacity-75 transition-opacity" alt="tool_image">
               </a>
             </div>
             <span class="truncate font-medium text-gray-700">{{ file.name }}</span>

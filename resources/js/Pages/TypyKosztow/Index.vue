@@ -10,9 +10,9 @@
       na pracowników; „nocleg” = pokój z liczbą miejsc i zakwaterowanymi.
     </p>
 
-    <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
+    <div class="mb-6 bg-white rounded-md shadow-sm overflow-hidden">
       <form class="flex flex-wrap items-end gap-3 px-4 py-4 sm:px-6" @submit.prevent="dodaj">
-        <div class="flex-1 min-w-[14rem]">
+        <div class="flex-1 min-w-56">
           <label class="form-label" for="nowy-typ">Nowy typ</label>
           <input id="nowy-typ" v-model="nowy.nazwa" type="text" class="form-input" placeholder="np. Parking, Prom" />
           <div v-if="nowy.errors.nazwa" class="form-error">{{ nowy.errors.nazwa }}</div>
@@ -23,7 +23,7 @@
       </form>
     </div>
 
-    <div class="bg-white rounded-md shadow divide-y divide-gray-100">
+    <div class="bg-white rounded-md shadow-sm divide-y divide-gray-100">
       <div v-for="t in typy" :key="t.id" class="px-4 py-3 sm:px-6">
         <div v-if="edytowany !== t.id" class="flex flex-wrap items-center gap-3">
           <span class="font-medium text-gray-900">{{ t.nazwa }}</span>

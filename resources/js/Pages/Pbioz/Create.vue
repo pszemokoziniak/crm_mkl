@@ -3,7 +3,7 @@
     <Head title="Dodaj certyfikat" />
     <worker-menu :contact-id="contact_id" />
     <pracownik-naglowek :pracownik="pracownik" tytul="Certyfikaty Kontroli Jakości — dodaj" />
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store(contact_id)">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.name" :error="form.errors.name" class="pb-8 pr-6 w-full lg:w-1/1" label="Rodzaj certyfikatu" />

@@ -6,7 +6,7 @@
       <span class="text-indigo-400 font-medium">/</span> Nowy artykuł
     </h1>
 
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="zapisz">
         <artykul-form :form="form" :kategorie="kategorie" />
         <div class="flex items-center justify-end px-8 py-4 bg-gray-50 border-t border-gray-100">

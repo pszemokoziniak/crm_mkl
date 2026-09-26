@@ -32,7 +32,7 @@
       </search-filter>
 
       <div class="flex items-center gap-3">
-        <div class="flex bg-white rounded shadow overflow-hidden">
+        <div class="flex bg-white rounded-sm shadow-sm overflow-hidden">
           <button
             type="button"
             class="px-4 py-2 text-sm font-medium"
@@ -77,7 +77,7 @@
           <div
             v-for="item in column.items"
             :key="item.id"
-            class="bg-white rounded shadow-sm border border-gray-100 p-3 cursor-move hover:shadow transition-shadow"
+            class="bg-white rounded-sm shadow-xs border border-gray-100 p-3 cursor-move hover:shadow-sm transition-shadow"
             draggable="true"
             @dragstart="dragStart(item)"
             @dragend="dragEnd"
@@ -86,7 +86,7 @@
               <Link :href="`/zadania/${item.id}`" class="text-sm font-medium text-gray-900 hover:text-indigo-600">
                 {{ item.title }}
               </Link>
-              <span class="px-1.5 py-0.5 text-[10px] font-bold rounded flex-shrink-0" :class="priorityClass(item.priority)">
+              <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-sm shrink-0" :class="priorityClass(item.priority)">
                 {{ priorityLabel(item.priority) }}
               </span>
             </div>
@@ -97,7 +97,7 @@
 
             <div class="flex items-center justify-between mt-3 text-[11px] text-gray-500">
               <span class="truncate">{{ item.assignee ? item.assignee.name : 'nieprzypisane' }}</span>
-              <span class="flex items-center gap-2 flex-shrink-0">
+              <span class="flex items-center gap-2 shrink-0">
                 <span v-if="item.screenshots_count > 0" title="Print screeny">🖼 {{ item.screenshots_count }}</span>
                 <span v-if="item.notes_count > 0" title="Komentarze">💬 {{ item.notes_count }}</span>
                 <icon v-if="item.deleted_at" name="trash" class="w-3 h-3 fill-gray-400" />
@@ -118,7 +118,7 @@
 
     <!-- LISTA -->
     <div v-else>
-      <div class="bg-white rounded-md shadow overflow-x-auto">
+      <div class="bg-white rounded-md shadow-sm overflow-x-auto">
         <table class="w-full whitespace-nowrap">
           <thead>
             <tr class="naglowek-tabeli">
@@ -136,7 +136,7 @@
               <td class="px-6 py-4">
                 <Link :href="`/zadania/${item.id}`" class="flex items-center font-medium text-gray-900 focus:text-indigo-500">
                   {{ item.title }}
-                  <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+                  <icon v-if="item.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                 </Link>
                 <span v-if="item.url" class="block text-[11px] text-indigo-500 truncate max-w-xs">{{ item.url }}</span>
               </td>
@@ -146,7 +146,7 @@
                 </span>
               </td>
               <td class="px-6 py-4">
-                <span class="px-1.5 py-0.5 text-[10px] font-bold rounded" :class="priorityClass(item.priority)">
+                <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-sm" :class="priorityClass(item.priority)">
                   {{ priorityLabel(item.priority) }}
                 </span>
               </td>

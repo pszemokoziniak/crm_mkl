@@ -15,7 +15,7 @@
       />
       <div
         v-if="open && results.length"
-        class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded shadow max-h-60 overflow-auto"
+        class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-sm shadow-sm max-h-60 overflow-auto"
       >
         <button
           v-for="c in results"
@@ -30,7 +30,7 @@
       </div>
       <div
         v-else-if="open && !loading && q.trim().length >= 2"
-        class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded shadow px-3 py-2 text-sm text-gray-500"
+        class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-sm shadow-sm px-3 py-2 text-sm text-gray-500"
       >
         Brak klienta w CRM — możesz wpisać nazwę ręcznie.
       </div>

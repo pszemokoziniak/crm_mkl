@@ -7,7 +7,7 @@
     </div>
     <trashed-message v-if="pbioz.deleted_at" class="mb-6" @restore="restore"> Ten pracownik będzię usunięty</trashed-message>
     <h1 class="mb-8 text-2xl font-bold">Certyfikat kontroli jakości</h1>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="update">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
 

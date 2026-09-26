@@ -23,8 +23,8 @@
 
     <div v-if="previews.length" class="grid grid-cols-2 gap-3 mt-3 sm:grid-cols-4">
       <div v-for="preview in previews" :key="preview.key" class="relative group">
-        <img v-if="preview.src" :src="preview.src" class="w-full h-24 object-cover rounded border border-gray-200" :alt="preview.name" />
-        <div v-else class="flex items-center justify-center w-full h-24 text-xs text-gray-500 bg-gray-50 rounded border border-gray-200 px-2 text-center">
+        <img v-if="preview.src" :src="preview.src" class="w-full h-24 object-cover rounded-sm border border-gray-200" :alt="preview.name" />
+        <div v-else class="flex items-center justify-center w-full h-24 text-xs text-gray-500 bg-gray-50 rounded-sm border border-gray-200 px-2 text-center">
           {{ preview.name }}
         </div>
         <button

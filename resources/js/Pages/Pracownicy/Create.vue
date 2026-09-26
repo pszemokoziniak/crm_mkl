@@ -13,7 +13,7 @@
 
   <!-- Tab: Dodaj pracowników -->
   <div v-if="activeTab === 'add'">
-    <div class="max-w bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w bg-white rounded-md shadow-sm overflow-hidden">
       <h3 class="p-4 text-xl font-medium">Znajdź wolnego pracownika</h3>
       <form @submit.prevent="find()">
         <div class="flex flex-wrap -mb-3 -mr-6 p-8">
@@ -33,7 +33,7 @@
 
   <!-- Tab: Pracownicy na budowie -->
   <div v-if="activeTab === 'current'">
-    <div class="max-w my-5 bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w my-5 bg-white rounded-md shadow-sm overflow-hidden">
       <h3 class="p-4 text-xl font-medium">Lista pracowników na budowie</h3>
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
@@ -46,7 +46,7 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.contact_id}/edit`">
               {{ contact.last_name }} {{ contact.first_name }}
-              <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <icon v-if="contact.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">

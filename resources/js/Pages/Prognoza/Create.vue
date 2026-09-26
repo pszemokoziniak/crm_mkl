@@ -5,7 +5,7 @@
       <Link class="text-indigo-400 hover:text-indigo-600" :href="`/prognoza?building=${buildingId}&month=${monthId}&year=${yearId}`">Prognoza</Link>
       <span class="text-indigo-400 font-medium">/</span> Dodaj
     </h1>
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.building" :error="form.errors.building" :value="building[0].id" class="pb-8 pr-6 w-full lg:w-3/4" label="Nazwa budowy" disabled/>
@@ -18,7 +18,7 @@
           <!-- Pusta lista znaczy tyle, że wszystkie tygodnie tego miesiąca mają już prognozę. -->
           <div v-else class="pb-8 pr-6 w-full lg:w-3/4">
             <div class="form-label">Wybierz daty:</div>
-            <p class="p-3 text-sm text-yellow-800 bg-yellow-100 rounded">
+            <p class="p-3 text-sm text-yellow-800 bg-yellow-100 rounded-sm">
               Brak wolnych tygodni w tym miesiącu — dla tej budowy wszystkie mają już wpisaną prognozę.
             </p>
           </div>

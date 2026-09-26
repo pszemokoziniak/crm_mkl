@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center gap-2">
-    <button type="button" class="px-2 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50" aria-label="Poprzedni miesiąc" @click="przesun(-1)">‹</button>
+    <button type="button" class="px-2 py-1 rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50" aria-label="Poprzedni miesiąc" @click="przesun(-1)">‹</button>
     <input :value="modelValue" type="month" class="form-input py-1 text-sm" @change="$emit('update:modelValue', $event.target.value)" />
-    <button type="button" class="px-2 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50" aria-label="Następny miesiąc" @click="przesun(1)">›</button>
+    <button type="button" class="px-2 py-1 rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50" aria-label="Następny miesiąc" @click="przesun(1)">›</button>
   </div>
 </template>
 

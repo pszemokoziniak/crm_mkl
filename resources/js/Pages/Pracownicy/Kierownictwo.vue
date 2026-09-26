@@ -4,7 +4,7 @@
     <BudMenu :budId="organization.id" />
     <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Kierownictwo budowy" />
 
-    <div v-if="!$page.props.permissions.kierownik" class="max-w bg-white rounded-md shadow overflow-hidden mb-8">
+    <div v-if="!$page.props.permissions.kierownik" class="max-w bg-white rounded-md shadow-sm overflow-hidden mb-8">
       <h3 class="p-4 text-xl font-medium">Dodaj Kierownika / Inżyniera</h3>
       <form @submit.prevent="openConfirm">
         <div class="flex flex-wrap -mb-3 -mr-6 p-8">
@@ -27,8 +27,8 @@
     </div>
 
     <teleport to="body">
-      <div v-if="showConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showConfirm = false" />
+      <div v-if="showConfirm" class="fixed inset-0 z-10000 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-gray-500/75" @click="showConfirm = false" />
         <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
           <div class="px-6 py-4 border-b border-gray-100">
             <h3 class="text-lg font-semibold text-gray-800">Potwierdź dodanie do kierownictwa</h3>
@@ -39,7 +39,7 @@
             <p><span class="text-gray-500">Termin:</span> {{ form.start }} → {{ form.end }}</p>
 
             <!-- Ten sam termin na innej budowie. -->
-            <div v-if="kolidujacePobyty.length" class="mt-3 p-3 text-red-700 bg-red-50 border border-red-200 rounded space-y-1">
+            <div v-if="kolidujacePobyty.length" class="mt-3 p-3 text-red-700 bg-red-50 border border-red-200 rounded-sm space-y-1">
               <p class="font-semibold">Uwaga — w tym samym czasie pracownik jest już na budowie:</p>
               <p v-for="(pobyt, i) in kolidujacePobyty" :key="i">
                 <span class="font-semibold">{{ pobyt.nazwaBud || 'budowa usunięta' }}</span>
@@ -51,14 +51,14 @@
             </div>
           </div>
           <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="showConfirm = false">Anuluj</button>
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50" @click="showConfirm = false">Anuluj</button>
             <button type="button" class="btn-indigo" :disabled="form.processing" @click="store">Potwierdź</button>
           </div>
         </div>
       </div>
     </teleport>
 
-    <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden md:block bg-white rounded-md shadow-sm overflow-x-auto">
       <h3 class="p-4 text-xl font-medium">Aktualne kierownictwo</h3>
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
@@ -104,7 +104,7 @@
     </div>
 
     <!-- Wąski ekran: karty, bo sześć kolumn nie mieści się na telefonie. -->
-    <div class="bg-white rounded-md shadow divide-y divide-gray-100 md:hidden">
+    <div class="bg-white rounded-md shadow-sm divide-y divide-gray-100 md:hidden">
       <div v-for="item in management" :key="item.id" class="p-4">
         <div class="flex flex-wrap items-center gap-2">
           <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${item.contact_id}/edit`">{{ item.last_name }} {{ item.first_name }}</Link>

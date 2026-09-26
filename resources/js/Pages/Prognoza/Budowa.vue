@@ -5,12 +5,12 @@
     <budowa-naglowek :bud-id="buildDetails.id" :nazwa="buildDetails.nazwaBud" tytul="Prognoza" />
     <h2 class="mb-8 text-xl font-semibold text-gray-700">Prognoza pracowników — zapotrzebowanie tygodniowe</h2>
 
-    <div v-if="rows.length" class="mb-8 bg-white rounded-md shadow p-4">
+    <div v-if="rows.length" class="mb-8 bg-white rounded-md shadow-sm p-4">
       <ChartComponent :key="chartKey" :chartData="chartData" :chartMax="chartMax" />
     </div>
 
     <!-- Dodawanie tygodnia (tylko biuro/admin) -->
-    <div v-if="!flag" class="mb-8 bg-white rounded-md shadow overflow-hidden">
+    <div v-if="!flag" class="mb-8 bg-white rounded-md shadow-sm overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-700">Dodaj zapotrzebowanie na tydzień</div>
       <form class="flex flex-wrap items-end gap-4 p-6 pb-12" @submit.prevent="add">
         <div class="w-full sm:w-40">
@@ -50,10 +50,10 @@
     <!-- Telefon: karta na tydzień — różnica na wierzchu, bo to na nią patrzy
          kierownik; pola edycji (biuro) w tej samej karcie. -->
     <div class="sm:hidden space-y-3">
-      <div v-for="row in rows" :key="`k-${row.id}`" class="bg-white rounded-md shadow p-4">
+      <div v-for="row in rows" :key="`k-${row.id}`" class="bg-white rounded-md shadow-sm p-4">
         <div class="flex items-start justify-between gap-3">
           <div class="font-medium text-gray-900">{{ row.start }} – {{ row.end }}</div>
-          <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap" :class="diffClass(row)">
+          <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-sm whitespace-nowrap" :class="diffClass(row)">
             {{ diffLabel(row) }}
           </span>
         </div>
@@ -78,13 +78,13 @@
           <button type="button" class="text-red-600 hover:text-red-800 font-medium" @click="remove(row)">Usuń</button>
         </div>
       </div>
-      <div v-if="rows.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">
+      <div v-if="rows.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-500">
         Brak wpisanego zapotrzebowania dla tej budowy.
       </div>
     </div>
 
     <!-- Monitor: tabela tydzień po tygodniu -->
-    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap text-sm">
         <thead>
           <tr class="naglowek-tabeli">
@@ -112,7 +112,7 @@
             <td class="border-t px-6 py-3">{{ row.assigned }}</td>
             <td class="border-t px-6 py-3">
               <span
-                class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded"
+                class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-sm"
                 :class="diffClass(row)"
               >
                 {{ diffLabel(row) }}

@@ -9,7 +9,7 @@
       Dane pracownika i budowy wypełniły się z systemu. Popraw, co trzeba, i pobierz dokument.
     </p>
 
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <div class="flex flex-wrap -mb-8 -mr-6 p-8">
         <select-input v-model="form.rodzaj" class="pb-8 pr-6 w-full lg:w-1/2" label="Rodzaj dokumentu">
           <option v-for="rodzaj in rodzaje" :key="rodzaj.value" :value="rodzaj.value">{{ rodzaj.label }}</option>
@@ -43,7 +43,7 @@
       </div>
 
       <div class="flex flex-col gap-3 px-8 py-4 bg-gray-50 border-t border-gray-100 sm:flex-row sm:justify-end">
-        <a :href="adres('podglad')" target="_blank" class="px-4 py-2 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">
+        <a :href="adres('podglad')" target="_blank" class="px-4 py-2 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50">
           Podgląd / drukuj (PDF)
         </a>
         <a :href="adres('doc')" class="btn-indigo text-center">Pobierz .doc</a>

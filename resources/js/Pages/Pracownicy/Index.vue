@@ -47,7 +47,7 @@
     </div>
 
     <!-- Szeroki ekran: tabela -->
-    <div class="hidden bg-white rounded-md shadow overflow-x-auto md:block">
+    <div class="hidden bg-white rounded-md shadow-sm overflow-x-auto md:block">
       <table class="w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">
@@ -125,7 +125,7 @@
     </div>
 
     <!-- Wąski ekran: karty zamiast tabeli, żeby nic nie uciekało w bok -->
-    <div class="bg-white rounded-md shadow divide-y divide-gray-100 md:hidden">
+    <div class="bg-white rounded-md shadow-sm divide-y divide-gray-100 md:hidden">
       <div v-for="item in contactworkdates.data" :key="item.id" class="p-4">
         <div v-if="item.contact" class="flex items-start gap-3">
           <input v-if="mozeEdytowac" v-model="zaznaczone" type="checkbox" class="form-checkbox mt-1" :value="item.id" />

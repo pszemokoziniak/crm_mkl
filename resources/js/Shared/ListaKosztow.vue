@@ -2,7 +2,7 @@
   <div>
     <!-- Telefon: karta na koszt. -->
     <div class="sm:hidden space-y-3">
-      <div v-for="k in koszty" :key="`k-${k.id}`" class="bg-white rounded-md shadow p-4">
+      <div v-for="k in koszty" :key="`k-${k.id}`" class="bg-white rounded-md shadow-sm p-4">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="font-medium text-gray-900">{{ k.typ }}</div>
@@ -28,10 +28,10 @@
         </div>
         <panel-osob v-if="otwarte === k.id" :koszt="k" :pracownicy="pracownicy" @zamknij="otwarte = null" />
       </div>
-      <p v-if="koszty.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">{{ pusto }}</p>
+      <p v-if="koszty.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-500">{{ pusto }}</p>
     </div>
 
-    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">

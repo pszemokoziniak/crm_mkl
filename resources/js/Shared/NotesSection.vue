@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white rounded-md shadow overflow-hidden">
+  <div class="bg-white rounded-md shadow-sm overflow-hidden">
     <div class="flex items-center justify-between px-6 py-4 bg-gray-50 border-b border-gray-100">
       <div>
         <h2 class="text-lg font-bold text-gray-800">Dyskusja</h2>
         <p class="text-[11px] text-gray-500">
-          Wpisz <code class="px-1 bg-gray-100 rounded">@</code> żeby kogoś wywołać — dostanie powiadomienie w dzwonku.
+          Wpisz <code class="px-1 bg-gray-100 rounded-sm">@</code> żeby kogoś wywołać — dostanie powiadomienie w dzwonku.
         </p>
       </div>
       <span class="text-xs font-medium text-gray-400">
@@ -44,7 +44,7 @@
         </div>
 
         <div v-else class="flex items-start gap-3 p-6">
-          <span class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-xs font-bold text-indigo-700 bg-indigo-100 rounded-full">
+          <span class="flex items-center justify-center shrink-0 w-8 h-8 text-xs font-bold text-indigo-700 bg-indigo-100 rounded-full">
             {{ initials(note.author ? note.author.name : '?') }}
           </span>
           <div class="flex-1 min-w-0">
@@ -56,12 +56,12 @@
 
             <div v-if="editingId !== note.id">
               <!-- eslint-disable-next-line vue/no-v-html -->
-              <div class="text-sm text-gray-700 whitespace-pre-wrap break-words" v-html="renderBody(note.body)" />
+              <div class="text-sm text-gray-700 whitespace-pre-wrap wrap-break-word" v-html="renderBody(note.body)" />
 
               <div v-if="note.files.length" class="flex flex-wrap gap-2 mt-3">
                 <a v-for="file in note.files" :key="file.id" :href="file.url" target="_blank" class="block">
-                  <img v-if="file.is_image" :src="file.url" :alt="file.name" class="w-24 h-24 object-cover rounded border border-gray-200 hover:opacity-75 transition-opacity" />
-                  <span v-else class="inline-block px-2 py-1 text-xs text-gray-600 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100">
+                  <img v-if="file.is_image" :src="file.url" :alt="file.name" class="w-24 h-24 object-cover rounded-sm border border-gray-200 hover:opacity-75 transition-opacity" />
+                  <span v-else class="inline-block px-2 py-1 text-xs text-gray-600 bg-gray-50 rounded-sm border border-gray-200 hover:bg-gray-100">
                     {{ file.name }}
                   </span>
                 </a>
@@ -174,7 +174,7 @@ export default {
 
       return escaped.replace(
         /@\[([^\]]+)\]\(user:(\d+)\)/g,
-        '<span class="px-1 font-semibold text-indigo-700 bg-indigo-50 rounded">@$1</span>',
+        '<span class="px-1 font-semibold text-indigo-700 bg-indigo-50 rounded-sm">@$1</span>',
       )
     },
     initials(name) {

@@ -15,7 +15,7 @@
     >
       <icon
         :name="pozycja.ikona"
-        class="flex-shrink-0 mr-3 w-5 h-5 transition-colors duration-200"
+        class="shrink-0 mr-3 w-5 h-5 transition-colors duration-200"
         :class="czyAktywna(pozycja) ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'"
       />
       <div class="font-medium">{{ pozycja.nazwa }}</div>

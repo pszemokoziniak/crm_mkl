@@ -20,7 +20,7 @@
         v-for="zakladka in widoczne"
         :key="zakladka.adres"
         :href="`/contacts/${contactId}/${zakladka.adres}`"
-        class="flex-shrink-0 pb-1 border-b-2 transition-colors"
+        class="shrink-0 pb-1 border-b-2 transition-colors"
         :class="isUrl(zakladka.adres)
           ? 'border-green-500 text-green-600 font-medium'
           : 'border-transparent text-indigo-300 hover:text-green-500'"

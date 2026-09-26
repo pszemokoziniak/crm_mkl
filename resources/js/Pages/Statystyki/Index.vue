@@ -33,7 +33,7 @@
           <dt class="text-gray-500">Święta</dt><dd class="text-right tabular-nums">{{ godz(suma('swieto')) }}</dd>
         </dl>
       </div>
-      <div v-for="b in budowy" :key="`k-${b.id}`" class="bg-white rounded-md shadow p-4">
+      <div v-for="b in budowy" :key="`k-${b.id}`" class="bg-white rounded-md shadow-sm p-4">
         <div class="font-medium text-gray-900">
           {{ b.nazwa }}
           <span v-if="b.archiwum" class="ml-1 px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-full">zakończona</span>
@@ -53,7 +53,7 @@
       </div>
     </div>
 
-    <div v-if="budowy.length" class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+    <div v-if="budowy.length" class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">
@@ -107,7 +107,7 @@
         </tfoot>
       </table>
     </div>
-    <p v-else class="bg-white rounded-md shadow px-6 py-6 text-sm text-gray-400">
+    <p v-else class="bg-white rounded-md shadow-sm px-6 py-6 text-sm text-gray-400">
       Brak wpisów w Karcie Czasu Pracy dla wybranego okresu.
     </p>
 

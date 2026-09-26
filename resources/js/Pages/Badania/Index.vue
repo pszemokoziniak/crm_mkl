@@ -24,7 +24,7 @@
       </Link>
     </div>
 
-    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="naglowek-tabeli">
@@ -99,17 +99,17 @@
       <div
         v-for="badanie in bads.data"
         :key="badanie.id"
-        class="bg-white rounded-md shadow p-4"
+        class="bg-white rounded-md shadow-sm p-4"
         :class="badanie.deleted_at ? 'text-gray-400' : ''"
       >
         <div class="flex items-start justify-between gap-2">
-          <div class="font-medium break-words">{{ badanie.name ? badanie.name.name : '—' }}</div>
-          <span v-if="badanie.deleted_at" class="flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
+          <div class="font-medium wrap-break-word">{{ badanie.name ? badanie.name.name : '—' }}</div>
+          <span v-if="badanie.deleted_at" class="shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">w koszu</span>
           <a
             v-if="badanie.skan"
             target="_blank"
             :href="`/contacts/${contactId}/documents/${badanie.skan}`"
-            class="flex-shrink-0 text-xs text-indigo-600"
+            class="shrink-0 text-xs text-indigo-600"
           >skan</a>
         </div>
         <div class="mt-1 text-sm text-gray-500 tabular-nums">{{ badanie.start || '—' }} → {{ badanie.end || '—' }}</div>
@@ -120,7 +120,7 @@
           <button v-else type="button" class="text-sm text-red-600" @click="usun(badanie)">Usuń</button>
         </div>
       </div>
-      <p v-if="bads.data.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-400">
+      <p v-if="bads.data.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-400">
         Brak wpisów dla tego pracownika.
       </p>
     </div>

@@ -3,7 +3,7 @@
     <Head title="Klient" />
     <BudMenu :budId="budId" />
     <budowa-naglowek :bud-id="budId" nazwa="" tytul="Dodaj osobę kontaktową" />
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.nameFirma" :error="form.errors.nameFirma" class="pb-8 pr-6 w-full lg:w-1/1" label="Nazwa Firmy" />

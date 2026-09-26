@@ -6,7 +6,7 @@
       <span class="text-indigo-400 font-medium">/</span> Wykres prognozy
     </h1>
 
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="submit">
         <div class="p-8">
           <h2 class="mb-2 text-lg font-semibold text-gray-800">Prognoza pracowników</h2>

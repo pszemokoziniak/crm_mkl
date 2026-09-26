@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="bg-white rounded-md shadow p-0 m-0">
+    <div class="bg-white rounded-md shadow-sm p-0 m-0">
       <div class="flex items-center justify-between w-full">
-        <div class="bg-white rounded-md shadow flex flex-col p-3 w-full">
+        <div class="bg-white rounded-md shadow-sm flex flex-col p-3 w-full">
           <select-input v-model="selected" class="pr-6 w-full font-bold" label="Wybierz miesiąc" @change="handleChange">
             <!-- Wartością musi być numer miesiąca (1-12), nie indeks opcji. -->
             <option v-for="item in data" :key="item.value" :value="item.value">{{ item.label }}</option>

@@ -5,7 +5,7 @@
     <budowa-naglowek :bud-id="organization.id" :nazwa="organization.nazwaBud" tytul="Dane klienta" />
     <!-- Klient budowy jest wpisany w jej karcie; tabela niżej to osoby
          kontaktowe po jego stronie, wypełniane osobno. -->
-    <div class="mb-6 p-4 bg-white rounded-md shadow">
+    <div class="mb-6 p-4 bg-white rounded-md shadow-sm">
       <div class="text-xs uppercase tracking-wider text-gray-500">Klient tej budowy</div>
       <div class="mt-1 text-xl font-semibold text-gray-900">{{ organization.klient || 'nie wpisano' }}</div>
       <Link :href="`/budowy/${organization.id}/edit`" class="mt-1 inline-block text-sm text-indigo-600 hover:underline">
@@ -20,7 +20,7 @@
         <span>Dodaj</span>
       </Link>
     </div>
-    <div class="hidden md:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden md:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <thead>
           <tr class="naglowek-tabeli">
@@ -35,7 +35,7 @@
             <td class="border-t">
               <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="$page.props.permissions.kierownik ? '' : `/budowy/${budId}/klient/${item.id}/edit`">
                 {{ item.nameFirma }}
-                <icon v-if="item.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+                <icon v-if="item.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               </Link>
             </td>
             <td class="border-t">
@@ -63,8 +63,8 @@
 
     <!-- Wąski ekran: karta zamiast tabeli. -->
     <div class="space-y-3 md:hidden">
-      <div v-for="item in klients" :key="item.id" class="bg-white rounded-md shadow p-4">
-        <div class="font-medium text-gray-900 break-words">
+      <div v-for="item in klients" :key="item.id" class="bg-white rounded-md shadow-sm p-4">
+        <div class="font-medium text-gray-900 wrap-break-word">
           {{ item.nameFirma }}
           <icon v-if="item.deleted_at" name="trash" class="inline ml-1 w-3 h-3 fill-gray-400" />
         </div>
@@ -78,7 +78,7 @@
           <Link class="text-indigo-600" :href="`/budowy/${budId}/klient/${item.id}/edit`">Popraw</Link>
         </div>
       </div>
-      <p v-if="klients.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">Brak danych klienta.</p>
+      <p v-if="klients.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-500">Brak danych klienta.</p>
     </div>
 <!--    <pagination class="mt-6" :links="organizations.links" />-->
   </div>

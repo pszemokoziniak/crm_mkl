@@ -4,7 +4,7 @@
     <h2 class="mt-12 text-2xl font-bold">Pracownik</h2>
     <loading-button :loading="form.processing" class="btn-indigo ml-auto" @click='toggleSeen'>{{button.text}}</loading-button>
 
-    <div class="mt-6 bg-white rounded shadow overflow-x-auto">
+    <div class="mt-6 bg-white rounded-sm shadow-sm overflow-x-auto">
       <div v-show="toggle" class="m-5">
         <tr v-if="contactsFree.length === 0">
           <td class="px-6 py-4 border-t" colspan="4">Brak wolnych pracowników</td>
@@ -39,7 +39,7 @@
           <td class="border-t">
             <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contacts/${contact.id}/edit`">
               {{ contact.first_name }} {{ contact.last_name }}
-              <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+              <icon v-if="contact.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
             </Link>
           </td>
           <td class="border-t">

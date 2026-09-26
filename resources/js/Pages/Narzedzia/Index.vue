@@ -68,7 +68,7 @@
       <div v-if="bledy" class="mt-2 text-sm text-red-600">{{ bledy }}</div>
     </div>
 
-    <div class="hidden md:block bg-white rounded-md shadow overflow-hidden">
+    <div class="hidden md:block bg-white rounded-md shadow-sm overflow-hidden">
       <table class="w-full">
         <thead>
           <tr class="naglowek-tabeli">
@@ -90,8 +90,8 @@
               <td class="px-4 py-4 text-gray-400 tabular-nums">{{ gi + 1 }}</td>
               <td class="px-6 py-4">
                 <div class="flex items-center font-medium text-gray-900">
-                  <img v-if="grupa.photo" :src="grupa.photo" :alt="grupa.nazwa" class="flex-shrink-0 mr-3 w-12 h-12 object-cover rounded border border-gray-200" />
-                  <span v-else class="flex flex-shrink-0 items-center justify-center mr-3 w-12 h-12 bg-gray-50 rounded border border-gray-200">
+                  <img v-if="grupa.photo" :src="grupa.photo" :alt="grupa.nazwa" class="shrink-0 mr-3 w-12 h-12 object-cover rounded-sm border border-gray-200" />
+                  <span v-else class="flex shrink-0 items-center justify-center mr-3 w-12 h-12 bg-gray-50 rounded-sm border border-gray-200">
                     <icon name="sprzet2" class="w-5 h-5 fill-gray-300" />
                   </span>
                   {{ grupa.nazwa }}
@@ -229,11 +229,11 @@
     <!-- Telefon: siedem kolumn w trzech poziomach nie ma szans; karta na rodzaj,
          w środku modele i sztuki. Rozwijanie dzieli stan z tabelą. -->
     <div class="space-y-3 md:hidden">
-      <div v-for="(grupa, gi) in grupy" :key="`k-${grupa.klucz}`" class="bg-white rounded-md shadow overflow-hidden">
+      <div v-for="(grupa, gi) in grupy" :key="`k-${grupa.klucz}`" class="bg-white rounded-md shadow-sm overflow-hidden">
         <button type="button" class="w-full p-4 text-left" @click="przelacz(grupa.klucz)">
           <div class="flex items-center gap-3">
-            <img v-if="grupa.photo" :src="grupa.photo" :alt="grupa.nazwa" class="flex-shrink-0 w-12 h-12 object-cover rounded border border-gray-200" />
-            <span v-else class="flex flex-shrink-0 items-center justify-center w-12 h-12 bg-gray-50 rounded border border-gray-200">
+            <img v-if="grupa.photo" :src="grupa.photo" :alt="grupa.nazwa" class="shrink-0 w-12 h-12 object-cover rounded-sm border border-gray-200" />
+            <span v-else class="flex shrink-0 items-center justify-center w-12 h-12 bg-gray-50 rounded-sm border border-gray-200">
               <icon name="sprzet2" class="w-5 h-5 fill-gray-300" />
             </span>
             <div class="min-w-0 flex-1">
@@ -290,7 +290,7 @@
               <div v-for="(sztuka, si) in model.sztuki" :key="`k-${sztuka.id}`" class="px-4 py-3">
                 <label class="flex items-start gap-3" :class="sztuka.budowa ? 'cursor-default' : 'cursor-pointer'">
                   <input v-if="!sztuka.budowa" v-model="zaznaczone" type="checkbox" :value="sztuka.id" class="mt-1" />
-                  <span v-else class="inline-block w-4 flex-shrink-0" />
+                  <span v-else class="inline-block w-4 shrink-0" />
                   <span class="min-w-0 flex-1">
                     <span class="block">
                       <span class="text-xs text-gray-400 tabular-nums mr-1">{{ grupa.ma_modele ? `${gi + 1}.${mi + 1}.${si + 1}` : `${gi + 1}.${si + 1}` }}</span>
@@ -327,7 +327,7 @@
         </div>
       </div>
 
-      <p v-if="grupy.length === 0" class="bg-white rounded-md shadow p-4 text-sm text-gray-500">
+      <p v-if="grupy.length === 0" class="bg-white rounded-md shadow-sm p-4 text-sm text-gray-500">
         Nie znaleziono żadnego sprzętu w magazynie
       </p>
     </div>

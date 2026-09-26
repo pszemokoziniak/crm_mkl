@@ -3,7 +3,7 @@
     <Head title="Dodaj A1" />
     <worker-menu :contact-id="contact_id" />
     <pracownik-naglowek :pracownik="pracownik" tytul="A1 — dodaj" />
-    <div class="max-w-3xl bg-white rounded-md shadow overflow-hidden">
+    <div class="max-w-3xl bg-white rounded-md shadow-sm overflow-hidden">
       <form @submit.prevent="store(contact_id)">
         <div class="flex flex-wrap -mb-8 -mr-6 p-8">
           <text-input v-model="form.start" type="date" :error="form.errors.start" class="pb-8 pr-6 w-full lg:w-1/2" label="Początek A1" />

@@ -13,8 +13,8 @@
         <!-- Telefon: logo i pasek w jednym wierszu, logo małe — pełnowymiarowe
              zajmowało pół ekranu, zanim pokazała się treść. Szeroki ekran:
              panel i logo w rozmiarach z CRM (16rem), logo wypełnia panel. -->
-        <div class="flex md:flex-shrink-0">
-          <div class="flex items-center flex-shrink-0 pl-4 pr-2 py-2 bg-white border-b md:px-6 md:py-4 md:justify-center md:w-64 transition-all duration-300">
+        <div class="flex md:shrink-0">
+          <div class="flex items-center shrink-0 pl-4 pr-2 py-2 bg-white border-b md:px-6 md:py-4 md:justify-center md:w-64 transition-all duration-300">
             <Link class="md:mt-1" href="/">
               <img src="/img/MKL-BAU.png" alt="logo" class="h-6 w-auto md:h-auto" />
             </Link>
@@ -22,7 +22,7 @@
           <div class="md:text-md flex items-center justify-between px-2 py-2 min-w-0 w-full text-sm bg-white border-b md:px-12 md:py-0">
             <!-- Na telefonie boczne menu jest schowane — bez tego przycisku
                  kierownik nie miał jak wejść w Budowy czy Termin uprawnień. -->
-            <button type="button" class="md:hidden mr-3 p-2 -ml-2 rounded text-gray-700 hover:bg-gray-100" :aria-expanded="menuOtwarte ? 'true' : 'false'" aria-label="Menu" @click="menuOtwarte = !menuOtwarte">
+            <button type="button" class="md:hidden mr-3 p-2 -ml-2 rounded-sm text-gray-700 hover:bg-gray-100" :aria-expanded="menuOtwarte ? 'true' : 'false'" aria-label="Menu" @click="menuOtwarte = !menuOtwarte">
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path v-if="!menuOtwarte" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 <path v-else stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -44,7 +44,7 @@
                   </div>
                 </template>
                 <template #dropdown>
-                  <div class="mt-2 py-2 text-sm bg-white rounded shadow-xl">
+                  <div class="mt-2 py-2 text-sm bg-white rounded-sm shadow-xl">
                     <Link class="block px-6 py-2 hover:text-white hover:bg-indigo-500" :href="`/users/${auth.user.id}/edit`">Profil</Link>
                     <Link v-if="$page.props.permissions.admin || $page.props.permissions.biuro" class="block px-6 py-2 hover:text-white hover:bg-indigo-500" href="/users">Użytkownicy</Link>
                     <!-- Pełne przejście (nie Inertia Link) — /sso/do-crm przekierowuje na inną domenę. -->
@@ -58,8 +58,8 @@
         </div>
         <!-- Menu na telefon: rozwija się pod nagłówkiem i chowa po wybraniu strony. -->
         <main-menu v-if="menuOtwarte" class="md:hidden px-4 py-4 bg-indigo-800 border-b border-indigo-900" />
-        <div class="md:flex md:flex-grow md:overflow-hidden">
-          <main-menu class="hidden flex-shrink-0 px-4 py-8 w-64 bg-indigo-800 overflow-y-auto md:block border-r border-indigo-900" />
+        <div class="md:flex md:grow md:overflow-hidden">
+          <main-menu class="hidden shrink-0 px-4 py-8 w-64 bg-indigo-800 overflow-y-auto md:block border-r border-indigo-900" />
           <div class="px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto">
             <flash-messages />
             <slot />

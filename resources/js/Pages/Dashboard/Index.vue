@@ -13,7 +13,7 @@
       <component
         :is="stats.pracownicy_adres ? 'Link' : 'div'"
         :href="stats.pracownicy_adres"
-        class="block bg-white rounded-md shadow p-5 border-l-4 border-indigo-500"
+        class="block bg-white rounded-md shadow-sm p-5 border-l-4 border-indigo-500"
         :class="stats.pracownicy_adres ? 'hover:shadow-md transition' : ''"
       >
         <div class="text-3xl font-bold text-gray-900">{{ stats.pracownicy ?? 0 }}</div>
@@ -24,17 +24,17 @@
           + {{ stats.kierownictwo }} {{ stats.kierownictwo === 1 ? 'osoba kierownictwa' : 'osób kierownictwa' }}
         </div>
       </component>
-      <Link href="/budowy" class="block bg-white rounded-md shadow p-5 border-l-4 border-green-500 hover:shadow-md transition">
+      <Link href="/budowy" class="block bg-white rounded-md shadow-sm p-5 border-l-4 border-green-500 hover:shadow-md transition">
         <div class="text-3xl font-bold text-gray-900">{{ stats.budowy ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">{{ kierownik ? 'Twoje budowy' : 'Budowy (aktywne)' }}</div>
       </Link>
-      <Link v-if="!kierownik" href="/narzedzia" class="block bg-white rounded-md shadow p-5 border-l-4 border-gray-400 hover:shadow-md transition">
+      <Link v-if="!kierownik" href="/narzedzia" class="block bg-white rounded-md shadow-sm p-5 border-l-4 border-gray-400 hover:shadow-md transition">
         <div class="text-3xl font-bold text-gray-900">{{ stats.sprzet ?? 0 }}</div>
         <div class="mt-1 text-sm text-gray-500">Sprzęt</div>
       </Link>
       <Link
         href="/reports/koniecUprawinien"
-        class="block bg-white rounded-md shadow p-5 border-l-4 hover:shadow-md transition"
+        class="block bg-white rounded-md shadow-sm p-5 border-l-4 hover:shadow-md transition"
         :class="(stats.wygasajace ?? 0) > 0 ? 'border-red-500' : 'border-green-500'"
       >
         <div class="text-3xl font-bold" :class="(stats.wygasajace ?? 0) > 0 ? 'text-red-600' : 'text-gray-900'">{{ stats.wygasajace ?? 0 }}</div>
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Przeniesienia pracowników czekające na aneksy — widok dla biura/kadr. -->
-    <div v-if="zmiany_kadrowe.length" class="mb-8 bg-white rounded-md shadow overflow-hidden">
+    <div v-if="zmiany_kadrowe.length" class="mb-8 bg-white rounded-md shadow-sm overflow-hidden">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
         <h2 class="font-semibold text-gray-700">Zmiany pobytów do obsłużenia przez kadry</h2>
         <span class="text-sm font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">{{ zmiany_kadrowe_licznik }}</span>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <div v-if="!kierownik" class="bg-white rounded-md shadow overflow-hidden">
+      <div v-if="!kierownik" class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">Budowy do archiwizacji</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="do_archiwizacji.length ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'">{{ do_archiwizacji.length }}</span>
@@ -86,7 +86,7 @@
 
       <!-- Urlop albo zwolnienie zmienia kierownikowi plan dnia, więc widzi to
            od razu po wejściu, bez klikania po kartotekach. -->
-      <div v-if="kierownik" class="bg-white rounded-md shadow overflow-hidden">
+      <div v-if="kierownik" class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">Nieobecni dziś</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="nieobecni_dzis.length ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'">{{ nieobecni_dzis.length }}</span>
@@ -109,7 +109,7 @@
 
       <!-- Wnioski urlopowe złożone z telefonu: kierownik zatwierdza albo
            odrzuca; zatwierdzony idzie do kadr jako zgłoszenie urlopu. -->
-      <div v-if="kierownik" class="bg-white rounded-md shadow overflow-hidden">
+      <div v-if="kierownik" class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">Wnioski urlopowe do zatwierdzenia</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="wnioski_urlopowe.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ wnioski_urlopowe.length }}</span>
@@ -137,7 +137,7 @@
 
       <!-- Urlop wpisany w KCP bez skanu wniosku: kierownik dokłada skan
            w KCP przyciskiem "Dodaj wniosek". -->
-      <div v-if="kierownik" class="bg-white rounded-md shadow overflow-hidden">
+      <div v-if="kierownik" class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">Urlopy bez wniosku</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="urlopy_bez_wniosku.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ urlopy_bez_wniosku.length }}</span>
@@ -156,7 +156,7 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-md shadow overflow-hidden">
+      <div class="bg-white rounded-md shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-700">{{ kierownik ? 'Twoi pracownicy bez ważnego A1' : 'Pracownicy bez ważnego A1' }}</h2>
           <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="bez_a1.length ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">{{ bez_a1.length }}</span>
@@ -202,7 +202,7 @@
       <!-- Bez whitespace-nowrap szesc kolumn miesci sie bez wlasnego paska
            przewijania. overflow-x-auto zostaje jako zabezpieczenie: lepiej
            przewinac niz uciac tresc, gdyby nazwa budowy byla wyjatkowo dluga. -->
-      <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+      <div class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
         <table class="w-full table-fixed">
           <thead>
             <tr class="naglowek-tabeli">
@@ -225,7 +225,7 @@
               </td>
               <td class="border-t">
                 <Link class="block px-4 py-4" :href="adresTerminu(item)">
-                  <span class="inline-block px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
+                  <span class="inline-block px-2 py-1 rounded-sm text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
                 </Link>
               </td>
               <td class="border-t">
@@ -256,12 +256,12 @@
 
       <!-- Telefon: karty zamiast szesciu kolumn sciscietych do niczego. -->
       <div class="sm:hidden space-y-3">
-        <div v-for="(item, index) in expiring_items" :key="`karta-${index}`" class="bg-white rounded-md shadow p-4">
+        <div v-for="(item, index) in expiring_items" :key="`karta-${index}`" class="bg-white rounded-md shadow-sm p-4">
           <Link class="font-medium text-indigo-600 hover:underline" :href="adresTerminu(item)">
             {{ nazwaTerminu(item) }}
           </Link>
           <div class="mt-2">
-            <span class="inline-block px-2 py-1 rounded text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
+            <span class="inline-block px-2 py-1 rounded-sm text-xs font-bold bg-gray-200 text-gray-800">{{ item.category }}</span>
             <span class="ml-2 text-sm text-gray-600">{{ item.type }}</span>
           </div>
           <div class="mt-2 text-sm font-bold tabular-nums" :class="klasaTerminu(item)">

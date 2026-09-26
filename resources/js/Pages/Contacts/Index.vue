@@ -29,7 +29,7 @@
       Słowo z minusem wyklucza, np. <span class="font-mono">-GW</span> ukrywa osoby ze stanowiskiem lub dzisiejszą budową „GW”.
     </p>
     <!-- Telefon: karta na osobę — status i koniec pobytu pod nazwiskiem. -->
-    <div class="sm:hidden bg-white rounded-md shadow divide-y divide-gray-100">
+    <div class="sm:hidden bg-white rounded-md shadow-sm divide-y divide-gray-100">
       <Link v-for="(contact, index) in contacts.data" :key="`k-${contact.id}`" class="block p-4 hover:bg-gray-50" :href="`/contacts/${contact.id}/edit`">
         <div class="flex items-start gap-3">
           <span class="text-gray-400 tabular-nums text-sm pt-0.5">{{ contacts.from + index }}.</span>
@@ -47,13 +47,13 @@
               <span v-else-if="contact.pracuje.ostatni_pobyt_do" class="text-gray-400">ostatnio {{ contact.pracuje.ostatni_pobyt_do }}</span>
             </div>
           </div>
-          <icon name="cheveron-right" class="flex-shrink-0 w-5 h-5 fill-gray-300" />
+          <icon name="cheveron-right" class="shrink-0 w-5 h-5 fill-gray-300" />
         </div>
       </Link>
       <p v-if="contacts.data.length === 0" class="p-4 text-sm text-gray-500">Nie znaleziono kontaktu</p>
     </div>
 
-    <div class="hidden sm:block bg-white rounded-md shadow overflow-x-auto">
+    <div class="hidden sm:block bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="naglowek-tabeli">
@@ -73,7 +73,7 @@
             <td class="border-t whitespace-nowrap">
               <Link class="flex items-center px-4 py-3 focus:text-indigo-500 font-medium" :href="`/contacts/${contact.id}/edit`">
                 {{ contact.last_name }} {{ contact.name }}
-                <icon v-if="contact.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+                <icon v-if="contact.deleted_at" name="trash" class="shrink-0 ml-2 w-3 h-3 fill-gray-400" />
               </Link>
             </td>
             <td class="border-t">

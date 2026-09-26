@@ -11,7 +11,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Główny formularz -->
       <div class="lg:col-span-2">
-        <div class="bg-white rounded-md shadow overflow-hidden">
+        <div class="bg-white rounded-md shadow-sm overflow-hidden">
           <form @submit.prevent="update">
             <div class="p-8">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -143,7 +143,7 @@
 
       <!-- Prawy panel informacyjny (opcjonalnie) -->
       <div class="space-y-6">
-        <div class="bg-white p-6 rounded-md shadow">
+        <div class="bg-white p-6 rounded-md shadow-sm">
           <h3 class="font-bold text-gray-700 mb-4 flex items-center">
             <icon name="office" class="w-5 h-5 mr-2 fill-gray-400" />
             Status urządzenia

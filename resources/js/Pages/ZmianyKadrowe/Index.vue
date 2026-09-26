@@ -9,7 +9,7 @@
     </p>
 
     <div class="flex flex-wrap items-center gap-3 mb-6">
-      <div class="flex bg-white rounded shadow overflow-hidden">
+      <div class="flex bg-white rounded-sm shadow-sm overflow-hidden">
         <button
           type="button"
           class="px-4 py-2 text-sm font-medium"
@@ -40,10 +40,10 @@
     <!-- Zgłoszenia od kierowników: kierownik wie pierwszy o zjeździe czy urlopie,
          ale zmianę pobytu i nieobecność wstawiają kadry, po czym zamykają zgłoszenie. -->
     <h2 class="mb-3 text-xl font-bold text-gray-900">Zgłoszenia od kierowników</h2>
-    <p v-if="zgloszenia.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+    <p v-if="zgloszenia.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow-sm">
       Brak zgłoszeń{{ filters.pokaz === 'wszystkie' ? '' : ' do obsłużenia' }}.
     </p>
-    <div v-else class="mb-8 bg-white rounded-md shadow divide-y divide-gray-100">
+    <div v-else class="mb-8 bg-white rounded-md shadow-sm divide-y divide-gray-100">
       <div v-for="z in zgloszenia" :key="z.id" class="px-4 py-4 sm:px-6">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div class="min-w-0">
@@ -73,14 +73,14 @@
               <button type="button" class="text-red-600 hover:underline" @click="obsluzZgloszenie(z, 'odrzucone')">Odrzuć</button>
               <button type="button" class="text-gray-400 hover:text-gray-700 hover:underline text-xs" @click="reczneId = reczneId === z.id ? null : z.id">obsłuż ręcznie</button>
               <template v-if="reczneId === z.id">
-                <Link v-if="z.pobyt_id" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/pracownicy/${z.organization_id}/edit/${z.pobyt_id}`">Popraw daty pobytu</Link>
-                <Link class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/contacts/${z.contact_id}/holiday/create`">Wstaw nieobecność</Link>
+                <Link v-if="z.pobyt_id" class="px-3 py-1.5 rounded-sm border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/pracownicy/${z.organization_id}/edit/${z.pobyt_id}`">Popraw daty pobytu</Link>
+                <Link class="px-3 py-1.5 rounded-sm border border-gray-300 text-gray-700 hover:bg-gray-50" :href="`/contacts/${z.contact_id}/holiday/create`">Wstaw nieobecność</Link>
                 <button type="button" class="btn-indigo text-sm" @click="obsluzZgloszenie(z, 'obsluzone')">Obsłużone</button>
               </template>
             </template>
             <!-- Brak dokumentu i „inne": bez automatu — kadry robią ręcznie, potem zamykają. -->
             <template v-else>
-              <Link v-if="z.dodaj_dokument_url" class="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50" :href="z.dodaj_dokument_url">Dodaj dokument</Link>
+              <Link v-if="z.dodaj_dokument_url" class="px-3 py-1.5 rounded-sm border border-gray-300 text-gray-700 hover:bg-gray-50" :href="z.dodaj_dokument_url">Dodaj dokument</Link>
               <button type="button" class="btn-indigo text-sm" @click="obsluzZgloszenie(z, 'obsluzone')">Obsłużone</button>
               <button type="button" class="text-red-600 hover:underline" @click="obsluzZgloszenie(z, 'odrzucone')">Odrzuć</button>
             </template>
@@ -95,10 +95,10 @@
       Wnioski urlopowe z telefonu
       <span class="ml-1 text-sm font-normal text-gray-500">— czekają na kierownika; bez kierownika decydują kadry</span>
     </h2>
-    <p v-if="wnioski_z_telefonu.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+    <p v-if="wnioski_z_telefonu.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow-sm">
       Brak wniosków{{ filters.pokaz === 'wszystkie' ? '' : ' czekających na kierownika' }}.
     </p>
-    <div v-else class="mb-8 bg-white rounded-md shadow divide-y divide-gray-100">
+    <div v-else class="mb-8 bg-white rounded-md shadow-sm divide-y divide-gray-100">
       <div v-for="w in wnioski_z_telefonu" :key="w.id" class="px-4 py-3 sm:px-6 text-sm flex flex-wrap items-start justify-between gap-2">
         <div>
           <Link class="font-medium text-gray-900 hover:text-indigo-600" :href="`/contacts/${w.contact_id}/edit`">{{ w.pracownik }}</Link>
@@ -129,10 +129,10 @@
       Nowi pracownicy: dokumenty na start
       <span class="ml-1 text-sm font-bold px-2 py-0.5 rounded-full" :class="nowi_pracownicy.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ nowi_pracownicy.length }}</span>
     </h2>
-    <p v-if="nowi_pracownicy.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+    <p v-if="nowi_pracownicy.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow-sm">
       Każdy pracownik wprowadzony w ostatnich 90 dniach ma ważne badania i szkolenie BHP.
     </p>
-    <div v-else class="mb-8 bg-white rounded-md shadow overflow-hidden">
+    <div v-else class="mb-8 bg-white rounded-md shadow-sm overflow-hidden">
       <!-- Telefon: lista kontrolna pod nazwiskiem zamiast pięciu kolumn. -->
       <div class="sm:hidden divide-y divide-gray-100">
         <div v-for="n in nowi_pracownicy" :key="`k-${n.id}`" class="p-4">
@@ -175,10 +175,10 @@
       Urlopy w KCP bez wniosku
       <span class="ml-1 text-sm font-bold px-2 py-0.5 rounded-full" :class="urlopy_bez_wniosku.length ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ urlopy_bez_wniosku.length }}</span>
     </h2>
-    <p v-if="urlopy_bez_wniosku.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+    <p v-if="urlopy_bez_wniosku.length === 0" class="mb-8 p-6 text-center text-sm text-gray-400 italic bg-white rounded-md shadow-sm">
       Każdy urlop wpisany w KCP w tym i poprzednim miesiącu ma wniosek albo nieobecność w kartotece.
     </p>
-    <div v-else class="mb-8 bg-white rounded-md shadow overflow-hidden">
+    <div v-else class="mb-8 bg-white rounded-md shadow-sm overflow-hidden">
       <div class="sm:hidden divide-y divide-gray-100">
         <div v-for="u in urlopy_bez_wniosku" :key="`k-${u.organization_id}-${u.contact_id}-${u.od}`" class="p-4">
           <div class="flex items-start justify-between gap-3">
@@ -215,17 +215,17 @@
     </div>
 
     <h2 class="mb-3 text-xl font-bold text-gray-900">Zmiany pobytów</h2>
-    <p v-if="paczki.length === 0" class="p-8 text-center text-sm text-gray-400 italic bg-white rounded-md shadow">
+    <p v-if="paczki.length === 0" class="p-8 text-center text-sm text-gray-400 italic bg-white rounded-md shadow-sm">
       Nic do obsłużenia.
     </p>
 
-    <div v-for="paczka in paczki" :key="paczka.paczka" class="mb-4 bg-white rounded-md shadow overflow-hidden">
+    <div v-for="paczka in paczki" :key="paczka.paczka" class="mb-4 bg-white rounded-md shadow-sm overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 bg-gray-50 border-b border-gray-100">
         <div>
           <!-- Tytuł paczki streszcza kilka zmian; przy jednej powtarzałby
                wiersz pod spodem, więc zostaje samo "kto, kiedy". -->
           <div v-if="paczka.zmiany.length > 1" class="font-semibold text-gray-800">{{ paczka.naglowek }}</div>
-          <div class="text-xs text-gray-500" :class="{ 'text-sm': paczka.zmiany.length === 1 }">
+          <div class="text-gray-500" :class="paczka.zmiany.length === 1 ? 'text-sm' : 'text-xs'">
             zgłosił {{ paczka.autor }}, {{ paczka.kiedy }}
             <span v-if="paczka.nieobsluzonych > 0" class="ml-2 text-yellow-700">
               — {{ paczka.nieobsluzonych }} do obsłużenia
@@ -378,7 +378,7 @@
 
     <!-- Okno zatwierdzenia zgłoszenia: dobiera pola do rodzaju (kod urlopu przy
          zgłoszeniu ręcznym, budowa docelowa przy przeniesieniu). -->
-    <div v-if="zatwierdzany" class="fixed inset-0 z-[10001] flex items-center justify-center bg-gray-900 bg-opacity-50 p-4" @click.self="zatwierdzany = null">
+    <div v-if="zatwierdzany" class="fixed inset-0 z-10001 flex items-center justify-center bg-gray-900/50 p-4" @click.self="zatwierdzany = null">
       <div class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="text-lg font-semibold text-gray-800">Zatwierdź: {{ zatwierdzany.rodzaj_label }}</h3>
@@ -413,7 +413,7 @@
           <p v-if="bladZatwierdz" class="text-red-700">{{ bladZatwierdz }}</p>
         </div>
         <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-          <button type="button" class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="zatwierdzany = null">Anuluj</button>
+          <button type="button" class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50" @click="zatwierdzany = null">Anuluj</button>
           <button type="button" class="btn-indigo text-sm" :disabled="zapisywanieZatwierdz" @click="wyslijZatwierdz">Zatwierdź i nanieś</button>
         </div>
       </div>

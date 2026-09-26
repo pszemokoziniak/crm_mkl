@@ -1,7 +1,7 @@
 <template>
   <!-- Jeden formularz dla budowy i pracownika: różni je tylko to, czy
        wybiera się osobę (na budowie), czy budowę (w karcie osoby). -->
-  <form class="bg-white rounded-md shadow overflow-hidden" @submit.prevent="zapisz">
+  <form class="bg-white rounded-md shadow-sm overflow-hidden" @submit.prevent="zapisz">
     <div class="px-4 py-3 sm:px-6 border-b border-gray-100 font-semibold text-gray-800">
       {{ koszt ? 'Popraw koszt' : 'Nowy koszt' }}
     </div>

@@ -10,7 +10,7 @@
 
     <WorkerMenu :contact-id="contactId" :uprawnienia="uprawnienia" :user-owner="user_owner" />
 
-    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 bg-white rounded-md shadow overflow-hidden">
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 bg-white rounded-md shadow-sm overflow-hidden">
       <!-- Na wąskim ekranie kolumny się układają jedna pod drugą, a ta bez
            własnej wysokości zapadała się do paska i nakładka ze stanowiskiem
            lądowała na inicjałach. -->
@@ -30,7 +30,7 @@
         </div>
 
         <!-- Stanowisko nakładka na zdjęcie - GÓRNY LEWY RÓG -->
-        <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent px-4 pt-4 pb-6">
+        <div class="absolute top-0 left-0 right-0 bg-linear-to-b from-black/80 via-black/50 to-transparent px-4 pt-4 pb-6">
           <p class="text-[10px] font-bold text-white/80 uppercase tracking-[0.2em] mb-0.5">Stanowisko</p>
           <p class="text-sm sm:text-base text-white font-black tracking-tight leading-tight drop-shadow-md uppercase">
             {{ currentFunkcjaName }}
@@ -45,7 +45,7 @@
             type="button"
             title="Wgraj / zmień zdjęcie"
             aria-label="Wgraj / zmień zdjęcie"
-            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-xs"
             @click="$refs.fotoInput.click()"
           >
             <CameraIcon class="w-5 h-5" />
@@ -56,7 +56,7 @@
             :href="`/contacts/${contact.id}/zdjecie`"
             title="Pobierz zdjęcie"
             aria-label="Pobierz zdjęcie"
-            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-xs"
           >
             <DocumentDownloadIcon class="w-5 h-5" />
           </a>
@@ -65,7 +65,7 @@
             type="button"
             title="Usuń zdjęcie"
             aria-label="Usuń zdjęcie"
-            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-red-600 backdrop-blur-sm"
+            class="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white hover:bg-red-600 backdrop-blur-xs"
             @click="usunZdjecie"
           >
             <TrashIcon class="w-5 h-5" />
@@ -100,7 +100,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(bhp).end)">
               {{ latestTermin(bhp).end }}
               <span v-if="isExpiringSoon(latestTermin(bhp).end)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(latestTermin(bhp).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(latestTermin(bhp).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -109,7 +109,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(lekarskie).end)">
               {{ latestTermin(lekarskie).end }}
               <span v-if="isExpiringSoon(latestTermin(lekarskie).end)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(latestTermin(lekarskie).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(latestTermin(lekarskie).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -118,7 +118,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(a1).end)">
               {{ latestTermin(a1).end }}
               <span v-if="isExpiringSoon(latestTermin(a1).end)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(latestTermin(a1).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(latestTermin(a1).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -127,7 +127,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(uprawnienia).end)">
               {{ latestTermin(uprawnienia).end }}
               <span v-if="isExpiringSoon(latestTermin(uprawnienia).end)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(latestTermin(uprawnienia).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(latestTermin(uprawnienia).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -136,7 +136,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(latestTermin(pbioz).end)">
               {{ latestTermin(pbioz).end }}
               <span v-if="isExpiringSoon(latestTermin(pbioz).end)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(latestTermin(pbioz).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(latestTermin(pbioz).end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -145,7 +145,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(form.work_end)">
               {{ form.work_end }}
               <span v-if="isExpiringSoon(form.work_end)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(form.work_end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(form.work_end)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -154,7 +154,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(form.idCard_date)">
               {{ form.idCard_date }}
               <span v-if="isExpiringSoon(form.idCard_date)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(form.idCard_date)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(form.idCard_date)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -163,7 +163,7 @@
             <p class="text-sm font-semibold flex flex-wrap items-center gap-1" :class="terminClass(form.ekuz)">
               {{ form.ekuz }}
               <span v-if="isExpiringSoon(form.ekuz)" title="Zbliża się termin — do 30 dni">🔔</span>
-              <span v-if="isExpired(form.ekuz)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded">po terminie</span>
+              <span v-if="isExpired(form.ekuz)" class="text-[9px] font-bold uppercase bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm">po terminie</span>
             </p>
           </div>
 
@@ -171,7 +171,7 @@
         </div>
       </div>
     </div>
-    <div class="mb-6 bg-white rounded-md shadow overflow-hidden">
+    <div class="mb-6 bg-white rounded-md shadow-sm overflow-hidden">
       <!-- "Obecnie" stoi pośrodku paska, a nie przy prawej krawędzi. Puste
            pole z prawej równoważy tytuł; środek bierze tyle, ile potrzebuje,
            więc dłuższy opis (urlop z datą) nie łamie się na dwie linie. -->
@@ -232,7 +232,7 @@
     </div>
 
     <!-- Limit 183 dni: pokazujemy tylko tym, którzy w ogóle bywają za granicą. -->
-    <div v-if="limit_183.length" class="mb-6 bg-white rounded-md shadow overflow-hidden">
+    <div v-if="limit_183.length" class="mb-6 bg-white rounded-md shadow-sm overflow-hidden">
       <div class="flex flex-wrap items-center gap-2 px-6 py-4 border-b border-gray-100">
         <span class="font-semibold text-gray-700">Pobyty zagraniczne</span>
         <span class="text-xs text-gray-400 uppercase tracking-wider">limit 183 dni w 12 miesiącach</span>
@@ -313,8 +313,8 @@
     </div>
 
     <teleport to="body">
-      <div v-if="showAssignConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4" @keydown.esc.window="showAssignConfirm = false">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showAssignConfirm = false" />
+      <div v-if="showAssignConfirm" class="fixed inset-0 z-10000 flex items-center justify-center p-4" @keydown.esc.window="showAssignConfirm = false">
+        <div class="fixed inset-0 bg-gray-500/75" @click="showAssignConfirm = false" />
         <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
           <div class="px-6 py-4 border-b border-gray-100">
             <h3 class="text-lg font-semibold text-gray-800">Potwierdź przypisanie do budowy</h3>
@@ -325,7 +325,7 @@
             <p><span class="text-gray-500">Termin:</span> {{ assignForm.start }} → {{ assignForm.end }}</p>
 
             <!-- Ten sam termin na innej budowie: kierownictwo może, reszta nie. -->
-            <div v-if="kolidujacePobyty.length" class="mt-3 p-3 text-red-700 bg-red-50 border border-red-200 rounded space-y-1">
+            <div v-if="kolidujacePobyty.length" class="mt-3 p-3 text-red-700 bg-red-50 border border-red-200 rounded-sm space-y-1">
               <p class="font-semibold">Uwaga — w tym samym czasie pracownik jest już na budowie:</p>
               <p v-for="(pobyt, i) in kolidujacePobyty" :key="i">
                 <span class="font-semibold">{{ pobyt.nazwaBud || 'budowa usunięta z bazy' }}</span>
@@ -341,14 +341,14 @@
             </div>
           </div>
           <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" @click="showAssignConfirm = false">Anuluj</button>
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50" @click="showAssignConfirm = false">Anuluj</button>
             <button type="button" class="btn-indigo disabled:opacity-50 disabled:cursor-not-allowed" :disabled="assignForm.processing || zablokowane" @click="confirmAssign">Potwierdź</button>
           </div>
         </div>
       </div>
     </teleport>
     <trashed-message v-if="contact.deleted_at" class="mb-6" @restore="restore"> Ten pracownik został usunięty</trashed-message>
-    <div class="bg-white rounded-md shadow overflow-hidden">
+    <div class="bg-white rounded-md shadow-sm overflow-hidden">
       <fieldset :disabled="disabled === 0">
         <form @submit.prevent="submitUpdate">
           <div class="flex flex-wrap -mb-8 -mr-6 p-8">
@@ -394,8 +394,8 @@
     </div>
 
     <teleport to="body">
-      <div v-if="showZwolnionyConfirm" class="fixed inset-0 z-[10000] flex items-center justify-center p-4" @keydown.esc.window="showZwolnionyConfirm = false">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showZwolnionyConfirm = false" />
+      <div v-if="showZwolnionyConfirm" class="fixed inset-0 z-10000 flex items-center justify-center p-4" @keydown.esc.window="showZwolnionyConfirm = false">
+        <div class="fixed inset-0 bg-gray-500/75" @click="showZwolnionyConfirm = false" />
         <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
           <div class="px-6 py-4 border-b border-gray-100">
             <h3 class="text-lg font-semibold text-gray-800">Pracownik zwolniony</h3>
@@ -405,8 +405,8 @@
             Czy przenieść go też do <span class="font-medium">archiwum</span>? Zniknie z aktywnej listy pracowników (dane i historia zostają).
           </div>
           <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50" :disabled="form.processing" @click="saveWithoutArchive">Nie, zostaw w aktywnych</button>
-            <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700" :disabled="form.processing" @click="confirmArchive">Tak, do archiwum</button>
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50" :disabled="form.processing" @click="saveWithoutArchive">Nie, zostaw w aktywnych</button>
+            <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-sm hover:bg-red-700" :disabled="form.processing" @click="confirmArchive">Tak, do archiwum</button>
           </div>
         </div>
       </div>

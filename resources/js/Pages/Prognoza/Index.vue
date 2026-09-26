@@ -33,7 +33,7 @@
       <search-filter-no-filtr v-model="tableSearch" class="w-full max-w-md" @reset="tableSearch = ''" />
       <span class="ml-4 text-sm text-gray-500 whitespace-nowrap">{{ displayedRows.length }} z {{ data.length }}</span>
     </div>
-    <div class="bg-white rounded-md shadow overflow-x-auto">
+    <div class="bg-white rounded-md shadow-sm overflow-x-auto">
       <table class="w-full whitespace-nowrap">
         <tr class="naglowek-tabeli">
           <th class="cursor-pointer select-none hover:text-indigo-600" @click="sortBy('date')">Data <span class="text-gray-400">{{ sortArrow('date') }}</span></th>
