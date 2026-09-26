@@ -44,5 +44,8 @@
         "vue-loader": "^16.2.0",
         "vue3-dropzone": "^2.2.1",
         "webpack-node-externals": "^3.0.0"
+    },
+    "overrides": {
+        "webpack": "~5.104.0"
     }
 }
