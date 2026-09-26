@@ -23,10 +23,10 @@
         "@inertiajs/progress": "^0.2.7",
         "@inertiajs/server": "^0.1.0",
         "@popperjs/core": "^2.11.0",
-        "@vue/server-renderer": "^3.2.27",
+        "@vue/server-renderer": "^3.5.0",
         "@vuepic/vue-datepicker": "^3.4.8",
         "autoprefixer": "^10.4.0",
-        "axios": "^0.27.2",
+        "axios": "^1.20.0",
         "chart.js": "^4.4.4",
         "eslint": "^8.4.1",
         "eslint-plugin-vue": "^8.2.0",
@@ -40,12 +40,13 @@
         "prettier-plugin-tailwind": "^2.2.12",
         "tailwindcss": "^2.0.3",
         "uuid": "^8.3.2",
-        "vue": "^3.2.27",
+        "vue": "^3.5.0",
         "vue-loader": "^16.2.0",
         "vue3-dropzone": "^2.2.1",
         "webpack-node-externals": "^3.0.0"
     },
     "overrides": {
-        "webpack": "~5.104.0"
+        "webpack": "~5.104.0",
+        "axios": "$axios"
     }
 }
