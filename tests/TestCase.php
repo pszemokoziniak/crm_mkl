@@ -13,6 +13,9 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // Testy nie budują frontu — @vite w szablonie nie szuka manifestu.
+        $this->withoutVite();
+
         // Macierz trzyma nadpisania z bazy w statycznej pamięci na czas
         // żądania; w jednym procesie testów bez tego przeciekałyby między testami.
         Macierz::zapomnij();

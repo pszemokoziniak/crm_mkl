@@ -1,19 +1,15 @@
 {
     "private": true,
     "scripts": {
-        "dev": "npm run development",
-        "development": "mix",
+        "dev": "vite",
+        "build": "vite build",
+        "prod": "vite build",
+        "production": "vite build",
+        "ssr:build": "vite build --ssr",
+        "ssr:serve": "node bootstrap/ssr/ssr.js",
         "fix:eslint": "eslint --ext .js,.vue resources/js/ --fix",
         "fix:prettier": "prettier --write --loglevel warn 'resources/js/**/*.vue'",
-        "fix-code-style": "npm run fix:prettier && npm run fix:eslint",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
-        "prod": "npm run production",
-        "production": "mix --production",
-        "heroku-postbuild": "npm run prod",
-        "ssr:build": "mix --production --mix-config=webpack.ssr.mix.js",
-        "ssr:serve": "node public/js/ssr.js"
+        "fix-code-style": "npm run fix:prettier && npm run fix:eslint"
     },
     "dependencies": {
         "@headlessui/vue": "^1.6.7",
@@ -27,7 +23,6 @@
         "chart.js": "^4.4.4",
         "eslint": "^8.4.1",
         "eslint-plugin-vue": "^8.2.0",
-        "laravel-mix": "^6.0.41",
         "lodash": "^4.17.21",
         "moment": "^2.29.4",
         "postcss": "^8.4.4",
@@ -38,12 +33,14 @@
         "tailwindcss": "^2.0.3",
         "uuid": "^8.3.2",
         "vue": "^3.5.0",
-        "vue-loader": "^16.2.0",
-        "vue3-dropzone": "^2.2.1",
-        "webpack-node-externals": "^3.0.0"
+        "vue3-dropzone": "^2.2.1"
     },
     "overrides": {
-        "webpack": "~5.104.0",
         "axios": "$axios"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^6.0.9",
+        "laravel-vite-plugin": "^3.2.0",
+        "vite": "^8.3.1"
     }
 }
