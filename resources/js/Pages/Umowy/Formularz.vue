@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import DateInput from '@/Shared/DateInput'
 import Layout from '@/Shared/Layout'
 import SelectInput from '@/Shared/SelectInput'

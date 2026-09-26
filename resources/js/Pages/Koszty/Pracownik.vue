@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import KosztFormularz from '@/Shared/KosztFormularz'
 import Layout from '@/Shared/Layout'
 import ListaKosztow from '@/Shared/ListaKosztow'

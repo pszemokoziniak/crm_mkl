@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import WorkerMenu from '@/Shared/WorkerMenu'
 import Layout from '@/Shared/Layout'

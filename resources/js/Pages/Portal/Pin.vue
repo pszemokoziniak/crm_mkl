@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { Head, useForm } from '@inertiajs/inertia-vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 import Logo from '@/Shared/Logo'
 
 export default {

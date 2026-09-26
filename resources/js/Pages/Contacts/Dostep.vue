@@ -51,8 +51,8 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
-import { Inertia } from '@inertiajs/inertia'
+import { Head, Link } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import Layout from '@/Shared/Layout'
 import PracownikNaglowek from '@/Shared/PracownikNaglowek'
 import WorkerMenu from '@/Shared/WorkerMenu'
@@ -83,12 +83,12 @@ export default {
       const pytania = { '': 'Wydać nowy link? Poprzedni przestanie działać.', '/mail': `Wysłać nowy link mailem na ${this.kontakt.email}? Poprzedni przestanie działać.`, '/sms': `Wysłać nowy link SMS-em na ${this.kontakt.phone}? Poprzedni przestanie działać.` }
       if (this.dostep && !confirm(pytania[sufiks])) return
       this.trwa = true
-      Inertia.post(`/contacts/${this.pracownik.id}/dostep${sufiks}`, {}, { preserveScroll: true, onFinish: () => { this.trwa = false } })
+      router.post(`/contacts/${this.pracownik.id}/dostep${sufiks}`, {}, { preserveScroll: true, onFinish: () => { this.trwa = false } })
     },
     uniewaznij() {
       if (!confirm('Unieważnić dostęp? Link i PIN przestaną działać.')) return
       this.trwa = true
-      Inertia.delete(`/contacts/${this.pracownik.id}/dostep`, { preserveScroll: true, onFinish: () => { this.trwa = false } })
+      router.delete(`/contacts/${this.pracownik.id}/dostep`, { preserveScroll: true, onFinish: () => { this.trwa = false } })
     },
     kopiuj() {
       navigator.clipboard?.writeText(this.nowy_link)

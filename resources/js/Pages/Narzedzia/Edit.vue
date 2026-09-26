@@ -169,7 +169,7 @@
 </template>
 
 <script>
-import {Head, Link} from '@inertiajs/inertia-vue3'
+import {Head, Link} from '@inertiajs/vue3'
 import Layout from '@/Shared/Layout'
 import WyborTypuSprzetu from '@/Shared/WyborTypuSprzetu'
 import TextInput from '@/Shared/TextInput'

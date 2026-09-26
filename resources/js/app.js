@@ -1,9 +1,6 @@
 import { createApp, h } from 'vue'
-import { InertiaProgress } from '@inertiajs/progress'
-import { createInertiaApp } from '@inertiajs/inertia-vue3'
+import { createInertiaApp } from '@inertiajs/vue3'
 import axios from 'axios'
-
-InertiaProgress.init()
 
 axios.defaults.withCredentials = true
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
@@ -21,6 +18,8 @@ axios.interceptors.response.use(
 
 createInertiaApp({
   resolve: name => require(`./Pages/${name}`),
+  // Wbudowany wskaźnik postępu (dawniej osobny @inertiajs/progress) — te same ustawienia.
+  progress: { color: '#29d', delay: 250 },
   title: title => title ? `${title} - MKL CRM` : 'MKL CRM',
   setup({ el, App, props, plugin }) {
     createApp({ render: () => h(App, props) })

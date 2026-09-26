@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import BudMenu from '@/Shared/BudMenu.vue'
 import BudowaNaglowek from '@/Shared/BudowaNaglowek'
 import KosztFormularz from '@/Shared/KosztFormularz'

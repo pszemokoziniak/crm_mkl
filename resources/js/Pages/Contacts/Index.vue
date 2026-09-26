@@ -119,7 +119,7 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import Icon from '@/Shared/Icon'
 import StatusPracownika from '@/Shared/StatusPracownika'
 import pickBy from 'lodash/pickBy'
